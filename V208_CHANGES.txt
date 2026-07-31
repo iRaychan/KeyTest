@@ -1,0 +1,41 @@
+KeySuite V2.08 Changes
+Release date: 2026-07-31
+
+1. CHC PDF material and seal correction
+- Selector CHC PDF now reads the current Material, Mechanical Seal, Elastomer, Connection and Bare Shaft selections.
+- Product > CHC > Curve > PDF now uses the Product-page selections instead of fixed default values.
+- Quotation technical-data exports continue to use the options stored with that quotation item.
+
+2. Product CHC default duty point
+- The default reference duty point remains plotted on Product > CHC curves and in their PDF output.
+- Because it is only a curve reference point, it is no longer inserted into Product-origin Quotation or Assembly descriptions.
+- Duty points from an actual CHC selection remain available in engineering descriptions.
+
+3. Assembly tank description
+- GWS tanks routed to Assembly now use this concise format:
+  c/w 24 litres (10 bar) non-jkkp approved tank @ 1 unit
+- Unit/units changes automatically with the Assembly quantity.
+- Tank text is placed directly below the preceding Assembly description without an empty row.
+- Detailed GWS Quotation descriptions are unchanged.
+
+4. Price List currency panels
+- CHC, ES, GWS and KeyPLC Currency & Multipliers panels can be expanded or collapsed.
+- All four panels start collapsed whenever the page is loaded.
+
+5. KeyPLC Panel integration
+- Added Product > KeyPLC Panel with motor-rating search, 1-to-6 pump selection, Assembly and Quote actions.
+- Added Key > Price List > KeyPLC Panel with Model, Rarity, and independent prices for 1-to-6 pumps.
+- Added USD, RMB and MYR currency selection plus independent KeyPLC USD/RMB multipliers.
+- Added KeyPLC to Key > Category > Edit Category and Company & Pricing family views.
+- KeyPLC products route automatically to Assembly > System > Control Panel.
+- Supplied workbook models from 0.75kW through 110kW are seeded by the V2.08 migration.
+- Workbook source values are seeded as MYR. Blank USD/RMB prices remain available for entry.
+
+6. Version and cache
+- Application identification updated to V2.08.
+- Service-worker cache updated to keysuite-v208.
+
+Database
+- Run V208_SUPABASE_MIGRATION.sql before deploying the V2.08 website files.
+- The migration creates ks_products_keyplc, adds KeyPLC currency settings, saves KeyPLC price rows through an RPC, and adds KeyPLC category support.
+- Existing CHC, ES, GWS, customer, quotation and assembly data are not deleted.
