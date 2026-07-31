@@ -2,7 +2,7 @@
   'use strict';
 
   let secureData={
-    companies:[],users:[],categories:[],products:[],gwsProducts:[],
+    companies:[],users:[],categories:[],products:[],esProducts:[],gwsProducts:[],
     productMultipliers:{CHC:{USD:5.8,RMB:.65,MYR:1},GWS:{USD:5.8,RMB:.65,MYR:1}},
     fuel_price:2,fuel_base_price:2
   };
@@ -233,6 +233,17 @@
   function init(data,userAccess){secureData={...secureData,...(data||{})};access=userAccess||access;const list=customersList(),quoteId=quotationCustomer()?.id||'';companyId=(quoteId&&list.some(x=>x.id===quoteId))?quoteId:(list[0]?.id||'');syncCompanyCategory();fillSelects();bind();renderSummary();renderTable()}
 
 
+
+  function addEs(id,route='quotation'){
+    const product=(secureData.esProducts||[]).find(x=>x.id===id);if(!product)return;
+    const variant=(product.variants||[]).find(v=>Number(v.priceUsd)>0)||(product.variants||[])[0];if(!variant){alert('No ES price is available.');return}
+    const unitPrice=Math.ceil(Number(variant.priceUsd||0)*5.8/10)*10;
+    const item={model:product.model,description:`B.G.Reich End Suction Pump Model: ${product.model}`,qty:1,unitPrice,pricingSource:{product_family:'ES',product_id:product.id,variant:variant.material,source_currency:'USD',source_price:Number(variant.priceUsd||0),multiplier:5.8},assemblyLevel:'PUMPSET_COMPONENT',assemblySection:'pump'};
+    if(route==='assembly'){window.KeySuiteAssembly?.addItem?.(item);return}
+    if(window.KeySuiteApp?.canEditQuotation&&!window.KeySuiteApp.canEditQuotation(true))return;
+    if(!window.KeySuiteApp?.ensureQuotationPricingContext?.('add an ES pump to the quotation'))return;
+    const row=quoteRowForNewItem();row.querySelector('.item-model').value=product.model;row.querySelector('.item-qty').value=1;row.querySelector('.item-price').value=unitPrice.toFixed(2);row.querySelector('.item-description').value=item.description;row.dataset.pricingSource=JSON.stringify(item.pricingSource);calcTotal();refreshItemExportButtons();showPage('quotation');
+  }
   function buildChcAssemblyItem(model,options={}){
     const found=findPrice(model,options);if(!found)return null;
     const shownModel=found.material==='CHC'?found.product.model:found.product.model.replace(/^CHC\b/,found.material);
@@ -242,5 +253,5 @@
     const found=findGwsPrice(model,pressure,options);if(!found)return null;
     return {model:gwsQuoteTitle(found.product),description:gwsDescription(found.product),qty:1,unitPrice:found.calc.finalPrice,pricingSource:sourceSnapshot(found),productFamily:'GWS'};
   }
-  window.KeySuitePricing={init,calculate,calculatePrice,findPrice,findGwsPrice,applyPriceToQuoteRow,refreshQuotePrices,addGwsToQuotation,buildChcAssemblyItem,buildGwsAssemblyItem,selectCustomer,refreshCustomers,hasPricingContext,syncPriceListSettings,render:()=>{renderSummary();renderTable()}};
+  window.KeySuitePricing={init,calculate,calculatePrice,findPrice,findGwsPrice,applyPriceToQuoteRow,refreshQuotePrices,addGwsToQuotation,addEs,buildChcAssemblyItem,buildGwsAssemblyItem,selectCustomer,refreshCustomers,hasPricingContext,syncPriceListSettings,render:()=>{renderSummary();renderTable()}};
 })();

@@ -190,9 +190,6 @@
 
 
     .assembly-home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}.assembly-choice{min-height:190px;text-align:left;padding:24px;border:1px solid #cbd5e1;border-radius:16px;background:linear-gradient(145deg,#fff,#f8fafc);cursor:pointer}.assembly-choice:hover{border-color:#2563eb;box-shadow:0 12px 30px rgba(15,23,42,.09)}.assembly-choice h2{font-size:28px;margin:12px 0 8px}.assembly-choice-icon{font-size:34px}.assembly-workspace{display:grid;grid-template-columns:310px minmax(0,1fr);gap:16px}.assembly-list{display:grid;gap:8px}.assembly-list button{text-align:left;padding:12px;border:1px solid #dbe2ea;border-radius:10px;background:#fff}.assembly-list button.active{border-color:#2563eb;background:#eff6ff}.assembly-item{display:grid;grid-template-columns:1.2fr 90px 130px 130px auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #e2e8f0}.assembly-total{font-size:22px;font-weight:800;text-align:right}.route-actions{display:flex;gap:6px;flex-wrap:wrap}.route-actions .btn{padding:7px 10px;font-size:12px}@media(max-width:900px){.assembly-home-grid,.assembly-workspace{grid-template-columns:1fr}.assembly-item{grid-template-columns:1fr 70px 110px}.assembly-item .assembly-line-total,.assembly-item .assembly-delete{grid-column:auto}}
-
-    .nav-assembly-gap{height:64px}.nav-assembly-button{background:rgba(79,70,229,.18)!important;border:1px solid rgba(129,140,248,.45)!important;color:#eef2ff!important}.nav-assembly-button:hover,.nav-assembly-button.active{background:rgba(79,70,229,.34)!important}
-    .description-label-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}.description-expand{padding:6px 10px!important;font-size:12px!important}.assembly-description-editor{min-height:240px!important;line-height:1.35!important;resize:vertical}.assembly-description-dialog{width:min(96vw,1200px);height:94vh;max-width:none;padding:0;border:0;border-radius:14px}.assembly-description-dialog::backdrop{background:rgba(15,23,42,.72)}.assembly-description-dialog-card{height:100%;padding:18px;display:flex;flex-direction:column;gap:12px}.assembly-description-fullscreen{flex:1;min-height:0;width:100%;font:15px/1.4 Arial,sans-serif;padding:16px;resize:none;border:1px solid #cbd5e1;border-radius:10px}.assembly-description-dialog-card .actions{justify-content:flex-end}
 </style>
 </head>
 <body>
@@ -213,22 +210,21 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.02</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.03</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
-      <div class="nav-group open" data-nav-group="selectorMenu">
+      <div class="nav-group" data-nav-group="selectorMenu">
         <button type="button" class="nav-toggle" data-nav-toggle="selectorMenu"><span>Selector</span><span class="nav-chevron">⌄</span></button>
         <div class="nav-submenu"><button data-page="selector">CHC</button></div>
       </div>
       <div class="nav-group" data-nav-group="productMenu">
         <button type="button" class="nav-toggle" data-nav-toggle="productMenu"><span>Product</span><span class="nav-chevron">⌄</span></button>
-        <div class="nav-submenu"><button data-page="productChc">CHC</button><button data-page="productGws">GWS Tank</button></div>
+        <div class="nav-submenu"><button data-page="productChc">CHC</button><button data-page="productEs">End Suction</button><button data-page="productGws">GWS Tank</button></div>
       </div>
+      <button data-page="assembly">Assembly</button>
       <button data-page="quotation">Quotation</button>
       <button data-page="history">Quote History</button>
-      <div class="nav-assembly-gap" aria-hidden="true"></div>
-      <button data-page="assembly" class="nav-assembly-button">Assembly</button>
     </nav>
     <div class="user-panel">
       <b id="sessionUserName">Signed in</b>
@@ -236,7 +232,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.02 · Assembly Fix Pack</div>
+    <div class="suite-version">KeySuite V2.03 · Assembly / ES update</div>
   </aside>
 
   <main>
@@ -346,7 +342,7 @@
     </section>
 
     <section id="selector" class="page">
-      <div class="page-title-row"><div><h1>Selector · CHC</h1><div class="muted">Send the selected CHC pumpset to Quotation or directly into Assembly → System → Pumpset.</div></div><div class="route-actions"><button class="btn" id="selectorAddQuotation" type="button">Add to Quotation</button><button class="btn secondary" id="selectorAddAssembly" type="button">Add to Assembly</button></div></div>
+      <div class="page-title-row"><div><h1>Selector · CHC</h1><div class="muted">Select a CHC pumpset, then use Assembly or Quote in the result panel.</div></div></div>
       <div class="card selector-toolbar">
         <div><label>Material</label><select id="pumpMaterial"><option value="SS304 (Cast Iron Connection)" selected>SS304 (Cast Iron Connection)</option><option value="SS304">SS304</option><option value="SS316">SS316</option></select></div>
         <div><label>Mechanical Seal</label><select id="sealFaces"><option value="Car/Cer" selected>Carbon v Silicon Carbide (Car/Cer)</option><option value="SiC/SiC">Silicon Carbide v Silicon Carbide (SiC/SiC)</option><option value="TC/TC">Tungsten v Tungsten (TC/TC)</option></select></div>
@@ -388,6 +384,12 @@
       </div>
     </section>
 
+
+    <section id="productEs" class="page">
+      <div class="page-title-row"><div><h1>Product · End Suction</h1><div class="muted">B.G.Reich ES bare-shaft pump products.</div></div></div>
+      <div class="card"><div class="page-title-row"><div><h2 style="margin:0">ES Models</h2><div id="esProductCount" class="muted"></div></div><div class="price-list-search"><label>Search Model</label><input id="esProductSearch" placeholder="Example: ES 65-32"></div></div>
+      <div class="table-wrap" style="max-height:650px"><table><thead><tr><th>Model</th><th>Material</th><th style="text-align:right">Actions</th></tr></thead><tbody id="esProductRows"></tbody></table></div></div>
+    </section>
     <section id="assembly" class="page">
       <div class="page-title-row"><div><h1>Assembly</h1><div class="muted">Build priced equipment packages before sending them to a quotation.</div></div></div>
       <div class="assembly-home-grid">
@@ -406,7 +408,7 @@
             <div><label>Model / Item</label><input id="assemblyModelItem" placeholder=""></div>
             <div><label>Customer</label><select id="assemblyCustomer" disabled title="Customer follows the active quotation selection"></select><div class="muted" style="margin-top:5px">Follows Quotation customer</div></div>
             <div><label>Status</label><select id="assemblyStatus"><option value="draft">Draft</option><option value="ready">Ready</option><option value="quoted">Quoted</option></select></div>
-            <div class="span-3"><div class="description-label-row"><label id="assemblyDescriptionLabel">System Description</label><button class="btn secondary description-expand" id="expandAssemblyDescription" type="button" title="Open full-screen description">⛶ Full Screen</button></div><textarea id="assemblyDescription" class="assembly-description-editor" title="Double-click to open full-screen" placeholder="The quotation description is transferred here when an item is added to Assembly."></textarea><div class="muted" style="margin-top:5px">Double-click the description to open the full-screen editor.</div></div>
+            <div class="span-3"><label id="assemblyDescriptionLabel">System Description</label><textarea id="assemblyDescription" placeholder="The quotation description is transferred here when an item is added to Assembly."></textarea></div>
           </div>
           <div class="actions"><button class="btn" id="saveAssemblyDraft" type="button">Save</button><button class="btn green" id="assemblyToQuotation" type="button">Send Assembly to Quotation</button><button class="btn danger" id="deleteAssemblyDraft" type="button">Delete</button></div>
           <h2 style="margin-top:22px">Components / BOM</h2><div id="assemblyItems"></div>
@@ -623,6 +625,10 @@
           <p>Maintain CHC, CHCS and CHCN source prices and the source-currency multipliers.</p>
           <span class="module-order">OPEN PRICE LIST</span>
         </button>
+
+        <button type="button" class="key-module-card" data-go="esPriceList">
+          <span class="module-icon">ES</span><h2>End Suction</h2><p>Maintain B.G.Reich ES source prices by material construction.</p><span class="module-order">OPEN PRICE LIST</span>
+        </button>
         <button type="button" class="key-module-card" data-go="gwsPriceList">
           <span class="module-icon">GWS</span>
           <h2>GWS Tank</h2>
@@ -657,6 +663,14 @@
       </div>
     </section>
 
+
+    <section id="esPriceList" class="page">
+      <div class="key-back-row"><button class="btn secondary" type="button" data-go="priceListDashboard">← Price List</button></div>
+      <div class="page-title-row"><div><h1>End Suction Price List</h1><div class="muted">ES source prices from the approved 260731 workbook. USD → MYR multiplier: 5.8.</div></div></div>
+      <div id="esPriceListMessage" class="auth-message"></div>
+      <div class="card"><div class="page-title-row"><div><h2 style="margin:0">ES Models</h2><div id="esPriceListCount" class="muted"></div></div><div class="price-list-search"><label>Search Model</label><input id="esPriceSearch" placeholder="Example: ES 100-32"></div></div>
+      <div class="table-wrap" style="max-height:650px"><table class="pricelist-table"><thead><tr><th>Model</th><th>Material</th><th>USD Price</th><th></th></tr></thead><tbody id="esPriceRows"></tbody></table></div></div>
+    </section>
     <section id="gwsPriceList" class="page">
       <div class="key-back-row"><button class="btn secondary" type="button" data-go="priceListDashboard">← Price List</button></div>
       <div class="page-title-row"><div><h1>GWS Tank Price List</h1><div class="muted">Maintain separate USD, RMB and MYR prices only for valid GWS series/model/pressure combinations.</div></div></div>
@@ -867,25 +881,16 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=124"></script>
 <script src="app.js?v=202"></script>
-<script src="es-pricelist-v1.js?v=20202"></script>
 <script src="pricing.js?v=200"></script>
 <script src="categories.js?v=124"></script>
 <script src="pricelist.js?v=124"></script>
 <script src="product.js?v=202"></script>
 <script src="roles.js?v=124"></script>
-<script src="assembly.js?v=202"></script>
-
-<dialog id="assemblyDescriptionDialog" class="ks-dialog assembly-description-dialog">
-  <div class="assembly-description-dialog-card">
-    <div class="page-title-row"><h2 id="assemblyDescriptionDialogTitle">System Description</h2><button class="btn secondary" id="closeAssemblyDescription" type="button">Close</button></div>
-    <textarea id="assemblyDescriptionFullscreen" class="assembly-description-fullscreen" spellcheck="true"></textarea>
-    <div class="actions"><button class="btn" id="applyAssemblyDescription" type="button">Apply Description</button><button class="btn secondary" id="cancelAssemblyDescription" type="button">Cancel</button></div>
-  </div>
-</dialog>
+<script src="assembly.js?v=203"></script>
 
 <dialog id="productCurveDialog" class="ks-dialog product-curve-dialog">
   <div class="dialog-body">
-    <div class="page-title-row" style="margin-bottom:10px"><div><h2 id="productCurveTitle" style="margin:0">CHC Curve</h2></div><button class="btn secondary" type="button" id="closeProductCurve">Close</button></div>
+    <div class="page-title-row" style="margin-bottom:10px"><div><h2 id="productCurveTitle" style="margin:0">CHC Curve</h2></div><div class="actions" style="margin:0"><button class="btn" type="button" id="exportProductCurve">PDF</button><button class="btn secondary" type="button" id="closeProductCurve">Close</button></div></div>
     <div id="productCurveHost"></div>
   </div>
 </dialog>

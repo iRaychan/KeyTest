@@ -28,15 +28,16 @@
     return data?.[0]?.active?data[0]:null;
   }
   async function loadData(){
-    const [companies,users,categories,products,gwsProducts,settings]=await Promise.all([
+    const [companies,users,categories,products,esProducts,gwsProducts,settings]=await Promise.all([
       client.from('ks_companies').select('*').order('company_name'),
       client.from('ks_company_users').select('*').order('full_name'),
       client.from('ks_pricing_categories').select('*').order('category_name'),
       client.from('ks_products_chc').select('*').order('source_row'),
+      client.from('ks_products_es').select('*').order('source_row'),
       client.from('ks_products_gws').select('*').eq('status','active').order('source_row'),
       client.from('ks_app_settings').select('*').eq('id','default').limit(1)
     ]);
-    const failed=[companies,users,categories,products,gwsProducts,settings].find(x=>x.error);if(failed?.error)throw new Error(failed.error.message);
+    const failed=[companies,users,categories,products,esProducts,gwsProducts,settings].find(x=>x.error);if(failed?.error)throw new Error(failed.error.message);
     const setting=settings.data?.[0]||{};
     const chcUsdMultiplier=Number(setting.chc_usd_multiplier??setting.usd_multiplier??5.8);
     const chcRmbMultiplier=Number(setting.chc_rmb_multiplier??setting.rmb_multiplier??.65);
@@ -57,7 +58,7 @@
       rare:Number(raw.rare??fallback.rare??0)
     });
     return {
-      version:'1.24',release_date:'2026-07-30',currency:setting.currency||'MYR',
+      version:'2.03',release_date:'2026-07-30',currency:setting.currency||'MYR',
       usd_multiplier:chcUsdMultiplier,rmb_multiplier:chcRmbMultiplier,myr_multiplier:1,
       productMultipliers:{CHC:{USD:chcUsdMultiplier,RMB:chcRmbMultiplier,MYR:1},GWS:{USD:gwsUsdMultiplier,RMB:gwsRmbMultiplier,MYR:1}},
       fuel_price:Number(setting.fuel_price??2),fuel_base_price:Number(setting.fuel_base_price??2),
@@ -80,6 +81,7 @@
           MYR:{CHC:String(p.chc_rarity_myr||'common').toLowerCase(),CHCS:String(p.chcs_rarity_myr||'common').toLowerCase(),CHCN:String(p.chcn_rarity_myr||'common').toLowerCase()}
         }
       })),
+      esProducts:(esProducts.data||[]).map(p=>({id:p.id,model:p.model,source_row:p.source_row,variants:Array.isArray(p.variants)?p.variants:(typeof p.variants==='object'?p.variants:[])})),
       gwsProducts:(gwsProducts.data||[]).map(p=>({
         id:p.id,model:p.model,source_row:p.source_row,seriesCode:p.series_code||'',seriesName:p.series_name||'',sizeCode:p.size_code||p.model,sizeLitres:Number(p.size_litres||String(p.size_code||p.model).replace(/\D/g,'')||0),pressureBar:Number(p.pressure_bar||0),
         systemConnection:p.system_connection||'',prechargeText:p.precharge_text||'',maxWorkingPressureText:p.max_working_pressure_text||'',maxWorkingTemperatureText:p.max_working_temperature_text||'',

@@ -2,7 +2,7 @@
   'use strict';
 
   let access=null;
-  let secureData={products:[],gwsProducts:[],productMultipliers:{CHC:{USD:5.8,RMB:.65,MYR:1},GWS:{USD:5.8,RMB:.65,MYR:1}}};
+  let secureData={products:[],esProducts:[],gwsProducts:[],productMultipliers:{CHC:{USD:5.8,RMB:.65,MYR:1},GWS:{USD:5.8,RMB:.65,MYR:1}}};
   let bound=false;
   const unlockedMultipliers=new Set();
   const originalMultiplierValues=new Map();
@@ -14,6 +14,7 @@
   const isOwner=()=>permissionLevel()==='full';
   const chcProducts=()=>secureData.products||[];
   const gwsProducts=()=>secureData.gwsProducts||[];
+  const esProducts=()=>secureData.esProducts||[];
   const validCurrency=value=>['USD','RMB','MYR'].includes(String(value||'').toUpperCase())?String(value).toUpperCase():'USD';
   const validRarity=value=>['common','many','rare'].includes(String(value||'').toLowerCase())?String(value).toLowerCase():'common';
   const currentCurrency=prefix=>validCurrency(el(`${prefix}PriceCurrency`)?.value||localStorage.getItem(`ks_${prefix}_price_currency`)||'USD');
@@ -96,6 +97,13 @@
     body.querySelectorAll('[data-save-chc-row]').forEach(button=>button.addEventListener('click',()=>saveChcRow(button.dataset.saveChcRow,button)));
   }
 
+
+  function renderEsRows(){
+    const body=el('esPriceRows');if(!body)return;const q=String(el('esPriceSearch')?.value||'').trim().toLowerCase();const rows=esProducts().filter(x=>!q||x.model.toLowerCase().includes(q));
+    body.innerHTML=rows.flatMap(product=>(product.variants||[]).filter(v=>Number(v.priceUsd)>0).map((v,i)=>`<tr><td><b>${esc(product.model)}</b></td><td>${esc(v.material)}</td><td><div class="currency-price-input"><span>USD</span><input type="number" min="0" step="0.01" value="${Number(v.priceUsd).toFixed(2)}" data-es-price="${esc(product.id)}" data-es-index="${i}"></div></td><td><button class="btn icon-save-button" data-save-es="${esc(product.id)}" data-es-index="${i}" title="Save">✓</button></td></tr>`)).join('')||'<tr><td colspan="4" class="muted">No matching ES models.</td></tr>';
+    el('esPriceListCount').textContent=`Showing ${rows.length} ES models`;
+    body.querySelectorAll('[data-save-es]').forEach(b=>b.onclick=async()=>{if(!isOwner())return;const input=body.querySelector(`[data-es-price="${b.dataset.saveEs}"][data-es-index="${b.dataset.esIndex}"]`);const product=esProducts().find(x=>x.id===b.dataset.saveEs);const variant=product?.variants?.[Number(b.dataset.esIndex)];try{const client=window.KeySuiteAuth?.getClient?.();const {error}=await client.rpc('keysuite_save_es_price_v203',{p_product_id:product.id,p_material:variant.material,p_price_usd:Number(input.value)});if(error)throw error;variant.priceUsd=Number(input.value);message('es','ES price saved.','success')}catch(e){message('es',e.message||String(e),'error')}});
+  }
   function renderGwsRows(){
     const body=el('gwsPriceRows');if(!body)return;
     const search=String(el('gwsPriceSearch')?.value||'').trim().toLowerCase();
@@ -276,13 +284,14 @@
     if(bound)return;bound=true;
     el('chcPriceSearch')?.addEventListener('input',renderChcRows);
     el('gwsPriceSearch')?.addEventListener('input',renderGwsRows);
+    el('esPriceSearch')?.addEventListener('input',renderEsRows);
     bindCurrency('chc',renderChcRows);bindCurrency('gws',renderGwsRows);
     document.querySelectorAll('.pricelist-multiplier-lock').forEach(bindMultiplierGroup);
   }
 
   function applyAuthorityMode(){
     const editable=isOwner();
-    ['chcPriceList','gwsPriceList'].forEach(pageId=>{
+    ['chcPriceList','esPriceList','gwsPriceList'].forEach(pageId=>{
       const page=el(pageId);if(!page)return;
       page.querySelectorAll('.pricelist-table input,.pricelist-table select').forEach(control=>control.disabled=!editable);
       page.querySelectorAll('[data-save-chc-row],[data-save-gws-row]').forEach(button=>button.style.display=editable?'grid':'none');
@@ -293,12 +302,12 @@
 
   function render(){
     if(!canView())return;
-    renderSettings('chc');renderSettings('gws');renderChcRows();renderGwsRows();applyAuthorityMode();
+    renderSettings('chc');renderSettings('gws');renderChcRows();renderEsRows();renderGwsRows();applyAuthorityMode();
     const notice=el('priceListAccessNotice');if(notice)notice.innerHTML=`Signed in as <b>${esc(access?.display_name||access?.email||'user')}</b>. Each product family keeps its own USD/RMB rates. Price rarity is stored per currency and defaults to Common.${isOwner()?'':' View-only access.'}`;
   }
 
   function init(data,userAccess){secureData={...secureData,...(data||{})};access=userAccess||access;bind();render()}
-  function pageShown(id){if(['priceListDashboard','chcPriceList','gwsPriceList'].includes(id))render()}
+  function pageShown(id){if(['priceListDashboard','chcPriceList','esPriceList','gwsPriceList'].includes(id))render()}
 
   window.KeySuitePriceList={init,pageShown,render};
 })();

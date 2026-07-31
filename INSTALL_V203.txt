@@ -1,0 +1,12 @@
+KeySuite V2.03 Installation
+
+SQL execution order for an existing V2.02 database:
+1. Confirm V124_SUPABASE_MIGRATION.sql has already been run.
+2. Confirm V200_SUPABASE_MIGRATION.sql has already been run.
+3. Confirm V201_SUPABASE_MIGRATION.sql has already been run.
+4. Run setup/V203_SUPABASE_MIGRATION.sql in Supabase SQL Editor.
+5. Deploy all V2.03 GitHub package files, preserving your existing setup/config.js.
+6. Clear browser/PWA cache or unregister the old service worker, then reload.
+
+New installation:
+Run the SQL files in version order, ending with V203_SUPABASE_MIGRATION.sql.

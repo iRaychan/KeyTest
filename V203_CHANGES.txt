@@ -1,0 +1,10 @@
+KeySuite V2.03
+
+1. Assembly BOM now shows only the concise model/duty item; full engineering descriptions are hidden from BOM rows.
+2. Dashboard/navigation groups start collapsed.
+3. CHC Product buttons are now Curve / Assembly / Quote. PDF moved into the Curve dialog.
+4. Product curve opens at 50 Hz with a reference flow based on the CHC series (CHC 1 = 1 m3/hr, CHC 10 = 10 m3/hr); head is calculated from the selected model curve and plotted.
+5. CHC Selector top-page action buttons removed. Selector result actions are Assembly / Quote.
+6. End Suction (ES) added to Product and Price List using the approved 260731 ES workbook (56 models, material variants, USD multiplier 5.8).
+7. Assembly customer remains locked to the active quotation customer.
+8. Fixed ambiguous Assembly save conflict target using ks_assemblies_pkey.
