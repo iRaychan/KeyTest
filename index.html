@@ -189,7 +189,7 @@
     @media(max-width:850px){.pricelist-settings{grid-template-columns:1fr!important}}
 
 
-    .assembly-home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}.assembly-choice{min-height:190px;text-align:left;padding:24px;border:1px solid #cbd5e1;border-radius:16px;background:linear-gradient(145deg,#fff,#f8fafc);cursor:pointer}.assembly-choice:hover{border-color:#2563eb;box-shadow:0 12px 30px rgba(15,23,42,.09)}.assembly-choice h2{font-size:28px;margin:12px 0 8px}.assembly-choice-icon{font-size:34px}.assembly-workspace{display:grid;grid-template-columns:310px minmax(0,1fr);gap:16px}.assembly-list{display:grid;gap:8px}.assembly-list button{text-align:left;padding:12px;border:1px solid #dbe2ea;border-radius:10px;background:#fff}.assembly-list button.active{border-color:#2563eb;background:#eff6ff}.assembly-section{border:1px solid #dbe2ea;border-radius:12px;margin:14px 0;overflow:hidden}.assembly-section-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border-bottom:1px solid #e2e8f0}.assembly-section-head h2{margin:0;font-size:18px}.assembly-section-head span{font-size:12px;color:#64748b}.assembly-section-body{padding:0 14px}.assembly-empty{padding:13px 0;margin:0}.assembly-item{display:grid;grid-template-columns:1.2fr 90px 130px 130px auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #e2e8f0}.assembly-item:last-child{border-bottom:0}.assembly-description{min-height:160px}.assembly-total{font-size:22px;font-weight:800;text-align:right;margin-top:16px}.route-actions{display:flex;gap:6px;flex-wrap:wrap}.route-actions .btn{padding:7px 10px;font-size:12px}@media(max-width:900px){.assembly-home-grid,.assembly-workspace{grid-template-columns:1fr}.assembly-item{grid-template-columns:1fr 70px 110px}.assembly-item .assembly-line-total,.assembly-item .assembly-delete{grid-column:auto}}
+    .assembly-home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}.assembly-choice{min-height:190px;text-align:left;padding:24px;border:1px solid #cbd5e1;border-radius:16px;background:linear-gradient(145deg,#fff,#f8fafc);cursor:pointer}.assembly-choice:hover{border-color:#2563eb;box-shadow:0 12px 30px rgba(15,23,42,.09)}.assembly-choice h2{font-size:28px;margin:12px 0 8px}.assembly-choice-icon{font-size:34px}.assembly-workspace{display:grid;grid-template-columns:310px minmax(0,1fr);gap:16px}.assembly-list{display:grid;gap:8px}.assembly-list button{text-align:left;padding:12px;border:1px solid #dbe2ea;border-radius:10px;background:#fff}.assembly-list button.active{border-color:#2563eb;background:#eff6ff}.assembly-item{display:grid;grid-template-columns:1.2fr 90px 130px 130px auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #e2e8f0}.assembly-total{font-size:22px;font-weight:800;text-align:right}.route-actions{display:flex;gap:6px;flex-wrap:wrap}.route-actions .btn{padding:7px 10px;font-size:12px}@media(max-width:900px){.assembly-home-grid,.assembly-workspace{grid-template-columns:1fr}.assembly-item{grid-template-columns:1fr 70px 110px}.assembly-item .assembly-line-total,.assembly-item .assembly-delete{grid-column:auto}}
 </style>
 </head>
 <body>
@@ -342,7 +342,7 @@
     </section>
 
     <section id="selector" class="page">
-      <div class="page-title-row"><div><h1>Selector · CHC</h1><div class="muted">CHC is a complete pumpset and routes automatically to System → Pumpset.</div></div><div class="route-actions"><button class="btn secondary" id="selectorAddAssembly" type="button">Add to Assembly</button></div></div>
+      <div class="page-title-row"><div><h1>Selector · CHC</h1><div class="muted">Send the selected CHC pumpset to Quotation or directly into Assembly → System → Pumpset.</div></div><div class="route-actions"><button class="btn" id="selectorAddQuotation" type="button">Add to Quotation</button><button class="btn secondary" id="selectorAddAssembly" type="button">Add to Assembly</button></div></div>
       <div class="card selector-toolbar">
         <div><label>Material</label><select id="pumpMaterial"><option value="SS304 (Cast Iron Connection)" selected>SS304 (Cast Iron Connection)</option><option value="SS304">SS304</option><option value="SS316">SS316</option></select></div>
         <div><label>Mechanical Seal</label><select id="sealFaces"><option value="Car/Cer" selected>Carbon v Silicon Carbide (Car/Cer)</option><option value="SiC/SiC">Silicon Carbide v Silicon Carbide (SiC/SiC)</option><option value="TC/TC">Tungsten v Tungsten (TC/TC)</option></select></div>
@@ -398,9 +398,14 @@
       <div class="assembly-workspace">
         <div class="card"><h2>Drafts</h2><div id="assemblyDraftList" class="assembly-list"></div></div>
         <div class="card">
-          <div class="form-grid"><div><label>Model / Item</label><input id="assemblyModelItem" placeholder=""></div><div><label>Customer</label><select id="assemblyCustomer"></select></div><div><label>Status</label><select id="assemblyStatus"><option value="draft">Draft</option><option value="ready">Ready</option><option value="quoted">Quoted</option></select></div><div class="span-3"><label id="assemblyDescriptionLabel">System Description</label><textarea id="assemblyDescription" class="assembly-description"></textarea></div></div>
+          <div class="form-grid">
+            <div><label>Model / Item</label><input id="assemblyModelItem" placeholder=""></div>
+            <div><label>Customer</label><select id="assemblyCustomer" disabled title="Customer follows the active quotation selection"></select><div class="muted" style="margin-top:5px">Follows Quotation customer</div></div>
+            <div><label>Status</label><select id="assemblyStatus"><option value="draft">Draft</option><option value="ready">Ready</option><option value="quoted">Quoted</option></select></div>
+            <div class="span-3"><label id="assemblyDescriptionLabel">System Description</label><textarea id="assemblyDescription" placeholder="The quotation description is transferred here when an item is added to Assembly."></textarea></div>
+          </div>
           <div class="actions"><button class="btn" id="saveAssemblyDraft" type="button">Save</button><button class="btn green" id="assemblyToQuotation" type="button">Send Assembly to Quotation</button><button class="btn danger" id="deleteAssemblyDraft" type="button">Delete</button></div>
-          <div id="assemblyItems"></div>
+          <h2 style="margin-top:22px">Components / BOM</h2><div id="assemblyItems"></div>
           <div class="assembly-total">Total: <span id="assemblyTotal">RM 0.00</span></div>
         </div>
       </div>
@@ -857,13 +862,13 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=124"></script>
-<script src="app.js?v=200"></script>
+<script src="app.js?v=202"></script>
 <script src="pricing.js?v=200"></script>
 <script src="categories.js?v=124"></script>
 <script src="pricelist.js?v=124"></script>
-<script src="product.js?v=200"></script>
+<script src="product.js?v=202"></script>
 <script src="roles.js?v=124"></script>
-<script src="assembly.js?v=200"></script>
+<script src="assembly.js?v=202"></script>
 
 <dialog id="productCurveDialog" class="ks-dialog product-curve-dialog">
   <div class="dialog-body">

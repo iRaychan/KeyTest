@@ -583,6 +583,25 @@ function requestSelectionForQuotation(){
 
 function refreshAll(){refreshCustomers();refreshQuotes();renderCustomerAccessNotice();window.KeySuitePricing?.refreshCustomers?.()}
 
+function chcAssemblyQuoteItem(p={}){
+ const material=p.keysuite_material||$('pumpMaterial')?.value||'SS304 (Cast Iron Connection)';
+ const seal=p.keysuite_seal||$('sealFaces')?.value||'Car/Cer';
+ const elastomer=p.keysuite_elastomer||$('sealElastomer')?.value||'Viton';
+ const bare=p.keysuite_bare_shaft!=null?!!p.keysuite_bare_shaft:!!$('bareShaft')?.checked;
+ const rawModel=String(p.model||p.quotation_model||'CHC Pumpset');
+ const quotationModel=material==='SS304'?rawModel.replace(/^CHC\b/i,'CHCS'):material==='SS316'?rawModel.replace(/^CHC\b/i,'CHCN'):rawModel;
+ const rawConnection=String(p.connection||'');
+ const dnMatch=rawConnection.match(/DN\s*\d+/ig)||[];
+ const gMatch=rawConnection.match(/G\s*\d+(?:[½¼¾]|\s*1\/2|\s*1\/4|\s*3\/4)?/ig)||[];
+ const connectionType=p.keysuite_connection_type||$('connectionType')?.value||'round';
+ const suctionDischarge=connectionType==='oval'?`${gMatch[0]||rawConnection.match(/\(([^)]+)\)/)?.[1]||'G'} x ${gMatch[0]||rawConnection.match(/\(([^)]+)\)/)?.[1]||'G'}`:`${dnMatch[0]||rawConnection.split('(')[0].trim()||'DN'} x ${dnMatch[0]||rawConnection.split('(')[0].trim()||'DN'}`;
+ const hp=p.motor_hp!=null?Number(p.motor_hp).toFixed(2).replace(/\.00$/,''):'';
+ const motorLine=`c/w ${hp||'-'}HP 2Pole ${p.motor_efficiency_class||'IE3'} Motor (${p.motor_voltage||415}V / ${p.motor_phase||'3Ph'} / ${Number(p.frequency_hz||50).toFixed(1)}Hz)`;
+ const materialLine=seal==='Car/Cer'&&elastomer==='Viton'?`${material} / Mech Seal`:`${material} / Mech Seal-${seal}/${elastomer}`;
+ const dutyText=p.product_mode?'':quotationDutyText(p);
+ return {model:[quotationModel,dutyText].filter(Boolean).join(' — '),description:[`B.G.Reich Vertical Multistage Pump Model: ${quotationModel||'-'}`,bare?'(Bare shaft pump)':motorLine,`Suction & Discharge: ${suctionDischarge}`,`Material: ${materialLine}`].join('\n')};
+}
+
 window.addEventListener('message',function(event){
  if(!event.data)return;
  if(event.data.type==='KEYSUITE_SELECTION_CHANGED'){
@@ -594,8 +613,9 @@ window.addEventListener('message',function(event){
  const p=event.data.payload||{};
  const route=event.data.route||pendingSelectionRoute||'quotation';pendingSelectionRoute='quotation';
  if(route==='assembly'){
-   const item=window.KeySuitePricing?.buildChcAssemblyItem?.(p.quotation_model||p.model,p)||{model:p.quotation_model||p.model||'CHC Pumpset',description:'Selected CHC complete pumpset',qty:1,unitPrice:0,pumpData:p};
-   item.pumpData=p;item.assemblyLevel='COMPLETE_PUMPSET';item.assemblySection='pumpset';window.KeySuiteAssembly?.addItem?.(item);return;
+   const quoteItem=chcAssemblyQuoteItem(p);
+   const item=window.KeySuitePricing?.buildChcAssemblyItem?.(p.quotation_model||p.model,p)||{model:quoteItem.model||p.quotation_model||p.model||'CHC Pumpset',qty:1,unitPrice:0,pumpData:p};
+   item.model=quoteItem.model||item.model;item.description=quoteItem.description;item.pumpData=p;item.assemblyLevel='COMPLETE_PUMPSET';item.assemblySection='pumpset';window.KeySuiteAssembly?.addItem?.(item);return;
  }
  if(!canEditQuotation(true))return;
  if(!ensureQuotationPricingContext('add a pump to the quotation'))return;
@@ -846,6 +866,7 @@ $('qContact').addEventListener('change',()=>{
  updateQuotationContactInfo();if(viewedCustomerId)showCustomerDetail(viewedCustomerId)
 });
 $('companyPhone').addEventListener('blur',()=>$('companyPhone').value=formatMYPhone($('companyPhone').value));
+$('selectorAddQuotation')?.addEventListener('click',()=>requestSelectionForRoute('quotation'));
 $('selectorAddAssembly')?.addEventListener('click',()=>requestSelectionForRoute('assembly'));
 $('addQuoteItem').onclick=()=>{if(!canEditQuotation(true))return;quoteItemRow({});updateQuotationStateUi()};
 $('expandAllItems')?.addEventListener('click',()=>setAllItemsCollapsed(false));
@@ -872,7 +893,7 @@ window.KeySuiteCustomerStore={load:loadSecureCustomers,getMode:()=>customerSyncM
 window.KeySuiteApp={
  getSelectedCustomer(){return customers().find(x=>x.id===$('qCustomer')?.value)||null},
  getPricingCustomer(){return selectedQuotationCustomer()},
- getPricingCustomerId(){return quotationPricingCustomerId||selectedQuotationCustomer()?.id||''},
+ getPricingCustomerId(){return $('qCustomer')?.value||quotationPricingCustomerId||selectedQuotationCustomer()?.id||''},
  getCustomerById(id){return customers().find(x=>x.id===id)||null},
  getCustomers(){return customers().slice()},
  async updateCustomerPricingCategory(id,categoryId){const saved=await updateCustomerPricingCategory(id,categoryId);refreshAll();return saved},

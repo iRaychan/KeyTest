@@ -1,3 +1,18 @@
+# KeySuite V2.02
+
+KeySuite V2.02
+
+- Assembly customer is read-only and follows the active Quotation customer selection.
+- Selector header now has Add to Quotation and Add to Assembly side by side.
+- Selector/Product quotation description is transferred into System Description when routed to Assembly.
+- Pumpset Pump section shows pump model with editable Qty, Unit Price and calculated Total Price.
+- Product CHC curve is fixed to 50 Hz.
+- CHC Add to Assembly routes to Assembly > System > Pumpset.
+
+
+## Database
+No Supabase schema change is required for V2.02. Continue using migrations through V2.01.
+
 # KeySuite V1.24
 
 ## Required Supabase update
@@ -118,6 +133,3 @@ Customer pricing is selected inside the quotation. The Customers page no longer 
 - Removed the Search Model toolbar and the full calculated-price table from Company & Pricing.
 - No Supabase SQL migration is required.
 - V1.08 PDF output remains frozen and unchanged.
-
-## V2.01 Upgrade
-Run `V201_SUPABASE_MIGRATION.sql` after the V2.00 migration. V2.01 adds structured Assembly sections and smart routing.

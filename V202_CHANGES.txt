@@ -1,0 +1,8 @@
+KeySuite V2.02
+
+- Assembly customer is read-only and follows the active Quotation customer selection.
+- Selector header now has Add to Quotation and Add to Assembly side by side.
+- Selector/Product quotation description is transferred into System Description when routed to Assembly.
+- Pumpset Pump section shows pump model with editable Qty, Unit Price and calculated Total Price.
+- Product CHC curve is fixed to 50 Hz.
+- CHC Add to Assembly routes to Assembly > System > Pumpset.
