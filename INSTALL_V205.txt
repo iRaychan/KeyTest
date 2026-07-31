@@ -1,0 +1,16 @@
+KeySuite V2.05 Installation
+
+Existing V2.04 database:
+1. Open Supabase > SQL Editor > New query.
+2. Paste and run the complete setup/V205_SUPABASE_MIGRATION.sql file.
+3. Confirm the result shows success before deploying the website.
+4. Deploy all files from KeySuite_V2.05_GitHub.zip.
+5. Preserve the existing working config.js / setup/config.js values.
+6. Hard refresh with Ctrl + Shift + R. If the old interface remains, unregister the old KeySuite service worker and reload.
+
+Verification:
+- ES Price List shows Currency Selection, Rarity and six material price inputs for every model.
+- Save one ES row and reload to confirm it persists.
+- Edit Category shows CHC, ES and GWS.
+- Product > CHC Curve, Assembly and Quote respond after a quotation customer is selected.
+- Quotation No. appears at the page's top-right on one row.

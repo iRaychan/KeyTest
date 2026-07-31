@@ -3,7 +3,7 @@
 
   let secureData={
     companies:[],users:[],categories:[],products:[],esProducts:[],gwsProducts:[],
-    productMultipliers:{CHC:{USD:5.8,RMB:.65,MYR:1},GWS:{USD:5.8,RMB:.65,MYR:1}},
+    productMultipliers:{CHC:{USD:5.8,RMB:.65,MYR:1},ES:{USD:5.8,RMB:.65,MYR:1},GWS:{USD:5.8,RMB:.65,MYR:1}},
     fuel_price:2,fuel_base_price:2
   };
   let access=null;
@@ -234,15 +234,35 @@
 
 
 
+  function esPriceBook(product){
+    const book={USD:{},RMB:{},MYR:{}};
+    (product?.variants||[]).forEach(variant=>{
+      const material=String(variant.material||'').trim();if(!material)return;
+      book.USD[material]=variant.priceUsd===null||variant.priceUsd===''?null:Number(variant.priceUsd);
+      book.RMB[material]=variant.priceRmb===null||variant.priceRmb===''?null:Number(variant.priceRmb);
+      book.MYR[material]=variant.priceMyr===null||variant.priceMyr===''?null:Number(variant.priceMyr);
+    });
+    return book;
+  }
+
+  function findEsPrice(id,material=null,options={}){
+    const product=(secureData.esProducts||[]).find(x=>x.id===id);if(!product)return null;
+    const cat=options.category||categoryForCustomer(options.customer||selectedCustomer());if(!cat)return null;
+    const variants=product.variants||[];
+    const variant=material?variants.find(v=>String(v.material)===String(material)):variants.find(v=>['priceUsd','priceRmb','priceMyr'].some(key=>Number(v[key])>0));
+    if(!variant)return null;
+    const calc=calculatePrice(esPriceBook(product),variant.material,cat,'ES',{...options,rarity:product.rarity||'common'});
+    return calc?{product,variant,calc}:null;
+  }
+
   function addEs(id,route='quotation'){
-    const product=(secureData.esProducts||[]).find(x=>x.id===id);if(!product)return;
-    const variant=(product.variants||[]).find(v=>Number(v.priceUsd)>0)||(product.variants||[])[0];if(!variant){alert('No ES price is available.');return}
-    const unitPrice=Math.ceil(Number(variant.priceUsd||0)*5.8/10)*10;
-    const item={model:product.model,description:`B.G.Reich End Suction Pump Model: ${product.model}`,qty:1,unitPrice,pricingSource:{product_family:'ES',product_id:product.id,variant:variant.material,source_currency:'USD',source_price:Number(variant.priceUsd||0),multiplier:5.8},assemblyLevel:'PUMPSET_COMPONENT',assemblySection:'pump'};
+    if(!window.KeySuiteApp?.ensureQuotationPricingContext?.(`add an ES pump to the ${route==='assembly'?'Assembly':'quotation'}`))return;
+    const found=findEsPrice(id);if(!found){alert('No ES source price or ES Category Pricing Rule is available.');return}
+    const {product,variant,calc}=found;
+    const item={model:product.model,description:`B.G.Reich End Suction Pump Model: ${product.model}`,qty:1,unitPrice:calc.finalPrice,pricingSource:{product_family:'ES',product_id:product.id,variant:variant.material,source_currency:calc.sourceCurrency,source_price:calc.sourcePrice,multiplier:calc.multiplier,rarity:product.rarity||'common'},assemblyLevel:'PUMPSET_COMPONENT',assemblySection:'pump'};
     if(route==='assembly'){window.KeySuiteAssembly?.addItem?.(item);return}
     if(window.KeySuiteApp?.canEditQuotation&&!window.KeySuiteApp.canEditQuotation(true))return;
-    if(!window.KeySuiteApp?.ensureQuotationPricingContext?.('add an ES pump to the quotation'))return;
-    const row=quoteRowForNewItem();row.querySelector('.item-model').value=product.model;row.querySelector('.item-qty').value=1;row.querySelector('.item-price').value=unitPrice.toFixed(2);row.querySelector('.item-description').value=item.description;row.dataset.pricingSource=JSON.stringify(item.pricingSource);calcTotal();refreshItemExportButtons();showPage('quotation');
+    const row=quoteRowForNewItem();row.querySelector('.item-model').value=product.model;row.querySelector('.item-qty').value=1;row.querySelector('.item-price').value=calc.finalPrice.toFixed(2);row.querySelector('.item-description').value=item.description;row.dataset.pricingSource=JSON.stringify(item.pricingSource);calcTotal();refreshItemExportButtons();showPage('quotation');
   }
   function buildChcAssemblyItem(model,options={}){
     const found=findPrice(model,options);if(!found)return null;
@@ -253,5 +273,5 @@
     const found=findGwsPrice(model,pressure,options);if(!found)return null;
     return {model:gwsQuoteTitle(found.product),description:gwsDescription(found.product),qty:1,unitPrice:found.calc.finalPrice,pricingSource:sourceSnapshot(found),productFamily:'GWS'};
   }
-  window.KeySuitePricing={init,calculate,calculatePrice,findPrice,findGwsPrice,applyPriceToQuoteRow,refreshQuotePrices,addGwsToQuotation,addEs,buildChcAssemblyItem,buildGwsAssemblyItem,selectCustomer,refreshCustomers,hasPricingContext,syncPriceListSettings,render:()=>{renderSummary();renderTable()}};
+  window.KeySuitePricing={init,calculate,calculatePrice,findPrice,findGwsPrice,applyPriceToQuoteRow,refreshQuotePrices,addGwsToQuotation,addEs,findEsPrice,buildChcAssemblyItem,buildGwsAssemblyItem,selectCustomer,refreshCustomers,hasPricingContext,syncPriceListSettings,render:()=>{renderSummary();renderTable()}};
 })();

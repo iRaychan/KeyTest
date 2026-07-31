@@ -13,7 +13,7 @@
 
   function ensureFrame(){const frame=$('productSelectorFrame');if(frame&&frame.src==='about:blank')frame.src=frame.dataset.src;return frame}
   function options(){return {material:$('productMaterial')?.value||'SS304 (Cast Iron Connection)',seal:$('productSeal')?.value||'Car/Cer',elastomer:$('productElastomer')?.value||'Viton',connection:$('productConnection')?.value||'round',bare:!!$('productBareShaft')?.checked,hz:50}}
-  function send(model,action){const frame=ensureFrame();if(!frame)return;queued={type:'KEYSUITE_PRODUCT_ACTION',model,action,options:options()};const dispatch=()=>{try{frame.contentWindow.postMessage(queued,'*')}catch(_){}};dispatch();setTimeout(dispatch,350);setTimeout(dispatch,1000)}
+  function send(model,action){const frame=ensureFrame();if(!frame)return;queued={type:'KEYSUITE_PRODUCT_MODEL',model,action,options:options()};const dispatch=()=>{try{frame.contentWindow.postMessage(queued,'*')}catch(_){}};dispatch();setTimeout(dispatch,350);setTimeout(dispatch,1000)}
 
   function renderSeries(){
     const series=orderedSeries();if(!selectedSeries||!series.includes(selectedSeries))selectedSeries=series[0]||'';
@@ -58,7 +58,7 @@
   function renderEs(){
     const body=$('esProductRows');if(!body)return;const q=String($('esProductSearch')?.value||'').trim().toLowerCase();
     const rows=esProducts().filter(x=>!q||x.model.toLowerCase().includes(q));
-    body.innerHTML=rows.map(x=>{const v=(x.variants||[]).find(v=>Number(v.priceUsd)>0)||x.variants?.[0]||{};return `<tr><td><b>${esc(x.model)}</b></td><td>${esc(v.material||'Standard')}</td><td style="text-align:right"><div class="route-actions"><button class="btn secondary" data-es-assembly="${esc(x.id)}">Assembly</button><button class="btn" data-es-quote="${esc(x.id)}">Quote</button></div></td></tr>`}).join('')||'<tr><td colspan="3" class="muted">No matching ES models.</td></tr>';
+    body.innerHTML=rows.map(x=>{const v=(x.variants||[]).find(v=>['priceUsd','priceRmb','priceMyr'].some(key=>Number(v[key])>0))||x.variants?.[0]||{};return `<tr><td><b>${esc(x.model)}</b></td><td>${esc(v.material||'Standard')}</td><td style="text-align:right"><div class="route-actions"><button class="btn secondary" data-es-assembly="${esc(x.id)}">Assembly</button><button class="btn" data-es-quote="${esc(x.id)}">Quote</button></div></td></tr>`}).join('')||'<tr><td colspan="3" class="muted">No matching ES models.</td></tr>';
     $('esProductCount').textContent=`${rows.length} model${rows.length===1?'':'s'}`;
     body.querySelectorAll('[data-es-assembly]').forEach(b=>b.onclick=()=>window.KeySuitePricing?.addEs?.(b.dataset.esAssembly,'assembly'));
     body.querySelectorAll('[data-es-quote]').forEach(b=>b.onclick=()=>window.KeySuitePricing?.addEs?.(b.dataset.esQuote,'quotation'));

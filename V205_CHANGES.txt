@@ -1,0 +1,22 @@
+KeySuite V2.05
+
+1. ES Price List
+- Every ES model now has editable inputs for all six approved material constructions, including models whose source workbook cells were blank.
+- Added one model-level Rarity selector beside Model; the rarity applies to every material for that model.
+- Removed CI / BR / SS / MS and CI / BR / SS / GP from the displayed ES material matrix.
+- Added independent USD, RMB and MYR price lists plus ES USD/RMB multipliers.
+- Repaired ES saving with a new single-row Supabase RPC.
+
+2. Product · CHC
+- Fixed Curve, Assembly and Quote dispatch by matching the product iframe bridge message contract.
+- Actions continue to use the active quotation customer and pricing category.
+
+3. Quotation
+- Quotation No. label and input are now on the same row at the top-right of the page.
+
+4. Category
+- Added ES beside CHC and GWS in Edit Category.
+- Supabase category rules now accept and store ES pricing rules.
+
+Database
+- Run V205_SUPABASE_MIGRATION.sql before deploying the V2.05 application files.

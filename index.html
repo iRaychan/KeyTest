@@ -199,6 +199,10 @@
     .quotation-title-line{display:flex;align-items:end;gap:22px;flex:1}.quotation-title-line h1{margin:0}.quotation-title-line .quote-number-field{min-width:260px}.quote-head{align-items:end}.quote-top-controls{margin-left:auto}.es-matrix-table{min-width:1450px}.es-matrix-table input{min-width:105px}
     .product-model-actions [data-product-assembly],.route-actions [data-es-assembly],.route-actions [data-gws-assembly]{background:#f59e0b!important;border-color:#d97706!important;color:#fff!important}
     .product-model-actions [data-product-add],.route-actions [data-es-quote],.route-actions [data-gws-quote]{background:#16a34a!important;border-color:#15803d!important;color:#fff!important}
+
+    /* V2.05 quotation and ES Price List */
+    .quote-head{display:flex;align-items:center;justify-content:space-between;gap:18px}.quote-head>h1{margin:0}.quote-head-right{margin-left:auto;display:flex;align-items:center;justify-content:flex-end;gap:12px}.quote-number-field{display:grid!important;grid-template-columns:auto minmax(260px,380px);align-items:center;gap:10px;min-width:0!important}.quote-number-field label{margin:0;white-space:nowrap}.quote-number-field input{width:100%}.es-matrix-table{min-width:1180px}.es-matrix-table select[data-es-rarity]{min-width:96px}
+    @media(max-width:700px){.quote-head{align-items:stretch;flex-direction:column}.quote-head-right{margin-left:0;display:block}.quote-number-field{grid-template-columns:1fr}.quote-number-field label{margin-bottom:5px}}
   </style>
 </head>
 <body>
@@ -219,7 +223,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.04</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.05</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -242,7 +246,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.04 · Workflow update</div>
+    <div class="suite-version">KeySuite V2.05 · ES pricing update</div>
   </aside>
 
   <main>
@@ -427,8 +431,9 @@
 
     <section id="quotation" class="page">
       <div class="quote-head">
-        <div class="quotation-title-line"><h1>Quotation</h1><div class="quote-number-field"><label>Quotation No.</label><input id="quoteNo"></div></div>
-        <div class="quote-top-controls">
+        <h1>Quotation</h1>
+        <div class="quote-head-right">
+          <div class="quote-number-field"><label for="quoteNo">Quotation No.</label><input id="quoteNo"></div>
           <button class="btn action-pdf no-print export-center-hidden" type="button" id="topPrintQuote">PDF</button>
           <input id="preparedBy" type="hidden">
           <input id="preparedByDesignation" type="hidden">
@@ -561,6 +566,7 @@
               <div class="category-product-rule-layout">
                 <div class="category-product-buttons" aria-label="Product pricing rules">
                   <button class="category-product-button active" type="button" data-category-product="CHC">CHC</button>
+                  <button class="category-product-button" type="button" data-category-product="ES">ES</button>
                   <button class="category-product-button" type="button" data-category-product="GWS">GWS</button>
                 </div>
                 <div class="category-rule-editor">
@@ -673,10 +679,18 @@
 
     <section id="esPriceList" class="page">
       <div class="key-back-row"><button class="btn secondary" type="button" data-go="priceListDashboard">← Price List</button></div>
-      <div class="page-title-row"><div><h1>End Suction Price List</h1><div class="muted">ES source prices from the approved 260731 workbook. USD → MYR multiplier: 5.8.</div></div></div>
+      <div class="page-title-row"><div><h1>End Suction Price List</h1><div class="muted">Maintain independent USD, RMB and MYR ES source prices. Rarity is set once per model and applies to every material.</div></div></div>
       <div id="esPriceListMessage" class="auth-message"></div>
+      <div class="card">
+        <div class="pricelist-settings">
+          <div class="pricelist-currency-setting"><label>Currency Selection</label><select id="esPriceCurrency"><option value="USD">USD</option><option value="RMB">RMB</option><option value="MYR">MYR</option></select><div class="multiplier-hold-feedback">&nbsp;</div></div>
+          <div class="pricelist-multiplier-lock locked" id="esMultiplierLock_USD" data-multiplier-prefix="es" data-multiplier-currency="USD"><label>USD → MYR</label><input id="esUsdMultiplier" class="multiplier-hold-input" type="number" min="0.0001" step="0.0001" placeholder="5.8000" readonly aria-describedby="esUsdMultiplierHint"><div class="multiplier-hold-feedback" id="esUsdMultiplierHint">Hold input 3s to edit</div><div class="multiplier-actions"><button class="btn" type="button" data-multiplier-save>Save</button><button class="btn secondary" type="button" data-multiplier-cancel>Cancel</button></div></div>
+          <div class="pricelist-multiplier-lock locked" id="esMultiplierLock_RMB" data-multiplier-prefix="es" data-multiplier-currency="RMB"><label>RMB → MYR</label><input id="esRmbMultiplier" class="multiplier-hold-input" type="number" min="0.0001" step="0.0001" placeholder="0.6500" readonly aria-describedby="esRmbMultiplierHint"><div class="multiplier-hold-feedback" id="esRmbMultiplierHint">Hold input 3s to edit</div><div class="multiplier-actions"><button class="btn" type="button" data-multiplier-save>Save</button><button class="btn secondary" type="button" data-multiplier-cancel>Cancel</button></div></div>
+        </div>
+        <div class="pricelist-note" style="margin-top:12px">Every ES model can be filled for every displayed material. Blank values remain available for later entry.</div>
+      </div>
       <div class="card"><div class="page-title-row"><div><h2 style="margin:0">ES Models</h2><div id="esPriceListCount" class="muted"></div></div><div class="price-list-search"><label>Search Model</label><input id="esPriceSearch" placeholder="Example: ES 100-32"></div></div>
-      <div class="table-wrap" style="max-height:650px"><table class="pricelist-table es-matrix-table"><thead><tr><th>Model</th><th>CI SS SS MS</th><th>CI BR SS MS</th><th>CI CI SS MS</th><th>CI BR SS GP</th><th>CI SS SS GP</th><th>CI CI SS GP</th><th>SS 304</th><th>SS 316</th><th></th></tr></thead><tbody id="esPriceRows"></tbody></table></div></div>
+      <div class="table-wrap" style="max-height:650px"><table class="pricelist-table es-matrix-table"><thead><tr><th>Model</th><th>Rarity</th><th>CI SS SS MS</th><th>CI CI SS MS</th><th>CI SS SS GP</th><th>CI CI SS GP</th><th>SS 304</th><th>SS 316</th><th></th></tr></thead><tbody id="esPriceRows"></tbody></table></div></div>
     </section>
     <section id="gwsPriceList" class="page">
       <div class="key-back-row"><button class="btn secondary" type="button" data-go="priceListDashboard">← Price List</button></div>
@@ -888,11 +902,11 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=124"></script>
-<script src="app.js?v=202"></script>
-<script src="pricing.js?v=200"></script>
-<script src="categories.js?v=124"></script>
-<script src="pricelist.js?v=124"></script>
-<script src="product.js?v=202"></script>
+<script src="app.js?v=205"></script>
+<script src="pricing.js?v=205"></script>
+<script src="categories.js?v=205"></script>
+<script src="pricelist.js?v=205"></script>
+<script src="product.js?v=205"></script>
 <script src="roles.js?v=124"></script>
 <script src="assembly.js?v=203"></script>
 
@@ -904,6 +918,6 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="auth.js?v=124"></script>
+<script src="auth.js?v=205"></script>
 </body>
 </html>
