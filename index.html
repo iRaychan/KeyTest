@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V2.09</title>
+  <title>KeySuite V2.10</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -219,7 +219,7 @@
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.09 secure quotation, assembly and product system</small></div>
+    <div class="auth-brand">KeySuite<small>V2.10 secure quotation, assembly and product system</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -234,7 +234,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.09</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.10</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -257,7 +257,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.09 · KeyPLC indoor/sheltered panels and assembly description sync</div>
+    <div class="suite-version">KeySuite V2.10 · KeyPLC assembly formatting and automatic assembly saving</div>
   </aside>
 
   <main>
@@ -430,13 +430,13 @@
     </section>
 
     <section id="assemblyBuilder" class="page">
-      <div class="page-title-row"><div><h1 id="assemblyBuilderTitle">System</h1><div class="muted">Component prices remain in this assembly until it is sent to Quotation.</div></div><div class="actions"><button class="btn secondary" data-go="assembly">← Assembly</button><button class="btn" id="newAssemblyDraft" type="button">+ New</button></div></div>
+      <div class="page-title-row"><div><h1 id="assemblyBuilderTitle">System</h1><div class="muted">Component prices remain in this assembly until it is sent to Quotation. Changes save automatically.</div></div><div class="actions"><button class="btn secondary" data-go="assembly">← Assembly</button><button class="btn" id="newAssemblyDraft" type="button">+ New</button></div></div>
       <div id="assemblyNotice" class="notice">Loading assembly drafts…</div>
       <div class="assembly-workspace">
         <div class="card"><h2>Drafts</h2><div><label>Customer</label><select id="assemblyCustomer" disabled title="Customer follows the active quotation selection"></select><div class="muted" style="margin:5px 0 14px">Follows Quotation customer</div></div><div id="assemblyDraftList" class="assembly-list"></div></div>
         <div class="card">
           <input id="assemblyModelItem" type="hidden"><input id="assemblyStatus" type="hidden" value="draft">
-          <div class="actions assembly-top-actions"><button class="btn" id="saveAssemblyDraft" type="button">Save</button><button class="btn action-quote" id="assemblyToQuotation" type="button">Quote</button><button class="btn danger" id="deleteAssemblyDraft" type="button">Delete</button></div>
+          <div class="actions assembly-top-actions"><button class="btn action-quote" id="assemblyToQuotation" type="button">Quote</button><button class="btn danger" id="deleteAssemblyDraft" type="button">Delete</button></div>
           <div class="form-grid">
             <div class="span-3"><label id="assemblyDescriptionLabel">System Description</label><textarea id="assemblyDescription" class="assembly-description-large" title="Double-click to open the large editor" placeholder="The quotation description is transferred here when an item is added to Assembly."></textarea></div>
           </div>

@@ -1,0 +1,22 @@
+KeySuite V2.10 Changes
+======================
+
+1. KeyPLC Assembly description
+- Applies only when a KeyPLC panel is added to Assembly.
+- Description starts with:
+  c/w KeyPLC Control Panel (Indoor Type)
+- Following lines align under "KeyPLC" rather than under "c/w".
+- No blank row is inserted above the KeyPLC description.
+- Product-to-Quotation KeyPLC descriptions remain unchanged.
+- Indoor / Sheltered switching continues to update the Assembly description and price.
+
+2. Assembly automatic saving
+- Removed the Assembly Save button.
+- Quantity, unit price, panel type, item deletion and description edits save automatically.
+- The full-screen description editor also triggers automatic saving when Apply is pressed.
+- New items routed into Assembly are saved automatically.
+- Changes are kept in local browser storage if the Supabase auto-save call fails.
+
+3. Database
+- No Supabase schema, function, table or policy changes are required for V2.10.
+- No V2.10 migration file is issued.

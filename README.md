@@ -1,18 +1,14 @@
-# KeySuite V2.08
+# KeySuite V2.10
 
-KeySuite V2.08 corrects CHC PDF material/seal output, keeps Product default duty points out of Quotation and Assembly descriptions, improves Assembly-only tank wording, makes all Price List currency panels collapsible, and integrates the supplied KeyPLC control-panel price list.
+KeySuite V2.10 refines KeyPLC descriptions inside Assembly and replaces the manual Assembly Save button with automatic saving.
 
-## Database
+## Highlights
 
-Run `V208_SUPABASE_MIGRATION.sql` after the existing V2.05 database migration and before deploying the V2.08 website files. Preserve the deployment's working `config.js`.
+- Assembly-only KeyPLC descriptions begin with `c/w KeyPLC Control Panel`.
+- Continuation lines align under the panel name.
+- No blank row appears above a KeyPLC panel description.
+- Assembly edits save automatically to Supabase, with local browser storage retained as a fallback.
+- Product-to-Quotation KeyPLC wording remains unchanged.
+- No Supabase migration is required for this release.
 
-## Main changes
-
-- CHC Selector and Product PDF output uses the selected material, seal faces and elastomer.
-- Product reference duty points remain on curves/PDFs but are excluded from descriptions.
-- Assembly tank descriptions are concise, quantity-aware and placed without a blank row.
-- CHC, ES, GWS and KeyPLC currency panels start collapsed.
-- KeyPLC is available in Product, Price List, Assembly routing, Quotation, Category and Company Pricing.
-- The KeyPLC workbook values are seeded as MYR for 0.75kW through 110kW models.
-
-See `V208_CHANGES.txt` and `INSTALL_V208.txt` for details.
+Preserve the deployment's working `config.js`, deploy the V2.10 changed-files patch, and hard-refresh the application.

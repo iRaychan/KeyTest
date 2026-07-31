@@ -1,0 +1,22 @@
+KeySuite V2.10 Installation
+===========================
+
+Database
+--------
+No Supabase migration is required. Keep the database at V2.08 or later.
+
+Recommended patch deployment
+----------------------------
+1. Extract KeySuite_V2.10_Changed_Files_Patch.zip.
+2. Upload the included files over the current V2.09 deployment, preserving their folders.
+3. Do not replace the deployment's working config.js.
+4. Hard-refresh the browser with Ctrl + Shift + R.
+5. If the old version remains visible, close all KeySuite tabs and reopen the site so the V2.10 service worker activates.
+
+Verification
+------------
+1. Product > KeyPLC: add an Indoor panel to Assembly.
+2. Confirm the Assembly System Description has no blank row above the panel and begins with "c/w KeyPLC Control Panel".
+3. Change Panel Type to Sheltered and confirm description and price update automatically.
+4. Change BOM quantity or unit price and wait for "Saved automatically."
+5. Refresh the page and confirm the changes remain.
