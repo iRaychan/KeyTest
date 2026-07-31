@@ -1,12 +1,12 @@
-# KeySuite V2.05
+# KeySuite V2.06
 
-KeySuite V2.05 completes the End Suction Price List workflow, repairs ES saving, adds ES currency and category rules, fixes CHC Product actions, and aligns the Quotation No. field at the page top-right.
+KeySuite V2.06 freezes the ES Price List headings and Model column, adds a synchronized top horizontal scrollbar, plots CHC product reference duty points, prevents triple Product routing, and allows quotations with pending prices to be saved as drafts while requiring prices before sealing.
 
-## Required Supabase update
+## Database
 
-Run `setup/V205_SUPABASE_MIGRATION.sql` before deploying the V2.05 application files. Preserve the existing working `config.js`.
+No new Supabase migration is required for V2.06. A database upgraded through V2.05 is sufficient. Preserve the existing working `config.js`.
 
-See `V205_CHANGES.txt` and `INSTALL_V205.txt` for details.
+See `V206_CHANGES.txt` and `INSTALL_V206.txt` for details.
 
 ---
 

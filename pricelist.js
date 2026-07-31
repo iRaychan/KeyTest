@@ -101,6 +101,14 @@
   }
 
 
+  function syncEsScrollWidth(){
+    const top=el('esPriceTopScroll'),inner=el('esPriceTopScrollInner'),wrap=el('esPriceTableWrap'),table=wrap?.querySelector('.es-matrix-table');
+    if(!top||!inner||!wrap||!table)return;
+    inner.style.width=`${Math.max(table.scrollWidth,wrap.clientWidth)}px`;
+    if(Math.abs(top.scrollLeft-wrap.scrollLeft)>1)top.scrollLeft=wrap.scrollLeft;
+  }
+
+
   function renderEsRows(){
     const body=el('esPriceRows');if(!body)return;
     const q=String(el('esPriceSearch')?.value||'').trim().toLowerCase();
@@ -117,6 +125,7 @@
     }).join('')||'<tr><td colspan="9" class="muted">No matching ES models.</td></tr>';
     el('esPriceListCount').textContent=`Showing ${rows.length.toLocaleString('en-MY')} of ${esProducts().length.toLocaleString('en-MY')} ES models · Editing ${currency}`;
     body.querySelectorAll('[data-save-es-row]').forEach(button=>button.addEventListener('click',()=>saveEsRow(button.dataset.saveEsRow,button)));
+    requestAnimationFrame(syncEsScrollWidth);
   }
   function renderGwsRows(){
     const body=el('gwsPriceRows');if(!body)return;
@@ -323,6 +332,10 @@
     el('chcPriceSearch')?.addEventListener('input',renderChcRows);
     el('gwsPriceSearch')?.addEventListener('input',renderGwsRows);
     el('esPriceSearch')?.addEventListener('input',renderEsRows);
+    const esTopScroll=el('esPriceTopScroll'),esTableWrap=el('esPriceTableWrap');let syncingEsScroll=false;
+    esTopScroll?.addEventListener('scroll',()=>{if(syncingEsScroll||!esTableWrap)return;syncingEsScroll=true;esTableWrap.scrollLeft=esTopScroll.scrollLeft;requestAnimationFrame(()=>syncingEsScroll=false)});
+    esTableWrap?.addEventListener('scroll',()=>{if(syncingEsScroll||!esTopScroll)return;syncingEsScroll=true;esTopScroll.scrollLeft=esTableWrap.scrollLeft;requestAnimationFrame(()=>syncingEsScroll=false)});
+    window.addEventListener('resize',syncEsScrollWidth);
     bindCurrency('chc',renderChcRows);bindCurrency('es',renderEsRows);bindCurrency('gws',renderGwsRows);
     document.querySelectorAll('.pricelist-multiplier-lock').forEach(bindMultiplierGroup);
   }

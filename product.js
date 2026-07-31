@@ -11,9 +11,14 @@
   const seriesName=model=>{const m=String(model||'').match(/^CHC\s+(\d+)/i);return m?`CHC ${m[1]}`:'Other'};
   const orderedSeries=()=>[...new Set(products().map(p=>seriesName(p.model)))].sort((a,b)=>Number((a.match(/\d+/)||[999])[0])-Number((b.match(/\d+/)||[999])[0]));
 
-  function ensureFrame(){const frame=$('productSelectorFrame');if(frame&&frame.src==='about:blank')frame.src=frame.dataset.src;return frame}
+  function ensureFrame(){const frame=$('productSelectorFrame');if(frame&&frame.src==='about:blank'){frameReady=false;frame.src=frame.dataset.src}return frame}
   function options(){return {material:$('productMaterial')?.value||'SS304 (Cast Iron Connection)',seal:$('productSeal')?.value||'Car/Cer',elastomer:$('productElastomer')?.value||'Viton',connection:$('productConnection')?.value||'round',bare:!!$('productBareShaft')?.checked,hz:50}}
-  function send(model,action){const frame=ensureFrame();if(!frame)return;queued={type:'KEYSUITE_PRODUCT_MODEL',model,action,options:options()};const dispatch=()=>{try{frame.contentWindow.postMessage(queued,'*')}catch(_){}};dispatch();setTimeout(dispatch,350);setTimeout(dispatch,1000)}
+  function postToFrame(frame,message){try{frame.contentWindow.postMessage(message,'*')}catch(error){console.error('Unable to contact CHC product frame.',error)}}
+  function send(model,action){
+    const frame=ensureFrame();if(!frame)return;
+    const message={type:'KEYSUITE_PRODUCT_MODEL',model,action,options:options()};
+    if(frameReady){queued=null;postToFrame(frame,message)}else queued=message;
+  }
 
   function renderSeries(){
     const series=orderedSeries();if(!selectedSeries||!series.includes(selectedSeries))selectedSeries=series[0]||'';
@@ -66,7 +71,7 @@
   function render(){if($('productModelOptions'))$('productModelOptions').innerHTML=products().map(p=>`<option value="${esc(p.model)}"></option>`).join('');renderSeries();renderModels();renderEs();renderGws()}
   function pageShown(id){if(['productChc','productEs','productGws'].includes(id))render()}
 
-  window.addEventListener('message',event=>{if(event.source===$('productSelectorFrame')?.contentWindow&&event.data?.type==='KEYSUITE_PRODUCT_FRAME_READY'){frameReady=true;if(queued)$('productSelectorFrame').contentWindow.postMessage(queued,'*')}});
+  window.addEventListener('message',event=>{if(event.source===$('productSelectorFrame')?.contentWindow&&event.data?.type==='KEYSUITE_PRODUCT_FRAME_READY'){frameReady=true;if(queued){const message=queued;queued=null;postToFrame($('productSelectorFrame'),message)}}});
   document.addEventListener('DOMContentLoaded',()=>{
     $('productModelInput')?.addEventListener('input',()=>{const exact=products().find(p=>p.model.toLowerCase()===$('productModelInput').value.trim().toLowerCase());if(exact)selectedSeries=seriesName(exact.model);renderSeries();renderModels()});
     $('closeProductCurve')?.addEventListener('click',()=>$('productCurveDialog')?.close());$('exportProductCurve')?.addEventListener('click',()=>{if(currentCurveModel)send(currentCurveModel,'export')});$('esProductSearch')?.addEventListener('input',renderEs);$('gwsProductSeries')?.addEventListener('change',renderGws);$('gwsProductSearch')?.addEventListener('input',renderGws);

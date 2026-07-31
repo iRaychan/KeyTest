@@ -241,6 +241,12 @@ function sealQuotation(){
  if(!canEditQuotation(true))return;
  if(!ensureQuotationPricingContext('seal this quotation'))return;
  const items=getQuoteItems();if(!items.length){alert('At least one item is required before sealing.');return}
+ const unpriced=items.filter(item=>!Number.isFinite(Number(item.unitPrice))||Number(item.unitPrice)<=0);
+ if(unpriced.length){
+   const names=unpriced.slice(0,5).map(item=>item.model||'Unnamed item').join('\n• ');
+   const more=unpriced.length>5?`\n…and ${unpriced.length-5} more item${unpriced.length-5===1?'':'s'}.`:'';
+   alert(`Every item must have a Unit Price before the quotation can be sealed.\n\nUnpriced item${unpriced.length===1?'':'s'}:\n• ${names}${more}`);return;
+ }
  if(!saveQuote({silent:true}))return;persistQuoteStatus('sealed','sealed');alert('Quotation sealed. PDF output is now available.');
 }
 function unsealQuotation(){if(!isQuotationSealed())return;persistQuoteStatus('saved','unsealed');alert('Quotation unsealed and editable again. PDF output has been disabled until it is sealed again.')}
@@ -480,10 +486,11 @@ function calcTotal(){
   const model=r.querySelector('.item-model').value.trim(),qty=+r.querySelector('.item-qty').value||0,price=+r.querySelector('.item-price').value||0,description=r.querySelector('.item-description').value.trim(),itemTotal=qty*price;
   r.querySelector('.item-total').textContent=money(itemTotal);r.querySelector('.item-summary-model').textContent=model||'New Item';r.querySelector('.item-summary-qty').textContent=`Qty: ${qty}`;r.querySelector('.item-summary-total').textContent=money(itemTotal);r.classList.remove('status-complete','status-warning','status-error');
   let status,tooltip;
-  const missing=[];if(!model)missing.push('Product / model');if(qty<=0)missing.push('Valid quantity');if(price<=0)missing.push('Unit price');
-  if(missing.length){status='error';error++;tooltip=`RED — ERROR\nCannot export this item.\nMissing: ${missing.join(', ')}`;}
-  else if(!description){status='warning';warning++;tooltip='YELLOW — WARNING\nDescription is empty.\nExport is allowed, but please review this item.';}
-  else{status='complete';complete++;tooltip='GREEN — COMPLETE\nModel, quantity, price and description are ready.\nReady to export.';}
+  const required=[];if(!model)required.push('Product / model');if(qty<=0)required.push('Valid quantity');
+  if(required.length){status='error';error++;tooltip=`RED — ERROR\nCannot save or seal this item.\nMissing: ${required.join(', ')}`;}
+  else if(price<=0){status='error';error++;tooltip='RED — PRICE REQUIRED\nThis draft can be saved.\nEnter a Unit Price before sealing the quotation.';}
+  else if(!description){status='warning';warning++;tooltip='YELLOW — WARNING\nDescription is empty.\nThe quotation can be sealed, but please review this item.';}
+  else{status='complete';complete++;tooltip='GREEN — COMPLETE\nModel, quantity, price and description are ready.\nReady to seal and export.';}
   r.classList.add(`status-${status}`);const indicator=r.querySelector('.item-status-indicator');if(indicator){indicator.dataset.tooltip=tooltip;indicator.setAttribute('aria-label',tooltip.replace(/\n/g,' — '));}
   total+=itemTotal;
  });
@@ -495,7 +502,7 @@ function saveQuote(options={}){
  if(isQuotationSealed()){if(!options.silent)alert('This quotation is Sealed and cannot be saved.');return false}
  if(!ensureQuotationPricingContext('save this quotation'))return false;
  const items=getQuoteItems();if(!items.length){if(!options.silent)alert('At least one item is required.');return false}
- const invalid=items.find(x=>!x.model||Number(x.qty)<=0||Number(x.unitPrice)<=0);if(invalid){if(!options.silent)alert('Every quotation item requires a Model / Item, valid Quantity and Unit Price.');return false}
+ const invalid=items.find(x=>!x.model||Number(x.qty)<=0);if(invalid){if(!options.silent)alert('Every quotation item requires a Model / Item and valid Quantity. Unit Price may remain blank while the quotation is a draft.');return false}
  const pricingCustomer=selectedQuotationCustomer(),existing=currentQuote();
  const lockedCustomerId=isRevisionCopy()?(existing?.customerId||existing?.pricingCustomerId||quotationPricingCustomerId):$('qCustomer').value;
  const lockedPricingCustomerId=isRevisionCopy()?(existing?.pricingCustomerId||existing?.customerId||quotationPricingCustomerId):(quotationPricingCustomerId||pricingCustomer?.id||$('qCustomer').value);

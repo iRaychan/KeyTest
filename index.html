@@ -200,6 +200,15 @@
     .product-model-actions [data-product-assembly],.route-actions [data-es-assembly],.route-actions [data-gws-assembly]{background:#f59e0b!important;border-color:#d97706!important;color:#fff!important}
     .product-model-actions [data-product-add],.route-actions [data-es-quote],.route-actions [data-gws-quote]{background:#16a34a!important;border-color:#15803d!important;color:#fff!important}
 
+
+    /* V2.06 ES matrix freeze panes and top horizontal scrollbar */
+    .es-price-top-scroll{overflow-x:auto;overflow-y:hidden;height:18px;margin:8px 0 4px;border:1px solid #dbe3ec;border-radius:7px;background:#f8fafc}
+    .es-price-top-scroll-inner{height:1px}
+    .es-price-table-wrap{position:relative;max-height:650px;overflow:auto}
+    .es-matrix-table thead th{position:sticky;top:0;z-index:4;background:#eef3f8;box-shadow:0 1px 0 #cbd5e1}
+    .es-matrix-table th:first-child,.es-matrix-table td:first-child{position:sticky;left:0;min-width:130px;z-index:3;background:#fff;box-shadow:2px 0 0 #dbe3ec}
+    .es-matrix-table thead th:first-child{z-index:6;background:#e6edf5}
+
     /* V2.05 quotation and ES Price List */
     .quote-head{display:flex;align-items:center;justify-content:space-between;gap:18px}.quote-head>h1{margin:0}.quote-head-right{margin-left:auto;display:flex;align-items:center;justify-content:flex-end;gap:12px}.quote-number-field{display:grid!important;grid-template-columns:auto minmax(260px,380px);align-items:center;gap:10px;min-width:0!important}.quote-number-field label{margin:0;white-space:nowrap}.quote-number-field input{width:100%}.es-matrix-table{min-width:1180px}.es-matrix-table select[data-es-rarity]{min-width:96px}
     @media(max-width:700px){.quote-head{align-items:stretch;flex-direction:column}.quote-head-right{margin-left:0;display:block}.quote-number-field{grid-template-columns:1fr}.quote-number-field label{margin-bottom:5px}}
@@ -223,7 +232,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.05</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.06</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -246,7 +255,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.05 · ES pricing update</div>
+    <div class="suite-version">KeySuite V2.06 · workflow reliability update</div>
   </aside>
 
   <main>
@@ -690,7 +699,8 @@
         <div class="pricelist-note" style="margin-top:12px">Every ES model can be filled for every displayed material. Blank values remain available for later entry.</div>
       </div>
       <div class="card"><div class="page-title-row"><div><h2 style="margin:0">ES Models</h2><div id="esPriceListCount" class="muted"></div></div><div class="price-list-search"><label>Search Model</label><input id="esPriceSearch" placeholder="Example: ES 100-32"></div></div>
-      <div class="table-wrap" style="max-height:650px"><table class="pricelist-table es-matrix-table"><thead><tr><th>Model</th><th>Rarity</th><th>CI SS SS MS</th><th>CI CI SS MS</th><th>CI SS SS GP</th><th>CI CI SS GP</th><th>SS 304</th><th>SS 316</th><th></th></tr></thead><tbody id="esPriceRows"></tbody></table></div></div>
+      <div id="esPriceTopScroll" class="es-price-top-scroll" aria-label="ES price list top horizontal scrollbar"><div id="esPriceTopScrollInner" class="es-price-top-scroll-inner"></div></div>
+      <div id="esPriceTableWrap" class="table-wrap es-price-table-wrap"><table class="pricelist-table es-matrix-table"><thead><tr><th>Model</th><th>Rarity</th><th>CI SS SS MS</th><th>CI CI SS MS</th><th>CI SS SS GP</th><th>CI CI SS GP</th><th>SS 304</th><th>SS 316</th><th></th></tr></thead><tbody id="esPriceRows"></tbody></table></div></div>
     </section>
     <section id="gwsPriceList" class="page">
       <div class="key-back-row"><button class="btn secondary" type="button" data-go="priceListDashboard">← Price List</button></div>
@@ -902,11 +912,11 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=124"></script>
-<script src="app.js?v=205"></script>
-<script src="pricing.js?v=205"></script>
-<script src="categories.js?v=205"></script>
-<script src="pricelist.js?v=205"></script>
-<script src="product.js?v=205"></script>
+<script src="app.js?v=206"></script>
+<script src="pricing.js?v=206"></script>
+<script src="categories.js?v=206"></script>
+<script src="pricelist.js?v=206"></script>
+<script src="product.js?v=206"></script>
 <script src="roles.js?v=124"></script>
 <script src="assembly.js?v=203"></script>
 
@@ -918,6 +928,6 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="auth.js?v=205"></script>
+<script src="auth.js?v=206"></script>
 </body>
 </html>

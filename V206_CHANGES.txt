@@ -1,0 +1,25 @@
+KeySuite V2.06 Changes
+======================
+
+1. ES Price List
+- Frozen the complete table header row while scrolling vertically.
+- Frozen the Model column while scrolling horizontally.
+- Added a synchronized horizontal scrollbar above the table.
+
+2. Product > CHC > Curve
+- Product reference flow now follows the CHC series capacity exactly.
+- Examples: CHC 2 uses 2 m³/hr and CHC 64 uses 64 m³/hr.
+- The reference duty point is plotted at the calculated head intersection on the head curve and appears in curve PDF output.
+
+3. Product > CHC > Assembly / Quote
+- Removed repeated product-frame dispatches that caused one click to add the same item three times.
+- Each click now routes exactly one item.
+
+4. Quotation
+- Draft quotations can be saved when an item Unit Price is blank or zero.
+- Model / Item and valid Quantity remain required for saving.
+- Every item must have a Unit Price greater than zero before the quotation can be sealed.
+- Item status guidance now explains that an unpriced draft may be saved but cannot be sealed.
+
+Database
+- No new Supabase migration is required after V2.05.

@@ -1,0 +1,3 @@
+-- KeySuite V2.06
+-- No Supabase schema or data migration is required.
+-- Database version V2.05 remains compatible with the V2.06 application.

@@ -1,0 +1,21 @@
+KeySuite V2.06 Installation
+===========================
+
+Prerequisite
+- Your Supabase database must already be upgraded through V2.05.
+- V2.06 has no new database schema changes.
+
+Deployment
+1. Keep a copy of the current deployed files.
+2. Extract KeySuite_V2.06_GitHub.zip.
+3. Preserve your existing working config.js.
+4. Upload the V2.06 files to the deployment root.
+5. Hard refresh the browser with Ctrl + Shift + R.
+6. If installed as a PWA, close and reopen it after refreshing.
+
+Verification
+- ES Price List: scroll vertically and horizontally; the header and Model column must remain visible.
+- ES Price List: confirm the top and bottom horizontal scrollbars stay synchronized.
+- Product > CHC: open CHC 2 and CHC 64 curves and confirm points at 2 and 64 m³/hr.
+- Product > CHC: press Assembly once and Quote once; each action must add exactly one item.
+- Quotation: save an item with zero price, then confirm Seal is blocked until all item prices are entered.
