@@ -508,10 +508,16 @@ function keysuiteLiveOptions(){
   keysuite_bare_shaft:!!doc?.getElementById('bareShaft')?.checked
  };
 }
+function keysuiteMaterialModel(model,material){
+ const base=String(model||'').replace(/^CHCS\b/i,'CHC').replace(/^CHCN\b/i,'CHC');
+ if(material==='SS304')return base.replace(/^CHC\b/i,'CHCS');
+ if(material==='SS316')return base.replace(/^CHC\b/i,'CHCN');
+ return base;
+}
 function exportPDF(fileTitleOverride){
  const best=selectionState.models[selectionState.selectedIndex];
  const ks=keysuiteLiveOptions();
- const displayModel=ks.quotation_model||best.model;
+ const displayModel=keysuiteMaterialModel(ks.quotation_model||best.model,ks.keysuite_material);
  const ksMaterial=ks.keysuite_material||'SS304 (Cast Iron Connection)';
  const ksSeal=ks.keysuite_seal||'Car/Cer';
  const ksElastomer=ks.keysuite_elastomer||'Viton';
@@ -732,7 +738,7 @@ window.onload=async()=>{
  
 </body></html>`;
 
- const pdfFileTitle=fileTitleOverride||displayModel;
+ const pdfFileTitle=fileTitleOverride&&String(fileTitleOverride)!==String(best.model)?fileTitleOverride:displayModel;
  const originalPageTitle=document.title;
  document.title=pdfFileTitle;
  const isMobilePrint=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.maxTouchPoints>1 && window.innerWidth<900);

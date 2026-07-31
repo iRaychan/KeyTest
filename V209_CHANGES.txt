@@ -1,0 +1,30 @@
+KeySuite V2.09 changes
+======================
+
+1. CHC datasheet PDF material model
+- Material selection now changes the displayed pump model consistently on PDF pages 1, 2 and 3.
+- Default material: CHC.
+- SS304: CHCS.
+- SS316: CHCN.
+- Applies to Selector, Product Curve PDF and quotation item datasheet exports.
+
+2. Assembly description synchronization
+- Deleting a BOM item now removes that item's generated description block from the System/Pumpset Description.
+- Other item descriptions and manually entered text are retained.
+
+3. KeyPLC Assembly description
+- KeyPLC control panels now use the full four-line engineering description.
+- VFD quantity follows the selected number of pumps.
+- Assembly BOM includes a Panel Type selector for Indoor or Sheltered.
+- Changing Panel Type updates the item description and price.
+
+4. KeyPLC Quotation description
+- Product → KeyPLC → Quote uses the same four-line engineering description.
+
+5. KeyPLC Product table
+- Columns are Motor Rating, Number of Pumps, Indoor and Sheltered.
+- Indoor and Sheltered each provide Assembly and Quote actions.
+- Sheltered price is derived as Indoor final price + RM 1,000.00 for every motor rating and pump quantity.
+
+Database
+- No new Supabase migration is required for V2.09.

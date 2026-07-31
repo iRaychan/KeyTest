@@ -74,11 +74,12 @@
     const q=String($('keyplcProductSearch')?.value||'').trim().toLowerCase();
     const rows=keyplcProducts().filter(x=>!q||String(x.model||'').toLowerCase().includes(q));
     const pumpOptions=Array.from({length:6},(_,i)=>`<option value="${i+1}">${i+1} ${i===0?'Pump':'Pumps'}</option>`).join('');
-    body.innerHTML=rows.map(product=>`<tr data-keyplc-product-row="${esc(product.id)}"><td><b>${esc(product.model)}</b></td><td><select data-keyplc-pump-count aria-label="Number of pumps for ${esc(product.model)}">${pumpOptions}</select></td><td style="text-align:right"><div class="route-actions"><button class="btn secondary" type="button" data-keyplc-assembly="${esc(product.id)}">Assembly</button><button class="btn" type="button" data-keyplc-quote="${esc(product.id)}">Quote</button></div></td></tr>`).join('')||'<tr><td colspan="3" class="muted">No matching KeyPLC panel models.</td></tr>';
+    const actions=(product,type)=>`<div class="route-actions keyplc-route-actions"><button class="btn secondary" type="button" data-keyplc-assembly="${esc(product.id)}" data-keyplc-type="${type}">Assembly</button><button class="btn" type="button" data-keyplc-quote="${esc(product.id)}" data-keyplc-type="${type}">Quote</button></div>`;
+    body.innerHTML=rows.map(product=>`<tr data-keyplc-product-row="${esc(product.id)}"><td><b>${esc(product.model)}</b></td><td><select data-keyplc-pump-count aria-label="Number of pumps for ${esc(product.model)}">${pumpOptions}</select></td><td>${actions(product,'indoor')}</td><td>${actions(product,'sheltered')}<div class="keyplc-surcharge-note">Indoor + RM 1,000.00</div></td></tr>`).join('')||'<tr><td colspan="4" class="muted">No matching KeyPLC panel models.</td></tr>';
     $('keyplcProductCount').textContent=`${rows.length} panel model${rows.length===1?'':'s'}`;
     const qtyFor=button=>Number(button.closest('[data-keyplc-product-row]')?.querySelector('[data-keyplc-pump-count]')?.value||1);
-    body.querySelectorAll('[data-keyplc-assembly]').forEach(button=>button.addEventListener('click',()=>window.KeySuitePricing?.addKeyplc?.(button.dataset.keyplcAssembly,qtyFor(button),'assembly')));
-    body.querySelectorAll('[data-keyplc-quote]').forEach(button=>button.addEventListener('click',()=>window.KeySuitePricing?.addKeyplc?.(button.dataset.keyplcQuote,qtyFor(button),'quotation')));
+    body.querySelectorAll('[data-keyplc-assembly]').forEach(button=>button.addEventListener('click',()=>window.KeySuitePricing?.addKeyplc?.(button.dataset.keyplcAssembly,qtyFor(button),'assembly',button.dataset.keyplcType||'indoor')));
+    body.querySelectorAll('[data-keyplc-quote]').forEach(button=>button.addEventListener('click',()=>window.KeySuitePricing?.addKeyplc?.(button.dataset.keyplcQuote,qtyFor(button),'quotation',button.dataset.keyplcType||'indoor')));
   }
 
   function render(){if($('productModelOptions'))$('productModelOptions').innerHTML=products().map(p=>`<option value="${esc(p.model)}"></option>`).join('');renderSeries();renderModels();renderEs();renderGws();renderKeyplc()}

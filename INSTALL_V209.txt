@@ -1,0 +1,32 @@
+KeySuite V2.09 installation
+=============================
+
+Prerequisite
+- Database must already include the V2.08 KeyPLC migration.
+- No V2.09 database migration is required.
+
+Recommended deployment
+1. Keep a copy of the current deployment folder or ZIP.
+2. Preserve the current working config.js.
+3. Upload the V2.09 changed files or deploy the complete V2.09 package.
+4. Do not replace config.js with config.example.js.
+5. Hard refresh with Ctrl + Shift + R.
+6. If the old version remains, close all KeySuite tabs, reopen the site, and refresh again so the V2.09 service worker activates.
+
+Changed application files
+- index.html
+- product.js
+- pricing.js
+- assembly.js
+- selector/index.html
+- manifest.json
+- sw.js
+- VERSION.txt
+
+Verification
+1. Selector/Product CHC: choose SS304 and export PDF; model must show CHCS on pages 1, 2 and 3.
+2. Choose SS316; model must show CHCN on pages 1, 2 and 3.
+3. Add two Assembly items, delete one, and confirm its description is removed.
+4. Product → KeyPLC: select a pump quantity and test Indoor and Sheltered Assembly/Quote.
+5. Sheltered price must equal Indoor price + RM 1,000.00.
+6. In Assembly BOM, change Panel Type and confirm description and price update.
