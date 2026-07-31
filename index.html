@@ -190,6 +190,9 @@
 
 
     .assembly-home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}.assembly-choice{min-height:190px;text-align:left;padding:24px;border:1px solid #cbd5e1;border-radius:16px;background:linear-gradient(145deg,#fff,#f8fafc);cursor:pointer}.assembly-choice:hover{border-color:#2563eb;box-shadow:0 12px 30px rgba(15,23,42,.09)}.assembly-choice h2{font-size:28px;margin:12px 0 8px}.assembly-choice-icon{font-size:34px}.assembly-workspace{display:grid;grid-template-columns:310px minmax(0,1fr);gap:16px}.assembly-list{display:grid;gap:8px}.assembly-list button{text-align:left;padding:12px;border:1px solid #dbe2ea;border-radius:10px;background:#fff}.assembly-list button.active{border-color:#2563eb;background:#eff6ff}.assembly-item{display:grid;grid-template-columns:1.2fr 90px 130px 130px auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #e2e8f0}.assembly-total{font-size:22px;font-weight:800;text-align:right}.route-actions{display:flex;gap:6px;flex-wrap:wrap}.route-actions .btn{padding:7px 10px;font-size:12px}@media(max-width:900px){.assembly-home-grid,.assembly-workspace{grid-template-columns:1fr}.assembly-item{grid-template-columns:1fr 70px 110px}.assembly-item .assembly-line-total,.assembly-item .assembly-delete{grid-column:auto}}
+
+    .nav-assembly-gap{height:64px}.nav-assembly-button{background:rgba(79,70,229,.18)!important;border:1px solid rgba(129,140,248,.45)!important;color:#eef2ff!important}.nav-assembly-button:hover,.nav-assembly-button.active{background:rgba(79,70,229,.34)!important}
+    .description-label-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}.description-expand{padding:6px 10px!important;font-size:12px!important}.assembly-description-editor{min-height:240px!important;line-height:1.35!important;resize:vertical}.assembly-description-dialog{width:min(96vw,1200px);height:94vh;max-width:none;padding:0;border:0;border-radius:14px}.assembly-description-dialog::backdrop{background:rgba(15,23,42,.72)}.assembly-description-dialog-card{height:100%;padding:18px;display:flex;flex-direction:column;gap:12px}.assembly-description-fullscreen{flex:1;min-height:0;width:100%;font:15px/1.4 Arial,sans-serif;padding:16px;resize:none;border:1px solid #cbd5e1;border-radius:10px}.assembly-description-dialog-card .actions{justify-content:flex-end}
 </style>
 </head>
 <body>
@@ -210,7 +213,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.0</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.02</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -222,9 +225,10 @@
         <button type="button" class="nav-toggle" data-nav-toggle="productMenu"><span>Product</span><span class="nav-chevron">⌄</span></button>
         <div class="nav-submenu"><button data-page="productChc">CHC</button><button data-page="productGws">GWS Tank</button></div>
       </div>
-      <button data-page="assembly">Assembly</button>
       <button data-page="quotation">Quotation</button>
       <button data-page="history">Quote History</button>
+      <div class="nav-assembly-gap" aria-hidden="true"></div>
+      <button data-page="assembly" class="nav-assembly-button">Assembly</button>
     </nav>
     <div class="user-panel">
       <b id="sessionUserName">Signed in</b>
@@ -232,7 +236,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.0 · V1.08 PDF output frozen</div>
+    <div class="suite-version">KeySuite V2.02 · Assembly Fix Pack</div>
   </aside>
 
   <main>
@@ -402,7 +406,7 @@
             <div><label>Model / Item</label><input id="assemblyModelItem" placeholder=""></div>
             <div><label>Customer</label><select id="assemblyCustomer" disabled title="Customer follows the active quotation selection"></select><div class="muted" style="margin-top:5px">Follows Quotation customer</div></div>
             <div><label>Status</label><select id="assemblyStatus"><option value="draft">Draft</option><option value="ready">Ready</option><option value="quoted">Quoted</option></select></div>
-            <div class="span-3"><label id="assemblyDescriptionLabel">System Description</label><textarea id="assemblyDescription" placeholder="The quotation description is transferred here when an item is added to Assembly."></textarea></div>
+            <div class="span-3"><div class="description-label-row"><label id="assemblyDescriptionLabel">System Description</label><button class="btn secondary description-expand" id="expandAssemblyDescription" type="button" title="Open full-screen description">⛶ Full Screen</button></div><textarea id="assemblyDescription" class="assembly-description-editor" title="Double-click to open full-screen" placeholder="The quotation description is transferred here when an item is added to Assembly."></textarea><div class="muted" style="margin-top:5px">Double-click the description to open the full-screen editor.</div></div>
           </div>
           <div class="actions"><button class="btn" id="saveAssemblyDraft" type="button">Save</button><button class="btn green" id="assemblyToQuotation" type="button">Send Assembly to Quotation</button><button class="btn danger" id="deleteAssemblyDraft" type="button">Delete</button></div>
           <h2 style="margin-top:22px">Components / BOM</h2><div id="assemblyItems"></div>
@@ -863,12 +867,21 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=124"></script>
 <script src="app.js?v=202"></script>
+<script src="es-pricelist-v1.js?v=20202"></script>
 <script src="pricing.js?v=200"></script>
 <script src="categories.js?v=124"></script>
 <script src="pricelist.js?v=124"></script>
 <script src="product.js?v=202"></script>
 <script src="roles.js?v=124"></script>
 <script src="assembly.js?v=202"></script>
+
+<dialog id="assemblyDescriptionDialog" class="ks-dialog assembly-description-dialog">
+  <div class="assembly-description-dialog-card">
+    <div class="page-title-row"><h2 id="assemblyDescriptionDialogTitle">System Description</h2><button class="btn secondary" id="closeAssemblyDescription" type="button">Close</button></div>
+    <textarea id="assemblyDescriptionFullscreen" class="assembly-description-fullscreen" spellcheck="true"></textarea>
+    <div class="actions"><button class="btn" id="applyAssemblyDescription" type="button">Apply Description</button><button class="btn secondary" id="cancelAssemblyDescription" type="button">Cancel</button></div>
+  </div>
+</dialog>
 
 <dialog id="productCurveDialog" class="ks-dialog product-curve-dialog">
   <div class="dialog-body">

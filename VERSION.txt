@@ -1,1 +1,2 @@
-2.02
+KeySuite V2.02 Fix Pack
+Build date: 2026-07-31

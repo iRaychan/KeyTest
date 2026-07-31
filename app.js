@@ -594,12 +594,17 @@ function chcAssemblyQuoteItem(p={}){
  const dnMatch=rawConnection.match(/DN\s*\d+/ig)||[];
  const gMatch=rawConnection.match(/G\s*\d+(?:[½¼¾]|\s*1\/2|\s*1\/4|\s*3\/4)?/ig)||[];
  const connectionType=p.keysuite_connection_type||$('connectionType')?.value||'round';
- const suctionDischarge=connectionType==='oval'?`${gMatch[0]||rawConnection.match(/\(([^)]+)\)/)?.[1]||'G'} x ${gMatch[0]||rawConnection.match(/\(([^)]+)\)/)?.[1]||'G'}`:`${dnMatch[0]||rawConnection.split('(')[0].trim()||'DN'} x ${dnMatch[0]||rawConnection.split('(')[0].trim()||'DN'}`;
+ const suction=connectionType==='oval'?(gMatch[0]||rawConnection.match(/\(([^)]+)\)/)?.[1]||'G'):(dnMatch[0]||rawConnection.split('(')[0].trim()||'DN');
+ const discharge=connectionType==='oval'?(gMatch[1]||suction):(dnMatch[1]||suction);
+ const suctionDischarge=`${suction} x ${discharge}`;
  const hp=p.motor_hp!=null?Number(p.motor_hp).toFixed(2).replace(/\.00$/,''):'';
  const motorLine=`c/w ${hp||'-'}HP 2Pole ${p.motor_efficiency_class||'IE3'} Motor (${p.motor_voltage||415}V / ${p.motor_phase||'3Ph'} / ${Number(p.frequency_hz||50).toFixed(1)}Hz)`;
- const materialLine=seal==='Car/Cer'&&elastomer==='Viton'?`${material} / Mech Seal`:`${material} / Mech Seal-${seal}/${elastomer}`;
- const dutyText=p.product_mode?'':quotationDutyText(p);
- return {model:[quotationModel,dutyText].filter(Boolean).join(' — '),description:[`B.G.Reich Vertical Multistage Pump Model: ${quotationModel||'-'}`,bare?'(Bare shaft pump)':motorLine,`Suction & Discharge: ${suctionDischarge}`,`Material: ${materialLine}`].join('\n')};
+ const flow=Number(p.flow_m3h||0),head=Number(p.head_m||0);
+ const litres=flow/3.6;
+ const capacity=(!p.product_mode&&flow>0&&head>0)?`Capacity: ${litres.toFixed(2).replace(/\.00$/,'')} L/s (${flow.toFixed(1)} m³/hr) @ ${head.toFixed(0)} Mtr`:'';
+ const description=[capacity,`B.G.Reich Vertical Multistage Pump Model: ${quotationModel||'-'}`,bare?'(Bare shaft pump)':motorLine,`Suction & Discharge: ${suctionDischarge}`,`Material: ${material}`,`Mechanical Seal: ${seal}`,`Elastomer: ${elastomer}`].filter(Boolean).join('\n');
+ const bomDescription=(!p.product_mode&&flow>0&&head>0)?`${quotationModel} — ${flow.toFixed(1).replace(/\.0$/,'')} m³/hr @ ${head.toFixed(0)} Mtr`:quotationModel;
+ return {model:quotationModel,description,bomDescription};
 }
 
 window.addEventListener('message',function(event){
@@ -615,7 +620,7 @@ window.addEventListener('message',function(event){
  if(route==='assembly'){
    const quoteItem=chcAssemblyQuoteItem(p);
    const item=window.KeySuitePricing?.buildChcAssemblyItem?.(p.quotation_model||p.model,p)||{model:quoteItem.model||p.quotation_model||p.model||'CHC Pumpset',qty:1,unitPrice:0,pumpData:p};
-   item.model=quoteItem.model||item.model;item.description=quoteItem.description;item.pumpData=p;item.assemblyLevel='COMPLETE_PUMPSET';item.assemblySection='pumpset';window.KeySuiteAssembly?.addItem?.(item);return;
+   item.model=quoteItem.model||item.model;item.description=quoteItem.description;item.bomDescription=quoteItem.bomDescription;item.pumpData=p;item.assemblyLevel='COMPLETE_PUMPSET';item.assemblySection='pumpset';window.KeySuiteAssembly?.addItem?.(item);return;
  }
  if(!canEditQuotation(true))return;
  if(!ensureQuotationPricingContext('add a pump to the quotation'))return;

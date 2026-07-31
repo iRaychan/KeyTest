@@ -1,0 +1,9 @@
+KeySuite V2.02 Fix Pack
+
+1. Fixes Assembly save ambiguous id conflict.
+2. Add to Assembly is positioned beside Add to Quotation in Selector.
+3. System Description enlarged; double-click/full-screen editor added; transferred descriptions have compact line spacing.
+4. Product > CHC curve opens as a 50 Hz catalogue curve without a duty-point marker.
+5. Assembly navigation moved two-row gap below Quote History with a distinct color.
+6. Pumpset/System BOM shows model/duty summary, Qty, Unit Price and Total Price.
+7. ES price list V1.0 dated 2026-07-31 included and seeded by migration.
