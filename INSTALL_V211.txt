@@ -1,0 +1,20 @@
+KeySuite V2.11 Installation
+===========================
+
+Recommended: deploy the changed-files patch over KeySuite V2.10.
+
+1. Keep a copy of the current deployment.
+2. Extract KeySuite_V2.11_Changed_Files_Patch.zip.
+3. Upload the extracted files over the existing deployment, preserving folder paths.
+4. Do not replace your working config.js.
+5. No Supabase migration is required for V2.11.
+6. Hard-refresh with Ctrl + Shift + R.
+7. If the old version remains visible, close all KeySuite tabs, reopen the site, and hard-refresh again so the V2.11 service worker takes control.
+
+Verification
+------------
+- Dashboard > Start shows a Customer selector and four buttons in one row.
+- Selecting a different Start customer saves the current valid draft quotation and opens a new quotation for that customer.
+- Add pumps to System and confirm a correctly sized Indoor KeyPLC panel appears in Control Panel.
+- Confirm KeyPLC continuation lines align under the word KeyPLC.
+- Confirm System / Pumpset Model / Item, Qty and Unit Price transfer to Quotation.

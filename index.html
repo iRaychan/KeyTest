@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V2.10</title>
+  <title>KeySuite V2.11</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -196,6 +196,7 @@
     .action-pdf{background:#e5e7eb!important;border-color:#cbd5e1!important;color:#1f2937!important}.action-pdf:hover{background:#d1d5db!important}
     .assembly-nav-gap{height:38px}.nav-assembly{background:#fff3cd!important;border-left:4px solid #f59e0b!important;color:#7c4a03!important}
     .assembly-description-large{min-height:260px!important;resize:vertical}.assembly-top-actions{margin:0 0 14px}dialog#assemblyDescriptionDialog{width:min(1200px,calc(100vw - 24px));max-width:none}.assembly-description-dialog{width:100%;max-width:none}.assembly-description-dialog textarea{min-height:68vh;width:100%;resize:vertical}
+    .start-customer-row{display:grid;grid-template-columns:minmax(240px,1fr) minmax(180px,.75fr);gap:12px;align-items:end;margin:12px 0 14px}.start-customer-status{min-height:42px;display:flex;align-items:center;padding:9px 12px;border:1px solid #dbe3ec;border-radius:8px;background:#f8fafc;color:var(--muted);font-size:12px}.start-action-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.start-action-grid .btn{width:100%;min-height:42px}.assembly-quote-fields{display:grid;grid-template-columns:minmax(280px,1.6fr) minmax(90px,.45fr) minmax(150px,.7fr);gap:12px;align-items:end;margin-bottom:14px}.assembly-quote-fields input{width:100%}.assembly-quote-help{margin-top:5px;font-size:11px;color:var(--muted)}@media(max-width:760px){.start-customer-row,.assembly-quote-fields{grid-template-columns:1fr}.start-action-grid{grid-template-columns:1fr 1fr}}@media(max-width:460px){.start-action-grid{grid-template-columns:1fr}}
     .quotation-title-line{display:flex;align-items:end;gap:22px;flex:1}.quotation-title-line h1{margin:0}.quotation-title-line .quote-number-field{min-width:260px}.quote-head{align-items:end}.quote-top-controls{margin-left:auto}.es-matrix-table{min-width:1450px}.es-matrix-table input{min-width:105px}
 
     .pricelist-currency-panel{padding:0!important;overflow:hidden}.pricelist-currency-panel>summary{cursor:pointer;list-style:none;padding:14px 18px;font-weight:800;color:var(--navy);display:flex;align-items:center;justify-content:space-between;background:#f8fafc}.pricelist-currency-panel>summary::-webkit-details-marker{display:none}.pricelist-currency-panel>summary:after{content:"▾";font-size:16px;transition:transform .2s}.pricelist-currency-panel[open]>summary:after{transform:rotate(180deg)}.pricelist-currency-panel-body{padding:0 18px 18px}.keyplc-product-toolbar{display:grid;grid-template-columns:minmax(220px,420px);gap:14px}.keyplc-table th,.keyplc-table td{white-space:nowrap}.keyplc-table select{min-width:112px}.keyplc-route-actions{justify-content:flex-start;flex-wrap:nowrap}.keyplc-route-actions .btn{min-width:72px}.keyplc-surcharge-note{font-size:11px;color:var(--muted);margin-top:5px}.assembly-item-option{display:flex;align-items:center;gap:8px;margin-top:7px}.assembly-item-option label{margin:0;font-size:11px}.assembly-item-option select{min-width:190px;padding:6px 8px}
@@ -219,7 +220,7 @@
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.10 secure quotation, assembly and product system</small></div>
+    <div class="auth-brand">KeySuite<small>V2.11 secure quotation, assembly and product system</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -234,7 +235,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.10</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.11</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -257,7 +258,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.10 · KeyPLC assembly formatting and automatic assembly saving</div>
+    <div class="suite-version">KeySuite V2.11 · Dashboard customer start, aligned KeyPLC descriptions and automatic panel sizing</div>
   </aside>
 
   <main>
@@ -270,7 +271,7 @@
         <div class="card metric"><span class="muted">Pending</span><b id="mPending">0</b></div>
       </div>
       <div class="grid grid-2" style="margin-top:16px">
-        <div class="card"><h2>Start</h2><p class="muted">Create a customer, select products, or build a complete System / Pumpset.</p><div class="actions"><button class="btn" data-go="customers">Add Customer</button><button class="btn green" data-go="selector">New CHC Selection</button><button class="btn secondary" data-go="assembly">Assembly</button></div></div>
+        <div class="card"><h2>Start</h2><p class="muted">Choose the working customer first. The Dashboard and Quotation customer remain synchronized.</p><div class="start-customer-row"><div><label for="startCustomer">Customer</label><select id="startCustomer"><option value="">Select customer</option></select></div><div id="startCustomerStatus" class="start-customer-status">No customer selected</div></div><div class="start-action-grid"><button class="btn green" data-go="selector">Selection</button><button class="btn" data-go="productChc">Product</button><button class="btn action-assembly" type="button" data-assembly-open="system">System</button><button class="btn action-assembly" type="button" data-assembly-open="pumpset">Pumpset</button></div></div>
         <div class="card"><h2>Testing Notes</h2><textarea id="testingNotes" placeholder="Write anything that feels slow, confusing or missing during your one-week trial..."></textarea><div class="actions"><button class="btn secondary" id="saveNotes">Save Notes</button></div></div>
       </div>
       <div class="card" style="margin-top:16px"><h2>Recent Quotations</h2><div class="table-wrap"><table><thead><tr><th>No.</th><th>Customer</th><th>Model</th><th>Total</th><th>Status</th></tr></thead><tbody id="recentQuotes"></tbody></table></div></div>
@@ -435,8 +436,13 @@
       <div class="assembly-workspace">
         <div class="card"><h2>Drafts</h2><div><label>Customer</label><select id="assemblyCustomer" disabled title="Customer follows the active quotation selection"></select><div class="muted" style="margin:5px 0 14px">Follows Quotation customer</div></div><div id="assemblyDraftList" class="assembly-list"></div></div>
         <div class="card">
-          <input id="assemblyModelItem" type="hidden"><input id="assemblyStatus" type="hidden" value="draft">
+          <input id="assemblyStatus" type="hidden" value="draft">
           <div class="actions assembly-top-actions"><button class="btn action-quote" id="assemblyToQuotation" type="button">Quote</button><button class="btn danger" id="deleteAssemblyDraft" type="button">Delete</button></div>
+          <div class="assembly-quote-fields">
+            <div><label for="assemblyModelItem">Model / Item</label><input id="assemblyModelItem" list="assemblyModelItemOptions" placeholder="Select a suggested model or type a custom item"><datalist id="assemblyModelItemOptions"></datalist><div class="assembly-quote-help">System suggestions follow the pump quantity in the BOM; custom text is allowed.</div></div>
+            <div><label for="assemblyQuoteQty">Qty</label><input id="assemblyQuoteQty" type="number" min="0.01" step="0.01" value="1"></div>
+            <div><label for="assemblyQuoteUnitPrice">Unit Price</label><input id="assemblyQuoteUnitPrice" type="number" min="0" step="0.01"><div class="assembly-quote-help">Defaults to the BOM total; edit to override.</div></div>
+          </div>
           <div class="form-grid">
             <div class="span-3"><label id="assemblyDescriptionLabel">System Description</label><textarea id="assemblyDescription" class="assembly-description-large" title="Double-click to open the large editor" placeholder="The quotation description is transferred here when an item is added to Assembly."></textarea></div>
           </div>

@@ -1,0 +1,35 @@
+KeySuite V2.11 Changes
+======================
+
+1. Dashboard customer start
+- Added a Customer selector inside Dashboard > Start.
+- Dashboard Start and Quotation customer remain synchronized.
+- When a different Dashboard customer is selected, KeySuite saves the current valid draft quotation and starts a new quotation for the selected customer.
+- Added four Start buttons in one row: Selection, Product, System, Pumpset.
+
+2. Assembly KeyPLC description alignment
+- Assembly-only KeyPLC descriptions retain the required `c/w KeyPLC Control Panel` first line.
+- Pump Controller, VFD and Wiring continuation lines align under `KeyPLC` rather than under `c/w`.
+- No blank line is inserted above the KeyPLC panel description.
+
+3. System and Pumpset quotation fields
+- Added Model / Item, Qty and Unit Price above the System / Pumpset description.
+- Model / Item supports suggested values and custom typing.
+- System suggestions include:
+  KeyPLC VSD Booster System (nPumps System)
+  KeyPLC VSD Transfer System (nPumps System)
+- Qty and Unit Price are used when the completed assembly is added to Quotation.
+- Unit Price defaults to the BOM total and may be manually overridden.
+
+4. Automatic Control Panel sizing
+- System BOM automatically creates or updates the KeyPLC Control Panel from pump BOM data.
+- Panel pump count follows the total pump quantity in the BOM.
+- Panel motor rating follows the highest pump motor kW and selects the equal or nearest larger KeyPLC rating.
+- Example: 3kW + 5.5kW pumps select a 2-pump, 5.5kW KeyPLC panel.
+- New automatic panels default to Indoor Type.
+- Indoor / Sheltered selection remains available in the Control Panel BOM row.
+
+5. Persistence
+- Assembly Model / Item, Qty, Unit Price and automatic panel changes participate in automatic saving.
+- The new assembly quotation metadata is stored within the existing assembly item pricing JSON.
+- No Supabase schema migration is required.
