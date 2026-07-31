@@ -1,19 +1,3 @@
-# KeySuite V2.0
-
-This release adds the Assembly module with separate System and Pumpset builders.
-
-## Upgrade
-1. Deploy all files in this repository.
-2. Keep the existing `config.js`.
-3. Run `setup/V200_SUPABASE_MIGRATION.sql` after the V1.24 migration.
-4. Clear the browser/service-worker cache after deployment.
-
-## Assembly routing
-- Product / Selector → Add to System: component and price enter a System draft.
-- Product / Selector → Add to Pumpset: component and price enter a Pumpset draft.
-- Add to Quotation: keeps the existing direct quotation flow.
-- Send Assembly to Quotation: sends one completed assembly line at the assembly total.
-
 # KeySuite V1.24
 
 ## Required Supabase update
@@ -134,3 +118,6 @@ Customer pricing is selected inside the quotation. The Customers page no longer 
 - Removed the Search Model toolbar and the full calculated-price table from Company & Pricing.
 - No Supabase SQL migration is required.
 - V1.08 PDF output remains frozen and unchanged.
+
+## V2.01 Upgrade
+Run `V201_SUPABASE_MIGRATION.sql` after the V2.00 migration. V2.01 adds structured Assembly sections and smart routing.

@@ -40,6 +40,7 @@ function syncOwnerKeyVisibility(){
 }
 function canOpenPage(id){
  if(id==='customers')return hasPermission('view_customers');
+ if(id==='assembly'||id==='assemblyBuilder')return hasPermission('create_quotations');
  if(id==='quotation')return hasPermission('create_quotations')||hasPermission('view_quotations');
  if(id==='history')return hasPermission('view_quotations');
  const required=KEY_PAGE_PERMISSIONS[id];return !required||hasPermission(required);
@@ -54,6 +55,7 @@ function showPage(id){
  window.KeySuitePriceList?.pageShown?.(id);
  window.KeySuiteProduct?.pageShown?.(id);
  if(id==='quotation'){setQuoteCustomerCollapsed(true);updateQuotationStateUi?.()}
+ window.KeySuiteAssembly?.pageShown?.(id);
  refreshAll();
 }
 
@@ -561,7 +563,17 @@ function updateConnectionAvailabilityFromSelection(selection){
  }
 }
 
+let pendingSelectionRoute='quotation';
+function requestSelectionForRoute(route='quotation'){
+ pendingSelectionRoute=route;
+ if(route==='quotation'){requestSelectionForQuotation();return}
+ if(!ensureQuotationPricingContext(`add a pump to the ${route}`))return;
+ const frame=$('selectorFrame');
+ if(!frame||!frame.contentWindow||frame.getAttribute('src')==='about:blank'){alert('Pump selector is not ready. Please open CHC Selector again.');return}
+ frame.contentWindow.postMessage({type:'KEYSUITE_REQUEST_SELECTION',route},'*');
+}
 function requestSelectionForQuotation(){
+ pendingSelectionRoute='quotation';
  if(!canEditQuotation(true))return;
  if(!ensureQuotationPricingContext('add a pump to the quotation'))return;
  const frame=$('selectorFrame');
@@ -579,8 +591,13 @@ window.addEventListener('message',function(event){
  }
  if(event.data.type==='KEYSUITE_SELECTION_EMPTY'){alert('Please run a CHC selection first.');return}
  if(event.data.type!=='KEYSUITE_ADD_SELECTION')return;
- if(!canEditQuotation(true))return;
  const p=event.data.payload||{};
+ const route=event.data.route||pendingSelectionRoute||'quotation';pendingSelectionRoute='quotation';
+ if(route==='assembly'){
+   const item=window.KeySuitePricing?.buildChcAssemblyItem?.(p.quotation_model||p.model,p)||{model:p.quotation_model||p.model||'CHC Pumpset',description:'Selected CHC complete pumpset',qty:1,unitPrice:0,pumpData:p};
+   item.pumpData=p;item.assemblyLevel='COMPLETE_PUMPSET';item.assemblySection='pumpset';window.KeySuiteAssembly?.addItem?.(item);return;
+ }
+ if(!canEditQuotation(true))return;
  if(!ensureQuotationPricingContext('add a pump to the quotation'))return;
  showPage('quotation');
  const selectedCustomer=customers().find(x=>x.id===$('qCustomer').value);
@@ -829,6 +846,7 @@ $('qContact').addEventListener('change',()=>{
  updateQuotationContactInfo();if(viewedCustomerId)showCustomerDetail(viewedCustomerId)
 });
 $('companyPhone').addEventListener('blur',()=>$('companyPhone').value=formatMYPhone($('companyPhone').value));
+$('selectorAddAssembly')?.addEventListener('click',()=>requestSelectionForRoute('assembly'));
 $('addQuoteItem').onclick=()=>{if(!canEditQuotation(true))return;quoteItemRow({});updateQuotationStateUi()};
 $('expandAllItems')?.addEventListener('click',()=>setAllItemsCollapsed(false));
 $('collapseAllItems')?.addEventListener('click',()=>setAllItemsCollapsed(true));
@@ -860,6 +878,7 @@ window.KeySuiteApp={
  async updateCustomerPricingCategory(id,categoryId){const saved=await updateCustomerPricingCategory(id,categoryId);refreshAll();return saved},
  hasQuotationPricingContext(){const customer=selectedQuotationCustomer();return !!(customer&&customer.pricingCategoryId)},
  selectCustomerForQuotation,
+ addExternalQuoteItem(data){if(!canEditQuotation(true))return null;const rows=[...document.querySelectorAll('.quote-item')],first=rows[0],empty=rows.length===1&&first&&!first.querySelector('.item-model').value&&!first.querySelector('.item-description').value&&!Number(first.querySelector('.item-price').value||0);const row=empty?first:quoteItemRow({});row.querySelector('.item-model').value=data.model||'';row.querySelector('.item-qty').value=data.qty||1;row.querySelector('.item-price').value=Number(data.unitPrice||0).toFixed(2);row.querySelector('.item-description').value=data.description||'';calcTotal();refreshItemExportButtons();return row;},
  ensureQuotationPricingContext,
  canEditQuotation,
  isQuotationSealed,

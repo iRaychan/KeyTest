@@ -1,0 +1,11 @@
+KeySuite V2.01
+
+- Added smart Add to Assembly routing.
+- CHC complete pumpsets route to System > Pumpset.
+- GWS tanks route to System > Tank.
+- Routing metadata supports future ES > Pumpset > Pump, Motor, Coupling and Baseplate.
+- System fixed sections: Pumpset, Control Panel, Manifold, Tank, MISC.
+- Pumpset fixed sections: Pump, Motor, Coupling, Baseplate.
+- Assembly Model / Item starts empty.
+- Added System Description / Pumpset Description master field.
+- Completed assembly transfers to quotation as one commercial line with internal component breakdown.

@@ -917,7 +917,7 @@ run();
    if(event.data.type==='KEYSUITE_PRODUCT_MODEL'){
      const payload=prepareProductModel(event.data.model,event.data.options||{});if(!payload){alert('This CHC model could not be loaded.');return}
      window.keysuiteExportPayload.keysuite_bare_shaft=!!event.data.options?.bare;
-     if(['add','system','pumpset'].includes(event.data.action)){window.parent?.postMessage({type:'KEYSUITE_ADD_SELECTION',route:event.data.action==='add'?'quotation':event.data.action,payload:{...payload,keysuite_bare_shaft:!!event.data.options?.bare}},'*')}
+     if(['add','assembly'].includes(event.data.action)){window.parent?.postMessage({type:'KEYSUITE_ADD_SELECTION',route:event.data.action==='add'?'quotation':event.data.action,payload:{...payload,keysuite_bare_shaft:!!event.data.options?.bare}},'*')}
      else if(event.data.action==='export'){setTimeout(()=>exportPDF(event.data.model),120)}
      return;
    }
