@@ -1,0 +1,8 @@
+KeySuite V1.20.1
+
+- Restores visible Category Names in Key > Category > Categories.
+- Clicking a Category Name highlights it and loads its saved rule into the right panel.
+- Selected Category Name remains visible at the top of the right panel.
+- Internal Category IDs remain hidden.
+- No Supabase SQL update required.
+- V1.08 PDF output remains frozen and unchanged.

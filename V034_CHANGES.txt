@@ -1,0 +1,8 @@
+KeySuite CHC v0.34
+
+- Page 1 remains frozen.
+- Top Quotation and Remove buttons align with Quotation No., Prepared By and Signature inputs.
+- Save Quotation and New moved immediately left of the Customer Details expand/collapse button.
+- Delete and Copy buttons display only when an item is expanded.
+- Delete is positioned at the lower-right below the item amount.
+- Collapsed item heading now reads Item # and shows the full model without ellipsis, with wider spacing after the item number.

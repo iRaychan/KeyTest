@@ -1,0 +1,17 @@
+KeySuite V1.18
+
+- Category Pricing Rule now places CHC and GWS as vertically stacked product buttons.
+- Each category stores separate CHC and GWS margin, transport and optional pricing components.
+- Margin, transport, commission, set discount, final discount and fuel controls require a 3-second hold before editing.
+- Commission, set discount, final discount and fuel charge can be included/excluded by checkbox.
+- Category displays read-only Price List currency rates: USD, RMB and MYR.
+- Price List now maintains independent USD, RMB and MYR prices and automatically saves USD/RMB rates.
+- Final costing uses the highest MYR equivalent from USD, RMB or MYR before the category pricing rule.
+- Added GWS Tank master models and 10 Bar / 16 Bar / 25 Bar price lists.
+- Added Product > GWS Tank and quotation pricing support.
+- Product > CHC mobile layout uses one model per row with equal Curve/PDF/Quote controls.
+- Selector Export / Share PDF remains visible in phone landscape view.
+- Quotation items start collapsed; Export Center labels are shortened to PDF and Item 01, Item 02, etc.
+- Saved quotations retain their own internal pricing customer. A newly selected customer only appoints the customer for a new quotation.
+- Printed customer and printed contact names remain editable without changing the saved pricing customer.
+- The V1.08 quotation PDF layout remains frozen and unchanged.

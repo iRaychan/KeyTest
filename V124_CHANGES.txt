@@ -1,0 +1,10 @@
+KeySuite V1.24
+
+- Removed visible Printed Customer and Printed Contact Name fields from Quotation.
+- Quotation No. field is now approximately twice the previous width.
+- Price List Currency Selection, USD → MYR and RMB → MYR controls are aligned.
+- Role Permissions columns now run Viewer → Dealer → User → Admin → Owner.
+- Added Owner-only Hold 5s to Edit permission editor with visible countdown.
+- Custom permission matrix saves to Supabase through V1.24 migration.
+- Owner Key Dashboard, Role management and own profile safeguards remain fixed to prevent lockout.
+- V1.08 PDF output layout remains frozen and unchanged.

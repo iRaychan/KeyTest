@@ -1,0 +1,9 @@
+KeySuite V1.07 changes
+
+- Moves the Page 2 quotation logo 1 mm to the right from its V1.06 position.
+- Moves Add to Quotation into the embedded CHC Selector header, on the same row as the B.G.Reich logo and aligned to the right.
+- Removes the Customer panel Use for Quotation control.
+- Customer selection is now made directly inside the Quotation page.
+- CHC pumps can be added to the quotation before a customer is selected.
+- No Supabase migration is required.
+- Existing config.js remains excluded from the update package.

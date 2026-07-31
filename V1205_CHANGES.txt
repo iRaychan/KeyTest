@@ -1,0 +1,8 @@
+KeySuite V1.20.5
+
+Quotation item deletion hotfix
+- The final remaining quotation item can now be deleted.
+- Deleting the last item leaves the quotation with zero items.
+- Use + Add Item to add a new blank item again.
+- Saving still requires at least one valid item.
+- Frozen V1.08 PDF output layout is unchanged.

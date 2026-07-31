@@ -1,0 +1,9 @@
+KeySuite V1.22
+
+- Removed separate Hold 3s multiplier buttons.
+- Hold directly on USD→MYR or RMB→MYR input; visible 3-second countdown.
+- Save/Cancel appear after unlock.
+- Company & Pricing CHC/GWS tabs show one product rule at a time.
+- Removed Search Model and calculated pricing table from Company & Pricing.
+- No Supabase migration required.
+- V1.08 PDF output unchanged.

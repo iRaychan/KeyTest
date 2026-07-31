@@ -1,0 +1,10 @@
+KeySuite v0.25 Planned Changes
+- Page1 left margin 21.8mm
+- Logo 1mm left on all pages
+- Remove fixed Ray signature
+- Prepared By controls signature/name
+- Customer fields: To/Attn/Tel/Mobile/Email, '-' when empty, values normal weight
+- Conditional Rev row
+- Shorter Document Type
+- Validity below Document Type
+- Expand Project & Delivery

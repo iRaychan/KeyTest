@@ -1,0 +1,12 @@
+KeySuite V1.05
+
+- Fixes customer saving on browsers without crypto.randomUUID().
+- Adds a secure UUID fallback and repairs invalid legacy browser IDs before Supabase save.
+- Imports Company master records into Customers for Owner/Admin when no matching customer exists.
+- Company & Pricing is removed from the normal sidebar and opens from the gold Key button.
+- The Key button always opens Company & Pricing.
+- Restores Handled by on quotation Page 1 using the logged-in user display name.
+- Aligns the Page 2 logo with the Page 1 logo.
+- Moves Sub-total, 0% SST and Total labels 8 mm to the right while keeping the amounts aligned.
+- Retains the V1.02 quotation output base except for the corrections specifically requested above.
+- Existing config.js must be kept in GitHub and is intentionally not included.

@@ -1,0 +1,24 @@
+KeySuite V1.21
+
+Quotation workflow
+- Removed Customers → Quote / Quoted selection.
+- New quotations start with no customer; select the customer inside Quotation.
+- Customer, Customer Name, Printed Customer and Printed Contact lock with darker fields after the first item is entered.
+- Saved quotations remain editable.
+- Added Seal button. Sealed quotations are read-only and PDF controls appear only when sealed.
+- Hold Sealed for 5 seconds to unseal; countdown is shown and the action is recorded in quotation audit history.
+- Added Revise. A sealed quotation is duplicated as -v01, -v02, etc. Customer and original Date remain locked; Revision Date is editable.
+- Revised copies must be sealed before PDF controls appear.
+- Final remaining quotation item can still be deleted; removing all items unlocks customer fields on a normal saved quotation.
+
+Pricing rule resolution
+- Pricing is resolved strictly by Quotation Customer → Customer Category → Product Series (CHC or GWS) → Rarity.
+- Dealer CHC and Dealer GWS use independent product-rule values and checkbox states.
+- Many, Common and Rare formulas remain separate.
+- Sealed quotations cannot be repriced or receive new items.
+
+PDF
+- V1.08 print/PDF layout and print document structure are unchanged.
+
+Database
+- No Supabase SQL migration is required for V1.21.

@@ -1,0 +1,6 @@
+KeySuite V1.20.4
+- Adds the missing ks_products_chc.updated_at column so CHC price and rarity saves work.
+- Adds the same column defensively to GWS.
+- Keeps the Hold 3s to Edit countdown button compact on one row.
+- E-Wave now contains only PEB 24LX; PEB 8LX, 12LX, 18LX and 35LX are retired.
+- Frozen V1.08 PDF/print output remains unchanged.

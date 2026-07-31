@@ -1,0 +1,8 @@
+KeySuite V1.08 changes
+
+- Moves the Page 2 quotation logo 0.5 mm left from its V1.07 position.
+- Extends the Document Type input to the same field width as Customer.
+- Extends the Validity input to the same field width as Customer.
+- Keeps all other quotation output positioning and functions unchanged.
+- No Supabase migration is required.
+- Existing config.js remains excluded from the update package.

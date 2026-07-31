@@ -1,0 +1,10 @@
+KeySuite V1.17
+
+- Sidebar CHC Selector changed to Selector > CHC.
+- Added Product > CHC with series/model browser, curve view, PDF export and Add to Quotation without duty point.
+- Mobile Export / Share PDF button placed beside Add to Quotation.
+- Category list shows only names; clicking a category loads saved values. Edit moved into the editor title row.
+- Customer detail fields can collapse; Quote button added beside each contact email.
+- Quote selection automatically updates Quotation Customer and Customer Name.
+- Customer & Quotation Details opens collapsed.
+- V1.08 PDF output remains frozen. Selector product-mode content omits the duty point.

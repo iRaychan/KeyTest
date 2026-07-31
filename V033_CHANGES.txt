@@ -1,0 +1,8 @@
+KeySuite CHC v0.33
+
+- Page 1 remains frozen.
+- Removed yellow A export-all button.
+- Narrowed Quotation button.
+- Quotation button, quotation number, Prepared By, signature attachment and Remove are now on one row.
+- Fixed collapsed item Delete button wrapping into a partial second row.
+- Moved Save Quotation and New buttons into the Customer & Quotation Details header row on the left.

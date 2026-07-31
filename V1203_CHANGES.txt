@@ -1,0 +1,10 @@
+KeySuite V1.20.3
+
+- Reworked CHC and GWS Category Pricing Rule fields into compact single rows.
+- Margin, Normal, Rare and Transport now show the input directly beside the label.
+- Commission, Set Discount, Final and Fuel Charge now show the input and Use checkbox on the same row.
+- Removed the obsolete individual field hold buttons and hints from the Category editor.
+- The single Hold 3s to Edit button continues to unlock the full Category editor.
+- Fuel Charge remains customer-specific and automatic; its row shows RM0.00 in Category and the Use checkbox controls inclusion.
+- New category values remain 0.00 with optional rules unticked.
+- Frozen V1.08 PDF output remains unchanged.

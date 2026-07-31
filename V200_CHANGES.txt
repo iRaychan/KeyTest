@@ -1,0 +1,9 @@
+KeySuite V2.0
+
+- Adds Assembly to the main dashboard/navigation.
+- Assembly contains System and Pumpset entry points.
+- Product CHC and GWS rows can route to System, Pumpset, or Quotation.
+- CHC Selector can route the current selection to System or Pumpset.
+- Component prices remain inside the assembly draft.
+- Only the completed assembly total is sent to Quotation.
+- Adds Supabase-backed assembly draft and BOM persistence with local fallback.

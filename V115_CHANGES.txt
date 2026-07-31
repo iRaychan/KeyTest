@@ -1,0 +1,17 @@
+KeySuite V1.15
+Release date: 2026-07-30
+
+Category
+- Fixed the New Category action so it visibly resets, focuses and highlights the editor.
+- Category list is narrower and now shows only Category and Edit.
+- Edit area is wider.
+- Commission, Set Discount and Final Discount are on one row below Category Name.
+- Currency, Multiply, CHC Margin and Transport are on one row.
+- Each category can use USD or RMB and its own multiplier to MYR.
+
+Company & Pricing
+- Price calculation now uses the source currency and multiplier saved in the selected customer's category.
+- Source-price table heading changes to USD or RMB according to the category.
+
+PDF
+- V1.08 frozen PDF output remains unchanged on all pages.

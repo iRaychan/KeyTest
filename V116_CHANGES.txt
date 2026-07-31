@@ -1,0 +1,13 @@
+KeySuite V1.16
+Release date: 2026-07-30
+
+- Category list shows only Category and Edit.
+- Removed Currency and Multiply from Category editor.
+- Added Key > Price List > CHC.
+- Added global CHC Currency Selection.
+- Added separate saved USD and RMB multipliers.
+- Added editable CHC / CHCS / CHCN source prices for every CHC model.
+- Price calculation now uses the global CHC Price List currency and multiplier.
+- Added reliable per-user Settings/signatory save RPC and session restoration.
+- Customer ID and Category ID remain hidden.
+- V1.08 PDF output remains fully frozen and unchanged.

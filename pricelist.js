@@ -1,0 +1,304 @@
+(() => {
+  'use strict';
+
+  let access=null;
+  let secureData={products:[],gwsProducts:[],productMultipliers:{CHC:{USD:5.8,RMB:.65,MYR:1},GWS:{USD:5.8,RMB:.65,MYR:1}}};
+  let bound=false;
+  const unlockedMultipliers=new Set();
+  const originalMultiplierValues=new Map();
+
+  const el=id=>document.getElementById(id);
+  const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const permissionLevel=()=>window.KeySuitePermissions?.level?.('manage_price_list',String(access?.role||window.KEYSUITE_ACCESS?.role||'viewer').toLowerCase())||'none';
+  const canView=()=>permissionLevel()!=='none';
+  const isOwner=()=>permissionLevel()==='full';
+  const chcProducts=()=>secureData.products||[];
+  const gwsProducts=()=>secureData.gwsProducts||[];
+  const validCurrency=value=>['USD','RMB','MYR'].includes(String(value||'').toUpperCase())?String(value).toUpperCase():'USD';
+  const validRarity=value=>['common','many','rare'].includes(String(value||'').toLowerCase())?String(value).toLowerCase():'common';
+  const currentCurrency=prefix=>validCurrency(el(`${prefix}PriceCurrency`)?.value||localStorage.getItem(`ks_${prefix}_price_currency`)||'USD');
+  const familyCode=prefix=>String(prefix||'chc').toUpperCase()==='GWS'?'GWS':'CHC';
+
+  function message(prefix,text,type='info'){
+    const box=el(`${prefix}PriceListMessage`);if(!box)return;
+    box.textContent=text||'';
+    box.className=text?`auth-message show ${type}`:'auth-message';
+  }
+
+  function ratesFor(prefix){
+    const family=familyCode(prefix);
+    const rates=secureData.productMultipliers?.[family]||{};
+    return {USD:Number(rates.USD??secureData.usd_multiplier??5.8),RMB:Number(rates.RMB??secureData.rmb_multiplier??.65),MYR:1};
+  }
+
+  function currencyPrices(product,currency){return product?.pricesByCurrency?.[currency]||{}}
+  function currencyRarities(product,currency){return product?.rarityByCurrency?.[currency]||{}}
+  function rarityFor(product,currency,variant){return validRarity(currencyRarities(product,currency)?.[variant])}
+
+  function rarityOptions(selected){
+    return [['common','Common'],['many','Many'],['rare','Rare']].map(([value,label])=>`<option value="${value}" ${value===selected?'selected':''}>${label}</option>`).join('');
+  }
+
+  function priceEditor(currency,value,variant,id){
+    const shown=value===null||value===''||!Number.isFinite(Number(value))?'':Number(value).toFixed(2);
+    return `<div class="currency-price-input"><span>${esc(currency)}</span><input type="number" min="0" step="0.01" value="${esc(shown)}" data-price-product="${esc(id)}" data-price-variant="${esc(variant)}" aria-label="${esc(variant)} price"></div>`;
+  }
+
+  function rarityEditor(selected,variant,id){
+    return `<select data-rarity-product="${esc(id)}" data-rarity-variant="${esc(variant)}" aria-label="${esc(variant)} rarity">${rarityOptions(validRarity(selected))}</select>`;
+  }
+
+  function multiplierInputId(prefix,currency){return `${prefix}${currency==='USD'?'Usd':'Rmb'}Multiplier`}
+
+  function setMultiplierUnlocked(prefix,currency,on){
+    const key=`${prefix}:${currency}`;
+    if(on)unlockedMultipliers.add(key);else unlockedMultipliers.delete(key);
+    const group=el(`${prefix}MultiplierLock_${currency}`);
+    const input=el(multiplierInputId(prefix,currency));
+    if(group){
+      group.classList.toggle('unlocked',on);
+      group.classList.toggle('locked',!on);
+      group.classList.remove('holding');
+      const feedback=group.querySelector('.multiplier-hold-feedback');
+      if(feedback)feedback.textContent=on?'(Unlocked — Save or Cancel)':'(Hold 3s to edit)';
+      group.querySelector('.multiplier-actions')?.classList.toggle('show',on);
+    }
+    if(input){
+      input.readOnly=!on;
+      input.setAttribute('aria-readonly',String(!on));
+    }
+  }
+
+  function renderMultiplierInputs(prefix){
+    const rates=ratesFor(prefix);
+    const usd=el(`${prefix}UsdMultiplier`),rmb=el(`${prefix}RmbMultiplier`);
+    if(usd&&document.activeElement!==usd&&!unlockedMultipliers.has(`${prefix}:USD`))usd.value=Number(rates.USD).toFixed(4);
+    if(rmb&&document.activeElement!==rmb&&!unlockedMultipliers.has(`${prefix}:RMB`))rmb.value=Number(rates.RMB).toFixed(4);
+    ['USD','RMB'].forEach(currency=>setMultiplierUnlocked(prefix,currency,unlockedMultipliers.has(`${prefix}:${currency}`)));
+  }
+
+  function renderChcRows(){
+    const body=el('chcPriceRows');if(!body)return;
+    const search=String(el('chcPriceSearch')?.value||'').trim().toLowerCase();
+    const currency=currentCurrency('chc');
+    const rows=chcProducts().filter(product=>!search||String(product.model||'').toLowerCase().includes(search));
+    body.innerHTML=rows.map(product=>{
+      const prices=currencyPrices(product,currency),rarities=currencyRarities(product,currency);
+      return `<tr data-chc-pricelist-row="${esc(product.id)}">
+        <td><b>${esc(product.model)}</b></td>
+        <td>${priceEditor(currency,prices.CHC,'CHC',product.id)}</td><td>${rarityEditor(rarities.CHC,'CHC',product.id)}</td>
+        <td>${priceEditor(currency,prices.CHCS,'CHCS',product.id)}</td><td>${rarityEditor(rarities.CHCS,'CHCS',product.id)}</td>
+        <td>${priceEditor(currency,prices.CHCN,'CHCN',product.id)}</td><td>${rarityEditor(rarities.CHCN,'CHCN',product.id)}</td>
+        <td class="pricelist-row-actions"><button class="btn icon-save-button" type="button" data-save-chc-row="${esc(product.id)}" title="Save ${esc(product.model)}" aria-label="Save ${esc(product.model)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h12l2 2v14H5z"></path><path d="M8 4v6h8V4"></path><path d="M8 20v-6h8v6"></path></svg></button></td>
+      </tr>`;
+    }).join('')||'<tr><td colspan="8" class="muted">No matching CHC models.</td></tr>';
+    el('chcPriceListCount').textContent=`Showing ${rows.length.toLocaleString('en-MY')} of ${chcProducts().length.toLocaleString('en-MY')} CHC models · Editing ${currency}`;
+    body.querySelectorAll('[data-save-chc-row]').forEach(button=>button.addEventListener('click',()=>saveChcRow(button.dataset.saveChcRow,button)));
+  }
+
+  function renderGwsRows(){
+    const body=el('gwsPriceRows');if(!body)return;
+    const search=String(el('gwsPriceSearch')?.value||'').trim().toLowerCase();
+    const currency=currentCurrency('gws');
+    const rows=gwsProducts().filter(product=>{
+      const hay=[product.seriesName,product.model,product.sizeCode,product.pressureBar].join(' ').toLowerCase();
+      return !search||hay.includes(search);
+    });
+    body.innerHTML=rows.map(product=>{
+      const prices=currencyPrices(product,currency),rarities=currencyRarities(product,currency);
+      return `<tr data-gws-pricelist-row="${esc(product.id)}">
+        <td>${esc(product.seriesName||'-')}</td>
+        <td><b>${esc(product.model)}</b></td>
+        <td>${esc(product.sizeCode||'-')}</td>
+        <td>${esc(product.pressureBar)} Bar</td>
+        <td>${priceEditor(currency,prices.SKU,'SKU',product.id)}</td>
+        <td>${rarityEditor(rarities.SKU,'SKU',product.id)}</td>
+        <td class="pricelist-row-actions"><button class="btn icon-save-button" type="button" data-save-gws-row="${esc(product.id)}" title="Save ${esc(product.model)}" aria-label="Save ${esc(product.model)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h12l2 2v14H5z"></path><path d="M8 4v6h8V4"></path><path d="M8 20v-6h8v6"></path></svg></button></td>
+      </tr>`;
+    }).join('')||'<tr><td colspan="7" class="muted">No matching GWS Tank SKUs.</td></tr>';
+    el('gwsPriceListCount').textContent=`Showing ${rows.length.toLocaleString('en-MY')} valid GWS Tank SKU${rows.length===1?'':'s'} · Editing ${currency}`;
+    body.querySelectorAll('[data-save-gws-row]').forEach(button=>button.addEventListener('click',()=>saveGwsRow(button.dataset.saveGwsRow,button)));
+  }
+
+  function renderSettings(prefix){
+    const select=el(`${prefix}PriceCurrency`);
+    if(select){const saved=validCurrency(localStorage.getItem(`ks_${prefix}_price_currency`)||select.value||'USD');select.value=saved}
+    renderMultiplierInputs(prefix);
+  }
+
+  function readPositive(id,label){
+    const value=Number(el(id)?.value);
+    if(!Number.isFinite(value)||value<=0)throw new Error(`${label} must be greater than zero.`);
+    return value;
+  }
+
+  async function saveMultiplier(prefix,currency){
+    if(!isOwner()){message(prefix,'Your role is not allowed to maintain Price List settings.','error');return}
+    const key=`${prefix}:${currency}`;
+    if(!unlockedMultipliers.has(key))return;
+    let value;
+    try{value=readPositive(multiplierInputId(prefix,currency),`${currency} rate`)}catch(error){message(prefix,error.message,'error');return}
+    const client=window.KeySuiteAuth?.getClient?.();if(!client){message(prefix,'Supabase is not connected.','error');return}
+    const family=familyCode(prefix);
+    message(prefix,`Saving ${family} ${currency} rate…`,'info');
+    try{
+      const {data,error}=await client.rpc('keysuite_save_product_pricelist_multiplier_v119',{p_product_code:family,p_currency:currency,p_multiplier:value});
+      if(error)throw error;
+      const saved=Array.isArray(data)?data[0]:data||{};
+      secureData.productMultipliers=secureData.productMultipliers||{};
+      secureData.productMultipliers[family]={USD:Number(saved.usd_multiplier??ratesFor(prefix).USD),RMB:Number(saved.rmb_multiplier??ratesFor(prefix).RMB),MYR:1};
+      if(window.KEYSUITE_SECURE_DATA)window.KEYSUITE_SECURE_DATA.productMultipliers=secureData.productMultipliers;
+      originalMultiplierValues.delete(key);setMultiplierUnlocked(prefix,currency,false);renderMultiplierInputs(prefix);
+      window.KeySuitePricing?.syncPriceListSettings?.({productMultipliers:secureData.productMultipliers});
+      window.KeySuiteCategories?.render?.();
+      message(prefix,`${family} ${currency} saved: MYR ${Number(currency==='USD'?secureData.productMultipliers[family].USD:secureData.productMultipliers[family].RMB).toFixed(4)}.`,'info');
+    }catch(error){console.error(error);message(prefix,`${error.message||error}. Run the V1.20.4 Supabase hotfix first.`,'error')}
+  }
+
+  function cancelMultiplier(prefix,currency){
+    const key=`${prefix}:${currency}`;
+    const input=el(multiplierInputId(prefix,currency));
+    if(input)input.value=String(originalMultiplierValues.get(key)??ratesFor(prefix)[currency]).replace(/,/g,'');
+    originalMultiplierValues.delete(key);setMultiplierUnlocked(prefix,currency,false);renderMultiplierInputs(prefix);
+    message(prefix,`${familyCode(prefix)} ${currency} change cancelled.`,'info');
+  }
+
+  function beginMultiplierUnlock(prefix,currency){
+    const key=`${prefix}:${currency}`;if(!isOwner()||unlockedMultipliers.has(key))return;
+    const input=el(multiplierInputId(prefix,currency));
+    originalMultiplierValues.set(key,input?.value||ratesFor(prefix)[currency]);
+    setMultiplierUnlocked(prefix,currency,true);
+    message(prefix,`${familyCode(prefix)} ${currency} rate unlocked. Edit the value, then press Save or Cancel.`,'info');
+    input?.focus();input?.select();
+  }
+
+  function bindLongHold(target,callback){
+    let timer=null,progress=null,start=0,completed=false;
+    const group=target.closest('.pricelist-multiplier-lock')||target;
+    const feedback=()=>group.querySelector?.('.multiplier-hold-feedback');
+    const reset=()=>{
+      if(timer)clearTimeout(timer);if(progress)clearInterval(progress);timer=progress=null;
+      group.classList.remove('holding');
+      if(!group.classList.contains('unlocked')){const label=feedback();if(label)label.textContent='(Hold 3s to edit)'}
+    };
+    const startHold=event=>{
+      if(event.pointerType==='mouse'&&event.button!==0)return;
+      if(group.classList.contains('unlocked'))return;
+      event.preventDefault();completed=false;start=Date.now();group.classList.add('holding');
+      const label=feedback();if(label)label.textContent='Unlock in 3…';
+      progress=setInterval(()=>{
+        const remaining=Math.max(1,Math.ceil((3000-(Date.now()-start))/1000));
+        const hint=feedback();if(hint)hint.textContent=`Unlock in ${remaining}…`;
+      },150);
+      timer=setTimeout(()=>{completed=true;reset();callback();},3000);
+      try{target.setPointerCapture?.(event.pointerId)}catch(_){ }
+    };
+    const stop=event=>{if(completed)return;reset();try{if(event?.pointerId!==undefined)target.releasePointerCapture?.(event.pointerId)}catch(_){ }};
+    target.addEventListener('pointerdown',startHold);
+    ['pointerup','pointercancel','lostpointercapture'].forEach(type=>target.addEventListener(type,stop));
+    target.addEventListener('contextmenu',event=>event.preventDefault());
+  }
+
+  function nullablePrice(value,label){
+    const text=String(value??'').trim();if(text==='')return null;
+    const number=Number(text);if(!Number.isFinite(number)||number<0)throw new Error(`${label} must be blank or zero and above.`);
+    return number;
+  }
+
+  function rowRarity(row,variant){return validRarity(row.querySelector(`[data-rarity-variant="${CSS.escape(variant)}"]`)?.value||'common')}
+
+  async function saveChcRow(productId,button){
+    if(!isOwner()){message('chc','Your role is not allowed to maintain product prices.','error');return}
+    const row=document.querySelector(`[data-chc-pricelist-row="${CSS.escape(productId)}"]`);if(!row)return;
+    const currency=currentCurrency('chc');
+    let chc,chcs,chcn;
+    try{
+      chc=nullablePrice(row.querySelector('[data-price-variant="CHC"]')?.value,'CHC Price');
+      chcs=nullablePrice(row.querySelector('[data-price-variant="CHCS"]')?.value,'CHCS Price');
+      chcn=nullablePrice(row.querySelector('[data-price-variant="CHCN"]')?.value,'CHCN Price');
+    }catch(error){message('chc',error.message,'error');return}
+    const rarities={CHC:rowRarity(row,'CHC'),CHCS:rowRarity(row,'CHCS'),CHCN:rowRarity(row,'CHCN')};
+    const client=window.KeySuiteAuth?.getClient?.();if(!client){message('chc','Supabase is not connected.','error');return}
+    const original=button.innerHTML;button.disabled=true;button.textContent='…';message('chc','');
+    try{
+      const {error}=await client.rpc('keysuite_save_chc_product_price_v120',{
+        p_product_id:productId,p_currency:currency,p_chc_price:chc,p_chcs_price:chcs,p_chcn_price:chcn,
+        p_chc_rarity:rarities.CHC,p_chcs_rarity:rarities.CHCS,p_chcn_rarity:rarities.CHCN
+      });
+      if(error)throw error;
+      const product=chcProducts().find(item=>item.id===productId);
+      if(product){
+        product.pricesByCurrency=product.pricesByCurrency||{};product.pricesByCurrency[currency]={CHC:chc,CHCS:chcs,CHCN:chcn};
+        product.rarityByCurrency=product.rarityByCurrency||{};product.rarityByCurrency[currency]={...product.rarityByCurrency[currency],...rarities};
+      }
+      window.KeySuitePricing?.render?.();message('chc',`${product?.model||'CHC model'} ${currency} prices and rarity saved.`,'info');
+    }catch(error){console.error(error);message('chc',`${error.message||error}. Run the V1.20.4 Supabase hotfix first.`,'error')}
+    finally{button.disabled=false;button.innerHTML=original}
+  }
+
+  async function saveGwsRow(productId,button){
+    if(!isOwner()){message('gws','Your role is not allowed to maintain product prices.','error');return}
+    const row=document.querySelector(`[data-gws-pricelist-row="${CSS.escape(productId)}"]`);if(!row)return;
+    const currency=currentCurrency('gws');
+    let price;
+    try{price=nullablePrice(row.querySelector('[data-price-variant="SKU"]')?.value,'GWS Price')}catch(error){message('gws',error.message,'error');return}
+    const rarity=rowRarity(row,'SKU');
+    const client=window.KeySuiteAuth?.getClient?.();if(!client){message('gws','Supabase is not connected.','error');return}
+    const original=button.innerHTML;button.disabled=true;button.textContent='…';message('gws','');
+    try{
+      const {error}=await client.rpc('keysuite_save_gws_sku_price_v120',{p_product_id:productId,p_currency:currency,p_price:price,p_rarity:rarity});
+      if(error)throw error;
+      const product=gwsProducts().find(item=>item.id===productId);
+      if(product){
+        product.pricesByCurrency=product.pricesByCurrency||{};product.pricesByCurrency[currency]={SKU:price};
+        product.rarityByCurrency=product.rarityByCurrency||{};product.rarityByCurrency[currency]={SKU:rarity};
+      }
+      window.KeySuitePricing?.render?.();message('gws',`${product?.model||'GWS Tank'} ${currency} price and rarity saved.`,'info');
+    }catch(error){console.error(error);message('gws',`${error.message||error}. Run the V1.20.4 Supabase hotfix first.`,'error')}
+    finally{button.disabled=false;button.innerHTML=original}
+  }
+
+  function bindCurrency(prefix,renderRows){
+    el(`${prefix}PriceCurrency`)?.addEventListener('change',event=>{
+      localStorage.setItem(`ks_${prefix}_price_currency`,validCurrency(event.target.value));renderRows();
+    });
+  }
+
+  function bindMultiplierGroup(group){
+    const prefix=group.dataset.multiplierPrefix,currency=group.dataset.multiplierCurrency;
+    const input=group.querySelector('.multiplier-hold-input')||group.querySelector('input');
+    if(input)bindLongHold(input,()=>beginMultiplierUnlock(prefix,currency));
+    group.querySelector('[data-multiplier-save]')?.addEventListener('click',()=>saveMultiplier(prefix,currency));
+    group.querySelector('[data-multiplier-cancel]')?.addEventListener('click',()=>cancelMultiplier(prefix,currency));
+  }
+
+  function bind(){
+    if(bound)return;bound=true;
+    el('chcPriceSearch')?.addEventListener('input',renderChcRows);
+    el('gwsPriceSearch')?.addEventListener('input',renderGwsRows);
+    bindCurrency('chc',renderChcRows);bindCurrency('gws',renderGwsRows);
+    document.querySelectorAll('.pricelist-multiplier-lock').forEach(bindMultiplierGroup);
+  }
+
+  function applyAuthorityMode(){
+    const editable=isOwner();
+    ['chcPriceList','gwsPriceList'].forEach(pageId=>{
+      const page=el(pageId);if(!page)return;
+      page.querySelectorAll('.pricelist-table input,.pricelist-table select').forEach(control=>control.disabled=!editable);
+      page.querySelectorAll('[data-save-chc-row],[data-save-gws-row]').forEach(button=>button.style.display=editable?'grid':'none');
+      page.querySelectorAll('.multiplier-hold-input').forEach(input=>{if(!editable){input.readOnly=true;input.disabled=true}else input.disabled=false});
+      page.querySelectorAll('.multiplier-actions').forEach(actions=>{if(!editable)actions.style.display='none'});
+    });
+  }
+
+  function render(){
+    if(!canView())return;
+    renderSettings('chc');renderSettings('gws');renderChcRows();renderGwsRows();applyAuthorityMode();
+    const notice=el('priceListAccessNotice');if(notice)notice.innerHTML=`Signed in as <b>${esc(access?.display_name||access?.email||'user')}</b>. Each product family keeps its own USD/RMB rates. Price rarity is stored per currency and defaults to Common.${isOwner()?'':' View-only access.'}`;
+  }
+
+  function init(data,userAccess){secureData={...secureData,...(data||{})};access=userAccess||access;bind();render()}
+  function pageShown(id){if(['priceListDashboard','chcPriceList','gwsPriceList'].includes(id))render()}
+
+  window.KeySuitePriceList={init,pageShown,render};
+})();

@@ -1,0 +1,9 @@
+{
+  "name": "KeySuite V2.0",
+  "short_name": "KeySuite",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f6f8fb",
+  "theme_color": "#17365d",
+  "icons": []
+}

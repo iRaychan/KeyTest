@@ -1,0 +1,11 @@
+KeySuite V1.12
+
+- New Key Dashboard.
+- Role is the first Key module.
+- Owner/Admin user role assignment and account-status control.
+- Owner protection and last-active-owner protection.
+- Role audit history.
+- Authentication-login status shown for approved users.
+- Removed Refresh Data from Company & Pricing.
+- Hidden Customer ID and Category ID from dashboards.
+- V1.08 PDF output unchanged and fully frozen.

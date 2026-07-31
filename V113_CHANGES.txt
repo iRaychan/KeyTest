@@ -1,0 +1,10 @@
+KeySuite V1.13
+
+- Gold Key button is visible only to Owner accounts.
+- Key button disappears for Admin, User, Dealer and Viewer.
+- Direct navigation to Key Dashboard, Role and Company & Pricing is blocked for non-Owners.
+- Added Role Permissions popup table.
+- Role management changed to Owner-only in the user interface.
+- Includes a Supabase owner-only role-security migration.
+- Customer ID and Category ID remain hidden.
+- V1.08 PDF output unchanged and fully frozen.

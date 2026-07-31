@@ -1,0 +1,5 @@
+KeySuite V1.02 Output Freeze
+
+The approved quotation print/PDF layout is frozen.
+V1.03 does not change item pagination, totals placement, quotation lines, logos, footer or page dimensions.
+Only the approved Prepared By relocation to the Authorized Signature area is applied.

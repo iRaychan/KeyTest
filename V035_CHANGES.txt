@@ -1,0 +1,8 @@
+KeySuite CHC v0.35
+
+- Page 1 remains frozen.
+- Restored the Page 2 logo using the same direct image path as Page 1.
+- SST remains visible even when it is 0%.
+- Removed blank spacing between the top line, Sub-total, SST, Total and the surrounding lines.
+- The three totals-section lines use the same 1.2 px thickness and solid style as the line below Pos.
+- Existing line lengths and totals alignment are retained.

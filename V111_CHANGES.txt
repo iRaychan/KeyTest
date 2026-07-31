@@ -1,0 +1,10 @@
+KeySuite V1.11 changes
+
+- Model / Item now includes the selected duty point.
+- Non-metric input shows both entered and converted units.
+- Metric m3/hr and metre input shows one duty format only.
+- Duty point removed from Description to avoid duplication.
+- Customer selection and assigned Pricing Category are required before a pump can be priced, saved or exported.
+- Key Company & Pricing now lists customer/company records and displays the address saved in Customers.
+- Owner/Admin can assign and save a Pricing Category for each customer/company.
+- V1.08 PDF output structure and positions remain frozen.

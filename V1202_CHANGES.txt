@@ -1,0 +1,8 @@
+KeySuite V1.20.2
+
+- Removed individual 3-second hold controls from Category fields.
+- Existing categories stay read-only until the Owner holds the single Edit button for 3 seconds.
+- After unlocking, all Category Name, CHC/GWS rule inputs and checkboxes can be edited together.
+- Save Category or Cancel relocks the editor.
+- New Category opens immediately editable with every numeric input at 0.00 and optional rule checkboxes off.
+- Frozen V1.08 PDF output remains unchanged.

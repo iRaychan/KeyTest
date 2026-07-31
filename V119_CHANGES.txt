@@ -1,0 +1,10 @@
+KeySuite V1.19
+
+- Category list now reliably switches the selected category into the right panel.
+- Holding a protected Category field for 3 seconds now enables editing and unlocks that field directly.
+- CHC and GWS keep separate USD/RMB multipliers; multiplier fields require a 3-second hold and save automatically.
+- Added Normal and Rare percentages to every CHC and GWS category rule.
+- Added Common / Many / Rare to every CHC, CHCS, CHCN and GWS pressure price.
+- Many preserves the V1.18 formula. Common adds Normal before Transport. Rare adds Normal and Rare before Transport.
+- Existing products default to Many to preserve current selling prices.
+- V1.08 PDF output remains frozen and unchanged.

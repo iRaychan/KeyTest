@@ -1,0 +1,19 @@
+KeySuite V1.01
+
+Restored without removing the approved V0.38 work:
+- Dashboard
+- Customer management
+- Complete CHC selector and pump report
+- Full quotation editor, history and approved multi-page print layout
+- V0.38 flexible totals placement, separator lines and embedded logos
+
+Added:
+- Supabase login/session gate
+- Approved-user verification and sign out
+- Protected Company & Pricing page
+- Automatic CHC/CHCS/CHCN final-price calculation
+- Add priced product directly to the full quotation
+- Automatic pricing lookup when a CHC selector result is added
+- Selector iframe loads only after authentication
+
+Important: keep the working config.js already present in the GitHub repository.

@@ -1,0 +1,10 @@
+KeySuite CHC v0.31 - Page 2 Workflow Update
+
+- Page 1 remains frozen.
+- Page 2 logo aligned to Page 1 (5 mm right margin).
+- Page 2 Date and Our Reference aligned with the logo left edge.
+- Customer section can collapse into one summary row through Customer Reference.
+- Added Expand All and Collapse All buttons for quotation items.
+- Added live item status counts.
+- Hover the item status strip to see the color meaning and missing information.
+- Service worker cache version updated to force the latest GitHub Pages build.

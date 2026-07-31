@@ -1,0 +1,9 @@
+KeySuite V1.23
+
+- Customer company details always start collapsed after selecting a customer.
+- Price List USD/RMB multiplier labels now show “(Hold 3s to edit)” beside the label; countdown remains on the held field.
+- Category Pricing Rule formulas are hidden until Show Formula is pressed; CHC/GWS tabs show only the selected family.
+- Dashboard “New CHC Quote” changed to “Quote” and opens Quotation directly.
+- Quotation reference input width doubled and the Keylargo/B.G.Reich subtitle removed.
+- Product > GWS groups SFB/SMB/SUB under one Superflow Series option and displays all three tank models after selection.
+- V1.08 PDF output remains frozen and unchanged.

@@ -1,0 +1,9 @@
+KeySuite V1.06
+
+- Moves the Page 2 quotation logo 3 mm to the left.
+- Restores the CHC Selector "Add to Quotation" button at the top-right.
+- The button requests the currently selected CHC pump and adds it to the quotation.
+- Keeps customer selection as the quotation-customer link used to auto-fill the quotation.
+- Clarifies the customer wording to "Use for Quotation" and "Quotation Customer".
+- No Supabase SQL migration is required.
+- Existing config.js must be kept in GitHub and is intentionally not included.

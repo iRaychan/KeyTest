@@ -1,0 +1,42 @@
+KeySuite V1.20
+
+Base
+- Built from V1.19.
+- V1.08 quotation PDF/print layout remains fully frozen and unchanged.
+
+Role and login
+- Owner can send a secure invitation email after adding a user access record.
+- The invited user follows the email link and creates their own KeySuite password.
+- Existing users without an Authentication account show an Invite action.
+- Invitation delivery uses the included Supabase Edge Function: keysuite-invite-user.
+
+Category
+- Category Names are visible in the left panel.
+- Clicking a Category Name highlights it and loads the saved CHC/GWS rules on the right.
+- The selected Category Name is clearly displayed in the editor.
+- Protected values use a visible 3-second hold control before editing.
+- Normal and Rare percentages remain product-specific for CHC and GWS.
+
+Price List
+- CHC and GWS keep separate USD and RMB multipliers.
+- Holding a multiplier control for 3 seconds reveals Save and Cancel buttons.
+- CHC headers are grouped by CHC, CHCS and CHCN, each with separate Price and Rarity columns.
+- Rarity is stored per currency and per sellable variant, defaulting to Common.
+- The rarity of the highest converted currency price controls the final formula.
+
+Pricing formulas
+- Many: base / margin + transport, then enabled commission/set/final/fuel, then round up to RM10.
+- Common: base / margin / normal + transport, then enabled commission/set/final/fuel, then round up to RM10.
+- Rare: base / margin / normal / rare + transport, then enabled commission/set/final/fuel, then round up to RM10.
+
+GWS Tank
+- Uses actual sellable SKUs instead of generic 10/16/25 Bar cells.
+- PEB 24LX and PWB 24LX are separate 10 Bar products.
+- Invalid pressure combinations are not displayed.
+- Added E-Wave, Pressure Wave, Max, Ultra Max, Challenger and Superflow SKU mappings.
+- Quotation item title shows size and pressure only, e.g. 18 Litres (10 Bar).
+- Full series/model/connection/precharge/working-pressure details are placed in Description where supplied.
+
+Security and display
+- Key remains Owner-only.
+- Customer ID and Category ID remain hidden from dashboards.

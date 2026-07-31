@@ -1,0 +1,6 @@
+KeySuite CHC v0.38
+
+- Extended the line below Total to exactly match the full line under Pos.
+- Embedded the Keylargo logo directly as image data on every printed page.
+- Added image decode wait before opening the browser print dialog.
+- Page 1 remains frozen.

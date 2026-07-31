@@ -1,0 +1,23 @@
+KeySuite V1.03
+Release date: 2026-07-29
+
+V1.02 quotation output remains frozen except for the specifically approved Prepared By change.
+
+Added and corrected:
+- Customer Add New now saves to Supabase.
+- Customer classification and Assigned User fields.
+- Owner/Admin can access all customers in their company.
+- Normal users can access only customers assigned to or created by them.
+- Existing browser-only customers are imported to Supabase when the secure customer table is empty.
+- User Settings button above Sign Out.
+- User can save Display Name, Designation and Contact Number to Supabase Auth metadata.
+- User can change password after confirming the current password.
+- New quotations use the logged-in user's saved Display Name.
+- Prepared By removed from the quotation header and shown only under Authorized Signature.
+- Prepared By name and designation are saved as a quotation snapshot.
+- Golden Key button changed to gold with a white key icon.
+- Golden Key sends the selected pump into the priced quotation workspace.
+
+Required:
+Run setup/V103_SUPABASE_MIGRATION.sql once in Supabase SQL Editor.
+Keep the working root config.js already present in GitHub.

@@ -1,0 +1,8 @@
+KeySuite CHC v0.36
+
+- Page 2 logo is embedded directly in the print document to prevent missing-image failures.
+- Totals now follow the final quotation item instead of being fixed to the bottom of the page.
+- One printed row is left between the final item and totals.
+- If the final item plus totals cannot fit above the lower margin, the final item and totals move together to the next page.
+- SST remains visible at 0%.
+- All three totals separator lines match the line below Pos.

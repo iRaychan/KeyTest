@@ -1,0 +1,12 @@
+KeySuite CHC v0.30
+
+Page 1 is frozen and unchanged.
+
+Page 2 onward:
+- Page 2 print logo now matches Page 1 logo dimensions and alignment.
+- Date and Ref are positioned beneath the logo.
+- Quotation items collapse into one compact row.
+- Single-row summary shows item number, model, quantity and total.
+- Drag-and-drop item reordering; PDF follows the displayed order.
+- Automatic status strip: green complete, yellow missing description, red missing model/quantity/price.
+- Copy and Delete actions added to each item row.

@@ -1,0 +1,6 @@
+KeySuite CHC v0.37
+
+1. Page 2 logo uses keylargo-logo.png?v=037 and falls back to embedded PNG data.
+2. Service-worker cache bumped and now explicitly caches keylargo-logo.png.
+3. Three totals rules use inner border elements for reliable browser/PDF printing.
+4. Qty column widened and forced to nowrap so values such as 113 Units remain on one row.

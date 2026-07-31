@@ -1,0 +1,12 @@
+KeySuite V1.04
+
+- Fixed Supabase customer table setup and schema-cache refresh migration.
+- Added secure per-user signatory name and signature attachment under Settings.
+- Removed signature upload controls from the Quotation editor.
+- Removed Authorized Signature and prepared-by text below the printed signature.
+- Moved Quotation button and Quotation No. together on the top-right row.
+- Moved the gold Key button to the KeySuite brand and removed GOLDEN KEY from CHC Selector.
+- Key requests the current CHC selection and adds it to the quotation; outside Selector it opens Company & Pricing.
+- Re-aligned Page 1 closing text and company with To/Attn.
+- Re-aligned Page 2 logo with Page 1.
+- Shifted Sub-total, 0% SST and Total labels to start under Unit Price.

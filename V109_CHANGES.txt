@@ -1,0 +1,9 @@
+KeySuite V1.09 changes
+
+- Quotation items can now be reordered only by dragging the three-line handle (☰).
+- The quotation item card itself is no longer draggable.
+- Description text can be selected, highlighted and edited without accidentally moving the item.
+- Model, quantity, price and discount fields remain fully selectable and editable.
+- Frozen V1.08 PDF output is unchanged on every page.
+- No Supabase migration is required.
+- Existing config.js remains excluded from the update package.

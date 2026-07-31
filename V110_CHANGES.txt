@@ -1,0 +1,17 @@
+KeySuite V1.10 changes
+
+- Adds Customer Distance (km), editable by Owner/Admin only.
+- Saves Customer Distance in Supabase and protects it from normal-user changes.
+- Adds persistent Fuel Price (RM/L) under Key > Company & Pricing, editable by Owner/Admin only.
+- Keeps the fixed Base Fuel Price at RM2.00/L.
+- Corrects 0.38 from a multiplication factor to a 38% margin:
+  Base MYR / (1 - Margin).
+- Correct pricing order:
+  USD x Rate -> divide by (1 - Margin) -> add Transport -> divide by Commission allowance -> divide by Set Discount allowance -> divide by Final Discount allowance -> add Fuel Charge -> round upward to the next RM10.
+- Fuel Charge = Customer Distance x max(Current Fuel Price - RM2.00, 0).
+- Automatically recalculates system-priced quotation items when the quotation customer changes.
+- Removes the quotation item Discount (%) input after Unit Price.
+- Item Total is now Quantity x Unit Price.
+- Preserves V1.08 frozen PDF layout on every page.
+- Requires V110_SUPABASE_MIGRATION.sql before testing.
+- Existing config.js remains excluded from the update package.

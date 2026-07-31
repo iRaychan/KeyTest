@@ -1,0 +1,9 @@
+KeySuite V1.14
+
+- Added Owner-only Category input page inside Key Dashboard.
+- Create and edit customer pricing categories without displaying Category IDs.
+- Fuel Price label simplified and moved beside the Company & Pricing title.
+- Fuel Price field shortened and Save changed to an icon button.
+- Removed any Refresh Pricing / Refresh Data control from Company & Pricing.
+- Selector PDF filename now uses only the selected model name.
+- V1.08 PDF/print layout remains fully frozen and unchanged.

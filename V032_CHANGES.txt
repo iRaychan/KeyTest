@@ -1,0 +1,9 @@
+KeySuite CHC v0.32
+
+- Page 1 remains frozen.
+- Fixed Page 2 quotation logo loading and aligned it with Page 1.
+- Aligned Date and Our Reference left edge with the Page 2 logo.
+- Customer, Customer Reference, Payment Terms and Remarks collapse together.
+- Added working colour status tooltip with green/yellow/red explanations.
+- Added Expand All and Collapse All item controls and status counts.
+- Added yellow A button to export quotation and all available pump curves in sequence.
