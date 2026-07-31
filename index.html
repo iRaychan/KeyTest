@@ -190,7 +190,16 @@
 
 
     .assembly-home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}.assembly-choice{min-height:190px;text-align:left;padding:24px;border:1px solid #cbd5e1;border-radius:16px;background:linear-gradient(145deg,#fff,#f8fafc);cursor:pointer}.assembly-choice:hover{border-color:#2563eb;box-shadow:0 12px 30px rgba(15,23,42,.09)}.assembly-choice h2{font-size:28px;margin:12px 0 8px}.assembly-choice-icon{font-size:34px}.assembly-workspace{display:grid;grid-template-columns:310px minmax(0,1fr);gap:16px}.assembly-list{display:grid;gap:8px}.assembly-list button{text-align:left;padding:12px;border:1px solid #dbe2ea;border-radius:10px;background:#fff}.assembly-list button.active{border-color:#2563eb;background:#eff6ff}.assembly-item{display:grid;grid-template-columns:1.2fr 90px 130px 130px auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #e2e8f0}.assembly-total{font-size:22px;font-weight:800;text-align:right}.route-actions{display:flex;gap:6px;flex-wrap:wrap}.route-actions .btn{padding:7px 10px;font-size:12px}@media(max-width:900px){.assembly-home-grid,.assembly-workspace{grid-template-columns:1fr}.assembly-item{grid-template-columns:1fr 70px 110px}.assembly-item .assembly-line-total,.assembly-item .assembly-delete{grid-column:auto}}
-</style>
+
+    .action-assembly{background:#f59e0b!important;border-color:#d97706!important;color:#fff!important}.action-assembly:hover{background:#d97706!important}
+    .action-quote{background:#16a34a!important;border-color:#15803d!important;color:#fff!important}.action-quote:hover{background:#15803d!important}
+    .action-pdf{background:#e5e7eb!important;border-color:#cbd5e1!important;color:#1f2937!important}.action-pdf:hover{background:#d1d5db!important}
+    .assembly-nav-gap{height:38px}.nav-assembly{background:#fff3cd!important;border-left:4px solid #f59e0b!important;color:#7c4a03!important}
+    .assembly-description-large{min-height:260px!important;resize:vertical}.assembly-top-actions{margin:0 0 14px}.assembly-description-dialog{width:min(1000px,calc(100vw - 30px))}.assembly-description-dialog textarea{min-height:65vh;width:100%;resize:vertical}
+    .quotation-title-line{display:flex;align-items:end;gap:22px;flex:1}.quotation-title-line h1{margin:0}.quotation-title-line .quote-number-field{min-width:260px}.quote-head{align-items:end}.quote-top-controls{margin-left:auto}.es-matrix-table{min-width:1450px}.es-matrix-table input{min-width:105px}
+    .product-model-actions [data-product-assembly],.route-actions [data-es-assembly],.route-actions [data-gws-assembly]{background:#f59e0b!important;border-color:#d97706!important;color:#fff!important}
+    .product-model-actions [data-product-add],.route-actions [data-es-quote],.route-actions [data-gws-quote]{background:#16a34a!important;border-color:#15803d!important;color:#fff!important}
+  </style>
 </head>
 <body>
 <div id="loginView" class="auth-shell">
@@ -210,7 +219,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.03</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.04</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -222,9 +231,10 @@
         <button type="button" class="nav-toggle" data-nav-toggle="productMenu"><span>Product</span><span class="nav-chevron">⌄</span></button>
         <div class="nav-submenu"><button data-page="productChc">CHC</button><button data-page="productEs">End Suction</button><button data-page="productGws">GWS Tank</button></div>
       </div>
-      <button data-page="assembly">Assembly</button>
       <button data-page="quotation">Quotation</button>
       <button data-page="history">Quote History</button>
+      <div class="assembly-nav-gap" aria-hidden="true"></div>
+      <button data-page="assembly" class="nav-assembly">Assembly</button>
     </nav>
     <div class="user-panel">
       <b id="sessionUserName">Signed in</b>
@@ -232,7 +242,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.03 · Assembly / ES update</div>
+    <div class="suite-version">KeySuite V2.04 · Workflow update</div>
   </aside>
 
   <main>
@@ -402,15 +412,13 @@
       <div class="page-title-row"><div><h1 id="assemblyBuilderTitle">System</h1><div class="muted">Component prices remain in this assembly until it is sent to Quotation.</div></div><div class="actions"><button class="btn secondary" data-go="assembly">← Assembly</button><button class="btn" id="newAssemblyDraft" type="button">+ New</button></div></div>
       <div id="assemblyNotice" class="notice">Loading assembly drafts…</div>
       <div class="assembly-workspace">
-        <div class="card"><h2>Drafts</h2><div id="assemblyDraftList" class="assembly-list"></div></div>
+        <div class="card"><h2>Drafts</h2><div><label>Customer</label><select id="assemblyCustomer" disabled title="Customer follows the active quotation selection"></select><div class="muted" style="margin:5px 0 14px">Follows Quotation customer</div></div><div id="assemblyDraftList" class="assembly-list"></div></div>
         <div class="card">
+          <input id="assemblyModelItem" type="hidden"><input id="assemblyStatus" type="hidden" value="draft">
+          <div class="actions assembly-top-actions"><button class="btn" id="saveAssemblyDraft" type="button">Save</button><button class="btn action-quote" id="assemblyToQuotation" type="button">Quote</button><button class="btn danger" id="deleteAssemblyDraft" type="button">Delete</button></div>
           <div class="form-grid">
-            <div><label>Model / Item</label><input id="assemblyModelItem" placeholder=""></div>
-            <div><label>Customer</label><select id="assemblyCustomer" disabled title="Customer follows the active quotation selection"></select><div class="muted" style="margin-top:5px">Follows Quotation customer</div></div>
-            <div><label>Status</label><select id="assemblyStatus"><option value="draft">Draft</option><option value="ready">Ready</option><option value="quoted">Quoted</option></select></div>
-            <div class="span-3"><label id="assemblyDescriptionLabel">System Description</label><textarea id="assemblyDescription" placeholder="The quotation description is transferred here when an item is added to Assembly."></textarea></div>
+            <div class="span-3"><label id="assemblyDescriptionLabel">System Description</label><textarea id="assemblyDescription" class="assembly-description-large" title="Double-click to open the large editor" placeholder="The quotation description is transferred here when an item is added to Assembly."></textarea></div>
           </div>
-          <div class="actions"><button class="btn" id="saveAssemblyDraft" type="button">Save</button><button class="btn green" id="assemblyToQuotation" type="button">Send Assembly to Quotation</button><button class="btn danger" id="deleteAssemblyDraft" type="button">Delete</button></div>
           <h2 style="margin-top:22px">Components / BOM</h2><div id="assemblyItems"></div>
           <div class="assembly-total">Total: <span id="assemblyTotal">RM 0.00</span></div>
         </div>
@@ -419,10 +427,9 @@
 
     <section id="quotation" class="page">
       <div class="quote-head">
-        <div><h1>Quotation</h1></div>
+        <div class="quotation-title-line"><h1>Quotation</h1><div class="quote-number-field"><label>Quotation No.</label><input id="quoteNo"></div></div>
         <div class="quote-top-controls">
-          <button class="btn green no-print export-center-hidden" type="button" id="topPrintQuote">PDF</button>
-          <div class="quote-number-field"><label>Quotation No.</label><input id="quoteNo"></div>
+          <button class="btn action-pdf no-print export-center-hidden" type="button" id="topPrintQuote">PDF</button>
           <input id="preparedBy" type="hidden">
           <input id="preparedByDesignation" type="hidden">
         </div>
@@ -462,7 +469,7 @@
         </div>
         <div id="quoteItems"></div>
         <div class="quote-total" style="margin-top:20px">Total: <span id="quoteTotal">RM 0.00</span></div>
-        <div class="card no-print export-center-hidden" id="quotationExportCenter" style="margin-top:16px"><h2>Export Center</h2><div class="actions"><button class="btn green" id="printQuote">PDF</button><button class="btn secondary" id="loadPrintSample">Load Print Sample</button></div><div id="itemExportButtons" class="actions"></div><p class="muted" style="margin-bottom:0">Item buttons export the selected item PDF.</p></div>
+        <div class="card no-print export-center-hidden" id="quotationExportCenter" style="margin-top:16px"><h2>Export Center</h2><div class="actions"><button class="btn action-pdf" id="printQuote">PDF</button><button class="btn secondary" id="loadPrintSample">Load Print Sample</button></div><div id="itemExportButtons" class="actions"></div><p class="muted" style="margin-bottom:0">Item buttons export the selected item PDF.</p></div>
       </div>
     </section>
 
@@ -669,7 +676,7 @@
       <div class="page-title-row"><div><h1>End Suction Price List</h1><div class="muted">ES source prices from the approved 260731 workbook. USD → MYR multiplier: 5.8.</div></div></div>
       <div id="esPriceListMessage" class="auth-message"></div>
       <div class="card"><div class="page-title-row"><div><h2 style="margin:0">ES Models</h2><div id="esPriceListCount" class="muted"></div></div><div class="price-list-search"><label>Search Model</label><input id="esPriceSearch" placeholder="Example: ES 100-32"></div></div>
-      <div class="table-wrap" style="max-height:650px"><table class="pricelist-table"><thead><tr><th>Model</th><th>Material</th><th>USD Price</th><th></th></tr></thead><tbody id="esPriceRows"></tbody></table></div></div>
+      <div class="table-wrap" style="max-height:650px"><table class="pricelist-table es-matrix-table"><thead><tr><th>Model</th><th>CI SS SS MS</th><th>CI BR SS MS</th><th>CI CI SS MS</th><th>CI BR SS GP</th><th>CI SS SS GP</th><th>CI CI SS GP</th><th>SS 304</th><th>SS 316</th><th></th></tr></thead><tbody id="esPriceRows"></tbody></table></div></div>
     </section>
     <section id="gwsPriceList" class="page">
       <div class="key-back-row"><button class="btn secondary" type="button" data-go="priceListDashboard">← Price List</button></div>
@@ -724,6 +731,7 @@
           <div><label>Category</label><div style="display:grid;grid-template-columns:minmax(160px,1fr) auto;gap:10px;align-items:end"><select id="pricingCategorySelect"></select><button class="btn" id="savePricingCategory" type="button">Save Category</button></div><div id="pricingCategoryMessage" class="muted" style="margin-top:7px">The Owner assigns the pricing category to each customer.</div></div>
           <div class="pricing-family-tabs" id="pricingFamilyTabs" role="tablist" aria-label="Product pricing rule">
             <button class="pricing-family-tab active" type="button" role="tab" aria-selected="true" data-pricing-family="CHC">CHC</button>
+            <button class="pricing-family-tab" type="button" role="tab" aria-selected="false" data-pricing-family="ES">ES</button>
             <button class="pricing-family-tab" type="button" role="tab" aria-selected="false" data-pricing-family="GWS">GWS</button>
           </div>
           <div id="pricingCategorySummary" class="pricing-rule" style="margin-top:12px"></div>
@@ -888,9 +896,11 @@
 <script src="roles.js?v=124"></script>
 <script src="assembly.js?v=203"></script>
 
+<dialog id="assemblyDescriptionDialog" class="ks-dialog"><form method="dialog" class="dialog-body assembly-description-dialog"><div class="page-title-row"><h2>System Description</h2><button class="dialog-close" value="cancel" aria-label="Close">×</button></div><textarea id="assemblyDescriptionPopup"></textarea><div class="dialog-actions"><button class="btn secondary" value="cancel">Cancel</button><button class="btn" id="saveAssemblyDescriptionPopup" value="default">Apply</button></div></form></dialog>
+
 <dialog id="productCurveDialog" class="ks-dialog product-curve-dialog">
   <div class="dialog-body">
-    <div class="page-title-row" style="margin-bottom:10px"><div><h2 id="productCurveTitle" style="margin:0">CHC Curve</h2></div><div class="actions" style="margin:0"><button class="btn" type="button" id="exportProductCurve">PDF</button><button class="btn secondary" type="button" id="closeProductCurve">Close</button></div></div>
+    <div class="page-title-row" style="margin-bottom:10px"><div><h2 id="productCurveTitle" style="margin:0">CHC Curve</h2></div><div class="actions" style="margin:0"><button class="btn action-pdf" type="button" id="exportProductCurve">PDF</button><button class="btn secondary" type="button" id="closeProductCurve">Close</button></div></div>
     <div id="productCurveHost"></div>
   </div>
 </dialog>

@@ -1,0 +1,10 @@
+KeySuite V2.04 Installation
+
+1. Back up the current deployment and Supabase database.
+2. Run setup/V204_SUPABASE_MIGRATION.sql in Supabase SQL Editor.
+3. Deploy all V2.04 package files.
+4. Preserve your existing setup/config.js.
+5. Clear browser cache/service worker and reload.
+
+SQL order for an existing V2.03 database:
+- Run V204_SUPABASE_MIGRATION.sql only.

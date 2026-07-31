@@ -40,7 +40,7 @@
   }
 
   function multipliers(family='CHC'){
-    const code=String(family||'CHC').toUpperCase()==='GWS'?'GWS':'CHC',rates=secureData.productMultipliers?.[code]||{};
+    const raw=String(family||'CHC').toUpperCase();const code=['CHC','ES','GWS'].includes(raw)?raw:'CHC',rates=secureData.productMultipliers?.[code]||{};
     return {USD:Number(rates.USD??secureData.usd_multiplier??5.8),RMB:Number(rates.RMB??secureData.rmb_multiplier??.65),MYR:1};
   }
 
@@ -53,7 +53,7 @@
     };
   }
 
-  function categoryRule(cat,family='CHC'){const code=String(family||'CHC').toUpperCase()==='GWS'?'GWS':'CHC';return normalizeRule(cat?.productRules?.[code]||{},code,code==='CHC'?cat:null)}
+  function categoryRule(cat,family='CHC'){const raw=String(family||'CHC').toUpperCase();const code=['CHC','ES','GWS'].includes(raw)?raw:'CHC';return normalizeRule(cat?.productRules?.[code]||{},code,code==='CHC'?cat:null)}
 
   function formula(cat=category(),family='CHC',rarity='many'){
     const rule=categoryRule(cat,family),level=normalizeRarity(rarity),parts=['Highest of (USD × USD rate), (RMB × RMB rate), MYR','÷ (1 − Margin)'];
@@ -225,7 +225,7 @@
     byId('pricingCategorySelect')?.addEventListener('change',event=>{categoryId=event.target.value;renderSummary();renderTable()});
     byId('savePricingCategory')?.addEventListener('click',savePricingCategory);
     byId('saveFuelPrice')?.addEventListener('click',saveFuelPrice);
-    document.querySelectorAll('[data-pricing-family]').forEach(button=>button.addEventListener('click',()=>{selectedPricingFamily=button.dataset.pricingFamily==='GWS'?'GWS':'CHC';renderSummary()}));
+    document.querySelectorAll('[data-pricing-family]').forEach(button=>button.addEventListener('click',()=>{selectedPricingFamily=['CHC','ES','GWS'].includes(button.dataset.pricingFamily)?button.dataset.pricingFamily:'CHC';renderSummary()}));
     byId('togglePricingFormula')?.addEventListener('click',()=>{pricingFormulaVisible=!pricingFormulaVisible;renderSummary()});
   }
 

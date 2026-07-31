@@ -1,0 +1,12 @@
+KeySuite V2.04
+
+- Standardized Assembly (orange), Quote (green), PDF (light grey) actions.
+- ES Price List changed to one model per row with eight material columns.
+- Added ES to Category Pricing Rule tabs.
+- Fixed CHC Product Curve / Assembly / Quote message dispatch reliability.
+- Redesigned Assembly workspace: customer moved left, model/status hidden, larger description with double-click editor, actions above description.
+- BOM now uses concise item/model descriptions.
+- Moved Dashboard Assembly navigation below Quote History with spacing and distinct styling.
+- Quotation title and number share one aligned row.
+- PWA/mobile icons now use the KeySelector assets.
+- Includes ES table permissions/RLS hotfix in V204 migration.

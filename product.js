@@ -13,7 +13,7 @@
 
   function ensureFrame(){const frame=$('productSelectorFrame');if(frame&&frame.src==='about:blank')frame.src=frame.dataset.src;return frame}
   function options(){return {material:$('productMaterial')?.value||'SS304 (Cast Iron Connection)',seal:$('productSeal')?.value||'Car/Cer',elastomer:$('productElastomer')?.value||'Viton',connection:$('productConnection')?.value||'round',bare:!!$('productBareShaft')?.checked,hz:50}}
-  function send(model,action){const frame=ensureFrame();if(!frame)return;queued={type:'KEYSUITE_PRODUCT_ACTION',model,action,options:options()};if(frameReady)frame.contentWindow.postMessage(queued,'*')}
+  function send(model,action){const frame=ensureFrame();if(!frame)return;queued={type:'KEYSUITE_PRODUCT_ACTION',model,action,options:options()};const dispatch=()=>{try{frame.contentWindow.postMessage(queued,'*')}catch(_){}};dispatch();setTimeout(dispatch,350);setTimeout(dispatch,1000)}
 
   function renderSeries(){
     const series=orderedSeries();if(!selectedSeries||!series.includes(selectedSeries))selectedSeries=series[0]||'';
@@ -26,7 +26,7 @@
   function renderModels(){
     const query=String($('productModelInput')?.value||'').trim().toLowerCase();let rows=products().filter(p=>seriesName(p.model)===selectedSeries);if(query)rows=rows.filter(p=>String(p.model).toLowerCase().includes(query));
     $('productSeriesTitle').textContent=selectedSeries||'Models';$('productModelCount').textContent=`${rows.length} model${rows.length===1?'':'s'}`;
-    $('productModelGrid').innerHTML=rows.length?rows.map(p=>`<div class="product-model-row"><h3>${esc(p.model)}</h3><div class="product-model-actions"><button class="btn secondary product-action-button" type="button" data-product-view="${esc(p.model)}">Curve</button><button class="btn secondary product-action-button" type="button" data-product-assembly="${esc(p.model)}">Assembly</button><button class="btn product-action-button" type="button" data-product-add="${esc(p.model)}">Quote</button></div></div>`).join(''):'<div class="product-empty">No matching CHC models.</div>';
+    $('productModelGrid').innerHTML=rows.length?rows.map(p=>`<div class="product-model-row"><h3>${esc(p.model)}</h3><div class="product-model-actions"><button class="btn secondary product-action-button" type="button" data-product-view="${esc(p.model)}">Curve</button><button class="btn action-assembly product-action-button" type="button" data-product-assembly="${esc(p.model)}">Assembly</button><button class="btn action-quote product-action-button" type="button" data-product-add="${esc(p.model)}">Quote</button></div></div>`).join(''):'<div class="product-empty">No matching CHC models.</div>';
     const grid=$('productModelGrid');
     grid.querySelectorAll('[data-product-view]').forEach(button=>button.onclick=()=>{const model=button.dataset.productView;currentCurveModel=model;$('productCurveTitle').textContent=model;const frame=ensureFrame(),host=$('productCurveHost');if(frame.parentNode!==host)host.appendChild(frame);frame.style.display='block';$('productCurveDialog').showModal();send(model,'view')});
     grid.querySelectorAll('[data-product-add]').forEach(button=>button.onclick=()=>{if(!window.KeySuiteApp?.ensureQuotationPricingContext?.('add a product to the quotation'))return;send(button.dataset.productAdd,'add')});

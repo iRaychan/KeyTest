@@ -99,10 +99,17 @@
 
 
   function renderEsRows(){
-    const body=el('esPriceRows');if(!body)return;const q=String(el('esPriceSearch')?.value||'').trim().toLowerCase();const rows=esProducts().filter(x=>!q||x.model.toLowerCase().includes(q));
-    body.innerHTML=rows.flatMap(product=>(product.variants||[]).filter(v=>Number(v.priceUsd)>0).map((v,i)=>`<tr><td><b>${esc(product.model)}</b></td><td>${esc(v.material)}</td><td><div class="currency-price-input"><span>USD</span><input type="number" min="0" step="0.01" value="${Number(v.priceUsd).toFixed(2)}" data-es-price="${esc(product.id)}" data-es-index="${i}"></div></td><td><button class="btn icon-save-button" data-save-es="${esc(product.id)}" data-es-index="${i}" title="Save">✓</button></td></tr>`)).join('')||'<tr><td colspan="4" class="muted">No matching ES models.</td></tr>';
+    const body=el('esPriceRows');if(!body)return;
+    const q=String(el('esPriceSearch')?.value||'').trim().toLowerCase();
+    const rows=esProducts().filter(x=>!q||x.model.toLowerCase().includes(q));
+    const columns=['CI / SS / SS / MS','CI / BR / SS / MS','CI / CI / SS / MS','CI / BR / SS / GP','CI / SS / SS / GP','CI / CI / SS / GP','SS304','SS316'];
+    const norm=v=>String(v||'').toUpperCase().replace(/\s+/g,'').replace(/BZ/g,'BR');
+    body.innerHTML=rows.map(product=>{
+      const cells=columns.map(label=>{const i=(product.variants||[]).findIndex(v=>norm(v.material)===norm(label));const v=i>=0?product.variants[i]:null;return `<td>${v?`<div class="currency-price-input"><span>USD</span><input type="number" min="0" step="0.01" value="${Number(v.priceUsd||0).toFixed(2)}" data-es-price="${esc(product.id)}" data-es-index="${i}"></div>`:'—'}</td>`}).join('');
+      return `<tr><td><b>${esc(product.model)}</b></td>${cells}<td><button class="btn icon-save-button" data-save-es-row="${esc(product.id)}" title="Save row">✓</button></td></tr>`;
+    }).join('')||'<tr><td colspan="10" class="muted">No matching ES models.</td></tr>';
     el('esPriceListCount').textContent=`Showing ${rows.length} ES models`;
-    body.querySelectorAll('[data-save-es]').forEach(b=>b.onclick=async()=>{if(!isOwner())return;const input=body.querySelector(`[data-es-price="${b.dataset.saveEs}"][data-es-index="${b.dataset.esIndex}"]`);const product=esProducts().find(x=>x.id===b.dataset.saveEs);const variant=product?.variants?.[Number(b.dataset.esIndex)];try{const client=window.KeySuiteAuth?.getClient?.();const {error}=await client.rpc('keysuite_save_es_price_v203',{p_product_id:product.id,p_material:variant.material,p_price_usd:Number(input.value)});if(error)throw error;variant.priceUsd=Number(input.value);message('es','ES price saved.','success')}catch(e){message('es',e.message||String(e),'error')}});
+    body.querySelectorAll('[data-save-es-row]').forEach(b=>b.onclick=async()=>{if(!isOwner())return;const product=esProducts().find(x=>x.id===b.dataset.saveEsRow);const inputs=[...body.querySelectorAll(`[data-es-price="${b.dataset.saveEsRow}"]`)];try{const client=window.KeySuiteAuth?.getClient?.();for(const input of inputs){const variant=product?.variants?.[Number(input.dataset.esIndex)];if(!variant)continue;const {error}=await client.rpc('keysuite_save_es_price_v203',{p_product_id:product.id,p_material:variant.material,p_price_usd:Number(input.value)});if(error)throw error;variant.priceUsd=Number(input.value)}message('es',`${product.model} prices saved.`,'success')}catch(e){message('es',e.message||String(e),'error')}});
   }
   function renderGwsRows(){
     const body=el('gwsPriceRows');if(!body)return;
