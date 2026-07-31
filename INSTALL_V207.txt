@@ -1,0 +1,26 @@
+KeySuite V2.07 Installation
+
+Prerequisite
+- Database must already include the V2.05 migration.
+- V2.07 requires no additional Supabase SQL migration.
+
+Deployment
+1. Keep a copy of the currently deployed files.
+2. Extract KeySuite_V2.07_GitHub.zip.
+3. Preserve the existing working Supabase configuration file, normally setup/config.js or the deployment's equivalent config.js.
+4. Upload the V2.07 files over the current deployment.
+5. Do not delete or recreate the Supabase tables.
+6. Open KeySuite and press Ctrl + Shift + R to force a hard refresh.
+7. If the installed PWA still shows the previous version, close it fully and reopen it after the hard refresh.
+
+Verification
+1. Product > CHC > Curve: open a CHC model and confirm the red duty point is visible.
+2. Export PDF: confirm page 1 contains the duty point and page 2 shows Capacity and Pressure values.
+3. Product/Selector > Assembly and Quote: confirm 0.5HP, 0.75HP and whole-number HP formatting.
+4. Assembly: confirm Capacity is included when the pump has valid flow and head data.
+5. Double-click the Assembly description and confirm the editor is wider.
+6. Add a GWS tank to Assembly and confirm the concise tank description. Change its quantity and confirm the description quantity updates.
+
+Rollback
+- Restore the previous deployed V2.06 files.
+- No database rollback is required because V2.07 does not change the Supabase schema.

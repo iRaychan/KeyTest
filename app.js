@@ -153,6 +153,14 @@ function formatMYPhone(value){
 function formatDutyNumber(value,decimals=1){
  const number=Number(value||0);return Number.isInteger(number)?number.toFixed(0):number.toFixed(decimals).replace(/\.?0+$/,'');
 }
+function formatMotorHp(value){
+ const number=Number(value);
+ if(!Number.isFinite(number))return '';
+ return number.toFixed(2).replace(/0+$/,'').replace(/\.$/,'');
+}
+function hasDutyPoint(p={}){
+ return Number(p.flow_m3h||0)>0&&Number(p.head_m||0)>0;
+}
 function quotationDutyText(p={}){
  const flowUnit=String(p.flow_unit||p.flowUnit||'m3h').toLowerCase();
  const headUnit=String(p.head_unit||p.headUnit||'m').toLowerCase();
@@ -602,11 +610,13 @@ function chcAssemblyQuoteItem(p={}){
  const gMatch=rawConnection.match(/G\s*\d+(?:[½¼¾]|\s*1\/2|\s*1\/4|\s*3\/4)?/ig)||[];
  const connectionType=p.keysuite_connection_type||$('connectionType')?.value||'round';
  const suctionDischarge=connectionType==='oval'?`${gMatch[0]||rawConnection.match(/\(([^)]+)\)/)?.[1]||'G'} x ${gMatch[0]||rawConnection.match(/\(([^)]+)\)/)?.[1]||'G'}`:`${dnMatch[0]||rawConnection.split('(')[0].trim()||'DN'} x ${dnMatch[0]||rawConnection.split('(')[0].trim()||'DN'}`;
- const hp=p.motor_hp!=null?Number(p.motor_hp).toFixed(2).replace(/\.00$/,''):'';
+ const hp=formatMotorHp(p.motor_hp);
  const motorLine=`c/w ${hp||'-'}HP 2Pole ${p.motor_efficiency_class||'IE3'} Motor (${p.motor_voltage||415}V / ${p.motor_phase||'3Ph'} / ${Number(p.frequency_hz||50).toFixed(1)}Hz)`;
  const materialLine=seal==='Car/Cer'&&elastomer==='Viton'?`${material} / Mech Seal`:`${material} / Mech Seal-${seal}/${elastomer}`;
- const dutyText=p.product_mode?'':quotationDutyText(p);
- return {model:[quotationModel,dutyText].filter(Boolean).join(' — '),description:[`B.G.Reich Vertical Multistage Pump Model: ${quotationModel||'-'}`,bare?'(Bare shaft pump)':motorLine,`Suction & Discharge: ${suctionDischarge}`,`Material: ${materialLine}`].join('\n')};
+ const dutyText=hasDutyPoint(p)?quotationDutyText(p):'';
+ const modelDutyText=p.product_mode?'':dutyText;
+ const description=[dutyText?`Capacity: ${dutyText}`:'',`B.G.Reich Vertical Multistage Pump Model: ${quotationModel||'-'}`,bare?'(Bare shaft pump)':motorLine,`Suction & Discharge: ${suctionDischarge}`,`Material: ${materialLine}`].filter(Boolean).join('\n');
+ return {model:[quotationModel,modelDutyText].filter(Boolean).join(' — '),description};
 }
 
 window.addEventListener('message',function(event){
@@ -663,18 +673,20 @@ window.addEventListener('message',function(event){
    const round=dnMatch[0]||rawConnection.split('(')[0].trim()||'DN';
    suctionDischarge=`${round} x ${round}`;
  }
- const hp=p.motor_hp!=null?Number(p.motor_hp).toFixed(2).replace(/\.00$/,''):'';
+ const hp=formatMotorHp(p.motor_hp);
  const motorLine=`c/w ${hp||'-'}HP 2Pole ${p.motor_efficiency_class||'IE3'} Motor (${p.motor_voltage||415}V / ${p.motor_phase||'3Ph'} / ${Number(p.frequency_hz||50).toFixed(1)}Hz)`;
  const standardSeal=seal==='Car/Cer'&&elastomer==='Viton';
  const materialLine=standardSeal?`${material} / Mech Seal`:`${material} / Mech Seal-${seal}/${elastomer}`;
- const dutyText=p.product_mode?'':quotationDutyText(p);
- const itemModel=[quotationModel,dutyText].filter(Boolean).join(' — ');
+ const dutyText=hasDutyPoint(p)?quotationDutyText(p):'';
+ const modelDutyText=p.product_mode?'':dutyText;
+ const itemModel=[quotationModel,modelDutyText].filter(Boolean).join(' — ');
  const lines=[
+   dutyText?`Capacity: ${dutyText}`:'',
    `B.G.Reich Vertical Multistage Pump Model: ${quotationModel||'-'}`,
    bare?'(Bare shaft pump)':motorLine,
    `Suction & Discharge: ${suctionDischarge}`,
    `Material: ${materialLine}`
- ];
+ ].filter(Boolean);
  const rows=[...document.querySelectorAll('.quote-item')];
  const empty=rows.length===1&&!rows[0].querySelector('.item-model').value&&!rows[0].querySelector('.item-description').value&&!+rows[0].querySelector('.item-price').value;
  const row=empty?rows[0]:quoteItemRow({});

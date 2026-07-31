@@ -269,9 +269,16 @@
     const shownModel=found.material==='CHC'?found.product.model:found.product.model.replace(/^CHC\b/,found.material);
     return {model:shownModel,description:`B.G.Reich Vertical Multistage Pump Model: ${shownModel}`,qty:1,unitPrice:found.calc.finalPrice,pricingSource:sourceSnapshot(found),productFamily:'CHC'};
   }
+  function gwsAssemblyDescription(product,qty=1){
+    const litres=Number(product?.sizeLitres||String(product?.sizeCode||'').replace(/\D/g,'')||0);
+    const pressureBar=Number(product?.pressureBar||0);
+    const quantity=Math.max(0,Number(qty)||1);
+    const clean=value=>Number.isInteger(value)?value.toFixed(0):String(value);
+    return `c/w ${clean(litres)}L ${clean(pressureBar)}Bar @ ${clean(quantity)} qty`;
+  }
   function buildGwsAssemblyItem(model,pressure,options={}){
     const found=findGwsPrice(model,pressure,options);if(!found)return null;
-    return {model:gwsQuoteTitle(found.product),description:gwsDescription(found.product),qty:1,unitPrice:found.calc.finalPrice,pricingSource:sourceSnapshot(found),productFamily:'GWS'};
+    return {model:gwsQuoteTitle(found.product),description:gwsAssemblyDescription(found.product,1),qty:1,unitPrice:found.calc.finalPrice,pricingSource:sourceSnapshot(found),productFamily:'GWS',tankData:{sizeLitres:Number(found.product?.sizeLitres||0),pressureBar:Number(found.product?.pressureBar||0)}};
   }
   window.KeySuitePricing={init,calculate,calculatePrice,findPrice,findGwsPrice,applyPriceToQuoteRow,refreshQuotePrices,addGwsToQuotation,addEs,findEsPrice,buildChcAssemblyItem,buildGwsAssemblyItem,selectCustomer,refreshCustomers,hasPricingContext,syncPriceListSettings,render:()=>{renderSummary();renderTable()}};
 })();

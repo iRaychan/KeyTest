@@ -1,0 +1,32 @@
+KeySuite V2.07 Changes
+Release date: 2026-07-31
+
+1. CHC Curve PDF
+- Product CHC PDF exports now include the default reference duty point on the Head, Efficiency, Power and NPSHr curves.
+- The duty flow and intersected head are printed above the PDF curves.
+- Technical Data page 2 now uses the same default duty flow and intersected head instead of showing blank values.
+
+2. CHC Engineering Description
+- Motor HP is shown without unnecessary trailing zeros:
+  0.50HP -> 0.5HP
+  0.75HP -> 0.75HP
+  4.00HP -> 4HP
+- A Capacity line is included whenever valid flow and head data are available.
+- Product-origin CHC items keep the concise model-only BOM title while their engineering description can include the reference duty point.
+
+3. Assembly Description Editor
+- The double-click System/Pumpset Description editor is widened to a maximum of 1200px and uses more screen height.
+
+4. Assembly Tank Description
+- New GWS tank items routed to Assembly use a concise description:
+  c/w 35L 10Bar @ 1 qty
+- The quantity shown in the tank description updates when the Assembly quantity is changed.
+- Detailed GWS descriptions remain unchanged in Quotation.
+
+5. Version and Cache
+- Application identification updated to V2.07.
+- Service-worker cache updated to keysuite-v207.
+
+Database
+- No new Supabase schema migration is required for V2.07.
+- Keep the database upgraded through V2.05.
