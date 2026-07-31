@@ -1,0 +1,277 @@
+(() => {
+  'use strict';
+  const el=id=>document.getElementById(id);
+  let client=null;
+  let session=null;
+  let access=null;
+  let profile=null;
+  let pendingSignatureData=null;
+  let removeSignatureRequested=false;
+  let inviteFlowPending=/(?:[?#&])type=invite(?:&|$)/i.test(location.href)||/(?:access_token|refresh_token)=/i.test(location.hash)&&/type=invite/i.test(location.hash);
+
+  function configReady(){
+    const cfg=window.KEYSUITE_CONFIG||{};
+    return /^https:\/\/.+\.supabase\.co\/?$/i.test(String(cfg.supabaseUrl||'').trim())&&String(cfg.supabaseAnonKey||'').trim().length>20&&!String(cfg.supabaseAnonKey).includes('PASTE_');
+  }
+  function setView(name){el('loginView').classList.toggle('hidden',name!=='login');el('loadingView').classList.toggle('hidden',name!=='loading');el('appView').classList.toggle('hidden',name!=='app')}
+  function message(text,type='error'){const box=el('loginMessage');box.textContent=text||'';box.className=text?`auth-message show ${type}`:'auth-message'}
+  function busy(on){el('loginButton').disabled=on;el('loginButton').textContent=on?'Signing in…':'Sign in';el('loginEmail').disabled=on;el('loginPassword').disabled=on}
+  function showLogin(text='',type='error'){const key=el('keyButton');if(key){key.hidden=true;key.style.display='none'}setView('login');busy(false);message(text,type);el('loginPassword').value='';lockSelector()}
+  function showLoading(text){el('loadingText').textContent=text||'Checking secure access…';setView('loading')}
+  function friendly(error){const text=String(error?.message||'').toLowerCase();if(text.includes('invalid login credentials'))return 'The email or password is incorrect.';if(text.includes('email not confirmed'))return 'This email account has not been confirmed yet.';if(text.includes('rate limit'))return 'Too many attempts. Please try again later.';return error?.message||'Unable to sign in.'}
+  function unlockSelector(){const frame=el('selectorFrame');if(frame&&frame.src==='about:blank')frame.src=frame.dataset.src||'selector/index.html'}
+  function lockSelector(){['selectorFrame','productSelectorFrame'].forEach(id=>{const frame=el(id);if(frame&&frame.getAttribute('src')!=='about:blank')frame.src='about:blank'})}
+
+  async function verify(email){
+    const {data,error}=await client.from('ks_user_access').select('email,employee_id,company_id,role,display_name,active').eq('email',String(email||'').toLowerCase()).limit(1);
+    if(error)throw new Error(`Access check failed: ${error.message}`);
+    return data?.[0]?.active?data[0]:null;
+  }
+  async function loadData(){
+    const [companies,users,categories,products,gwsProducts,settings]=await Promise.all([
+      client.from('ks_companies').select('*').order('company_name'),
+      client.from('ks_company_users').select('*').order('full_name'),
+      client.from('ks_pricing_categories').select('*').order('category_name'),
+      client.from('ks_products_chc').select('*').order('source_row'),
+      client.from('ks_products_gws').select('*').eq('status','active').order('source_row'),
+      client.from('ks_app_settings').select('*').eq('id','default').limit(1)
+    ]);
+    const failed=[companies,users,categories,products,gwsProducts,settings].find(x=>x.error);if(failed?.error)throw new Error(failed.error.message);
+    const setting=settings.data?.[0]||{};
+    const chcUsdMultiplier=Number(setting.chc_usd_multiplier??setting.usd_multiplier??5.8);
+    const chcRmbMultiplier=Number(setting.chc_rmb_multiplier??setting.rmb_multiplier??.65);
+    const gwsUsdMultiplier=Number(setting.gws_usd_multiplier??setting.usd_multiplier??5.8);
+    const gwsRmbMultiplier=Number(setting.gws_rmb_multiplier??setting.rmb_multiplier??.65);
+    const parseRules=value=>{if(!value)return{};if(typeof value==='object')return value;try{return JSON.parse(value)}catch(_){return{}}};
+    const normalizeRule=(raw={},fallback={})=>({
+      margin:Number(raw.margin??fallback.margin??.38),
+      transport:Number(raw.transport??fallback.transport??30),
+      commission:Number(raw.commission??fallback.commission??.03),
+      setDiscount:Number(raw.set_discount??raw.setDiscount??fallback.setDiscount??.068),
+      finalDiscount:Number(raw.final_discount??raw.finalDiscount??fallback.finalDiscount??.08),
+      includeCommission:raw.include_commission??raw.includeCommission??true,
+      includeSetDiscount:raw.include_set_discount??raw.includeSetDiscount??true,
+      includeFinalDiscount:raw.include_final_discount??raw.includeFinalDiscount??true,
+      includeFuelCharge:raw.include_fuel_charge??raw.includeFuelCharge??true,
+      normal:Number(raw.normal??fallback.normal??0),
+      rare:Number(raw.rare??fallback.rare??0)
+    });
+    return {
+      version:'1.24',release_date:'2026-07-30',currency:setting.currency||'MYR',
+      usd_multiplier:chcUsdMultiplier,rmb_multiplier:chcRmbMultiplier,myr_multiplier:1,
+      productMultipliers:{CHC:{USD:chcUsdMultiplier,RMB:chcRmbMultiplier,MYR:1},GWS:{USD:gwsUsdMultiplier,RMB:gwsRmbMultiplier,MYR:1}},
+      fuel_price:Number(setting.fuel_price??2),fuel_base_price:Number(setting.fuel_base_price??2),
+      companies:(companies.data||[]).map(c=>({id:c.id,name:c.company_name,category:c.pricing_category,delivery_distance:Number(c.delivery_distance||0),phone:c.company_phone,term_days:c.term_days,address:c.address,tin:c.tin_number,business_registration_no:c.business_registration_no,sst_no:c.sst_no,msic_code:c.msic_code,business_activities:c.business_activities})),
+      users:(users.data||[]).map(u=>({id:u.id,company_id:u.company_id,source_company_id:u.source_company_id,prefix:u.prefix,name:u.full_name,phone:u.phone,email:u.email})),
+      categories:(categories.data||[]).map(c=>{
+        const rules=parseRules(c.product_rules),chcFallback={margin:Number(c.chc_margin??c.chc_factor??.38),normal:0,rare:0,transport:Number(c.transport??30),commission:Number(c.commission??.03),setDiscount:Number(c.set_discount??.068),finalDiscount:Number(c.final_discount??.08),includeCommission:true,includeSetDiscount:true,includeFinalDiscount:true,includeFuelCharge:true},gwsFallback={margin:0,normal:0,rare:0,transport:0,commission:0,setDiscount:0,finalDiscount:0,includeCommission:false,includeSetDiscount:false,includeFinalDiscount:false,includeFuelCharge:false};
+        return {id:c.id,name:c.category_name,productRules:{CHC:normalizeRule(rules.CHC,chcFallback),GWS:normalizeRule(rules.GWS,gwsFallback)},final_discount:chcFallback.finalDiscount,set_discount:chcFallback.setDiscount,commission:chcFallback.commission,margins:{CHC:chcFallback.margin},factors:{CHC:chcFallback.margin},transport:chcFallback.transport};
+      }),
+      products:(products.data||[]).map(p=>({
+        id:p.id,category:p.product_category,model:p.model,source_row:p.source_row,
+        pricesByCurrency:{
+          USD:{CHC:p.chc_usd===null?null:Number(p.chc_usd),CHCS:p.chcs_usd===null?null:Number(p.chcs_usd),CHCN:p.chcn_usd===null?null:Number(p.chcn_usd)},
+          RMB:{CHC:p.chc_rmb===null?null:Number(p.chc_rmb),CHCS:p.chcs_rmb===null?null:Number(p.chcs_rmb),CHCN:p.chcn_rmb===null?null:Number(p.chcn_rmb)},
+          MYR:{CHC:p.chc_myr===null?null:Number(p.chc_myr),CHCS:p.chcs_myr===null?null:Number(p.chcs_myr),CHCN:p.chcn_myr===null?null:Number(p.chcn_myr)}
+        },
+        rarityByCurrency:{
+          USD:{CHC:String(p.chc_rarity_usd||'common').toLowerCase(),CHCS:String(p.chcs_rarity_usd||'common').toLowerCase(),CHCN:String(p.chcn_rarity_usd||'common').toLowerCase()},
+          RMB:{CHC:String(p.chc_rarity_rmb||'common').toLowerCase(),CHCS:String(p.chcs_rarity_rmb||'common').toLowerCase(),CHCN:String(p.chcn_rarity_rmb||'common').toLowerCase()},
+          MYR:{CHC:String(p.chc_rarity_myr||'common').toLowerCase(),CHCS:String(p.chcs_rarity_myr||'common').toLowerCase(),CHCN:String(p.chcn_rarity_myr||'common').toLowerCase()}
+        }
+      })),
+      gwsProducts:(gwsProducts.data||[]).map(p=>({
+        id:p.id,model:p.model,source_row:p.source_row,seriesCode:p.series_code||'',seriesName:p.series_name||'',sizeCode:p.size_code||p.model,sizeLitres:Number(p.size_litres||String(p.size_code||p.model).replace(/\D/g,'')||0),pressureBar:Number(p.pressure_bar||0),
+        systemConnection:p.system_connection||'',prechargeText:p.precharge_text||'',maxWorkingPressureText:p.max_working_pressure_text||'',maxWorkingTemperatureText:p.max_working_temperature_text||'',
+        pricesByCurrency:{USD:{SKU:p.price_usd===null?null:Number(p.price_usd)},RMB:{SKU:p.price_rmb===null?null:Number(p.price_rmb)},MYR:{SKU:p.price_myr===null?null:Number(p.price_myr)}},
+        rarityByCurrency:{USD:{SKU:String(p.rarity_usd||'common').toLowerCase()},RMB:{SKU:String(p.rarity_rmb||'common').toLowerCase()},MYR:{SKU:String(p.rarity_myr||'common').toLowerCase()}}
+      }))
+    };
+  }
+
+  async function loadRolePermissions(){
+    try{
+      const {data,error}=await client.rpc('keysuite_get_role_permissions');
+      if(error)throw error;
+      window.KeySuitePermissions?.setMatrix?.(data||[]);
+      return data||[];
+    }catch(error){
+      console.warn('Custom role permissions are not available yet',error);
+      window.KeySuitePermissions?.setMatrix?.(window.KeySuitePermissions?.DEFAULTS||{});
+      return [];
+    }
+  }
+
+  async function loadUserProfile(email){
+    try{
+      const {data,error}=await client.from('ks_user_profiles').select('*').eq('email',String(email||'').toLowerCase()).maybeSingle();
+      if(error){
+        if(String(error.code||'')==='PGRST205'||String(error.message||'').toLowerCase().includes('schema cache'))return {};
+        throw error;
+      }
+      return data||{};
+    }catch(error){console.warn('User profile settings are not available yet',error);return {}}
+  }
+  function buildProfile(s,userAccess,data,saved={}){
+    const meta=s?.user?.user_metadata||{};
+    const directory=(data?.users||[]).find(u=>String(u.email||'').toLowerCase()===String(s?.user?.email||'').toLowerCase())||{};
+    return {
+      display_name:String(saved.display_name||meta.display_name||userAccess?.display_name||directory.name||s?.user?.email||'').trim(),
+      designation:String(saved.designation||meta.designation||'').trim(),
+      phone:String(saved.phone||meta.phone||directory.phone||'').trim(),
+      signatory_name:String(saved.signatory_name||meta.signatory_name||'').trim(),
+      signature_image:String(saved.signature_image||'').trim(),
+      email:String(s?.user?.email||userAccess?.email||'').toLowerCase(),
+      role:userAccess?.role||'user',
+      company_id:userAccess?.company_id||''
+    };
+  }
+  function applyProfile(next){
+    profile=next||profile||{};window.KEYSUITE_PROFILE=profile;
+    el('sessionUserName').textContent=profile.display_name||profile.email||'Signed in';
+    el('sessionUserEmail').textContent=`${profile.email||''}${profile.role?` · ${profile.role}`:''}`;
+    window.KeySuiteApp?.applyProfile?.(profile);
+  }
+  async function enter(s){
+    showLoading('Verifying approved user…');
+    try{
+      const userAccess=await verify(s?.user?.email||'');
+      if(!userAccess){await client.auth.signOut({scope:'local'});showLogin('This account is valid, but it is not approved for KeySuite.');return}
+      showLoading('Loading protected company and pricing data…');
+      const data=await loadData();if(!data.companies.length)throw new Error('No company data was returned. Check the database and RLS policies.');
+      session=s;access=userAccess;window.KEYSUITE_ACCESS=access;await loadRolePermissions();const savedProfile=await loadUserProfile(s?.user?.email||'');profile=buildProfile(s,access,data,savedProfile);
+      window.KEYSUITE_SECURE_DATA=data;applyProfile(profile);
+      window.KeySuitePricing?.init(data,access);window.KeySuiteCategories?.init(data,access);window.KeySuitePriceList?.init(data,access);window.KeySuiteRoles?.init(access);unlockSelector();
+      showLoading('Loading your customer access…');
+      try{await window.KeySuiteCustomerStore?.load?.()}catch(error){console.warn('Customer load warning',error)}
+      refreshAll();setView('app');
+      if(inviteFlowPending)setTimeout(openInvitePassword,250);
+    }catch(error){console.error(error);try{await client.auth.signOut({scope:'local'})}catch(_){ }showLogin(`Secure data could not be loaded: ${error.message}`)}
+  }
+  async function signIn(event){
+    event.preventDefault();message('');if(!client){message('Supabase is not configured. Keep your working config.js in the repository.','info');return}
+    const email=el('loginEmail').value.trim().toLowerCase(),password=el('loginPassword').value;if(!email||!password){message('Enter both email and password.');return}
+    busy(true);const {data,error}=await client.auth.signInWithPassword({email,password});if(error||!data?.session){busy(false);message(friendly(error));return}await enter(data.session)
+  }
+  async function signOut(){el('logoutButton').disabled=true;try{await client?.auth.signOut()}catch(error){console.warn(error)}session=null;access=null;profile=null;window.KEYSUITE_SECURE_DATA=null;window.KEYSUITE_ACCESS=null;window.KEYSUITE_PROFILE=null;window.KeySuitePermissions?.setMatrix?.(window.KeySuitePermissions?.DEFAULTS||{});el('logoutButton').disabled=false;showLogin('You have signed out.','info')}
+  async function refreshSecure(){if(!session)return;await enter(session)}
+
+  function invitePasswordMessage(text,type='error'){
+    const box=el('invitePasswordMessage');if(!box)return;box.textContent=text||'';box.className=text?`auth-message show ${type}`:'auth-message';
+  }
+  function openInvitePassword(){
+    if(!session)return;invitePasswordMessage('Create your KeySuite password to complete the invitation.','info');el('inviteNewPassword').value='';el('inviteConfirmPassword').value='';el('invitePasswordDialog')?.showModal();
+  }
+  async function saveInvitePassword(event){
+    event.preventDefault();const password=el('inviteNewPassword').value,confirm=el('inviteConfirmPassword').value;
+    if(password.length<8){invitePasswordMessage('The password must contain at least 8 characters.');return}
+    if(password!==confirm){invitePasswordMessage('The passwords do not match.');return}
+    const button=el('saveInvitePassword');button.disabled=true;button.textContent='Saving…';
+    try{const activeSession=await ensureActiveSession();if(!activeSession)throw new Error('The invitation session has expired. Request a new invitation.');const result=await client.auth.updateUser({password});if(result.error)throw result.error;inviteFlowPending=false;history.replaceState(null,'',`${location.pathname}${location.search.replace(/([?&])type=invite(&|$)/,'$1').replace(/[?&]$/,'')}`);invitePasswordMessage('Password created. You can now use this email and password to sign in.','info');setTimeout(()=>el('invitePasswordDialog')?.close(),900)}catch(error){invitePasswordMessage(error.message||'The password could not be created.')}finally{button.disabled=false;button.textContent='Set Password'}
+  }
+
+  function settingsMessage(text,type='error'){
+    const box=el('settingsMessage');box.textContent=text||'';box.className=text?`auth-message show ${type}`:'auth-message';
+  }
+  function openSettings(){
+    if(!session||!profile)return;
+    settingsMessage('');el('settingsDisplayName').value=profile.display_name||'';el('settingsDesignation').value=profile.designation||'';el('settingsPhone').value=profile.phone||'';el('settingsEmail').value=profile.email||'';el('settingsSignatoryName').value=profile.signatory_name||profile.display_name||'';
+    pendingSignatureData=profile.signature_image||'';removeSignatureRequested=false;el('settingsSignatureUpload').value='';renderSignaturePreview();
+    el('settingsCurrentPassword').value='';el('settingsNewPassword').value='';el('settingsConfirmPassword').value='';el('settingsDialog').showModal();
+  }
+  function renderSignaturePreview(){
+    const preview=el('settingsSignaturePreview'),remove=el('settingsRemoveSignature');if(!preview||!remove)return;
+    const data=removeSignatureRequested?'':(pendingSignatureData||profile?.signature_image||'');
+    preview.src=data||'';preview.style.display=data?'block':'none';remove.disabled=!data;
+  }
+  function optimizeSignature(file){
+    return new Promise((resolve,reject)=>{
+      if(!/^image\/(png|jpeg|webp)$/.test(file.type))return reject(new Error('Please upload PNG, JPG or WEBP.'));
+      if(file.size>3*1024*1024)return reject(new Error('The signature file must be smaller than 3 MB.'));
+      const reader=new FileReader();
+      reader.onerror=()=>reject(new Error('The signature image could not be read.'));
+      reader.onload=()=>{
+        const image=new Image();image.onerror=()=>reject(new Error('The signature image is invalid.'));
+        image.onload=()=>{
+          const maxW=900,maxH=300,scale=Math.min(1,maxW/image.width,maxH/image.height);
+          const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(image.width*scale));canvas.height=Math.max(1,Math.round(image.height*scale));
+          const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0,canvas.width,canvas.height);
+          resolve(canvas.toDataURL('image/png'));
+        };image.src=String(reader.result||'');
+      };reader.readAsDataURL(file);
+    });
+  }
+  function closeSettings(){el('settingsDialog')?.close()}
+  async function ensureActiveSession(){
+    const current=await client.auth.getSession();
+    if(current.data?.session){session=current.data.session;return session}
+    if(session?.access_token&&session?.refresh_token){
+      const restored=await client.auth.setSession({access_token:session.access_token,refresh_token:session.refresh_token});
+      if(restored.data?.session){session=restored.data.session;return session}
+    }
+    return null;
+  }
+  async function saveSettings(event){
+    event.preventDefault();if(!client||!session)return;
+    const displayName=el('settingsDisplayName').value.trim(),designation=el('settingsDesignation').value.trim();
+    const phone=typeof window.formatMYPhone==='function'?window.formatMYPhone(el('settingsPhone').value):el('settingsPhone').value.trim();
+    const signatoryName=el('settingsSignatoryName').value.trim()||displayName;
+    const signatureImage=removeSignatureRequested?'':(pendingSignatureData!==null?pendingSignatureData:(profile.signature_image||''));
+    const currentPassword=el('settingsCurrentPassword').value,newPassword=el('settingsNewPassword').value,confirmPassword=el('settingsConfirmPassword').value;
+    if(!displayName){settingsMessage('Display Name is required.');return}
+    const changingPassword=!!(currentPassword||newPassword||confirmPassword);
+    if(changingPassword){
+      if(!currentPassword||!newPassword||!confirmPassword){settingsMessage('Complete all three password fields.');return}
+      if(newPassword.length<8){settingsMessage('The new password must contain at least 8 characters.');return}
+      if(newPassword!==confirmPassword){settingsMessage('The new passwords do not match.');return}
+    }
+    const button=el('saveSettings');button.disabled=true;button.textContent='Saving…';settingsMessage('');
+    try{
+      const activeSession=await ensureActiveSession();
+      if(!activeSession)throw new Error('Your login session has expired. Please sign out and sign in again.');
+      if(changingPassword){
+        const check=await client.auth.signInWithPassword({email:profile.email,password:currentPassword});
+        if(check.error)throw new Error('The current password is incorrect.');
+        if(check.data?.session)session=check.data.session;
+      }
+      const {data:profileRows,error:profileError}=await client.rpc('keysuite_save_my_profile',{
+        p_display_name:displayName,
+        p_designation:designation,
+        p_phone:phone,
+        p_signatory_name:signatoryName,
+        p_signature_image:signatureImage
+      });
+      if(profileError)throw new Error(`${profileError.message}. Run the V1.16 Supabase migration first.`);
+      const metadata={...(session?.user?.user_metadata||{}),display_name:displayName,designation,phone,signatory_name:signatoryName};
+      const profileResult=await client.auth.updateUser({data:metadata});
+      if(profileResult.error&&!String(profileResult.error.message||'').toLowerCase().includes('auth session missing'))throw profileResult.error;
+      if(changingPassword){const passwordResult=await client.auth.updateUser({password:newPassword});if(passwordResult.error)throw passwordResult.error}
+      const sessionResult=await client.auth.getSession();if(sessionResult.data?.session)session=sessionResult.data.session;
+      const saved=Array.isArray(profileRows)?profileRows[0]:profileRows||{};
+      pendingSignatureData=signatureImage;removeSignatureRequested=false;applyProfile({...profile,...saved,display_name:displayName,designation,phone,signatory_name:signatoryName,signature_image:signatureImage});
+      el('settingsPhone').value=phone;el('settingsCurrentPassword').value='';el('settingsNewPassword').value='';el('settingsConfirmPassword').value='';
+      settingsMessage(changingPassword?'Profile and password updated.':'Profile and signatory updated.','info');
+      setTimeout(closeSettings,700);
+    }catch(error){console.error(error);settingsMessage(error.message||'Settings could not be saved.')}finally{button.disabled=false;button.textContent='Save Settings'}
+  }
+
+  async function init(){
+    el('loginForm').addEventListener('submit',signIn);el('logoutButton').addEventListener('click',signOut);el('showPassword').addEventListener('change',event=>el('loginPassword').type=event.target.checked?'text':'password');
+    el('invitePasswordForm')?.addEventListener('submit',saveInvitePassword);
+    el('settingsButton')?.addEventListener('click',openSettings);el('settingsForm')?.addEventListener('submit',saveSettings);el('closeSettings')?.addEventListener('click',closeSettings);el('cancelSettings')?.addEventListener('click',closeSettings);
+    el('settingsSignatureUpload')?.addEventListener('change',async event=>{
+      const file=event.target.files?.[0];if(!file)return;
+      try{pendingSignatureData=await optimizeSignature(file);removeSignatureRequested=false;renderSignaturePreview();settingsMessage('Signature ready. Click Save Settings to keep it.','info')}
+      catch(error){event.target.value='';settingsMessage(error.message||'The signature could not be loaded.')}
+    });
+    el('settingsRemoveSignature')?.addEventListener('click',()=>{pendingSignatureData='';removeSignatureRequested=true;el('settingsSignatureUpload').value='';renderSignaturePreview();settingsMessage('Signature will be removed when you save.','info')});
+    if(!configReady()){showLogin('Your existing config.js is missing or incomplete. Keep the config.js that already works on GitHub.','info');return}
+    if(!window.supabase?.createClient){showLogin('The Supabase library could not be loaded. Check the internet connection.');return}
+    const cfg=window.KEYSUITE_CONFIG;client=window.supabase.createClient(cfg.supabaseUrl.trim(),cfg.supabaseAnonKey.trim(),{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    client.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'){session=null;access=null;profile=null;showLogin()}});
+    showLoading('Checking existing session…');const {data,error}=await client.auth.getSession();if(error){showLogin(error.message);return}if(data?.session)await enter(data.session);else showLogin();
+  }
+
+  window.KeySuiteAuth={getClient:()=>client,getSession:()=>session,getAccess:()=>access,getProfile:()=>profile,openSettings,refreshSecure};
+  init();
+})();
