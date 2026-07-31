@@ -8,6 +8,7 @@
   const products=()=>window.KEYSUITE_SECURE_DATA?.products||[];
   const gwsProducts=()=>window.KEYSUITE_SECURE_DATA?.gwsProducts||[];
   const esProducts=()=>window.KEYSUITE_SECURE_DATA?.esProducts||[];
+  const keyplcProducts=()=>window.KEYSUITE_SECURE_DATA?.keyplcProducts||[];
   const seriesName=model=>{const m=String(model||'').match(/^CHC\s+(\d+)/i);return m?`CHC ${m[1]}`:'Other'};
   const orderedSeries=()=>[...new Set(products().map(p=>seriesName(p.model)))].sort((a,b)=>Number((a.match(/\d+/)||[999])[0])-Number((b.match(/\d+/)||[999])[0]));
 
@@ -68,13 +69,25 @@
     body.querySelectorAll('[data-es-assembly]').forEach(b=>b.onclick=()=>window.KeySuitePricing?.addEs?.(b.dataset.esAssembly,'assembly'));
     body.querySelectorAll('[data-es-quote]').forEach(b=>b.onclick=()=>window.KeySuitePricing?.addEs?.(b.dataset.esQuote,'quotation'));
   }
-  function render(){if($('productModelOptions'))$('productModelOptions').innerHTML=products().map(p=>`<option value="${esc(p.model)}"></option>`).join('');renderSeries();renderModels();renderEs();renderGws()}
-  function pageShown(id){if(['productChc','productEs','productGws'].includes(id))render()}
+  function renderKeyplc(){
+    const body=$('keyplcProductRows');if(!body)return;
+    const q=String($('keyplcProductSearch')?.value||'').trim().toLowerCase();
+    const rows=keyplcProducts().filter(x=>!q||String(x.model||'').toLowerCase().includes(q));
+    const pumpOptions=Array.from({length:6},(_,i)=>`<option value="${i+1}">${i+1} ${i===0?'Pump':'Pumps'}</option>`).join('');
+    body.innerHTML=rows.map(product=>`<tr data-keyplc-product-row="${esc(product.id)}"><td><b>${esc(product.model)}</b></td><td><select data-keyplc-pump-count aria-label="Number of pumps for ${esc(product.model)}">${pumpOptions}</select></td><td style="text-align:right"><div class="route-actions"><button class="btn secondary" type="button" data-keyplc-assembly="${esc(product.id)}">Assembly</button><button class="btn" type="button" data-keyplc-quote="${esc(product.id)}">Quote</button></div></td></tr>`).join('')||'<tr><td colspan="3" class="muted">No matching KeyPLC panel models.</td></tr>';
+    $('keyplcProductCount').textContent=`${rows.length} panel model${rows.length===1?'':'s'}`;
+    const qtyFor=button=>Number(button.closest('[data-keyplc-product-row]')?.querySelector('[data-keyplc-pump-count]')?.value||1);
+    body.querySelectorAll('[data-keyplc-assembly]').forEach(button=>button.addEventListener('click',()=>window.KeySuitePricing?.addKeyplc?.(button.dataset.keyplcAssembly,qtyFor(button),'assembly')));
+    body.querySelectorAll('[data-keyplc-quote]').forEach(button=>button.addEventListener('click',()=>window.KeySuitePricing?.addKeyplc?.(button.dataset.keyplcQuote,qtyFor(button),'quotation')));
+  }
+
+  function render(){if($('productModelOptions'))$('productModelOptions').innerHTML=products().map(p=>`<option value="${esc(p.model)}"></option>`).join('');renderSeries();renderModels();renderEs();renderGws();renderKeyplc()}
+  function pageShown(id){if(['productChc','productEs','productGws','productKeyplc'].includes(id))render()}
 
   window.addEventListener('message',event=>{if(event.source===$('productSelectorFrame')?.contentWindow&&event.data?.type==='KEYSUITE_PRODUCT_FRAME_READY'){frameReady=true;if(queued){const message=queued;queued=null;postToFrame($('productSelectorFrame'),message)}}});
   document.addEventListener('DOMContentLoaded',()=>{
     $('productModelInput')?.addEventListener('input',()=>{const exact=products().find(p=>p.model.toLowerCase()===$('productModelInput').value.trim().toLowerCase());if(exact)selectedSeries=seriesName(exact.model);renderSeries();renderModels()});
-    $('closeProductCurve')?.addEventListener('click',()=>$('productCurveDialog')?.close());$('exportProductCurve')?.addEventListener('click',()=>{if(currentCurveModel)send(currentCurveModel,'export')});$('esProductSearch')?.addEventListener('input',renderEs);$('gwsProductSeries')?.addEventListener('change',renderGws);$('gwsProductSearch')?.addEventListener('input',renderGws);
+    $('closeProductCurve')?.addEventListener('click',()=>$('productCurveDialog')?.close());$('exportProductCurve')?.addEventListener('click',()=>{if(currentCurveModel)send(currentCurveModel,'export')});$('esProductSearch')?.addEventListener('input',renderEs);$('gwsProductSeries')?.addEventListener('change',renderGws);$('gwsProductSearch')?.addEventListener('input',renderGws);$('keyplcProductSearch')?.addEventListener('input',renderKeyplc);
   });
   window.KeySuiteProduct={pageShown,render};
 })();

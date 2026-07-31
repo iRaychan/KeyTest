@@ -111,7 +111,7 @@
     return (rows||[]).map(c=>{
       let rules=c.product_rules||{};if(typeof rules==='string'){try{rules=JSON.parse(rules)}catch(_){rules={}}}
       const normalize=code=>normalizeRule(rules?.[code]||{},code==='CHC'?{margin:Number(c.chc_margin??c.chc_factor??.38),normal:0,rare:0,transport:Number(c.transport??30),commission:Number(c.commission??.03),setDiscount:Number(c.set_discount??.068),finalDiscount:Number(c.final_discount??.08),includeCommission:true,includeSetDiscount:true,includeFinalDiscount:true,includeFuelCharge:true}:{margin:0,normal:0,rare:0,transport:0,commission:0,setDiscount:0,finalDiscount:0,includeCommission:false,includeSetDiscount:false,includeFinalDiscount:false,includeFuelCharge:false});
-      return {id:c.id,name:String(c.category_name||c.name||'Unnamed Category'),productRules:{CHC:normalize('CHC'),ES:normalize('ES'),GWS:normalize('GWS')},margins:{CHC:Number(c.chc_margin??c.chc_factor??0)},factors:{CHC:Number(c.chc_margin??c.chc_factor??0)},transport:Number(c.transport||0),commission:Number(c.commission||0),set_discount:Number(c.set_discount||0),final_discount:Number(c.final_discount||0)};
+      return {id:c.id,name:String(c.category_name||c.name||'Unnamed Category'),productRules:{CHC:normalize('CHC'),ES:normalize('ES'),GWS:normalize('GWS'),KEYPLC:normalize('KEYPLC')},margins:{CHC:Number(c.chc_margin??c.chc_factor??0)},factors:{CHC:Number(c.chc_margin??c.chc_factor??0)},transport:Number(c.transport||0),commission:Number(c.commission||0),set_discount:Number(c.set_discount||0),final_discount:Number(c.final_discount||0)};
     });
   }
 
@@ -133,7 +133,7 @@
     try{
       const {error}=await client.rpc('keysuite_manage_pricing_category_v119',{p_category_id:selectedId||null,p_category_name:name,p_product_code:selectedProduct,p_margin:rule.margin,p_normal:rule.normal,p_rare:rule.rare,p_transport:rule.transport,p_commission:rule.commission,p_set_discount:rule.setDiscount,p_final_discount:rule.finalDiscount,p_include_commission:rule.includeCommission,p_include_set_discount:rule.includeSetDiscount,p_include_final_discount:rule.includeFinalDiscount,p_include_fuel_charge:rule.includeFuelCharge});
       if(error)throw error;const rows=await reload(),saved=(rows||categories()).find(item=>item.name.toLowerCase()===name.toLowerCase());openCategory(saved||rows[0],false);message(`${selectedProduct} pricing rule for “${name}” saved.`,'info');
-    }catch(error){console.error(error);message(`${error.message||error}. Run V205_SUPABASE_MIGRATION.sql first.`,'error')}
+    }catch(error){console.error(error);message(`${error.message||error}. Run V208_SUPABASE_MIGRATION.sql first.`,'error')}
     finally{button.disabled=false;button.textContent=original}
   }
 
@@ -164,7 +164,7 @@
   function render(){
     if(!canView())return;const add=byId('newPricingCategory');if(add)add.style.display=isOwner()?'inline-flex':'none';const list=categories();if(selectedId&&!list.some(item=>item.id===selectedId))selectedId='';renderRows();showCurrencySummary();
     if(!selectedId&&list.length)openCategory(list[0],false);else if(selectedId){const category=currentCategory();if(category&&!editing){fill(category);setEditable(false)}}
-    const notice=byId('categoryAccessNotice');if(notice)notice.innerHTML=`Signed in as <b>${esc(access?.display_name||access?.email||'user')}</b>. Select a Category Name on the left; its saved CHC/ES/GWS rules will appear on the right.`;
+    const notice=byId('categoryAccessNotice');if(notice)notice.innerHTML=`Signed in as <b>${esc(access?.display_name||access?.email||'user')}</b>. Select a Category Name on the left; its saved CHC/ES/GWS/KeyPLC rules will appear on the right.`;
   }
 
   function init(data,userAccess){access=userAccess||access;bind();render()}

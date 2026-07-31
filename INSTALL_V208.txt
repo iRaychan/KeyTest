@@ -1,0 +1,35 @@
+KeySuite V2.08 Installation
+
+Prerequisite
+- The database must already include the V2.05 migration.
+- Keep the existing working Supabase configuration file, normally config.js or setup/config.js.
+
+A. Supabase migration
+1. Open the Supabase project used by the current KeySuite deployment.
+2. Open SQL Editor and create a new query.
+3. Paste the complete contents of V208_SUPABASE_MIGRATION.sql.
+4. Run it once and confirm that Supabase reports success.
+5. Do not delete or recreate existing tables.
+
+B. Website deployment
+1. Keep a copy of the currently deployed KeySuite files.
+2. Extract KeySuite_V2.08_GitHub.zip.
+3. Preserve the deployment's existing working config.js. Do not replace it with an example file.
+4. Upload the V2.08 files over the current deployment.
+5. Open KeySuite and press Ctrl + Shift + R for a hard refresh.
+6. If an installed PWA still shows the previous version, close it fully and reopen it after the hard refresh.
+
+C. Verification
+1. Selector > CHC: change Material, Mechanical Seal and Elastomer, export PDF, and confirm page 2 reflects those selections.
+2. Product > CHC > Curve: change Material, Mechanical Seal and Elastomer, export PDF, and confirm the PDF reflects them.
+3. Product > CHC > Assembly/Quote: confirm the Product default curve point is not written into the description.
+4. Add a GWS tank to Assembly and confirm the concise description has no blank row above it. Change quantity and confirm unit/units updates.
+5. Key > Price List: confirm every Currency & Multipliers panel starts collapsed and can be opened.
+6. Key > Price List > KeyPLC Panel: confirm models 0.75kW through 110kW appear, currencies can be changed, and a row can be saved.
+7. Product > KeyPLC Panel: choose a motor rating and pump count, then test one Assembly action and one Quote action.
+8. Key > Category > Edit Category and Company & Pricing: confirm KeyPLC is available.
+
+Rollback
+- Restore the previous V2.07 website files if the web build must be rolled back.
+- The added KeyPLC table and settings can remain in Supabase; V2.07 ignores them.
+- Do not drop tables or columns merely to roll back the website.

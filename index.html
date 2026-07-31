@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V1.24</title>
+  <title>KeySuite V2.08</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -197,8 +197,10 @@
     .assembly-nav-gap{height:38px}.nav-assembly{background:#fff3cd!important;border-left:4px solid #f59e0b!important;color:#7c4a03!important}
     .assembly-description-large{min-height:260px!important;resize:vertical}.assembly-top-actions{margin:0 0 14px}dialog#assemblyDescriptionDialog{width:min(1200px,calc(100vw - 24px));max-width:none}.assembly-description-dialog{width:100%;max-width:none}.assembly-description-dialog textarea{min-height:68vh;width:100%;resize:vertical}
     .quotation-title-line{display:flex;align-items:end;gap:22px;flex:1}.quotation-title-line h1{margin:0}.quotation-title-line .quote-number-field{min-width:260px}.quote-head{align-items:end}.quote-top-controls{margin-left:auto}.es-matrix-table{min-width:1450px}.es-matrix-table input{min-width:105px}
-    .product-model-actions [data-product-assembly],.route-actions [data-es-assembly],.route-actions [data-gws-assembly]{background:#f59e0b!important;border-color:#d97706!important;color:#fff!important}
-    .product-model-actions [data-product-add],.route-actions [data-es-quote],.route-actions [data-gws-quote]{background:#16a34a!important;border-color:#15803d!important;color:#fff!important}
+
+    .pricelist-currency-panel{padding:0!important;overflow:hidden}.pricelist-currency-panel>summary{cursor:pointer;list-style:none;padding:14px 18px;font-weight:800;color:var(--navy);display:flex;align-items:center;justify-content:space-between;background:#f8fafc}.pricelist-currency-panel>summary::-webkit-details-marker{display:none}.pricelist-currency-panel>summary:after{content:"▾";font-size:16px;transition:transform .2s}.pricelist-currency-panel[open]>summary:after{transform:rotate(180deg)}.pricelist-currency-panel-body{padding:0 18px 18px}.keyplc-product-toolbar{display:grid;grid-template-columns:minmax(220px,420px);gap:14px}.keyplc-table th,.keyplc-table td{white-space:nowrap}.keyplc-table select{min-width:112px}
+    .product-model-actions [data-product-assembly],.route-actions [data-es-assembly],.route-actions [data-gws-assembly],.route-actions [data-keyplc-assembly]{background:#f59e0b!important;border-color:#d97706!important;color:#fff!important}
+    .product-model-actions [data-product-add],.route-actions [data-es-quote],.route-actions [data-gws-quote],.route-actions [data-keyplc-quote]{background:#16a34a!important;border-color:#15803d!important;color:#fff!important}
 
 
     /* V2.06 ES matrix freeze panes and top horizontal scrollbar */
@@ -217,7 +219,7 @@
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V1.24 secure quotation and pump selection system</small></div>
+    <div class="auth-brand">KeySuite<small>V2.08 secure quotation, assembly and product system</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -232,7 +234,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.07</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.08</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -242,7 +244,7 @@
       </div>
       <div class="nav-group" data-nav-group="productMenu">
         <button type="button" class="nav-toggle" data-nav-toggle="productMenu"><span>Product</span><span class="nav-chevron">⌄</span></button>
-        <div class="nav-submenu"><button data-page="productChc">CHC</button><button data-page="productEs">End Suction</button><button data-page="productGws">GWS Tank</button></div>
+        <div class="nav-submenu"><button data-page="productChc">CHC</button><button data-page="productEs">End Suction</button><button data-page="productGws">GWS Tank</button><button data-page="productKeyplc">KeyPLC Panel</button></div>
       </div>
       <button data-page="quotation">Quotation</button>
       <button data-page="history">Quote History</button>
@@ -255,7 +257,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.07 · technical data and assembly description update</div>
+    <div class="suite-version">KeySuite V2.08 · KeyPLC panel price list and CHC PDF correction</div>
   </aside>
 
   <main>
@@ -413,6 +415,12 @@
       <div class="card"><div class="page-title-row"><div><h2 style="margin:0">ES Models</h2><div id="esProductCount" class="muted"></div></div><div class="price-list-search"><label>Search Model</label><input id="esProductSearch" placeholder="Example: ES 65-32"></div></div>
       <div class="table-wrap" style="max-height:650px"><table><thead><tr><th>Model</th><th>Material</th><th style="text-align:right">Actions</th></tr></thead><tbody id="esProductRows"></tbody></table></div></div>
     </section>
+    <section id="productKeyplc" class="page">
+      <div class="page-title-row"><div><h1>Product · KeyPLC Panel</h1><div class="muted">Choose a motor rating and number of pumps, then route the priced control panel to Assembly or Quotation.</div></div></div>
+      <div class="card keyplc-product-toolbar"><div><label>Search Motor Rating</label><input id="keyplcProductSearch" placeholder="Example: 4kW"></div></div>
+      <div class="card" style="margin-top:16px"><div class="page-title-row" style="margin-bottom:12px"><div><h2 style="margin:0">KeyPLC Panel Models</h2><div id="keyplcProductCount" class="muted"></div></div></div><div class="table-wrap" style="max-height:650px"><table class="keyplc-table"><thead><tr><th>Motor Rating</th><th>Number of Pumps</th><th style="text-align:right">Actions</th></tr></thead><tbody id="keyplcProductRows"></tbody></table></div></div>
+    </section>
+
     <section id="assembly" class="page">
       <div class="page-title-row"><div><h1>Assembly</h1><div class="muted">Build priced equipment packages before sending them to a quotation.</div></div></div>
       <div class="assembly-home-grid">
@@ -577,6 +585,7 @@
                   <button class="category-product-button active" type="button" data-category-product="CHC">CHC</button>
                   <button class="category-product-button" type="button" data-category-product="ES">ES</button>
                   <button class="category-product-button" type="button" data-category-product="GWS">GWS</button>
+                  <button class="category-product-button" type="button" data-category-product="KEYPLC">KeyPLC</button>
                 </div>
                 <div class="category-rule-editor">
                   <h3 id="categoryProductHeading">CHC Pricing Rule</h3>
@@ -657,6 +666,12 @@
           <p>Maintain only valid GWS series, model and pressure SKUs; unavailable pressure combinations are not shown.</p>
           <span class="module-order">OPEN PRICE LIST</span>
         </button>
+        <button type="button" class="key-module-card" data-go="keyplcPriceList">
+          <span class="module-icon">PLC</span>
+          <h2>KeyPLC Panel</h2>
+          <p>Maintain control-panel source prices by motor rating and one-to-six pump configuration.</p>
+          <span class="module-order">OPEN PRICE LIST</span>
+        </button>
       </div>
     </section>
 
@@ -666,14 +681,17 @@
         <div><h1>CHC Price List</h1><div class="muted">All source prices are interpreted in the selected CHC currency. Internal product IDs remain hidden.</div></div>
       </div>
       <div id="chcPriceListMessage" class="auth-message"></div>
-      <div class="card">
+      <details class="card pricelist-currency-panel">
+        <summary>Currency &amp; Multipliers</summary>
+        <div class="pricelist-currency-panel-body">
         <div class="pricelist-settings">
           <div class="pricelist-currency-setting"><label>Currency Selection</label><select id="chcPriceCurrency"><option value="USD">USD</option><option value="RMB">RMB</option><option value="MYR">MYR</option></select><div class="multiplier-hold-feedback">&nbsp;</div></div>
           <div class="pricelist-multiplier-lock locked" id="chcMultiplierLock_USD" data-multiplier-prefix="chc" data-multiplier-currency="USD"><label>USD → MYR</label><input id="chcUsdMultiplier" class="multiplier-hold-input" type="number" min="0.0001" step="0.0001" placeholder="5.8000" readonly aria-describedby="chcUsdMultiplierHint"><div class="multiplier-hold-feedback" id="chcUsdMultiplierHint">Hold input 3s to edit</div><div class="multiplier-actions"><button class="btn" type="button" data-multiplier-save>Save</button><button class="btn secondary" type="button" data-multiplier-cancel>Cancel</button></div></div>
           <div class="pricelist-multiplier-lock locked" id="chcMultiplierLock_RMB" data-multiplier-prefix="chc" data-multiplier-currency="RMB"><label>RMB → MYR</label><input id="chcRmbMultiplier" class="multiplier-hold-input" type="number" min="0.0001" step="0.0001" placeholder="0.6500" readonly aria-describedby="chcRmbMultiplierHint"><div class="multiplier-hold-feedback" id="chcRmbMultiplierHint">Hold input 3s to edit</div><div class="multiplier-actions"><button class="btn" type="button" data-multiplier-save>Save</button><button class="btn secondary" type="button" data-multiplier-cancel>Cancel</button></div></div>
         </div>
         <div class="pricelist-note" style="margin-top:12px">Select USD, RMB or MYR to view and save that currency's independent prices. CHC keeps its own rates. Press and hold directly on a locked USD or RMB input for 3 seconds; the countdown appears below the input.</div>
-      </div>
+        </div>
+      </details>
       <div class="card" style="margin-top:16px">
         <div class="page-title-row" style="margin-bottom:12px"><div><h2 style="margin:0">CHC Models</h2><div id="chcPriceListCount" class="muted"></div></div><div class="price-list-search"><label>Search Model</label><input id="chcPriceSearch" placeholder="Example: CHC 15-30"></div></div>
         <div class="table-wrap" style="max-height:650px">
@@ -690,14 +708,17 @@
       <div class="key-back-row"><button class="btn secondary" type="button" data-go="priceListDashboard">← Price List</button></div>
       <div class="page-title-row"><div><h1>End Suction Price List</h1><div class="muted">Maintain independent USD, RMB and MYR ES source prices. Rarity is set once per model and applies to every material.</div></div></div>
       <div id="esPriceListMessage" class="auth-message"></div>
-      <div class="card">
+      <details class="card pricelist-currency-panel">
+        <summary>Currency &amp; Multipliers</summary>
+        <div class="pricelist-currency-panel-body">
         <div class="pricelist-settings">
           <div class="pricelist-currency-setting"><label>Currency Selection</label><select id="esPriceCurrency"><option value="USD">USD</option><option value="RMB">RMB</option><option value="MYR">MYR</option></select><div class="multiplier-hold-feedback">&nbsp;</div></div>
           <div class="pricelist-multiplier-lock locked" id="esMultiplierLock_USD" data-multiplier-prefix="es" data-multiplier-currency="USD"><label>USD → MYR</label><input id="esUsdMultiplier" class="multiplier-hold-input" type="number" min="0.0001" step="0.0001" placeholder="5.8000" readonly aria-describedby="esUsdMultiplierHint"><div class="multiplier-hold-feedback" id="esUsdMultiplierHint">Hold input 3s to edit</div><div class="multiplier-actions"><button class="btn" type="button" data-multiplier-save>Save</button><button class="btn secondary" type="button" data-multiplier-cancel>Cancel</button></div></div>
           <div class="pricelist-multiplier-lock locked" id="esMultiplierLock_RMB" data-multiplier-prefix="es" data-multiplier-currency="RMB"><label>RMB → MYR</label><input id="esRmbMultiplier" class="multiplier-hold-input" type="number" min="0.0001" step="0.0001" placeholder="0.6500" readonly aria-describedby="esRmbMultiplierHint"><div class="multiplier-hold-feedback" id="esRmbMultiplierHint">Hold input 3s to edit</div><div class="multiplier-actions"><button class="btn" type="button" data-multiplier-save>Save</button><button class="btn secondary" type="button" data-multiplier-cancel>Cancel</button></div></div>
         </div>
         <div class="pricelist-note" style="margin-top:12px">Every ES model can be filled for every displayed material. Blank values remain available for later entry.</div>
-      </div>
+        </div>
+      </details>
       <div class="card"><div class="page-title-row"><div><h2 style="margin:0">ES Models</h2><div id="esPriceListCount" class="muted"></div></div><div class="price-list-search"><label>Search Model</label><input id="esPriceSearch" placeholder="Example: ES 100-32"></div></div>
       <div id="esPriceTopScroll" class="es-price-top-scroll" aria-label="ES price list top horizontal scrollbar"><div id="esPriceTopScrollInner" class="es-price-top-scroll-inner"></div></div>
       <div id="esPriceTableWrap" class="table-wrap es-price-table-wrap"><table class="pricelist-table es-matrix-table"><thead><tr><th>Model</th><th>Rarity</th><th>CI SS SS MS</th><th>CI CI SS MS</th><th>CI SS SS GP</th><th>CI CI SS GP</th><th>SS 304</th><th>SS 316</th><th></th></tr></thead><tbody id="esPriceRows"></tbody></table></div></div>
@@ -706,17 +727,41 @@
       <div class="key-back-row"><button class="btn secondary" type="button" data-go="priceListDashboard">← Price List</button></div>
       <div class="page-title-row"><div><h1>GWS Tank Price List</h1><div class="muted">Maintain separate USD, RMB and MYR prices only for valid GWS series/model/pressure combinations.</div></div></div>
       <div id="gwsPriceListMessage" class="auth-message"></div>
-      <div class="card">
+      <details class="card pricelist-currency-panel">
+        <summary>Currency &amp; Multipliers</summary>
+        <div class="pricelist-currency-panel-body">
         <div class="pricelist-settings">
           <div class="pricelist-currency-setting"><label>Currency Selection</label><select id="gwsPriceCurrency"><option value="USD">USD</option><option value="RMB">RMB</option><option value="MYR">MYR</option></select><div class="multiplier-hold-feedback">&nbsp;</div></div>
           <div class="pricelist-multiplier-lock locked" id="gwsMultiplierLock_USD" data-multiplier-prefix="gws" data-multiplier-currency="USD"><label>USD → MYR</label><input id="gwsUsdMultiplier" class="multiplier-hold-input" type="number" min="0.0001" step="0.0001" placeholder="5.8000" readonly aria-describedby="gwsUsdMultiplierHint"><div class="multiplier-hold-feedback" id="gwsUsdMultiplierHint">Hold input 3s to edit</div><div class="multiplier-actions"><button class="btn" type="button" data-multiplier-save>Save</button><button class="btn secondary" type="button" data-multiplier-cancel>Cancel</button></div></div>
           <div class="pricelist-multiplier-lock locked" id="gwsMultiplierLock_RMB" data-multiplier-prefix="gws" data-multiplier-currency="RMB"><label>RMB → MYR</label><input id="gwsRmbMultiplier" class="multiplier-hold-input" type="number" min="0.0001" step="0.0001" placeholder="0.6500" readonly aria-describedby="gwsRmbMultiplierHint"><div class="multiplier-hold-feedback" id="gwsRmbMultiplierHint">Hold input 3s to edit</div><div class="multiplier-actions"><button class="btn" type="button" data-multiplier-save>Save</button><button class="btn secondary" type="button" data-multiplier-cancel>Cancel</button></div></div>
         </div>
         <div class="pricelist-note" style="margin-top:12px">GWS keeps its own USD and RMB rates. Press and hold directly on a locked input for 3 seconds, then edit and press Save. Each currency keeps an independent GWS price list.</div>
-      </div>
+        </div>
+      </details>
       <div class="card" style="margin-top:16px">
         <div class="page-title-row" style="margin-bottom:12px"><div><h2 style="margin:0">GWS Tank Models</h2><div id="gwsPriceListCount" class="muted"></div></div><div class="price-list-search"><label>Search Model</label><input id="gwsPriceSearch" placeholder="Example: 100LV"></div></div>
         <div class="table-wrap" style="max-height:650px"><table class="pricelist-table"><thead><tr><th>Series</th><th>Model</th><th>Size</th><th>Pressure</th><th>Price</th><th>Rarity</th><th></th></tr></thead><tbody id="gwsPriceRows"></tbody></table></div>
+      </div>
+    </section>
+
+    <section id="keyplcPriceList" class="page">
+      <div class="key-back-row"><button class="btn secondary" type="button" data-go="priceListDashboard">← Price List</button></div>
+      <div class="page-title-row"><div><h1>KeyPLC Panel Price List</h1><div class="muted">Maintain independent USD, RMB and MYR panel prices for one-to-six pump systems. Rarity applies to the complete motor-rating row.</div></div></div>
+      <div id="keyplcPriceListMessage" class="auth-message"></div>
+      <details class="card pricelist-currency-panel">
+        <summary>Currency &amp; Multipliers</summary>
+        <div class="pricelist-currency-panel-body">
+          <div class="pricelist-settings">
+            <div class="pricelist-currency-setting"><label>Currency Selection</label><select id="keyplcPriceCurrency"><option value="USD">USD</option><option value="RMB">RMB</option><option value="MYR">MYR</option></select><div class="multiplier-hold-feedback">&nbsp;</div></div>
+            <div class="pricelist-multiplier-lock locked" id="keyplcMultiplierLock_USD" data-multiplier-prefix="keyplc" data-multiplier-currency="USD"><label>USD → MYR</label><input id="keyplcUsdMultiplier" class="multiplier-hold-input" type="number" min="0.0001" step="0.0001" placeholder="5.8000" readonly aria-describedby="keyplcUsdMultiplierHint"><div class="multiplier-hold-feedback" id="keyplcUsdMultiplierHint">Hold input 3s to edit</div><div class="multiplier-actions"><button class="btn" type="button" data-multiplier-save>Save</button><button class="btn secondary" type="button" data-multiplier-cancel>Cancel</button></div></div>
+            <div class="pricelist-multiplier-lock locked" id="keyplcMultiplierLock_RMB" data-multiplier-prefix="keyplc" data-multiplier-currency="RMB"><label>RMB → MYR</label><input id="keyplcRmbMultiplier" class="multiplier-hold-input" type="number" min="0.0001" step="0.0001" placeholder="0.6500" readonly aria-describedby="keyplcRmbMultiplierHint"><div class="multiplier-hold-feedback" id="keyplcRmbMultiplierHint">Hold input 3s to edit</div><div class="multiplier-actions"><button class="btn" type="button" data-multiplier-save>Save</button><button class="btn secondary" type="button" data-multiplier-cancel>Cancel</button></div></div>
+          </div>
+          <div class="pricelist-note" style="margin-top:12px">Prices imported from the supplied KeyPLC workbook are seeded as MYR. USD and RMB remain independently editable.</div>
+        </div>
+      </details>
+      <div class="card" style="margin-top:16px">
+        <div class="page-title-row" style="margin-bottom:12px"><div><h2 style="margin:0">KeyPLC Panel Models</h2><div id="keyplcPriceListCount" class="muted"></div></div><div class="price-list-search"><label>Search Motor Rating</label><input id="keyplcPriceSearch" placeholder="Example: 4kW"></div></div>
+        <div class="table-wrap" style="max-height:650px"><table class="pricelist-table keyplc-table"><thead><tr><th>Model</th><th>Rarity</th><th>1 Pump</th><th>2 Pumps</th><th>3 Pumps</th><th>4 Pumps</th><th>5 Pumps</th><th>6 Pumps</th><th></th></tr></thead><tbody id="keyplcPriceRows"></tbody></table></div>
       </div>
     </section>
 
@@ -757,6 +802,7 @@
             <button class="pricing-family-tab active" type="button" role="tab" aria-selected="true" data-pricing-family="CHC">CHC</button>
             <button class="pricing-family-tab" type="button" role="tab" aria-selected="false" data-pricing-family="ES">ES</button>
             <button class="pricing-family-tab" type="button" role="tab" aria-selected="false" data-pricing-family="GWS">GWS</button>
+            <button class="pricing-family-tab" type="button" role="tab" aria-selected="false" data-pricing-family="KEYPLC">KeyPLC</button>
           </div>
           <div id="pricingCategorySummary" class="pricing-rule" style="margin-top:12px"></div>
           <div class="formula pricing-family-formulas" id="pricingFormula" style="margin-top:14px"></div>
@@ -912,13 +958,13 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=124"></script>
-<script src="app.js?v=206"></script>
-<script src="pricing.js?v=206"></script>
-<script src="categories.js?v=206"></script>
-<script src="pricelist.js?v=206"></script>
-<script src="product.js?v=206"></script>
+<script src="app.js?v=208"></script>
+<script src="pricing.js?v=208"></script>
+<script src="categories.js?v=208"></script>
+<script src="pricelist.js?v=208"></script>
+<script src="product.js?v=208"></script>
 <script src="roles.js?v=124"></script>
-<script src="assembly.js?v=203"></script>
+<script src="assembly.js?v=208"></script>
 
 <dialog id="assemblyDescriptionDialog" class="ks-dialog"><form method="dialog" class="dialog-body assembly-description-dialog"><div class="page-title-row"><h2>System Description</h2><button class="dialog-close" value="cancel" aria-label="Close">×</button></div><textarea id="assemblyDescriptionPopup"></textarea><div class="dialog-actions"><button class="btn secondary" value="cancel">Cancel</button><button class="btn" id="saveAssemblyDescriptionPopup" value="default">Apply</button></div></form></dialog>
 
@@ -928,6 +974,6 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="auth.js?v=206"></script>
+<script src="auth.js?v=208"></script>
 </body>
 </html>

@@ -22,7 +22,7 @@ document.querySelectorAll('[data-nav-toggle]').forEach(button=>button.addEventLi
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.go)));
 const keyButton=document.getElementById('keyButton');
 if(keyButton){keyButton.addEventListener('click',()=>showPage('keyDashboard'));}
-const KEY_PAGE_PERMISSIONS={keyDashboard:'key_dashboard',roleManagement:'manage_roles',categoryManagement:'manage_categories',priceListDashboard:'manage_price_list',chcPriceList:'manage_price_list',gwsPriceList:'manage_price_list',esPriceList:'manage_price_list',companyPricing:'company_pricing'};
+const KEY_PAGE_PERMISSIONS={keyDashboard:'key_dashboard',roleManagement:'manage_roles',categoryManagement:'manage_categories',priceListDashboard:'manage_price_list',chcPriceList:'manage_price_list',gwsPriceList:'manage_price_list',esPriceList:'manage_price_list',keyplcPriceList:'manage_price_list',companyPricing:'company_pricing'};
 function permissionLevel(key){return window.KeySuitePermissions?.level?.(key,currentRole())||(currentRole()==='owner'?'full':'none')}
 function hasPermission(key){return permissionLevel(key)!=='none'}
 function syncOwnerKeyVisibility(){
@@ -613,8 +613,8 @@ function chcAssemblyQuoteItem(p={}){
  const hp=formatMotorHp(p.motor_hp);
  const motorLine=`c/w ${hp||'-'}HP 2Pole ${p.motor_efficiency_class||'IE3'} Motor (${p.motor_voltage||415}V / ${p.motor_phase||'3Ph'} / ${Number(p.frequency_hz||50).toFixed(1)}Hz)`;
  const materialLine=seal==='Car/Cer'&&elastomer==='Viton'?`${material} / Mech Seal`:`${material} / Mech Seal-${seal}/${elastomer}`;
- const dutyText=hasDutyPoint(p)?quotationDutyText(p):'';
- const modelDutyText=p.product_mode?'':dutyText;
+ const dutyText=!p.product_mode&&hasDutyPoint(p)?quotationDutyText(p):'';
+ const modelDutyText=dutyText;
  const description=[dutyText?`Capacity: ${dutyText}`:'',`B.G.Reich Vertical Multistage Pump Model: ${quotationModel||'-'}`,bare?'(Bare shaft pump)':motorLine,`Suction & Discharge: ${suctionDischarge}`,`Material: ${materialLine}`].filter(Boolean).join('\n');
  return {model:[quotationModel,modelDutyText].filter(Boolean).join(' — '),description};
 }
@@ -677,8 +677,8 @@ window.addEventListener('message',function(event){
  const motorLine=`c/w ${hp||'-'}HP 2Pole ${p.motor_efficiency_class||'IE3'} Motor (${p.motor_voltage||415}V / ${p.motor_phase||'3Ph'} / ${Number(p.frequency_hz||50).toFixed(1)}Hz)`;
  const standardSeal=seal==='Car/Cer'&&elastomer==='Viton';
  const materialLine=standardSeal?`${material} / Mech Seal`:`${material} / Mech Seal-${seal}/${elastomer}`;
- const dutyText=hasDutyPoint(p)?quotationDutyText(p):'';
- const modelDutyText=p.product_mode?'':dutyText;
+ const dutyText=!p.product_mode&&hasDutyPoint(p)?quotationDutyText(p):'';
+ const modelDutyText=dutyText;
  const itemModel=[quotationModel,modelDutyText].filter(Boolean).join(' — ');
  const lines=[
    dutyText?`Capacity: ${dutyText}`:'',
