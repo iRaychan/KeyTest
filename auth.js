@@ -28,7 +28,7 @@
     return data?.[0]?.active?data[0]:null;
   }
   async function loadData(){
-    const [companies,users,categories,products,esProducts,gwsProducts,keyplcProducts,settings]=await Promise.all([
+    const [companies,users,categories,products,esProducts,gwsProducts,keyplcProducts,manifoldProducts,settings]=await Promise.all([
       client.from('ks_companies').select('*').order('company_name'),
       client.from('ks_company_users').select('*').order('full_name'),
       client.from('ks_pricing_categories').select('*').order('category_name'),
@@ -36,9 +36,10 @@
       client.from('ks_products_es').select('*').order('source_row'),
       client.from('ks_products_gws').select('*').eq('status','active').order('source_row'),
       client.from('ks_products_keyplc').select('*').eq('status','active').order('source_row'),
+      client.from('ks_products_manifold').select('*').eq('status','active').order('section').order('source_row'),
       client.from('ks_app_settings').select('*').eq('id','default').limit(1)
     ]);
-    const failed=[companies,users,categories,products,esProducts,gwsProducts,keyplcProducts,settings].find(x=>x.error);if(failed?.error)throw new Error(failed.error.message);
+    const failed=[companies,users,categories,products,esProducts,gwsProducts,keyplcProducts,manifoldProducts,settings].find(x=>x.error);if(failed?.error)throw new Error(failed.error.message);
     const setting=settings.data?.[0]||{};
     const chcUsdMultiplier=Number(setting.chc_usd_multiplier??setting.usd_multiplier??5.8);
     const chcRmbMultiplier=Number(setting.chc_rmb_multiplier??setting.rmb_multiplier??.65);
@@ -48,6 +49,8 @@
     const esRmbMultiplier=Number(setting.es_rmb_multiplier??setting.rmb_multiplier??.65);
     const keyplcUsdMultiplier=Number(setting.keyplc_usd_multiplier??setting.usd_multiplier??5.8);
     const keyplcRmbMultiplier=Number(setting.keyplc_rmb_multiplier??setting.rmb_multiplier??.65);
+    const manifoldUsdMultiplier=Number(setting.manifold_usd_multiplier??setting.usd_multiplier??5.8);
+    const manifoldRmbMultiplier=Number(setting.manifold_rmb_multiplier??setting.rmb_multiplier??.65);
     const parseRules=value=>{if(!value)return{};if(typeof value==='object')return value;try{return JSON.parse(value)}catch(_){return{}}};
     const normalizeRule=(raw={},fallback={})=>({
       margin:Number(raw.margin??fallback.margin??.38),
@@ -63,15 +66,15 @@
       rare:Number(raw.rare??fallback.rare??0)
     });
     return {
-      version:'2.12',release_date:'2026-08-01',currency:setting.currency||'MYR',
+      version:'2.13',release_date:'2026-08-01',currency:setting.currency||'MYR',
       usd_multiplier:chcUsdMultiplier,rmb_multiplier:chcRmbMultiplier,myr_multiplier:1,
-      productMultipliers:{CHC:{USD:chcUsdMultiplier,RMB:chcRmbMultiplier,MYR:1},ES:{USD:esUsdMultiplier,RMB:esRmbMultiplier,MYR:1},GWS:{USD:gwsUsdMultiplier,RMB:gwsRmbMultiplier,MYR:1},KEYPLC:{USD:keyplcUsdMultiplier,RMB:keyplcRmbMultiplier,MYR:1}},
+      productMultipliers:{CHC:{USD:chcUsdMultiplier,RMB:chcRmbMultiplier,MYR:1},ES:{USD:esUsdMultiplier,RMB:esRmbMultiplier,MYR:1},GWS:{USD:gwsUsdMultiplier,RMB:gwsRmbMultiplier,MYR:1},KEYPLC:{USD:keyplcUsdMultiplier,RMB:keyplcRmbMultiplier,MYR:1},MANIFOLD:{USD:manifoldUsdMultiplier,RMB:manifoldRmbMultiplier,MYR:1}},
       fuel_price:Number(setting.fuel_price??2),fuel_base_price:Number(setting.fuel_base_price??2),
       companies:(companies.data||[]).map(c=>({id:c.id,name:c.company_name,category:c.pricing_category,delivery_distance:Number(c.delivery_distance||0),phone:c.company_phone,term_days:c.term_days,address:c.address,tin:c.tin_number,business_registration_no:c.business_registration_no,sst_no:c.sst_no,msic_code:c.msic_code,business_activities:c.business_activities})),
       users:(users.data||[]).map(u=>({id:u.id,company_id:u.company_id,source_company_id:u.source_company_id,prefix:u.prefix,name:u.full_name,phone:u.phone,email:u.email})),
       categories:(categories.data||[]).map(c=>{
         const rules=parseRules(c.product_rules),chcFallback={margin:Number(c.chc_margin??c.chc_factor??.38),normal:0,rare:0,transport:Number(c.transport??30),commission:Number(c.commission??.03),setDiscount:Number(c.set_discount??.068),finalDiscount:Number(c.final_discount??.08),includeCommission:true,includeSetDiscount:true,includeFinalDiscount:true,includeFuelCharge:true},otherFallback={margin:0,normal:0,rare:0,transport:0,commission:0,setDiscount:0,finalDiscount:0,includeCommission:false,includeSetDiscount:false,includeFinalDiscount:false,includeFuelCharge:false};
-        return {id:c.id,name:c.category_name,productRules:{CHC:normalizeRule(rules.CHC,chcFallback),ES:normalizeRule(rules.ES,otherFallback),GWS:normalizeRule(rules.GWS,otherFallback),KEYPLC:normalizeRule(rules.KEYPLC,otherFallback)},final_discount:chcFallback.finalDiscount,set_discount:chcFallback.setDiscount,commission:chcFallback.commission,margins:{CHC:chcFallback.margin},factors:{CHC:chcFallback.margin},transport:chcFallback.transport};
+        return {id:c.id,name:c.category_name,productRules:{CHC:normalizeRule(rules.CHC,chcFallback),ES:normalizeRule(rules.ES,otherFallback),GWS:normalizeRule(rules.GWS,otherFallback),KEYPLC:normalizeRule(rules.KEYPLC,otherFallback),MANIFOLD:normalizeRule(rules.MANIFOLD,otherFallback)},final_discount:chcFallback.finalDiscount,set_discount:chcFallback.setDiscount,commission:chcFallback.commission,margins:{CHC:chcFallback.margin},factors:{CHC:chcFallback.margin},transport:chcFallback.transport};
       }),
       products:(products.data||[]).map(p=>({
         id:p.id,category:p.product_category,model:p.model,source_row:p.source_row,
@@ -93,7 +96,8 @@
         pricesByCurrency:{USD:{SKU:p.price_usd===null?null:Number(p.price_usd)},RMB:{SKU:p.price_rmb===null?null:Number(p.price_rmb)},MYR:{SKU:p.price_myr===null?null:Number(p.price_myr)}},
         rarityByCurrency:{USD:{SKU:String(p.rarity_usd||'common').toLowerCase()},RMB:{SKU:String(p.rarity_rmb||'common').toLowerCase()},MYR:{SKU:String(p.rarity_myr||'common').toLowerCase()}}
       })),
-      keyplcProducts:(keyplcProducts.data||[]).map(p=>({id:p.id,model:p.model,motorKw:Number(p.motor_kw||String(p.model||'').replace(/[^0-9.]/g,'')||0),source_row:p.source_row,rarity:String(p.rarity||'common').toLowerCase(),variants:Array.isArray(p.variants)?p.variants:(typeof p.variants==='object'?p.variants:[])}))
+      keyplcProducts:(keyplcProducts.data||[]).map(p=>({id:p.id,model:p.model,motorKw:Number(p.motor_kw||String(p.model||'').replace(/[^0-9.]/g,'')||0),source_row:p.source_row,rarity:String(p.rarity||'common').toLowerCase(),variants:Array.isArray(p.variants)?p.variants:(typeof p.variants==='object'?p.variants:[])})),
+      manifoldProducts:(manifoldProducts.data||[]).map(p=>({id:p.id,section:p.section,model:p.model,source_row:p.source_row,rarity:String(p.rarity||'common').toLowerCase(),variants:Array.isArray(p.variants)?p.variants:(typeof p.variants==='object'?p.variants:[])}))
     };
   }
 
@@ -149,7 +153,7 @@
       const data=await loadData();if(!data.companies.length)throw new Error('No company data was returned. Check the database and RLS policies.');
       session=s;access=userAccess;window.KEYSUITE_ACCESS=access;await loadRolePermissions();const savedProfile=await loadUserProfile(s?.user?.email||'');profile=buildProfile(s,access,data,savedProfile);
       window.KEYSUITE_SECURE_DATA=data;applyProfile(profile);
-      window.KeySuitePricing?.init(data,access);window.KeySuiteCategories?.init(data,access);window.KeySuitePriceList?.init(data,access);window.KeySuiteRoles?.init(access);unlockSelector();
+      window.KeySuitePricing?.init(data,access);window.KeySuiteCategories?.init(data,access);window.KeySuitePriceList?.init(data,access);window.KeySuiteManifold?.init(data,access);window.KeySuiteRoles?.init(access);unlockSelector();
       showLoading('Loading your customer access…');
       try{await window.KeySuiteCustomerStore?.load?.()}catch(error){console.warn('Customer load warning',error)}
       refreshAll();setView('app');

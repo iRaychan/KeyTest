@@ -1,0 +1,27 @@
+KeySuite V2.13 Installation
+===========================
+
+Recommended: update the existing KeySuite V2.12 deployment with the changed-files patch.
+
+1. Back up the current deployment and database.
+2. Open Supabase SQL Editor.
+3. Run V213_SUPABASE_MIGRATION.sql once and confirm it completes successfully.
+4. Extract KeySuite_V2.13_Changed_Files_Patch.zip.
+5. Upload the extracted files over the existing V2.12 deployment, preserving folder paths.
+6. Do not replace the deployment's working config.js.
+7. Hard-refresh with Ctrl + Shift + R.
+8. If V2.12 remains visible, close all KeySuite tabs, reopen the site, and hard-refresh again so the V2.13 service worker takes control.
+
+Important
+---------
+The web files query public.ks_products_manifold. Run the Supabase migration before opening V2.13, otherwise secure data loading will report that the Manifold table is unavailable.
+
+Verification
+------------
+- Product > End Suction does not list CI BR SS MS or CI BR SS GP.
+- Quotation item action reads Remarks and retains the gold internal-note indicator.
+- KeyPLC continuation lines align directly under KeyPLC in the System Description and printed/PDF quotation.
+- Key > Price List > Manifold shows Branch, Manifold Sizing, Header and Tank Fitting tables.
+- Category Management and Company & Pricing both include Manifold.
+- Product > Manifold calculates a quoted value and can route it to Assembly or Quotation.
+- Company & Pricing > Category Pricing Rule visibly shows the Manual Quoted Value Calculator.

@@ -22,7 +22,7 @@ document.querySelectorAll('[data-nav-toggle]').forEach(button=>button.addEventLi
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.go)));
 const keyButton=document.getElementById('keyButton');
 if(keyButton){keyButton.addEventListener('click',()=>showPage('keyDashboard'));}
-const KEY_PAGE_PERMISSIONS={keyDashboard:'key_dashboard',roleManagement:'manage_roles',categoryManagement:'manage_categories',priceListDashboard:'manage_price_list',chcPriceList:'manage_price_list',gwsPriceList:'manage_price_list',esPriceList:'manage_price_list',keyplcPriceList:'manage_price_list',companyPricing:'company_pricing'};
+const KEY_PAGE_PERMISSIONS={keyDashboard:'key_dashboard',roleManagement:'manage_roles',categoryManagement:'manage_categories',priceListDashboard:'manage_price_list',chcPriceList:'manage_price_list',gwsPriceList:'manage_price_list',esPriceList:'manage_price_list',keyplcPriceList:'manage_price_list',manifoldPriceList:'manage_price_list',companyPricing:'company_pricing'};
 function permissionLevel(key){return window.KeySuitePermissions?.level?.(key,currentRole())||(currentRole()==='owner'?'full':'none')}
 function hasPermission(key){return permissionLevel(key)!=='none'}
 function syncOwnerKeyVisibility(){
@@ -54,6 +54,7 @@ function showPage(id){
  window.KeySuiteCategories?.pageShown?.(id);
  window.KeySuitePriceList?.pageShown?.(id);
  window.KeySuiteProduct?.pageShown?.(id);
+ window.KeySuiteManifold?.pageShown?.(id);
  if(id==='quotation'){setQuoteCustomerCollapsed(true);updateQuotationStateUi?.()}
  window.KeySuiteAssembly?.pageShown?.(id);
  refreshAll();
@@ -431,8 +432,8 @@ function setAllItemsCollapsed(collapsed){document.querySelectorAll('.quote-item'
 function syncItemRemarkUi(row){
  if(!row)return;const remark=String(row.dataset.internalRemark||'').trim(),hasRemark=!!remark,button=row.querySelector('.remark-quote-item'),indicator=row.querySelector('.item-remark-indicator');
  row.classList.toggle('has-internal-remark',hasRemark);button?.classList.toggle('has-remark',hasRemark);
- if(button){button.title=hasRemark?'View or edit internal remark':'Add internal remark';button.setAttribute('aria-label',button.title)}
- if(indicator){indicator.title=hasRemark?'This item has an internal remark':'';indicator.setAttribute('aria-label',hasRemark?'Internal remark exists':'')}
+ if(button){button.title=hasRemark?'View or edit internal remarks':'Add internal remarks';button.setAttribute('aria-label',button.title)}
+ if(indicator){indicator.title=hasRemark?'This item has internal remarks':'';indicator.setAttribute('aria-label',hasRemark?'Internal remarks exist':'')}
 }
 function openItemRemark(row){
  if(!row||!canEditQuotation(true))return;itemRemarkTarget=row;const input=$('itemRemarkInput'),dialog=$('itemRemarkDialog');if(!input||!dialog)return;
@@ -472,7 +473,7 @@ function quoteItemRow(data={}){
  if(data.pumpData) wrap.dataset.pumpData=JSON.stringify(data.pumpData);
  if(data.pricingSource) wrap.dataset.pricingSource=typeof data.pricingSource==='string'?data.pricingSource:JSON.stringify(data.pricingSource);
  const savedRemark=String(data.internalRemark??data.remark??'').trim();if(savedRemark)wrap.dataset.internalRemark=savedRemark;
- wrap.innerHTML=`<div class="quote-item-head"><button type="button" class="item-status-indicator no-print" aria-label="Item status" data-tooltip="Checking item..."></button><span class="item-remark-indicator no-print" aria-hidden="true"></span><span class="drag-handle no-print" draggable="true" role="button" tabindex="0" aria-label="Drag item to reorder" title="Drag to reorder">☰</span><button type="button" class="collapse-item no-print" title="Expand item">▼</button><b>Item #<span class="item-number"></span></b><span class="item-summary-model">${esc(data.model||'New Item')}</span><span class="item-summary-qty">Qty: ${data.qty??1}</span><span class="item-summary-total">RM 0.00</span></div><div class="quote-item-body"><div class="quote-item-grid"><div><label>Model / Item</label><input class="item-model" value="${esc(data.model||'')}"></div><div><label>Quantity</label><input class="item-qty" type="number" min="1" value="${data.qty??1}"></div><div><label>Unit Price (RM)</label><input class="item-price" type="number" min="0" step="0.01" value="${data.unitPrice??0}"></div></div><div style="margin-top:12px"><label>Description</label><textarea class="item-description">${esc(data.description||'')}</textarea></div><div class="quote-total" style="margin-top:10px;font-size:16px">Item Total: <span class="item-total">RM 0.00</span></div><div class="item-body-actions no-print"><button type="button" class="btn secondary duplicate-quote-item" title="Duplicate">Copy</button><button type="button" class="btn secondary remark-quote-item" title="Add internal remark">Remark</button><button type="button" class="btn danger remove-quote-item" title="Delete">Delete</button></div></div>`;
+ wrap.innerHTML=`<div class="quote-item-head"><button type="button" class="item-status-indicator no-print" aria-label="Item status" data-tooltip="Checking item..."></button><span class="item-remark-indicator no-print" aria-hidden="true"></span><span class="drag-handle no-print" draggable="true" role="button" tabindex="0" aria-label="Drag item to reorder" title="Drag to reorder">☰</span><button type="button" class="collapse-item no-print" title="Expand item">▼</button><b>Item #<span class="item-number"></span></b><span class="item-summary-model">${esc(data.model||'New Item')}</span><span class="item-summary-qty">Qty: ${data.qty??1}</span><span class="item-summary-total">RM 0.00</span></div><div class="quote-item-body"><div class="quote-item-grid"><div><label>Model / Item</label><input class="item-model" value="${esc(data.model||'')}"></div><div><label>Quantity</label><input class="item-qty" type="number" min="1" value="${data.qty??1}"></div><div><label>Unit Price (RM)</label><input class="item-price" type="number" min="0" step="0.01" value="${data.unitPrice??0}"></div></div><div style="margin-top:12px"><label>Description</label><textarea class="item-description">${esc(data.description||'')}</textarea></div><div class="quote-total" style="margin-top:10px;font-size:16px">Item Total: <span class="item-total">RM 0.00</span></div><div class="item-body-actions no-print"><button type="button" class="btn secondary duplicate-quote-item" title="Duplicate">Copy</button><button type="button" class="btn secondary remark-quote-item" title="Add internal remarks">Remarks</button><button type="button" class="btn danger remove-quote-item" title="Delete">Delete</button></div></div>`;
  $('quoteItems').appendChild(wrap);
  const toggle=()=>{wrap.classList.toggle('collapsed');wrap.querySelector('.collapse-item').textContent=wrap.classList.contains('collapsed')?'▼':'▲';wrap.querySelector('.collapse-item').title=wrap.classList.contains('collapsed')?'Expand item':'Collapse item'};
  wrap.querySelector('.collapse-item').onclick=toggle;

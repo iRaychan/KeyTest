@@ -1,0 +1,32 @@
+KeySuite V2.13 Changes
+======================
+
+1. End Suction material dropdown cleanup
+- Removed CI BR SS MS and CI BR SS GP from Product > End Suction material selections.
+- Existing database records are not deleted; the two materials are only excluded from new Product selections.
+
+2. Rename Remark to Remarks
+- Renamed the quotation-item action, dialog heading, help text, placeholder and save action to Remarks.
+- Internal storage, #D5BD50 highlighting, collapsed-item indicator and print/PDF exclusion remain unchanged.
+
+3. System Description alignment correction
+- Replaced visual space padding with a shared tab-stop structure.
+- The first line uses `c/w<TAB>KeyPLC`; all continuation lines begin with the same tab.
+- Added tab rendering to quotation textareas, Assembly description editors and printed/PDF item descriptions.
+
+4. Manifold price list integration
+- Imported the supplied Branch, Manifold Sizing, Header and Tank Fitting workbook tables.
+- Added public.ks_products_manifold with Row Level Security and owner-only price-list save RPC.
+- Added independent USD/RMB/MYR values, USD/RMB exchange rates, rarity selection and completion counts.
+- Added Manifold to Category Management and Company & Pricing.
+- Added Product > Manifold selection, sizing, source-price calculation, category pricing and routing to Assembly/Quotation.
+- Retained the source workbook under source_pricelists for traceability.
+
+5. Category Pricing Rule manual calculator
+- Added the Manual Quoted Value Calculator directly to the visible Company & Pricing > Category Pricing Rule card.
+- Supports a manual cost figure, USD/RMB/MYR, Many/Common/Rare and the selected product-family rule.
+- Displays the immediate MYR quoted value after exchange conversion, category formula, fuel charge and RM10 upward rounding.
+
+6. Database
+- V213_SUPABASE_MIGRATION.sql is required.
+- The migration creates/seeds 56 Manifold source rows and extends currency-rate and category-management RPCs to MANIFOLD.

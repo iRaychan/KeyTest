@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V2.12</title>
+  <title>KeySuite V2.13</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -112,7 +112,7 @@
   .print-items-table th:nth-child(3),.print-items-table td:nth-child(3){width:22mm;text-align:center;white-space:nowrap}
   .print-items-table th:nth-child(4),.print-items-table td:nth-child(4){width:27mm;text-align:right}
   .print-items-table th:nth-child(5),.print-items-table td:nth-child(5){width:27mm;text-align:right}
-  .print-item-model{font-weight:700;margin-bottom:1.5mm}.print-item-desc{white-space:pre-line;line-height:1.35}
+  .print-item-model{font-weight:700;margin-bottom:1.5mm}.print-item-desc{white-space:pre-wrap;line-height:1.35;tab-size:4}
   .print-summary-spacer td{height:5mm;padding:0!important}
   .print-summary-line td{height:0;padding:0!important;border:0!important}
   .print-summary-rule{height:0;border-top:1.2px solid #111;width:100%;margin:0;padding:0}
@@ -216,7 +216,7 @@
     .quote-head{display:flex;align-items:center;justify-content:space-between;gap:18px}.quote-head>h1{margin:0}.quote-head-right{margin-left:auto;display:flex;align-items:center;justify-content:flex-end;gap:12px}.quote-number-field{display:grid!important;grid-template-columns:auto minmax(260px,380px);align-items:center;gap:10px;min-width:0!important}.quote-number-field label{margin:0;white-space:nowrap}.quote-number-field input{width:100%}.es-matrix-table{min-width:1180px}.es-matrix-table select[data-es-rarity]{min-width:96px}
     @media(max-width:700px){.quote-head{align-items:stretch;flex-direction:column}.quote-head-right{margin-left:0;display:block}.quote-number-field{grid-template-columns:1fr}.quote-number-field label{margin-bottom:5px}}
 
-    /* V2.12 defaults, manual pricing and internal item remarks */
+    /* V2.13 defaults, manual pricing, internal remarks and Manifold integration */
     .non-default-selection{background:#ffd6e7!important;border-color:#e879a7!important;box-shadow:0 0 0 1px rgba(232,121,167,.16)}
     .default-choice-control{display:flex;align-items:center;gap:9px;height:42px;margin:0;padding:0 11px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;transition:background .15s,border-color .15s}.default-choice-control input{width:auto}
     .es-product-material{min-width:190px}.gws-product-toolbar{grid-template-columns:minmax(190px,300px) minmax(220px,420px)}
@@ -225,12 +225,16 @@
     .quote-item-head{grid-template-columns:28px 18px 30px 48px max-content minmax(220px,1fr) 72px 130px}.item-remark-indicator{display:none;width:12px;height:12px;border-radius:50%;background:#D5BD50;box-shadow:0 0 0 2px rgba(213,189,80,.22);justify-self:center}.quote-item.collapsed.has-internal-remark .item-remark-indicator{display:inline-block}.remark-quote-item.has-remark{background:#D5BD50!important;border-color:#b59b32!important;color:#332b0d!important;font-weight:800}.item-remark-dialog textarea{min-height:180px}.item-remark-help{font-size:12px;color:#64748b;margin-top:6px}
     @media(max-width:900px){.quote-item-head{grid-template-columns:24px 14px 28px 42px max-content minmax(140px,1fr) 62px 105px}}
     @media(max-width:560px){.quote-item-head{grid-template-columns:22px 12px 26px 38px max-content minmax(110px,1fr) 54px 90px}}
-  </style>
+
+    /* V2.13 Manifold product and price tables */
+    .item-description,#assemblyDescription,#assemblyDescriptionPopup{tab-size:4}
+    .manifold-product-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px}.manifold-summary{display:grid;gap:8px}.manifold-summary-row{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid #edf1f6}.manifold-summary-row b{text-align:right}.manifold-total{font-size:22px;color:var(--navy)}.manifold-pricelist-tabs{display:flex;gap:8px;flex-wrap:wrap}.manifold-pricelist-tabs .active{background:var(--navy);color:#fff}.manifold-table input,.manifold-table select{min-width:92px}.manifold-table .na-cell{color:#94a3b8;text-align:center}.pricing-manual-calculator{border-color:#93c5fd;background:#eff6ff}@media(max-width:900px){.manifold-product-grid{grid-template-columns:1fr 1fr}}@media(max-width:560px){.manifold-product-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.12 secure quotation, assembly and product system</small></div>
+    <div class="auth-brand">KeySuite<small>V2.13 secure quotation, assembly and product system</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -245,7 +249,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.12</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.13</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -255,7 +259,7 @@
       </div>
       <div class="nav-group" data-nav-group="productMenu">
         <button type="button" class="nav-toggle" data-nav-toggle="productMenu"><span>Product</span><span class="nav-chevron">⌄</span></button>
-        <div class="nav-submenu"><button data-page="productChc">CHC</button><button data-page="productEs">End Suction</button><button data-page="productGws">GWS Tank</button><button data-page="productKeyplc">KeyPLC Panel</button></div>
+        <div class="nav-submenu"><button data-page="productChc">CHC</button><button data-page="productEs">End Suction</button><button data-page="productGws">GWS Tank</button><button data-page="productKeyplc">KeyPLC Panel</button><button data-page="productManifold">Manifold</button></div>
       </div>
       <button data-page="quotation">Quotation</button>
       <button data-page="history">Quote History</button>
@@ -268,7 +272,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.12 · Product defaults, price completion, manual quoting and internal item remarks</div>
+    <div class="suite-version">KeySuite V2.13 · Manifold price list, pricing calculator and quotation refinements</div>
   </aside>
 
   <main>
@@ -430,6 +434,24 @@
       <div class="page-title-row"><div><h1>Product · KeyPLC Panel</h1><div class="muted">Choose a motor rating and number of pumps, then route the priced control panel to Assembly or Quotation.</div></div></div>
       <div class="card keyplc-product-toolbar"><div><label>Search Motor Rating</label><input id="keyplcProductSearch" placeholder="Example: 4kW"></div></div>
       <div class="card" style="margin-top:16px"><div class="page-title-row" style="margin-bottom:12px"><div><h2 style="margin:0">KeyPLC Panel Models</h2><div id="keyplcProductCount" class="muted"></div></div></div><div class="table-wrap" style="max-height:650px"><table class="keyplc-table"><thead><tr><th>Motor Rating</th><th>Number of Pumps</th><th>Indoor</th><th>Sheltered</th></tr></thead><tbody id="keyplcProductRows"></tbody></table></div></div>
+    </section>
+
+    <section id="productManifold" class="page">
+      <div class="page-title-row"><div><h1>Product · Manifold</h1><div class="muted">Calculate a complete manifold from the imported Branch, Sizing, Header and Tank Fitting price tables.</div></div></div>
+      <div id="manifoldProductNotice" class="notice active-customer">Select a quotation customer before pricing a manifold.</div>
+      <div class="card manifold-product-grid" style="margin-top:16px">
+        <div><label>Material</label><select id="manifoldMaterial"><option value="GI">GI</option><option value="SS">SS</option></select></div>
+        <div><label>Connection</label><select id="manifoldConnection"><option value="THREAD_10">Thread @ 10 Bar</option><option value="FLANGE_16" selected>Flange @ 16 Bar</option><option value="FLANGE_25">Flange @ 25 Bar</option></select></div>
+        <div><label>Pump Suction</label><select id="manifoldSuctionDn"></select></div>
+        <div><label>Pump Discharge</label><select id="manifoldDischargeDn"></select></div>
+        <div><label>Number of Pumps</label><select id="manifoldPumpQty"><option value="1">1 Pump</option><option value="2" selected>2 Pumps</option><option value="3">3 Pumps</option><option value="4">4 Pumps</option><option value="5">5 Pumps</option><option value="6">6 Pumps</option></select></div>
+        <div><label>Tank Fitting</label><select id="manifoldTankSize"><option value="">No Tank Fitting</option></select></div>
+        <div><label>Pricing Type</label><select id="manifoldRarity"><option value="many">Many</option><option value="common" selected>Common</option><option value="rare">Rare</option></select></div>
+      </div>
+      <div class="grid grid-2" style="margin-top:16px">
+        <div class="card"><h2>Calculated Selection</h2><div id="manifoldSelectionSummary" class="manifold-summary"></div></div>
+        <div class="card"><h2>Price</h2><div id="manifoldPriceSummary" class="manifold-summary"></div><div class="actions"><button class="btn action-assembly" id="manifoldAddAssembly" type="button">Assembly</button><button class="btn" id="manifoldAddQuotation" type="button">Quote</button></div></div>
+      </div>
     </section>
 
     <section id="assembly" class="page">
@@ -602,6 +624,7 @@
                   <button class="category-product-button" type="button" data-category-product="ES">ES</button>
                   <button class="category-product-button" type="button" data-category-product="GWS">GWS</button>
                   <button class="category-product-button" type="button" data-category-product="KEYPLC">KeyPLC</button>
+                  <button class="category-product-button" type="button" data-category-product="MANIFOLD">Manifold</button>
                 </div>
                 <div class="category-rule-editor">
                   <h3 id="categoryProductHeading">CHC Pricing Rule</h3>
@@ -701,6 +724,9 @@
           <p>Maintain control-panel source prices by motor rating and one-to-six pump configuration.</p>
           <span class="module-order">OPEN PRICE LIST</span>
         </button>
+        <button type="button" class="key-module-card" data-go="manifoldPriceList">
+          <span class="module-icon">MF</span><h2>Manifold</h2><p>Maintain Branch, Manifold Sizing, Header and Tank Fitting source data.</p><span class="module-order">OPEN PRICE LIST</span>
+        </button>
       </div>
     </section>
 
@@ -794,6 +820,27 @@
       </div>
     </section>
 
+    <section id="manifoldPriceList" class="page">
+      <div class="key-back-row"><button class="btn secondary" type="button" data-go="priceListDashboard">← Price List</button></div>
+      <div class="page-title-row"><div><h1>Manifold Price List</h1><div class="muted">Imported from 010 - Manifold (Pricelist) - 260801 - V1.0.xlsx. Maintain all source tables here.</div></div></div>
+      <div id="manifoldPriceListMessage" class="auth-message"></div>
+      <details class="card pricelist-currency-panel">
+        <summary>Currency &amp; Multipliers</summary>
+        <div class="pricelist-currency-panel-body">
+          <div class="pricelist-settings">
+            <div><label>Currency Selection</label><select id="manifoldPriceCurrency"><option value="USD">USD</option><option value="RMB">RMB</option><option value="MYR" selected>MYR</option></select><div class="multiplier-hold-feedback">&nbsp;</div></div>
+            <div><label>USD → MYR</label><div class="pricelist-setting-row"><input id="manifoldUsdMultiplier" type="number" min="0.0001" step="0.0001"><button class="btn" id="saveManifoldUsdMultiplier" type="button">Save</button></div></div>
+            <div><label>RMB → MYR</label><div class="pricelist-setting-row"><input id="manifoldRmbMultiplier" type="number" min="0.0001" step="0.0001"><button class="btn" id="saveManifoldRmbMultiplier" type="button">Save</button></div></div>
+          </div>
+          <div class="pricelist-note" style="margin-top:12px">Workbook prices are seeded as MYR. USD and RMB remain independently editable.</div>
+        </div>
+      </details>
+      <div class="card" style="margin-top:16px"><div class="page-title-row"><div><h2 style="margin:0">Manifold Tables</h2><div id="manifoldPriceListCount" class="muted"></div></div></div>
+        <div class="manifold-pricelist-tabs" role="tablist"><button class="btn secondary active" type="button" data-manifold-table="branch">Branch</button><button class="btn secondary" type="button" data-manifold-table="sizing">Manifold Sizing</button><button class="btn secondary" type="button" data-manifold-table="header">Header</button><button class="btn secondary" type="button" data-manifold-table="tank_fitting">Tank Fitting</button></div>
+        <div id="manifoldPriceTableHost" class="table-wrap" style="max-height:650px;margin-top:12px"></div>
+      </div>
+    </section>
+
     <section id="companyPricing" class="page">
       <div class="key-back-row"><button class="btn secondary" type="button" data-go="keyDashboard">← Key Dashboard</button></div>
       <div class="page-title-row">
@@ -832,9 +879,22 @@
             <button class="pricing-family-tab" type="button" role="tab" aria-selected="false" data-pricing-family="ES">ES</button>
             <button class="pricing-family-tab" type="button" role="tab" aria-selected="false" data-pricing-family="GWS">GWS</button>
             <button class="pricing-family-tab" type="button" role="tab" aria-selected="false" data-pricing-family="KEYPLC">KeyPLC</button>
+            <button class="pricing-family-tab" type="button" role="tab" aria-selected="false" data-pricing-family="MANIFOLD">Manifold</button>
           </div>
           <div id="pricingCategorySummary" class="pricing-rule" style="margin-top:12px"></div>
           <div class="formula pricing-family-formulas" id="pricingFormula" style="margin-top:14px"></div>
+          <div class="category-manual-calculator pricing-manual-calculator" id="pricingManualCalculator">
+            <div class="page-title-row" style="margin-bottom:6px"><div><h3 style="margin:0">Manual Quoted Value Calculator</h3><div class="muted">Available here for uncommon items using the selected product family and customer category.</div></div><span class="pricing-badge ok">Always available</span></div>
+            <div class="category-manual-grid" style="margin-top:10px">
+              <div><label for="pricingManualCost">Cost Figure</label><input id="pricingManualCost" type="number" min="0" step="0.01" placeholder="0.00"></div>
+              <div><label for="pricingManualCurrency">Currency</label><select id="pricingManualCurrency"><option value="USD">USD</option><option value="RMB">RMB</option><option value="MYR">MYR</option></select></div>
+              <div><label for="pricingManualRarity">Pricing Type</label><select id="pricingManualRarity"><option value="many">Many</option><option value="common" selected>Common</option><option value="rare">Rare</option></select></div>
+            </div>
+            <div class="category-manual-result" aria-live="polite">
+              <div><b>Quoted Value</b><small id="pricingManualBreakdown">Select a customer and enter a cost figure.</small></div>
+              <strong id="pricingManualQuotedValue">RM 0.00</strong>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -931,9 +991,9 @@
 
 <dialog id="itemRemarkDialog" class="ks-dialog">
   <form method="dialog" class="dialog-body item-remark-dialog">
-    <div class="page-title-row"><div><h2 style="margin:0">Internal Item Remark</h2><div class="item-remark-help">For internal records only. This remark is never included in quotation printouts or PDFs.</div></div><button class="dialog-close" value="cancel" aria-label="Close">×</button></div>
-    <textarea id="itemRemarkInput" maxlength="4000" placeholder="Enter an internal remark for this quotation item..."></textarea>
-    <div class="dialog-actions"><button class="btn secondary" value="cancel">Cancel</button><button class="btn" id="saveItemRemark" value="default">Save Remark</button></div>
+    <div class="page-title-row"><div><h2 style="margin:0">Internal Item Remarks</h2><div class="item-remark-help">For internal records only. These remarks are never included in quotation printouts or PDFs.</div></div><button class="dialog-close" value="cancel" aria-label="Close">×</button></div>
+    <textarea id="itemRemarkInput" maxlength="4000" placeholder="Enter internal remarks for this quotation item..."></textarea>
+    <div class="dialog-actions"><button class="btn secondary" value="cancel">Cancel</button><button class="btn" id="saveItemRemark" value="default">Save Remarks</button></div>
   </form>
 </dialog>
 
@@ -994,14 +1054,15 @@
 </div>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="permissions.js?v=212"></script>
-<script src="app.js?v=212"></script>
-<script src="pricing.js?v=212"></script>
-<script src="categories.js?v=212"></script>
-<script src="pricelist.js?v=212"></script>
-<script src="product.js?v=212"></script>
-<script src="roles.js?v=212"></script>
-<script src="assembly.js?v=212"></script>
+<script src="permissions.js?v=213"></script>
+<script src="app.js?v=213"></script>
+<script src="pricing.js?v=213"></script>
+<script src="categories.js?v=213"></script>
+<script src="pricelist.js?v=213"></script>
+<script src="product.js?v=213"></script>
+<script src="manifold.js?v=213"></script>
+<script src="roles.js?v=213"></script>
+<script src="assembly.js?v=213"></script>
 
 <dialog id="assemblyDescriptionDialog" class="ks-dialog"><form method="dialog" class="dialog-body assembly-description-dialog"><div class="page-title-row"><h2>System Description</h2><button class="dialog-close" value="cancel" aria-label="Close">×</button></div><textarea id="assemblyDescriptionPopup"></textarea><div class="dialog-actions"><button class="btn secondary" value="cancel">Cancel</button><button class="btn" id="saveAssemblyDescriptionPopup" value="default">Apply</button></div></form></dialog>
 
@@ -1011,6 +1072,6 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="auth.js?v=212"></script>
+<script src="auth.js?v=213"></script>
 </body>
 </html>

@@ -1,0 +1,27 @@
+KeySuite V2.13 QA Report
+========================
+
+Automated browser checks: 5 / 5 feature groups passed
+JavaScript syntax checks: passed
+HTML structure and duplicate-ID checks: passed
+Migration structure/seed checks: passed
+Git whitespace/error check: passed
+
+Verified areas
+--------------
+- End Suction BR material options are excluded while the default material remains available.
+- Quotation item wording is Remarks; saving an internal note applies the existing button and collapsed-item indicator states.
+- KeyPLC description uses one shared tab stop for KeyPLC, Pump Controller, kW/VFD and Wiring.
+- Manifold Product calculation resolves the workbook sizing table, combines Branch/Header/Tank source prices, applies Category Pricing and renders a quoted value.
+- Manifold appears in Price List, Category Management, Company Pricing and Product.
+- The visible Company & Pricing manual calculator correctly converts USD and applies Common pricing with RM10 upward rounding.
+- V2.13 page version, service-worker cache name and script cache-busting values are present.
+
+Database
+--------
+V213_SUPABASE_MIGRATION.sql is required before deploying the V2.13 web files.
+The migration contains 56 Manifold rows:
+- 10 Branch rows
+- 10 Manifold Sizing rows
+- 20 Header rows
+- 16 Tank Fitting rows

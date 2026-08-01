@@ -1,17 +1,21 @@
-# KeySuite V2.12
+# KeySuite V2.13
 
-KeySuite V2.12 adds consistent default-selection highlighting across Product and Selector, source-price completion indicators, a manual category-rule quoted-value calculator, internal quotation-item remarks, and corrected KeyPLC description alignment.
+KeySuite V2.13 adds the Manifold workbook as a complete database-backed Price List and Product module, exposes its Category and Company Pricing rules, restores the manual quoted-value calculator in the visible Category Pricing Rule panel, and includes the requested quotation and End Suction refinements.
 
 ## Highlights
 
-- CHC defaults are highlighted pink whenever Product or Selector uses a non-default material, mechanical seal, elastomer, connection, or supply option.
-- ES Product rows provide a material dropdown with `CI SS SS MS` as the default; non-default materials are highlighted pink.
-- GWS Product provides Series and Model dropdowns, including Pressure Wave models.
-- KeyPLC Product defaults to 2 pumps and highlights non-default pump quantities pink.
-- Every Price List family shows USD, RMB, and MYR filled counts against the total available price cells.
-- Category Pricing Rule includes a manual USD/RMB/MYR cost calculator with Many, Common, and Rare formula selection and immediate MYR quoted value.
-- Quotation items include an internal-only Remark button and collapsed-item indicator in `#D5BD50`; remarks are excluded from print and PDF output.
-- KeyPLC System Description lines now share the same left alignment without spaces or non-breaking-space indentation.
-- No Supabase migration is required for V2.12.
+- End Suction Product material dropdown no longer offers `CI BR SS MS` or `CI BR SS GP`.
+- Quotation item action and dialog wording now use **Remarks**; internal-only storage, `#D5BD50` highlighting and print/PDF exclusion remain unchanged.
+- KeyPLC System Description uses a shared tab stop so `Pump Controller`, motor kW/VFD and `Wiring` begin directly below `KeyPLC` on screen and in print/PDF output.
+- The supplied Manifold workbook is seeded into `ks_products_manifold` with four editable tables: Branch, Manifold Sizing, Header and Tank Fitting.
+- Manifold is available in Product, Price List, Category Management and Company & Pricing.
+- Product > Manifold calculates the header size from the larger pump connection and pump quantity, adds branch/header/tank-fitting source prices, applies the Manifold category rule, and routes the result to Assembly or Quotation.
+- The Manual Quoted Value Calculator is visible directly inside Company & Pricing > Category Pricing Rule and supports USD/RMB/MYR plus Many/Common/Rare.
 
-Preserve the deployment's working `config.js`, deploy the V2.12 changed-files patch, and hard-refresh the application.
+## Installation
+
+1. Run `V213_SUPABASE_MIGRATION.sql` in Supabase SQL Editor.
+2. Deploy the V2.13 changed-files patch over V2.12, preserving the existing working `config.js`.
+3. Hard-refresh the application with `Ctrl + Shift + R`.
+
+The original supplied workbook is retained under `source_pricelists/` for reference.

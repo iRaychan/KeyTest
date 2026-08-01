@@ -89,7 +89,7 @@
     const body=$('esProductRows');if(!body)return;const q=String($('esProductSearch')?.value||'').trim().toLowerCase();
     const rows=esProducts().filter(x=>!q||x.model.toLowerCase().includes(q));
     body.innerHTML=rows.map(x=>{
-      const materials=[...new Set((x.variants||[]).map(v=>String(v.material||'').trim()).filter(Boolean))];
+      const materials=[...new Set((x.variants||[]).map(v=>String(v.material||'').trim()).filter(value=>value&&!/\bBR\b/i.test(value)))];
       if(!materials.some(value=>normMaterial(value)===normMaterial(ES_DEFAULT_MATERIAL)))materials.unshift(ES_DEFAULT_MATERIAL);
       const ordered=[...materials].sort((a,b)=>normMaterial(a)===normMaterial(ES_DEFAULT_MATERIAL)?-1:normMaterial(b)===normMaterial(ES_DEFAULT_MATERIAL)?1:a.localeCompare(b));
       const options=ordered.map(material=>`<option value="${esc(material)}" ${normMaterial(material)===normMaterial(ES_DEFAULT_MATERIAL)?'selected':''}>${esc(material.replace(/\s*\/\s*/g,' '))}</option>`).join('');
