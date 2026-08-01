@@ -1,0 +1,14 @@
+KeySuite V2.16 Changes
+======================
+
+1. Auto-selected Manifold and Tank BOM quantities and unit prices are locked. Both components remain deletable; deleted auto items stay suppressed until a new Pumpset triggers automatic selection again.
+2. MISC has been removed from the System BOM and unsupported items are no longer routed into a hidden MISC group.
+3. System BOM colours now cover each component title and item area: Pumpset #DDEBF7, Control Panel #BDD7EE, Manifold #9BC2E6 and Tank #6AA4D8.
+4. System Description now shows one highlighted view only. Double-click or press Enter to open the popup editor, then Save or Cancel. The original Arial font is used.
+5. System description tab alignment is preserved in Quotation, saved quotations and printed/PDF descriptions.
+6. Sealed quotation button fill is red. All PDF buttons use the standard CHC green and the visible label PDF.
+7. Selector CHC Assembly and Quote buttons now follow Product CHC action colours. Global Assembly uses orange and Quote uses green.
+
+Database
+--------
+No new Supabase migration is required.

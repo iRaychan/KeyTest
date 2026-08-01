@@ -58,8 +58,7 @@ svg{display:block;width:100%;height:auto;aspect-ratio:700/270;margin:10px 0 14px
 
 .brand-wrap{max-width:1220px;margin:0 auto;display:flex;align-items:center;gap:20px}
 .brand-logo{height:54px;width:auto;display:block;object-fit:contain;background:#fff;padding:5px 9px;border:1px solid #d8e3ea;border-radius:8px}
-.keysuite-add-quotation{margin-left:auto;width:auto;min-width:150px;padding:11px 18px;border:0;border-radius:9px;background:#198754;color:#fff;font-weight:800;box-shadow:0 2px 7px rgba(25,135,84,.22);white-space:nowrap}
-.keysuite-add-quotation:hover{background:#157347}
+.keysuite-add-quotation{margin-left:auto;width:auto;min-width:150px;padding:11px 18px;border:0;border-radius:9px;color:#fff;font-weight:800;white-space:nowrap}.keysuite-action-assembly{background:#f59e0b;box-shadow:0 2px 7px rgba(245,158,11,.24)}.keysuite-action-assembly:hover{background:#d97706}.keysuite-action-quote{background:#16a34a;box-shadow:0 2px 7px rgba(22,163,74,.22)}.keysuite-action-quote:hover{background:#15803d}
 .keysuite-add-quotation:active{transform:translateY(1px)}
 .keysuite-header-actions{margin-left:auto;display:flex;align-items:center;gap:8px}.keysuite-mobile-header-export{display:none}
 body.product-frame header,body.product-frame main>section.card:first-child,body.product-frame #alternatives{display:none!important}body.product-frame main{display:block;max-width:none;padding:8px}body.product-frame #out{min-height:0}body.product-frame .heading-actions .export-btn{display:none!important}
@@ -148,7 +147,7 @@ header p{margin:5px 0 0;font-size:12px;color:#687b89;letter-spacing:.2px}
       <h1>KeySelector <span>- CHC Series</span></h1>
       <p>Database Version: 260717 · App v3.2.3m</p>
     </div>
-    <div class="keysuite-header-actions"><button id="keysuiteMobileExport" class="export-btn keysuite-mobile-header-export" type="button">Export / Share PDF</button><button id="keysuiteAddToAssembly" class="keysuite-add-quotation" type="button">Assembly</button><button id="keysuiteAddToQuotation" class="keysuite-add-quotation" type="button">Quote</button></div>
+    <div class="keysuite-header-actions"><button id="keysuiteMobileExport" class="export-btn keysuite-mobile-header-export" type="button">PDF</button><button id="keysuiteAddToAssembly" class="keysuite-add-quotation keysuite-action-assembly" type="button">Assembly</button><button id="keysuiteAddToQuotation" class="keysuite-add-quotation keysuite-action-quote" type="button">Quote</button></div>
   </div>
 </header>
 <main>
@@ -746,7 +745,7 @@ window.onload=async()=>{
    const mobilePrintWindow=window.open("","_blank");
    if(!mobilePrintWindow){
      document.title=originalPageTitle;
-     alert("Your phone blocked the PDF window. Please allow pop-ups for this site, then press EXPORT PDF again.");
+     alert("Your phone blocked the PDF window. Please allow pop-ups for this site, then press PDF again.");
      return;
    }
    try{
@@ -808,7 +807,7 @@ function renderSelected(){
  const maxH=Math.max(...best.headFit.pts.map(p=>p.y),h),maxP=Math.max(...best.powerFit.pts.map(p=>p.y),requiredPower),maxN=Math.max(...best.npshFit.pts.map(p=>p.y),requiredNpsh);
  const above=hz>50?'<div class="warning">Above 50 Hz: verify motor power, VFD voltage, maximum rpm, pressure rating and manufacturer approval.</div>':'';
  const kpis=productMode?`<div class="kpis"><div class="kpi"><span>Reference flow</span><b>${q.toFixed(2)} m³/h</b><span>near best efficiency</span></div><div class="kpi"><span>Reference head</span><b>${h.toFixed(2)} m</b><span>model curve</span></div><div class="kpi"><span>Efficiency</span><b>${requiredEff.toFixed(1)}%</b><span>reference point</span></div><div class="kpi"><span>Shaft power</span><b>${requiredPower.toFixed(2)} kW</b><span>${(requiredPower/0.746).toFixed(1)} HP</span></div><div class="kpi"><span>Motor size</span><b>${best.motor_kw.toFixed(2)} kW</b><span>${best.motor_hp.toFixed(2)} HP</span></div><div class="kpi"><span>NPSHr</span><b>${requiredNpsh.toFixed(2)} m</b><span>reference point</span></div><div class="kpi"><span>Speed</span><b>${best.rpm.toFixed(0)} rpm</b><span>${hz.toFixed(1)} Hz</span></div><div class="kpi"><span>Pressure limits</span><b>${best.max_pressure_bar.toFixed(0)} bar</b><span>inlet ${best.max_inlet_bar.toFixed(0)} bar</span></div></div>`:`<div class="kpis"><div class="kpi"><span>Required head</span><b>${h.toFixed(2)} m</b><span>at required flow</span></div><div class="kpi"><span>Efficiency</span><b>${requiredEff.toFixed(1)}%</b><span>at required flow</span></div><div class="kpi"><span>Shaft power</span><b>${requiredPower.toFixed(2)} kW</b><span>${(requiredPower/0.746).toFixed(1)} HP</span></div><div class="kpi"><span>Motor size</span><b>${best.motor_kw.toFixed(2)} kW</b><span>${best.motor_hp.toFixed(2)} HP</span></div><div class="kpi"><span>NPSHr</span><b>${requiredNpsh.toFixed(2)} m</b><span>at required flow</span></div><div class="kpi"><span>Adjusted speed</span><b>${best.rpm.toFixed(0)} rpm</b><span>base ${(Number(DB.curves[best.series].speed_rpm)||2900).toFixed(0)} rpm</span></div><div class="kpi"><span>Required duty</span><b>${q.toFixed(1)} m³/h</b><span>${h.toFixed(1)} m</span></div><div class="kpi"><span>Pressure limits</span><b>${best.max_pressure_bar.toFixed(0)} bar</b><span>inlet ${best.max_inlet_bar.toFixed(0)} bar</span></div></div>`;
- out.innerHTML=`<div class="heading"><div><h2 style="margin:0">${best.model}</h2><div>${best.series} · ${best.stages} stage${best.stages>1?'s':''} · ${best.connection}</div></div><div class="heading-actions"><button class="export-btn" onclick="exportPDF()">EXPORT PDF</button><div class="badge">${hz.toFixed(1)} Hz</div></div></div>${above}${kpis}${graph(best.headFit,nice(maxH,5),"Head (m)",q,h,2,"Head Curve",'',270,true)}${graph(best.effFit,effAxis(Math.max(...best.effFit.pts.map(p=>p.y))),"Efficiency (%)",q,requiredEff,6,"Efficiency Curve",'',270,true)}${graph(best.powerFit,nice(maxP,5),"Power (kW)",q,requiredPower,6,"Shaft Power Curve",'',270,true)}${graph(best.npshFit,nice(maxN,5),"NPSHr (m)",q,requiredNpsh,3,"NPSHr Curve",'',270,true)}<p class="small"></p><div class="iso-note">ISO 9906:Grade 3B</div>`;
+ out.innerHTML=`<div class="heading"><div><h2 style="margin:0">${best.model}</h2><div>${best.series} · ${best.stages} stage${best.stages>1?'s':''} · ${best.connection}</div></div><div class="heading-actions"><button class="export-btn" onclick="exportPDF()">PDF</button><div class="badge">${hz.toFixed(1)} Hz</div></div></div>${above}${kpis}${graph(best.headFit,nice(maxH,5),"Head (m)",q,h,2,"Head Curve",'',270,true)}${graph(best.effFit,effAxis(Math.max(...best.effFit.pts.map(p=>p.y))),"Efficiency (%)",q,requiredEff,6,"Efficiency Curve",'',270,true)}${graph(best.powerFit,nice(maxP,5),"Power (kW)",q,requiredPower,6,"Shaft Power Curve",'',270,true)}${graph(best.npshFit,nice(maxN,5),"NPSHr (m)",q,requiredNpsh,3,"NPSHr Curve",'',270,true)}<p class="small"></p><div class="iso-note">ISO 9906:Grade 3B</div>`;
  if(window.parent&&window.parent!==window){window.parent.postMessage({type:'KEYSUITE_SELECTION_CHANGED',payload:{model:best.model,connection:best.connection}},'*')}
 }
 

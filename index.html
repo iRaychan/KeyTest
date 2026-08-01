@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V2.15</title>
+  <title>KeySuite V2.16</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -176,7 +176,7 @@
     .role-row-actions{display:flex;gap:7px;justify-content:flex-end;flex-wrap:wrap}.role-invite-option{margin-top:14px;padding:11px 12px;border:1px solid #dbe3ec;border-radius:9px;background:#f8fafc}.role-invite-option label{display:flex;align-items:center;gap:9px;margin:0}.role-invite-option input{width:auto}
     .gws-product-toolbar{grid-template-columns:minmax(190px,300px) minmax(220px,420px)}
 
-    .quote-status-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.quote-status-badge{display:inline-flex;align-items:center;justify-content:center;min-width:78px;height:34px;padding:0 12px;border-radius:999px;background:#e2e8f0;color:#334155;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.quote-status-badge.saved{background:#dbeafe;color:#1d4ed8}.quote-status-badge.sealed{background:#dcfce7;color:#166534}.quote-status-badge.revision{background:#fef3c7;color:#92400e}.locked-customer-field,.quotation-locked input:disabled,.quotation-locked select:disabled,.quotation-locked textarea:disabled{background:#d8dee8!important;color:#334155!important;border-color:#aab4c3!important;opacity:1!important}.customer-name-locked{background:#d8dee8!important;color:#334155!important;border-color:#aab4c3!important}.seal-button.sealed{background:#166534;color:#fff;border-color:#166534}.seal-button.counting{background:#b45309;color:#fff;border-color:#b45309}.revision-note{font-size:12px;color:#92400e;font-weight:700}.export-center-hidden{display:none!important}
+    .quote-status-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.quote-status-badge{display:inline-flex;align-items:center;justify-content:center;min-width:78px;height:34px;padding:0 12px;border-radius:999px;background:#e2e8f0;color:#334155;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.quote-status-badge.saved{background:#dbeafe;color:#1d4ed8}.quote-status-badge.sealed{background:#dcfce7;color:#166534}.quote-status-badge.revision{background:#fef3c7;color:#92400e}.locked-customer-field,.quotation-locked input:disabled,.quotation-locked select:disabled,.quotation-locked textarea:disabled{background:#d8dee8!important;color:#334155!important;border-color:#aab4c3!important;opacity:1!important}.customer-name-locked{background:#d8dee8!important;color:#334155!important;border-color:#aab4c3!important}.seal-button.sealed{background:#b91c1c;color:#fff;border-color:#991b1b}.seal-button.counting{background:#b45309;color:#fff;border-color:#b45309}.revision-note{font-size:12px;color:#92400e;font-weight:700}.export-center-hidden{display:none!important}
 
     /* V1.24 final UI alignment overrides */
     .pricelist-currency-setting{border:1px solid #dbe3ec;border-radius:9px;padding:9px;background:#f8fafc;display:grid!important;grid-template-rows:auto 42px auto;align-content:end}.pricelist-currency-setting label{display:block}.pricelist-currency-setting select{height:42px}
@@ -193,7 +193,7 @@
 
     .action-assembly{background:#f59e0b!important;border-color:#d97706!important;color:#fff!important}.action-assembly:hover{background:#d97706!important}
     .action-quote{background:#16a34a!important;border-color:#15803d!important;color:#fff!important}.action-quote:hover{background:#15803d!important}
-    .action-pdf{background:#e5e7eb!important;border-color:#cbd5e1!important;color:#1f2937!important}.action-pdf:hover{background:#d1d5db!important}
+    .action-pdf{background:#198754!important;border-color:#157347!important;color:#fff!important}.action-pdf:hover{background:#157347!important}
     .assembly-nav-gap{height:38px}.nav-assembly{background:#fff3cd!important;border-left:4px solid #f59e0b!important;color:#7c4a03!important}
     .assembly-description-large{min-height:260px!important;resize:vertical}.assembly-top-actions{margin:0 0 14px}dialog#assemblyDescriptionDialog{width:min(1200px,calc(100vw - 24px));max-width:none}.assembly-description-dialog{width:100%;max-width:none}.assembly-description-dialog textarea{min-height:68vh;width:100%;resize:vertical}
     .start-customer-row{display:grid;grid-template-columns:minmax(240px,1fr) minmax(180px,.75fr);gap:12px;align-items:end;margin:12px 0 14px}.start-customer-status{min-height:42px;display:flex;align-items:center;padding:9px 12px;border:1px solid #dbe3ec;border-radius:8px;background:#f8fafc;color:var(--muted);font-size:12px}.start-action-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.start-action-grid .btn{width:100%;min-height:42px}.assembly-quote-fields{display:grid;grid-template-columns:minmax(280px,1.6fr) minmax(90px,.45fr) minmax(150px,.7fr);gap:12px;align-items:end;margin-bottom:14px}.assembly-quote-fields input{width:100%}.assembly-quote-help{margin-top:5px;font-size:11px;color:var(--muted)}@media(max-width:760px){.start-customer-row,.assembly-quote-fields{grid-template-columns:1fr}.start-action-grid{grid-template-columns:1fr 1fr}}@media(max-width:460px){.start-action-grid{grid-template-columns:1fr}}
@@ -237,15 +237,16 @@
 
     /* V2.15 ES configuration and System workspace clarity */
     .es-product-seal,.es-product-elastomer{min-width:210px}.es-product-seal:disabled{background:#e5e7eb!important;color:#64748b!important;cursor:not-allowed}
-    .assembly-description-preview{margin:7px 0 9px;padding:14px 16px;min-height:110px;border:1px solid #cbd5e1;border-radius:9px;background:#fbfdff;color:#1e293b;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:13px;line-height:1.6;white-space:pre-wrap;tab-size:4;overflow:auto}
-    .assembly-description-preview mark{padding:1px 3px;border-radius:4px;background:#fff1a8;color:#172033;font-weight:800}.assembly-description-large,#assemblyDescriptionPopup{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;tab-size:4}
-    .assembly-item-pumpset{background:#C0C0C0!important}.assembly-item-control_panel{background:#FFFE91!important}.assembly-item-manifold{background:#D2FFFD!important}.assembly-item-tank{background:#FFFAE4!important}.assembly-item-misc{background:#8C90CF!important;color:#111827}.assembly-item{padding:10px;border-radius:8px;margin:5px 0}.assembly-item.auto-generated>div:first-child{border-left-color:#64748b}
+    .assembly-description-preview{margin:7px 0 9px;padding:14px 16px;min-height:110px;border:1px solid #cbd5e1;border-radius:9px;background:#fbfdff;color:#1e293b;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.6;white-space:pre-wrap;tab-size:4;overflow:auto;cursor:text}
+    .assembly-description-preview:focus{outline:2px solid #2563eb;outline-offset:2px}.assembly-description-preview mark{padding:1px 3px;border-radius:4px;background:#fff1a8;color:#172033;font-weight:800}#assemblyDescriptionPopup{font-family:Arial,Helvetica,sans-serif;tab-size:4;white-space:pre-wrap}.assembly-description-source{display:none!important}
+    .assembly-section{border:1px solid rgba(15,23,42,.16);border-radius:10px;overflow:hidden;margin:10px 0}.assembly-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;margin:0}.assembly-section-head h2{margin:0}.assembly-section-body{padding:5px 8px 8px}.assembly-section-pumpset,.assembly-section-pumpset .assembly-section-head,.assembly-section-pumpset .assembly-section-body,.assembly-item-pumpset{background:#DDEBF7!important}.assembly-section-control_panel,.assembly-section-control_panel .assembly-section-head,.assembly-section-control_panel .assembly-section-body,.assembly-item-control_panel{background:#BDD7EE!important}.assembly-section-manifold,.assembly-section-manifold .assembly-section-head,.assembly-section-manifold .assembly-section-body,.assembly-item-manifold{background:#9BC2E6!important}.assembly-section-tank,.assembly-section-tank .assembly-section-head,.assembly-section-tank .assembly-section-body,.assembly-item-tank{background:#6AA4D8!important}.assembly-item{padding:10px;border-radius:8px;margin:5px 0;border-bottom:1px solid rgba(15,23,42,.18)}.assembly-item.auto-generated>div:first-child{border-left-color:#334155}.assembly-section-tank,.assembly-section-tank label,.assembly-section-tank .muted{color:#10243a}.assembly-section .assembly-empty{padding:8px;margin:0;background:rgba(255,255,255,.45);border-radius:7px}
+    .item-description,.print-item-desc{font-family:Arial,Helvetica,sans-serif;tab-size:4;white-space:pre-wrap}
 </style>
 </head>
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.15 secure quotation, assembly and product system</small></div>
+    <div class="auth-brand">KeySuite<small>V2.16 secure quotation, assembly and product system</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -260,7 +261,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.15</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.16</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -283,7 +284,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.15 · End Suction configuration and improved System draft workflow</div>
+    <div class="suite-version">KeySuite V2.16 · System BOM controls, description editor and action colour standards</div>
   </aside>
 
   <main>
@@ -461,7 +462,7 @@
       </div>
       <div class="grid grid-2" style="margin-top:16px">
         <div class="card"><h2>Calculated Selection</h2><div id="manifoldSelectionSummary" class="manifold-summary"></div></div>
-        <div class="card"><h2>Price</h2><div id="manifoldPriceSummary" class="manifold-summary"></div><div class="actions"><button class="btn action-assembly" id="manifoldAddAssembly" type="button">Assembly</button><button class="btn" id="manifoldAddQuotation" type="button">Quote</button></div></div>
+        <div class="card"><h2>Price</h2><div id="manifoldPriceSummary" class="manifold-summary"></div><div class="actions"><button class="btn action-assembly" id="manifoldAddAssembly" type="button">Assembly</button><button class="btn action-quote" id="manifoldAddQuotation" type="button">Quote</button></div></div>
       </div>
     </section>
 
@@ -487,7 +488,7 @@
             <div><label for="assemblyQuoteUnitPrice">Unit Price</label><input id="assemblyQuoteUnitPrice" type="number" min="0" step="0.01"><div class="assembly-quote-help">Defaults to the BOM total; edit to override.</div></div>
           </div>
           <div class="form-grid">
-            <div class="span-3"><label id="assemblyDescriptionLabel">System Description</label><div id="assemblyDescriptionPreview" class="assembly-description-preview" aria-label="Highlighted System Description preview"></div><textarea id="assemblyDescription" class="assembly-description-large" title="Double-click to open the large editor" placeholder="The quotation description is transferred here when an item is added to Assembly."></textarea></div>
+            <div class="span-3"><label id="assemblyDescriptionLabel">System Description</label><div id="assemblyDescriptionPreview" class="assembly-description-preview" role="button" tabindex="0" title="Double-click to edit System Description" aria-label="Highlighted System Description. Double-click to edit."></div><textarea id="assemblyDescription" class="assembly-description-source" hidden aria-hidden="true"></textarea></div>
           </div>
           <h2 style="margin-top:22px">Components / BOM</h2><div id="assemblyItems"></div>
           <div class="assembly-total">Total: <span id="assemblyTotal">RM 0.00</span></div>
@@ -1065,17 +1066,17 @@
 </div>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="permissions.js?v=215"></script>
-<script src="app.js?v=215"></script>
-<script src="pricing.js?v=215"></script>
-<script src="categories.js?v=215"></script>
-<script src="pricelist.js?v=215"></script>
-<script src="product.js?v=215"></script>
-<script src="manifold.js?v=215"></script>
-<script src="roles.js?v=215"></script>
-<script src="assembly.js?v=215"></script>
+<script src="permissions.js?v=216"></script>
+<script src="app.js?v=216"></script>
+<script src="pricing.js?v=216"></script>
+<script src="categories.js?v=216"></script>
+<script src="pricelist.js?v=216"></script>
+<script src="product.js?v=216"></script>
+<script src="manifold.js?v=216"></script>
+<script src="roles.js?v=216"></script>
+<script src="assembly.js?v=216"></script>
 
-<dialog id="assemblyDescriptionDialog" class="ks-dialog"><form method="dialog" class="dialog-body assembly-description-dialog"><div class="page-title-row"><h2>System Description</h2><button class="dialog-close" value="cancel" aria-label="Close">×</button></div><textarea id="assemblyDescriptionPopup"></textarea><div class="dialog-actions"><button class="btn secondary" value="cancel">Cancel</button><button class="btn" id="saveAssemblyDescriptionPopup" value="default">Apply</button></div></form></dialog>
+<dialog id="assemblyDescriptionDialog" class="ks-dialog"><form method="dialog" class="dialog-body assembly-description-dialog"><div class="page-title-row"><h2>System Description</h2><button class="dialog-close" value="cancel" aria-label="Close">×</button></div><textarea id="assemblyDescriptionPopup"></textarea><div class="dialog-actions"><button class="btn secondary" value="cancel">Cancel</button><button class="btn" id="saveAssemblyDescriptionPopup" value="default">Save</button></div></form></dialog>
 
 <dialog id="productCurveDialog" class="ks-dialog product-curve-dialog">
   <div class="dialog-body">
@@ -1083,6 +1084,6 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="auth.js?v=215"></script>
+<script src="auth.js?v=216"></script>
 </body>
 </html>

@@ -1,0 +1,51 @@
+KeySuite V2.16 QA Report
+========================
+
+Build scope
+-----------
+- Auto-selected Manifold and Tank Qty/Unit Price locking while retaining Delete
+- Auto-item deletion suppression so deleted Manifold/Tank items do not immediately return
+- Removal of the System BOM MISC section
+- System BOM component colours extended through titles and item rows
+- Single highlighted System Description with double-click popup editing
+- Arial font restored for the description display and popup editor
+- Tab alignment preserved when System descriptions move to Quotation
+- Red sealed-quotation button styling
+- Standard green PDF buttons with the visible label "PDF"
+- Selector CHC Assembly/Quote colours matched to Product CHC
+- Global Assembly orange and Quote green action classes applied to product routes
+
+Automated checks
+----------------
+1. JavaScript syntax checks: PASSED
+   app.js, assembly.js, product.js, pricing.js, manifold.js, categories.js,
+   pricelist.js, permissions.js, roles.js, auth.js and sw.js.
+
+2. Static release checks: PASSED
+   - V2.16 page, manifest and service-worker cache versions are present.
+   - System BOM contains Pumpset, Control Panel, Manifold and Tank only.
+   - Auto-item suppression state is stored with the assembly metadata.
+   - Hidden source description and popup editor controls are present.
+   - Exact BOM colours, PDF green and sealed red styles are present.
+   - Selector Assembly and Quote colour classes are present.
+
+3. Headless Chromium interface/integration checks: PASSED (27/27)
+   - Main scripts loaded with the QA stubs.
+   - System displayed four BOM sections and no MISC section.
+   - Auto Manifold and Tank rows were generated.
+   - Auto Manifold/Tank Qty and Unit Price were read-only.
+   - Auto Manifold/Tank Delete remained enabled.
+   - Exact title and row colours matched all four component categories.
+   - A deleted auto Manifold stayed deleted rather than returning immediately.
+   - The duplicate editable description box was hidden.
+   - The highlighted System Description was displayed.
+   - Double-click opened the description popup.
+   - Popup editor used Arial and Save updated the highlighted description.
+   - Quotation transfer retained tab characters and the tab-size 4 rule.
+   - PDF buttons displayed the standard green.
+   - The sealed quotation button displayed red.
+   - Selector PDF, Assembly and Quote labels/colours matched the new standard.
+
+4. Database migration: NOT REQUIRED
+   V2.16 uses the existing quotation and assembly storage structures. New UI state
+   is retained in existing assembly item pricing-source metadata.

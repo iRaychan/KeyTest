@@ -533,8 +533,9 @@ function refreshItemExportButtons(){
    try{const pump=JSON.parse(row.dataset.pumpData||'{}');model=pump.quotation_model||pump.model||model}catch(_){}
    const no=String(i+1).padStart(2,'0');
    const b=document.createElement('button');
-   b.className='btn secondary';
-   b.textContent=`Item ${no}`;
+   b.className='btn action-pdf';
+   b.textContent='PDF';
+   b.title=`Item ${no} PDF — ${model}`;
    b.onclick=()=>exportPumpDataSheet(row,model);
    box.appendChild(b);
  });
