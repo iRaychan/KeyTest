@@ -1,0 +1,22 @@
+KeySuite V2.14 Installation
+===========================
+
+Recommended: update an existing KeySuite V2.13 deployment with the changed-files patch.
+
+1. Back up the current deployment and database.
+2. Extract KeySuite_V2.14_Changed_Files_Patch.zip.
+3. Upload the extracted files over the existing V2.13 deployment, preserving folder paths.
+4. Do not replace the deployment's working config.js.
+5. No new Supabase migration is required for V2.14.
+6. Confirm the V2.13 Manifold migration was already run.
+7. Hard-refresh with Ctrl + Shift + R.
+8. If V2.13 remains visible, close all KeySuite tabs, reopen the site and hard-refresh again.
+
+Verification
+------------
+- End Suction materials are displayed in the requested order.
+- Direct KeyPLC quotation descriptions omit c/w; coupled System descriptions use c/w plus four-space continuation indentation.
+- System/Pumpset quotation items show Set/Sets and omit the internal BOM summary.
+- New Quotation opens a clean quotation and clean System/Pumpset workspace.
+- Auto-selected control-panel Qty and Unit Price are fixed and visibly filled.
+- Manifold and GWS tank are selected and priced automatically when matching pump and price data are available.

@@ -22,13 +22,23 @@
   const pricingCustomer=()=>window.KeySuiteApp?.getPricingCustomer?.()||window.KeySuiteApp?.getSelectedCustomer?.()||null;
   const categoryFor=customer=>(secureData.categories||[]).find(row=>row.id===customer?.pricingCategoryId)||null;
 
+  function normalizeConnection(value){const code=String(value||'FLANGE_16').toUpperCase();return ['THREAD_8','FLANGE_10','FLANGE_16','FLANGE_25'].includes(code)?code:'FLANGE_16'}
+  function priceConnection(value){return ({THREAD_8:'THREAD_10',FLANGE_10:'FLANGE_16',FLANGE_16:'FLANGE_16',FLANGE_25:'FLANGE_25'})[normalizeConnection(value)]||'FLANGE_16'}
   function branchCode(material,connection){
-    const [type,pressure]=String(connection||'FLANGE_16').split('_');
+    const [type,pressure]=priceConnection(connection).split('_');
     return `${String(material||'GI').toUpperCase()}_${type}_${pressure}`;
+  }
+  function connectionForShutoffHead(headMetres){
+    const head=Number(headMetres);if(!Number.isFinite(head)||head<=0)return {connection:'FLANGE_16',pressureBar:null,fallback:true,engineeringReview:false};
+    const pressureBar=head*.0981;
+    if(pressureBar<8)return {connection:'THREAD_8',pressureBar,fallback:false,engineeringReview:false};
+    if(pressureBar<10)return {connection:'FLANGE_10',pressureBar,fallback:false,engineeringReview:false};
+    if(pressureBar<25)return {connection:'FLANGE_25',pressureBar,fallback:false,engineeringReview:false};
+    return {connection:'',pressureBar,fallback:false,engineeringReview:true};
   }
   function priceOf(variant,currency){const value=variant?.[fieldFor(currency)];return isFilled(value)?Number(value):null}
   function selectedConfig(){return {
-    material:String($('manifoldMaterial')?.value||'GI').toUpperCase(),connection:String($('manifoldConnection')?.value||'FLANGE_16'),
+    material:String($('manifoldMaterial')?.value||'GI').toUpperCase(),connection:normalizeConnection($('manifoldConnection')?.value||'FLANGE_16'),
     suctionDn:String($('manifoldSuctionDn')?.value||'DN25'),dischargeDn:String($('manifoldDischargeDn')?.value||'DN25'),
     pumpQty:Math.max(1,Math.min(6,Number($('manifoldPumpQty')?.value)||2)),tankSize:String($('manifoldTankSize')?.value||''),rarity:validRarity($('manifoldRarity')?.value)
   }}
@@ -54,19 +64,27 @@
   }
 
   function findConfiguredPrice(config={},options={}){
-    const normalized={material:String(config.material||'GI').toUpperCase(),connection:String(config.connection||'FLANGE_16'),suctionDn:String(config.suctionDn||'DN25'),dischargeDn:String(config.dischargeDn||'DN25'),pumpQty:Math.max(1,Math.min(6,Number(config.pumpQty)||2)),tankSize:String(config.tankSize||''),rarity:validRarity(config.rarity)};
+    const normalized={material:String(config.material||'GI').toUpperCase(),connection:normalizeConnection(config.connection||'FLANGE_16'),suctionDn:String(config.suctionDn||'DN25'),dischargeDn:String(config.dischargeDn||'DN25'),pumpQty:Math.max(1,Math.min(6,Number(config.pumpQty)||2)),tankSize:String(config.tankSize||''),rarity:validRarity(config.rarity)};
     const customer=options.customer||pricingCustomer(),category=options.category||categoryFor(customer);if(!customer||!category)return null;
     const source=sourceBook(normalized);if(!source)return null;
     const calc=window.KeySuitePricing?.calculatePrice?.(source.book,'TOTAL',category,'MANIFOLD',{customer,rarity:normalized.rarity});if(!calc)return null;
     return {product:{id:'MANIFOLD-CALCULATOR',model:`${normalized.material} Manifold ${source.manifoldDn}`},material:'TOTAL',variant:'TOTAL',calc,category,customer,family:'MANIFOLD',configuration:normalized,source,sourceExtra:{configuration:normalized}};
   }
 
-  function connectionLabel(value){return ({THREAD_10:'Thread @ 10 Bar',FLANGE_16:'Flange @ 16 Bar',FLANGE_25:'Flange @ 25 Bar'})[value]||value}
-  function description(found){
-    const c=found.configuration,s=found.source,tank=c.tankSize?`\nTank fitting: ${c.tankSize}`:'';
-    return `${c.material} Manifold ${s.manifoldDn} for ${c.pumpQty} ${c.pumpQty===1?'Pump':'Pumps'}\nBranch: ${c.material} ${connectionLabel(c.connection)} · Suction ${c.suctionDn} / Discharge ${c.dischargeDn}${tank}`;
+  function connectionLabel(value){return ({THREAD_8:'Thread @ 8 Bar',FLANGE_10:'Flange @ 10 Bar',FLANGE_16:'Flange @ 16 Bar',FLANGE_25:'Flange @ 25 Bar'})[normalizeConnection(value)]||value}
+  function dnInches(value){const dn=dnNumber(value),map={15:'.5',20:'.75',25:'1',32:'1.25',40:'1.5',50:'2',65:'2.5',80:'3',100:'4',125:'5',150:'6',200:'8',250:'10',300:'12'};return map[dn]||String(Number((dn/25.4).toFixed(1))||'')}
+  function description(found,options={}){
+    const c=found.configuration,s=found.source,includeCw=!!options.includeCw,indent=includeCw?'    ':'',size=dnInches(s.manifoldDn);
+    return `${includeCw?'c/w ':''}Baseplate in mild steel, SS manifold ${size}" inlet & ${size}" outlet
+${indent}Gate valves on suction & discharge ports of each pump
+${indent}Check valves on discharge ports of each pump
+${indent}1 Pressure gauge on discharge ports`;
   }
-  function itemFrom(found){return {model:`${found.configuration.material} Manifold ${found.source.manifoldDn} · ${found.configuration.pumpQty} ${found.configuration.pumpQty===1?'Pump':'Pumps'}`,description:description(found),qty:1,unitPrice:found.calc.finalPrice,pricingSource:{product_family:'MANIFOLD',product_id:'MANIFOLD-CALCULATOR',material:'TOTAL',variant:'TOTAL',rarity:found.calc.rarity,customer_id:found.customer?.id||'',category_id:found.category?.id||'',source_currency:found.calc.sourceCurrency,currency_multiplier:found.calc.multiplier,source_price:found.calc.sourcePrice,distance_km:found.calc.distanceKm,fuel_price:found.calc.fuelPrice,fuel_base_price:found.calc.fuelBasePrice,fuel_charge:found.calc.fuelCharge,unrounded_price:found.calc.unroundedPrice,calculated_price:found.calc.finalPrice,configuration:found.configuration},productFamily:'MANIFOLD',assemblyLevel:'SYSTEM_COMPONENT',assemblySection:'manifold'} }
+  function itemFrom(found,options={}){
+    const auto=!!options.auto,model=`Manifold ${dnInches(found.source.manifoldDn)}" · ${found.configuration.pumpQty} ${found.configuration.pumpQty===1?'Pump':'Pumps'} · ${connectionLabel(found.configuration.connection)}`;
+    return {model,bomDescription:model,description:description(found,{includeCw:!!options.includeCw}),qty:1,unitPrice:found.calc.finalPrice,pricingSource:{product_family:'MANIFOLD',product_id:'MANIFOLD-CALCULATOR',material:'TOTAL',variant:'TOTAL',rarity:found.calc.rarity,customer_id:found.customer?.id||'',category_id:found.category?.id||'',source_currency:found.calc.sourceCurrency,currency_multiplier:found.calc.multiplier,source_price:found.calc.sourcePrice,distance_km:found.calc.distanceKm,fuel_price:found.calc.fuelPrice,fuel_base_price:found.calc.fuelBasePrice,fuel_charge:found.calc.fuelCharge,unrounded_price:found.calc.unroundedPrice,calculated_price:found.calc.finalPrice,configuration:found.configuration,...(auto?{auto_sized_manifold:true}:{})},productFamily:'MANIFOLD',assemblyLevel:'SYSTEM_COMPONENT',assemblySection:'manifold',manifoldData:{...found.configuration,manifoldDn:found.source.manifoldDn,autoSelected:auto}};
+  }
+  function buildConfiguredItem(config={},options={}){const found=findConfiguredPrice(config,options);return found?itemFrom(found,{includeCw:options.includeCw!==false,auto:!!options.auto}):null}
 
   function renderProduct(){
     const page=$('productManifold');if(!page)return;
@@ -86,7 +104,7 @@
     ['manifoldAddAssembly','manifoldAddQuotation'].forEach(id=>{if($(id))$(id).disabled=!found});
   }
   function addTo(route){
-    if(!lastFound){updateProduct();if(!lastFound)return}const item=itemFrom(lastFound);
+    if(!lastFound){updateProduct();if(!lastFound)return}const item=itemFrom(lastFound,{includeCw:route==='assembly'});
     if(route==='assembly'){window.KeySuiteAssembly?.addItem?.(item);return}
     if(window.KeySuiteApp?.canEditQuotation&&!window.KeySuiteApp.canEditQuotation(true))return;
     const row=window.KeySuiteApp?.addExternalQuoteItem?.(item);if(!row)return;
@@ -128,8 +146,11 @@
   }
   async function saveMultiplier(currency){if(!isOwner())return;const input=$(currency==='USD'?'manifoldUsdMultiplier':'manifoldRmbMultiplier'),value=Number(input?.value);if(!Number.isFinite(value)||value<=0){message(`${currency} rate must be greater than zero.`,'error');return}const client=window.KeySuiteAuth?.getClient?.();if(!client)return;try{const {data,error}=await client.rpc('keysuite_save_product_pricelist_multiplier_v119',{p_product_code:'MANIFOLD',p_currency:currency,p_multiplier:value});if(error)throw error;const saved=Array.isArray(data)?data[0]:data||{};secureData.productMultipliers=secureData.productMultipliers||{};secureData.productMultipliers.MANIFOLD={USD:Number(saved.usd_multiplier??rates().USD),RMB:Number(saved.rmb_multiplier??rates().RMB),MYR:1};if(window.KEYSUITE_SECURE_DATA)window.KEYSUITE_SECURE_DATA.productMultipliers=secureData.productMultipliers;window.KeySuitePricing?.syncPriceListSettings?.({productMultipliers:secureData.productMultipliers});window.KeySuiteCategories?.render?.();message(`MANIFOLD ${currency} rate saved.`,'info');renderPriceList();updateProduct()}catch(error){message(`${error.message||error}. Run V213_SUPABASE_MIGRATION.sql first.`,'error')}}
 
+  function applyDefaultState(control){if(!control)return;const update=()=>control.classList.toggle('non-default-selection',String(control.value)!==String(control.dataset.defaultValue||''));control.addEventListener('change',update);update()}
+
   function bind(){if(bound)return;bound=true;
     ['manifoldMaterial','manifoldConnection','manifoldSuctionDn','manifoldDischargeDn','manifoldPumpQty','manifoldTankSize','manifoldRarity'].forEach(id=>$(id)?.addEventListener('change',updateProduct));
+    ['manifoldMaterial','manifoldConnection','manifoldPumpQty','manifoldRarity'].forEach(id=>applyDefaultState($(id)));
     $('manifoldAddAssembly')?.addEventListener('click',()=>addTo('assembly'));$('manifoldAddQuotation')?.addEventListener('click',()=>addTo('quotation'));
     $('manifoldPriceCurrency')?.addEventListener('change',event=>{localStorage.setItem('ks_manifold_price_currency',validCurrency(event.target.value));renderPriceList()});
     $('saveManifoldUsdMultiplier')?.addEventListener('click',()=>saveMultiplier('USD'));$('saveManifoldRmbMultiplier')?.addEventListener('click',()=>saveMultiplier('RMB'));
@@ -137,5 +158,5 @@
   }
   function init(data,userAccess){secureData={...secureData,...(data||{})};access=userAccess||access;bind();renderProduct();renderPriceList()}
   function pageShown(id){if(id==='productManifold')renderProduct();if(id==='manifoldPriceList')renderPriceList()}
-  window.KeySuiteManifold={init,pageShown,renderProduct,renderPriceList,findConfiguredPrice};
+  window.KeySuiteManifold={init,pageShown,renderProduct,renderPriceList,findConfiguredPrice,buildConfiguredItem,connectionForShutoffHead,connectionLabel,description};
 })();

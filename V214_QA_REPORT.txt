@@ -1,0 +1,59 @@
+KeySuite V2.14 QA Report
+========================
+
+Build scope
+-----------
+- End Suction material sequence
+- KeyPLC direct/coupled description and four-space continuation indentation
+- System header alignment
+- System/Pumpset quotation transfer without internal BOM summary
+- Set/Sets quotation unit wording
+- New quotation and System/Pumpset session isolation
+- Automatic KeyPLC control-panel selection and read-only Qty/Unit Price
+- Manifold defaults, non-default highlighting, automatic sizing/pricing/description
+- Manifold connection selection from zero-flow shut-off head
+- Automatic GWS tank volume by CHC series and pressure above shut-off pressure
+
+Automated checks
+----------------
+1. JavaScript syntax checks: PASSED
+   app.js, assembly.js, pricing.js, manifold.js, product.js and sw.js.
+
+2. Module-level assertions: PASSED
+   - Manifold connection thresholds and no-curve Flange 16 Bar fallback.
+   - Direct and coupled Manifold descriptions.
+   - Direct and coupled KeyPLC descriptions.
+   - Four-space continuation indentation.
+   - Set/Sets quantity formatter and quotation-session source assertions.
+
+3. Headless Chromium UI/integration checks: 27/27 PASSED
+   - V2.14 title and brand.
+   - Exact End Suction material order and legacy BR exclusion.
+   - Manifold GI / Flange 16 Bar / 2 Pumps / Common defaults.
+   - Pink highlight appears for non-default Manifold selection and clears on default.
+   - Direct KeyPLC quotation has no c/w.
+   - Coupled KeyPLC has c/w and exactly four leading spaces on rows 2 onward.
+   - KeyPLC pump and pressure-transmitter wiring are separate lines.
+   - Model / Item, Qty and Unit Price labels and inputs align exactly.
+   - Automatic control panel is created, Qty is 1, Qty/Unit Price are read-only and filled.
+   - Manually added KeyPLC remains editable.
+   - Automatic Manifold and GWS tank are created and priced from synthetic secure price data.
+   - System description includes the requested KeyPLC, Manifold and 24 L tank descriptions.
+   - System transfer uses Set/Sets and omits Pumpset:/Control Panel: summary blocks.
+   - New Quotation clears quotation fields and opens an isolated empty System workspace.
+   - No browser JavaScript errors occurred during the test flow.
+
+4. Static pressure/tank assertions: PASSED
+   - CHC series <=10 -> 24 L.
+   - CHC series 12-16 -> 35 L.
+   - CHC series 35-90 -> 100 L.
+   - CHC series 120-150 -> 200 L.
+   - CHC series 200 -> 300 L.
+   - GWS tank pressure selection uses a strictly higher rating.
+
+5. Database migration: NOT REQUIRED
+   V2.14 changes use the V2.13 Manifold schema and existing product/pricing tables.
+
+Test environment note
+---------------------
+The browser test loaded the production HTML and JavaScript in headless Chromium with synthetic customer, category, KeyPLC, Manifold and GWS secure data. It validates interface and calculation/routing behavior without writing to a live Supabase project.

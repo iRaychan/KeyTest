@@ -1,0 +1,48 @@
+KeySuite V2.14 Changes
+======================
+
+1. End Suction material sequence
+- Enforced: CI SS SS MS / CI SS SS GP / CI CI SS MS / CI CI SS GP / SS 304 / SS 316.
+- CI BR SS MS and CI BR SS GP remain excluded.
+
+2. System Description and KeyPLC routing
+- Coupled KeyPLC descriptions start with c/w on row 1.
+- Rows 2 onward begin with exactly four spaces.
+- Direct Product > KeyPLC quotations do not include c/w.
+- Split pump wiring and pressure-transmitter wiring into separate lines.
+
+3. System header alignment
+- Model / Item, Qty and Unit Price share equal label, control and help-row heights.
+
+4. System/Pumpset quotation transfer
+- Removed internal Pumpset and Control Panel BOM summaries from customer quotation descriptions.
+- Quantity wording is Set for one and Sets for more than one.
+
+5. New quotation isolation
+- Each New Quotation receives a new working-session identifier.
+- Quotation items, customer/pricing context and System/Pumpset working drafts are isolated from the previous quotation.
+- Saved quotations retain their assembly-session identifier when reopened.
+
+6. Automatic control panel
+- The System BOM sizes KeyPLC by total pump quantity and nearest adequate motor kW.
+- Auto-selected control-panel Qty is fixed at 1 and Qty/Unit Price fields are read-only with a filled background.
+- Manually added Product > KeyPLC items remain editable.
+
+7. Manifold defaults and automation
+- Defaults: GI / Flange 16 Bar / 2 Pumps / Common.
+- Non-default selections use the existing pink highlight.
+- Automatic Manifold size and standard price follow pump DN and total BOM pump quantity.
+- Connection uses the lowest supported rating strictly above zero-flow shut-off pressure: Thread 8 Bar, Flange 10 Bar or Flange 25 Bar.
+- When no curve is available, Flange 16 Bar is used.
+- Assembly description includes c/w and four-space continuation indentation.
+
+8. Automatic GWS tank selection
+- CHC series up to 10: 24 L.
+- CHC series 12–16: 35 L.
+- CHC series 35–90: 100 L.
+- CHC series 120–150: 200 L.
+- CHC series 200: 300 L.
+- Tank pressure rating is the lowest available rating strictly above the pump's zero-flow shut-off pressure.
+
+9. Database
+- No new Supabase migration is required for V2.14.

@@ -91,7 +91,9 @@
     body.innerHTML=rows.map(x=>{
       const materials=[...new Set((x.variants||[]).map(v=>String(v.material||'').trim()).filter(value=>value&&!/\bBR\b/i.test(value)))];
       if(!materials.some(value=>normMaterial(value)===normMaterial(ES_DEFAULT_MATERIAL)))materials.unshift(ES_DEFAULT_MATERIAL);
-      const ordered=[...materials].sort((a,b)=>normMaterial(a)===normMaterial(ES_DEFAULT_MATERIAL)?-1:normMaterial(b)===normMaterial(ES_DEFAULT_MATERIAL)?1:a.localeCompare(b));
+      const materialOrder=['CI SS SS MS','CI SS SS GP','CI CI SS MS','CI CI SS GP','SS 304','SS 316'];
+      const materialRank=value=>{const normalized=normMaterial(value);const index=materialOrder.findIndex(item=>normMaterial(item)===normalized);return index<0?999:index};
+      const ordered=[...materials].sort((a,b)=>materialRank(a)-materialRank(b)||a.localeCompare(b));
       const options=ordered.map(material=>`<option value="${esc(material)}" ${normMaterial(material)===normMaterial(ES_DEFAULT_MATERIAL)?'selected':''}>${esc(material.replace(/\s*\/\s*/g,' '))}</option>`).join('');
       return `<tr data-es-product-row="${esc(x.id)}"><td><b>${esc(x.model)}</b></td><td><select class="es-product-material" data-es-material-select data-default-value="${esc(ES_DEFAULT_MATERIAL)}" aria-label="Material for ${esc(x.model)}">${options}</select></td><td style="text-align:right"><div class="route-actions"><button class="btn secondary" data-es-assembly="${esc(x.id)}">Assembly</button><button class="btn" data-es-quote="${esc(x.id)}">Quote</button></div></td></tr>`;
     }).join('')||'<tr><td colspan="3" class="muted">No matching ES models.</td></tr>';
