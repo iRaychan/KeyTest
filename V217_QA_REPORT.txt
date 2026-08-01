@@ -1,0 +1,55 @@
+KeySuite V2.17 QA Report
+========================
+
+Build scope
+-----------
+1. System Description refreshes immediately whenever the System BOM changes.
+2. Coupled component descriptions use `c/w ` on the first row and exactly four spaces on continuation rows.
+3. System/Pumpset quotation PDF descriptions span the Description and Qty columns so long Manifold lines use the available empty width.
+
+Validation completed
+--------------------
+1. JavaScript syntax
+   - app.js
+   - assembly.js
+   - pricing.js
+   - manifold.js
+   - product.js
+   - pricelist.js
+   - categories.js
+   - auth.js
+   - permissions.js
+   - roles.js
+   - sw.js
+   Result: Passed.
+
+2. Description refresh logic
+   - BOM quantity changes invalidate stale manually rendered text and call the BOM read/rebuild path.
+   - Automatic Control Panel, Manifold and Tank changes invalidate stale description state.
+   - The hidden plain-text description and highlighted preview are refreshed together.
+   Result: Passed by source-level integration checks.
+
+3. Description indentation
+   - Legacy `c/w` tab prefixes normalize to `c/w `.
+   - Legacy leading tabs normalize to four spaces.
+   - New KeyPLC and Manifold generators use exactly four spaces for continuation rows.
+   - Quotation save/load and print paths normalize the same indentation.
+   Result: Passed.
+
+4. System/Pumpset PDF layout
+   - Set-based items use a two-row print structure.
+   - Qty, Unit Price and Total remain on the item header row.
+   - The detailed description spans the Description and Qty columns.
+   - The target line `c/w Baseplate in mild steel, SS manifold 2.5" inlet & 2.5" outlet` remains on one line in the rendered A4 QA PDF.
+   - The QA PDF was rendered to PNG and visually inspected for wrapping, clipping and column overlap.
+   Result: Passed.
+
+5. Version and cache
+   - VERSION.txt, page labels, manifest and service-worker cache identify V2.17.
+   Result: Passed.
+
+6. Database
+   - V2.17 uses the existing V2.16 quotation and assembly storage structures.
+   - No new Supabase migration is required.
+
+Packaging checks are recorded in the delivery SHA-256 file after the final archives are generated.

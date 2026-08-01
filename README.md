@@ -1,20 +1,18 @@
-# KeySuite V2.16
+# KeySuite V2.17
 
-KeySuite V2.16 improves System BOM controls, description editing and global action-button consistency.
+KeySuite V2.17 keeps the visible System Description synchronized with BOM changes and improves System/Pumpset quotation PDF layout.
 
 ## Main changes
 
-- End Suction descriptions now show the clean pump model, suction/discharge DN sizes, expanded Mech Seal/Gland Packing wording, and bare-shaft wording.
-- Product > End Suction includes Mech Seal Material and Elastomer selectors with pink non-default highlighting.
-- The System New button is hidden; adding another Pumpset automatically saves the existing System draft and opens a new System.
-- Existing System drafts can be reopened and updated with Pumpsets, panels, Manifolds and Tanks while preserving fixed description grouping.
-- System Description shows one highlighted view and opens an Arial popup editor on double-click.
-- Auto-selected Manifold and Tank Qty/Unit Price fields are locked but the items remain deletable. System BOM colours extend through component titles and rows.
-- Coupled descriptions use tab-aligned `c/w` formatting.
+- System Description refreshes immediately after BOM quantity, price, panel type, component, or automatic-selection changes.
+- Coupled component descriptions use `c/w ` on the first row and exactly four leading spaces on continuation rows.
+- Existing tab-based descriptions are normalized when reopened or transferred to Quotation.
+- System/Pumpset PDF descriptions span the Description and Qty columns, while Qty, Unit Price and Total remain on the item header row.
+- Long Manifold descriptions such as `2.5" inlet & 2.5" outlet` receive the wider System/Pumpset print area.
 
-## Upgrade from V2.15
+## Upgrade from V2.16
 
-1. Apply `KeySuite_V2.16_Changed_Files_Patch.zip` over V2.15.
+1. Apply `KeySuite_V2.17_Changed_Files_Patch.zip` over V2.16.
 2. Preserve the existing working `config.js`.
 3. No new Supabase migration is required.
 4. Hard refresh after deployment.

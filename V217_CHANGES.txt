@@ -1,0 +1,10 @@
+KeySuite V2.17 Changes
+======================
+
+1. System Description now refreshes immediately whenever the BOM changes; opening and closing the popup editor is no longer required.
+2. Generated coupled descriptions use `c/w ` on the first row and exactly four spaces on every continuation row. Legacy tab indentation is normalized when loaded and quoted.
+3. System/Pumpset quotation print and PDF output keeps Qty, Unit Price and Total on the item header row, while the detailed description spans the normal Description and Qty columns to reduce unnecessary wrapping.
+
+Database
+--------
+No new Supabase migration is required.

@@ -74,8 +74,8 @@
   function connectionLabel(value){return ({THREAD_8:'Thread @ 8 Bar',FLANGE_10:'Flange @ 10 Bar',FLANGE_16:'Flange @ 16 Bar',FLANGE_25:'Flange @ 25 Bar'})[normalizeConnection(value)]||value}
   function dnInches(value){const dn=dnNumber(value),map={15:'.5',20:'.75',25:'1',32:'1.25',40:'1.5',50:'2',65:'2.5',80:'3',100:'4',125:'5',150:'6',200:'8',250:'10',300:'12'};return map[dn]||String(Number((dn/25.4).toFixed(1))||'')}
   function description(found,options={}){
-    const c=found.configuration,s=found.source,includeCw=!!options.includeCw,indent=includeCw?'\t':'',size=dnInches(s.manifoldDn);
-    return `${includeCw?'c/w\t':''}Baseplate in mild steel, SS manifold ${size}" inlet & ${size}" outlet
+    const c=found.configuration,s=found.source,includeCw=!!options.includeCw,indent=includeCw?'    ':'',size=dnInches(s.manifoldDn);
+    return `${includeCw?'c/w ':''}Baseplate in mild steel, SS manifold ${size}" inlet & ${size}" outlet
 ${indent}Gate valves on suction & discharge ports of each pump
 ${indent}Check valves on discharge ports of each pump
 ${indent}1 Pressure gauge on discharge ports`;

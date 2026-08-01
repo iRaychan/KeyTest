@@ -327,7 +327,7 @@
     const pressureBar=Number(product?.pressureBar||0);
     const quantity=Math.max(0,Number(qty)||1);
     const clean=value=>Number.isInteger(value)?value.toFixed(0):String(value);
-    return `c/w\t${clean(litres)} litres (${clean(pressureBar)} bar) non-jkkp approved tank @ ${clean(quantity)} ${quantity===1?'unit':'units'}`;
+    return `c/w ${clean(litres)} litres (${clean(pressureBar)} bar) non-jkkp approved tank @ ${clean(quantity)} ${quantity===1?'unit':'units'}`;
   }
   function buildGwsAssemblyItem(model,pressure,options={}){
     const found=findGwsPrice(model,pressure,options);if(!found)return null;
@@ -361,8 +361,8 @@
 
   function keyplcTitle(product,pumpQty,enclosure='indoor'){const qty=Math.max(1,Number(pumpQty)||1);return `KeyPLC ${product?.model||''} · ${qty} ${qty===1?'Pump':'Pumps'} · ${keyplcPanelLabel(enclosure)}`}
   function keyplcDescription(product,pumpQty,enclosure='indoor',options={}){
-    const qty=Math.max(1,Math.min(6,Number(pumpQty)||1)),numberWord=qty===1?'no':'nos',includeCw=!!options.includeCw,indent=includeCw?'\t':'';
-    const first=`${includeCw?'c/w\t':''}KeyPLC Control Panel (${keyplcPanelLabel(enclosure)})`;
+    const qty=Math.max(1,Math.min(6,Number(pumpQty)||1)),numberWord=qty===1?'no':'nos',includeCw=!!options.includeCw,indent=includeCw?'    ':'';
+    const first=`${includeCw?'c/w ':''}KeyPLC Control Panel (${keyplcPanelLabel(enclosure)})`;
     return `${first}
 ${indent}Pump Controller & HMI Touch Screen @ 1 Lot
 ${indent}${product?.model||''} VFD @ ${qty} ${numberWord} & Pressure Transmitter @ 1 no
