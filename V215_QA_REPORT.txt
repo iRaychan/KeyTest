@@ -1,0 +1,45 @@
+KeySuite V2.15 QA Report
+========================
+
+Build scope
+-----------
+- End Suction description format and MS/GP wording
+- End Suction Mech Seal Material and Elastomer selectors
+- Conditional display of non-default seal/elastomer values
+- Automatic System draft creation for newly added Pumpsets
+- Reopening and extending existing System drafts
+- Fixed System Description component grouping
+- System-only variable-value highlighting preview
+- System BOM category background colours
+- Tab-aligned c/w component descriptions
+
+Automated checks
+----------------
+1. JavaScript syntax checks: PASSED
+   app.js, assembly.js, pricing.js, product.js, manifold.js and sw.js.
+
+2. End Suction browser checks: PASSED
+   - Exact Mech Seal Material option order.
+   - Exact Elastomer option order.
+   - Default description excludes default seal and elastomer lines.
+   - ES prefix is removed from the description model.
+   - ES 50-32H produces DN65 x DN50.
+   - MS expands to Mech Seal.
+   - Non-default seal and elastomer values appear in the description.
+   - Non-default selectors receive the pink highlight class.
+   - Mech Seal Material is disabled for Gland Packing construction.
+
+3. System workflow browser checks: PASSED
+   - Pumpset creates automatic Panel, Manifold and Tank items.
+   - Description order is Pumpset, Panel, Manifold, Tank.
+   - A second Pumpset creates a separate System draft.
+   - The previous System description remains in Drafts.
+   - Selecting an existing draft allows a new Panel to be added to it.
+   - Multiple Panel descriptions remain grouped before Manifold.
+   - MISC items receive the MISC BOM class.
+   - System Description preview highlights variable values.
+   - Quotation transfer contains plain text only, with no highlight markup.
+   - Coupled Panel descriptions use a tab after c/w and tab-aligned continuation rows.
+
+4. Database migration: NOT REQUIRED
+   V2.15 uses existing product, pricing, quotation and assembly storage structures.

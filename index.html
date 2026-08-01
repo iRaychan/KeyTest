@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V2.14</title>
+  <title>KeySuite V2.15</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -234,12 +234,18 @@
     /* V2.13 Manifold product and price tables */
     .item-description,#assemblyDescription,#assemblyDescriptionPopup{tab-size:4}
     .manifold-product-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px}.manifold-summary{display:grid;gap:8px}.manifold-summary-row{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid #edf1f6}.manifold-summary-row b{text-align:right}.manifold-total{font-size:22px;color:var(--navy)}.manifold-pricelist-tabs{display:flex;gap:8px;flex-wrap:wrap}.manifold-pricelist-tabs .active{background:var(--navy);color:#fff}.manifold-table input,.manifold-table select{min-width:92px}.manifold-table .na-cell{color:#94a3b8;text-align:center}.pricing-manual-calculator{border-color:#93c5fd;background:#eff6ff}@media(max-width:900px){.manifold-product-grid{grid-template-columns:1fr 1fr}}@media(max-width:560px){.manifold-product-grid{grid-template-columns:1fr}}
+
+    /* V2.15 ES configuration and System workspace clarity */
+    .es-product-seal,.es-product-elastomer{min-width:210px}.es-product-seal:disabled{background:#e5e7eb!important;color:#64748b!important;cursor:not-allowed}
+    .assembly-description-preview{margin:7px 0 9px;padding:14px 16px;min-height:110px;border:1px solid #cbd5e1;border-radius:9px;background:#fbfdff;color:#1e293b;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:13px;line-height:1.6;white-space:pre-wrap;tab-size:4;overflow:auto}
+    .assembly-description-preview mark{padding:1px 3px;border-radius:4px;background:#fff1a8;color:#172033;font-weight:800}.assembly-description-large,#assemblyDescriptionPopup{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;tab-size:4}
+    .assembly-item-pumpset{background:#C0C0C0!important}.assembly-item-control_panel{background:#FFFE91!important}.assembly-item-manifold{background:#D2FFFD!important}.assembly-item-tank{background:#FFFAE4!important}.assembly-item-misc{background:#8C90CF!important;color:#111827}.assembly-item{padding:10px;border-radius:8px;margin:5px 0}.assembly-item.auto-generated>div:first-child{border-left-color:#64748b}
 </style>
 </head>
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.14 secure quotation, assembly and product system</small></div>
+    <div class="auth-brand">KeySuite<small>V2.15 secure quotation, assembly and product system</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -254,7 +260,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.14</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.15</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -277,7 +283,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.14 · Automated system BOM, quotation isolation and description refinements</div>
+    <div class="suite-version">KeySuite V2.15 · End Suction configuration and improved System draft workflow</div>
   </aside>
 
   <main>
@@ -433,7 +439,7 @@
     <section id="productEs" class="page">
       <div class="page-title-row"><div><h1>Product · End Suction</h1><div class="muted">B.G.Reich ES bare-shaft pump products.</div></div></div>
       <div class="card"><div class="page-title-row"><div><h2 style="margin:0">ES Models</h2><div id="esProductCount" class="muted"></div></div><div class="price-list-search"><label>Search Model</label><input id="esProductSearch" placeholder="Example: ES 65-32"></div></div>
-      <div class="table-wrap" style="max-height:650px"><table><thead><tr><th>Model</th><th>Material</th><th style="text-align:right">Actions</th></tr></thead><tbody id="esProductRows"></tbody></table></div></div>
+      <div class="table-wrap" style="max-height:650px"><table><thead><tr><th>Model</th><th>Material</th><th>Mech Seal Material</th><th>Elastomer</th><th style="text-align:right">Actions</th></tr></thead><tbody id="esProductRows"></tbody></table></div></div>
     </section>
     <section id="productKeyplc" class="page">
       <div class="page-title-row"><div><h1>Product · KeyPLC Panel</h1><div class="muted">Choose a motor rating and number of pumps, then route the priced control panel to Assembly or Quotation.</div></div></div>
@@ -481,7 +487,7 @@
             <div><label for="assemblyQuoteUnitPrice">Unit Price</label><input id="assemblyQuoteUnitPrice" type="number" min="0" step="0.01"><div class="assembly-quote-help">Defaults to the BOM total; edit to override.</div></div>
           </div>
           <div class="form-grid">
-            <div class="span-3"><label id="assemblyDescriptionLabel">System Description</label><textarea id="assemblyDescription" class="assembly-description-large" title="Double-click to open the large editor" placeholder="The quotation description is transferred here when an item is added to Assembly."></textarea></div>
+            <div class="span-3"><label id="assemblyDescriptionLabel">System Description</label><div id="assemblyDescriptionPreview" class="assembly-description-preview" aria-label="Highlighted System Description preview"></div><textarea id="assemblyDescription" class="assembly-description-large" title="Double-click to open the large editor" placeholder="The quotation description is transferred here when an item is added to Assembly."></textarea></div>
           </div>
           <h2 style="margin-top:22px">Components / BOM</h2><div id="assemblyItems"></div>
           <div class="assembly-total">Total: <span id="assemblyTotal">RM 0.00</span></div>
@@ -1059,15 +1065,15 @@
 </div>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="permissions.js?v=214"></script>
-<script src="app.js?v=214"></script>
-<script src="pricing.js?v=214"></script>
-<script src="categories.js?v=214"></script>
-<script src="pricelist.js?v=214"></script>
-<script src="product.js?v=214"></script>
-<script src="manifold.js?v=214"></script>
-<script src="roles.js?v=214"></script>
-<script src="assembly.js?v=214"></script>
+<script src="permissions.js?v=215"></script>
+<script src="app.js?v=215"></script>
+<script src="pricing.js?v=215"></script>
+<script src="categories.js?v=215"></script>
+<script src="pricelist.js?v=215"></script>
+<script src="product.js?v=215"></script>
+<script src="manifold.js?v=215"></script>
+<script src="roles.js?v=215"></script>
+<script src="assembly.js?v=215"></script>
 
 <dialog id="assemblyDescriptionDialog" class="ks-dialog"><form method="dialog" class="dialog-body assembly-description-dialog"><div class="page-title-row"><h2>System Description</h2><button class="dialog-close" value="cancel" aria-label="Close">×</button></div><textarea id="assemblyDescriptionPopup"></textarea><div class="dialog-actions"><button class="btn secondary" value="cancel">Cancel</button><button class="btn" id="saveAssemblyDescriptionPopup" value="default">Apply</button></div></form></dialog>
 
@@ -1077,6 +1083,6 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="auth.js?v=214"></script>
+<script src="auth.js?v=215"></script>
 </body>
 </html>

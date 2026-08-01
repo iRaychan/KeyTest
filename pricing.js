@@ -199,7 +199,7 @@
       else if(source.product_family==='KEYPLC'){const product=(secureData.keyplcProducts||[]).find(p=>p.id===source.product_id);if(product)found=findKeyplcPrice(product.id,Number(String(source.variant||source.material||'1').replace(/\D/g,''))||1,{customer,category:cat,enclosure:source.panel_type||'indoor'})}
       else if(source.product_family==='MANIFOLD'){found=window.KeySuiteManifold?.findConfiguredPrice?.(source.configuration||{}, {customer,category:cat})||null}
       else{const product=(secureData.products||[]).find(p=>p.id===source.product_id);if(product){const model=(source.material==='CHC'?product.model:product.model.replace(/^CHC\b/,source.material||'CHC'));found=findPrice(model,{customer,category:cat})}}
-      if(!found)continue;row.querySelector('.item-price').value=found.calc.finalPrice.toFixed(2);row.dataset.pricingSource=JSON.stringify(sourceSnapshot(found));
+      if(!found)continue;row.querySelector('.item-price').value=found.calc.finalPrice.toFixed(2);const refreshed=sourceSnapshot(found);if(source.product_family==='ES'){refreshed.seal_material=source.seal_material||ES_DEFAULT_SEAL;refreshed.elastomer=source.elastomer||ES_DEFAULT_ELASTOMER}row.dataset.pricingSource=JSON.stringify(refreshed);
     }
     if(typeof calcTotal==='function')calcTotal();
   }
@@ -288,11 +288,31 @@
     return calc?{product,variant,calc}:null;
   }
 
-  function addEs(id,route='quotation',material='CI / SS / SS / MS'){
+  const ES_DEFAULT_SEAL='Carbon Ceramic (Ca Ce)';
+  const ES_DEFAULT_ELASTOMER='Viton';
+  function esModelName(model){return String(model||'').replace(/^ES\s+/i,'').trim()}
+  function esConnectionSizes(model){
+    const discharge=Number((esModelName(model).match(/^(\d+)/)||[])[1]||0),suctionMap={32:50,40:65,50:65,65:80,80:100,100:125,125:150,150:200,200:250,250:300};
+    return {suction:suctionMap[discharge]||discharge,discharge};
+  }
+  function esMaterialDescription(material){
+    const raw=String(material||'').trim(),parts=raw.split('/').map(x=>x.trim()).filter(Boolean);
+    if(parts.length>=4){const ending=/^GP$/i.test(parts[3])?'Gland Packing':'Mech Seal';return `${parts[0]} / ${parts[1]} / ${parts[2]} / ${ending}`}
+    if(/^SS\s*304$/i.test(raw))return 'SS304';if(/^SS\s*316$/i.test(raw))return 'SS316';
+    return raw.replace(/\bMS\b/gi,'Mech Seal').replace(/\bGP\b/gi,'Gland Packing');
+  }
+  function esDescription(product,material,options={}){
+    const seal=String(options.seal||ES_DEFAULT_SEAL),elastomer=String(options.elastomer||ES_DEFAULT_ELASTOMER),sizes=esConnectionSizes(product?.model),isGland=/\bGP\b/i.test(String(material||''));
+    const lines=[`B.G.Reich End Suction Pump Model: ${esModelName(product?.model)}`,`Suction x Discharge: DN${sizes.suction} x DN${sizes.discharge}`,`Pump Material: ${esMaterialDescription(material)}`];
+    if(!isGland&&seal!==ES_DEFAULT_SEAL)lines.push(`Mech Seal Material: ${seal}`);
+    if(elastomer!==ES_DEFAULT_ELASTOMER)lines.push(`Elastomer: ${elastomer}`);
+    lines.push('(Bare shaft pump only)');return lines.join('\n');
+  }
+  function addEs(id,route='quotation',material='CI / SS / SS / MS',options={}){
     if(!window.KeySuiteApp?.ensureQuotationPricingContext?.(`add an ES pump to the ${route==='assembly'?'Assembly':'quotation'}`))return;
     const found=findEsPrice(id,material);if(!found){alert(`No ES source price or ES Category Pricing Rule is available for ${material}.`);return}
-    const {product,variant,calc}=found;
-    const item={model:product.model,description:`B.G.Reich End Suction Pump Model: ${product.model}`,qty:1,unitPrice:calc.finalPrice,pricingSource:{product_family:'ES',product_id:product.id,variant:variant.material,source_currency:calc.sourceCurrency,source_price:calc.sourcePrice,multiplier:calc.multiplier,rarity:product.rarity||'common'},assemblyLevel:'PUMPSET_COMPONENT',assemblySection:'pump'};
+    const {product,variant,calc}=found,seal=String(options.seal||ES_DEFAULT_SEAL),elastomer=String(options.elastomer||ES_DEFAULT_ELASTOMER),description=esDescription(product,variant.material,{seal,elastomer});
+    const item={model:product.model,description,qty:1,unitPrice:calc.finalPrice,pricingSource:{product_family:'ES',product_id:product.id,variant:variant.material,material:variant.material,source_currency:calc.sourceCurrency,source_price:calc.sourcePrice,multiplier:calc.multiplier,rarity:product.rarity||'common',seal_material:seal,elastomer},assemblyLevel:'PUMPSET_COMPONENT',assemblySection:'pump'};
     if(route==='assembly'){window.KeySuiteAssembly?.addItem?.(item);return}
     if(window.KeySuiteApp?.canEditQuotation&&!window.KeySuiteApp.canEditQuotation(true))return;
     const row=quoteRowForNewItem();row.querySelector('.item-model').value=product.model;row.querySelector('.item-qty').value=1;row.querySelector('.item-price').value=calc.finalPrice.toFixed(2);row.querySelector('.item-description').value=item.description;row.dataset.pricingSource=JSON.stringify(item.pricingSource);calcTotal();refreshItemExportButtons();showPage('quotation');
@@ -307,7 +327,7 @@
     const pressureBar=Number(product?.pressureBar||0);
     const quantity=Math.max(0,Number(qty)||1);
     const clean=value=>Number.isInteger(value)?value.toFixed(0):String(value);
-    return `c/w ${clean(litres)} litres (${clean(pressureBar)} bar) non-jkkp approved tank @ ${clean(quantity)} ${quantity===1?'unit':'units'}`;
+    return `c/w\t${clean(litres)} litres (${clean(pressureBar)} bar) non-jkkp approved tank @ ${clean(quantity)} ${quantity===1?'unit':'units'}`;
   }
   function buildGwsAssemblyItem(model,pressure,options={}){
     const found=findGwsPrice(model,pressure,options);if(!found)return null;
@@ -341,8 +361,8 @@
 
   function keyplcTitle(product,pumpQty,enclosure='indoor'){const qty=Math.max(1,Number(pumpQty)||1);return `KeyPLC ${product?.model||''} · ${qty} ${qty===1?'Pump':'Pumps'} · ${keyplcPanelLabel(enclosure)}`}
   function keyplcDescription(product,pumpQty,enclosure='indoor',options={}){
-    const qty=Math.max(1,Math.min(6,Number(pumpQty)||1)),numberWord=qty===1?'no':'nos',includeCw=!!options.includeCw,indent=includeCw?'    ':'';
-    const first=`${includeCw?'c/w ':''}KeyPLC Control Panel (${keyplcPanelLabel(enclosure)})`;
+    const qty=Math.max(1,Math.min(6,Number(pumpQty)||1)),numberWord=qty===1?'no':'nos',includeCw=!!options.includeCw,indent=includeCw?'\t':'';
+    const first=`${includeCw?'c/w\t':''}KeyPLC Control Panel (${keyplcPanelLabel(enclosure)})`;
     return `${first}
 ${indent}Pump Controller & HMI Touch Screen @ 1 Lot
 ${indent}${product?.model||''} VFD @ ${qty} ${numberWord} & Pressure Transmitter @ 1 no
@@ -359,5 +379,5 @@ ${indent}Wiring for pressure transmitter within pump skid @ 1 Lot`;
     const row=quoteRowForNewItem();row.querySelector('.item-model').value=item.model;row.querySelector('.item-qty').value=1;row.querySelector('.item-price').value=found.calc.finalPrice.toFixed(2);row.querySelector('.item-description').value=item.description;row.dataset.pricingSource=JSON.stringify(item.pricingSource);calcTotal();refreshItemExportButtons();showPage('quotation');
   }
 
-  window.KeySuitePricing={init,calculate,calculatePrice,calculateManual,findPrice,findGwsPrice,findAutoGwsTank,findKeyplcPrice,applyPriceToQuoteRow,refreshQuotePrices,addGwsToQuotation,addEs,addKeyplc,keyplcDescription,keyplcTitle,normalizePanelType,findEsPrice,buildChcAssemblyItem,buildGwsAssemblyItem,selectCustomer,refreshCustomers,hasPricingContext,syncPriceListSettings,render:()=>{renderSummary();renderTable()}};
+  window.KeySuitePricing={init,calculate,calculatePrice,calculateManual,findPrice,findGwsPrice,findAutoGwsTank,findKeyplcPrice,applyPriceToQuoteRow,refreshQuotePrices,addGwsToQuotation,addEs,esDescription,addKeyplc,keyplcDescription,keyplcTitle,normalizePanelType,findEsPrice,buildChcAssemblyItem,buildGwsAssemblyItem,selectCustomer,refreshCustomers,hasPricingContext,syncPriceListSettings,render:()=>{renderSummary();renderTable()}};
 })();

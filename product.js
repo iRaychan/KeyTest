@@ -10,6 +10,10 @@
   const esProducts=()=>window.KEYSUITE_SECURE_DATA?.esProducts||[];
   const keyplcProducts=()=>window.KEYSUITE_SECURE_DATA?.keyplcProducts||[];
   const ES_DEFAULT_MATERIAL='CI / SS / SS / MS';
+  const ES_DEFAULT_SEAL='Carbon Ceramic (Ca Ce)';
+  const ES_DEFAULT_ELASTOMER='Viton';
+  const ES_SEALS=['Carbon Ceramic (Ca Ce)','Silicon Carbide (Sic Sic)','Tungsten (Tuc Tuc)'];
+  const ES_ELASTOMERS=['Viton','EPDM','NBR'];
   const seriesName=model=>{const m=String(model||'').match(/^CHC\s+(\d+)/i);return m?`CHC ${m[1]}`:'Other'};
   const orderedSeries=()=>[...new Set(products().map(p=>seriesName(p.model)))].sort((a,b)=>Number((a.match(/\d+/)||[999])[0])-Number((b.match(/\d+/)||[999])[0]));
   const normMaterial=value=>String(value||'').toUpperCase().replace(/[^A-Z0-9]+/g,'');
@@ -95,13 +99,17 @@
       const materialRank=value=>{const normalized=normMaterial(value);const index=materialOrder.findIndex(item=>normMaterial(item)===normalized);return index<0?999:index};
       const ordered=[...materials].sort((a,b)=>materialRank(a)-materialRank(b)||a.localeCompare(b));
       const options=ordered.map(material=>`<option value="${esc(material)}" ${normMaterial(material)===normMaterial(ES_DEFAULT_MATERIAL)?'selected':''}>${esc(material.replace(/\s*\/\s*/g,' '))}</option>`).join('');
-      return `<tr data-es-product-row="${esc(x.id)}"><td><b>${esc(x.model)}</b></td><td><select class="es-product-material" data-es-material-select data-default-value="${esc(ES_DEFAULT_MATERIAL)}" aria-label="Material for ${esc(x.model)}">${options}</select></td><td style="text-align:right"><div class="route-actions"><button class="btn secondary" data-es-assembly="${esc(x.id)}">Assembly</button><button class="btn" data-es-quote="${esc(x.id)}">Quote</button></div></td></tr>`;
-    }).join('')||'<tr><td colspan="3" class="muted">No matching ES models.</td></tr>';
+      const sealOptions=ES_SEALS.map(value=>`<option value="${esc(value)}" ${value===ES_DEFAULT_SEAL?'selected':''}>${esc(value)}</option>`).join('');
+      const elastomerOptions=ES_ELASTOMERS.map(value=>`<option value="${esc(value)}" ${value===ES_DEFAULT_ELASTOMER?'selected':''}>${esc(value)}</option>`).join('');
+      return `<tr data-es-product-row="${esc(x.id)}"><td><b>${esc(x.model)}</b></td><td><select class="es-product-material" data-es-material-select data-default-value="${esc(ES_DEFAULT_MATERIAL)}" aria-label="Material for ${esc(x.model)}">${options}</select></td><td><select class="es-product-seal" data-es-seal-select data-default-value="${esc(ES_DEFAULT_SEAL)}" aria-label="Mechanical seal material for ${esc(x.model)}">${sealOptions}</select></td><td><select class="es-product-elastomer" data-es-elastomer-select data-default-value="${esc(ES_DEFAULT_ELASTOMER)}" aria-label="Elastomer for ${esc(x.model)}">${elastomerOptions}</select></td><td style="text-align:right"><div class="route-actions"><button class="btn secondary" data-es-assembly="${esc(x.id)}">Assembly</button><button class="btn" data-es-quote="${esc(x.id)}">Quote</button></div></td></tr>`;
+    }).join('')||'<tr><td colspan="5" class="muted">No matching ES models.</td></tr>';
     $('esProductCount').textContent=`${rows.length} model${rows.length===1?'':'s'}`;
-    body.querySelectorAll('[data-es-material-select]').forEach(bindDefaultState);
-    const materialFor=button=>button.closest('[data-es-product-row]')?.querySelector('[data-es-material-select]')?.value||ES_DEFAULT_MATERIAL;
-    body.querySelectorAll('[data-es-assembly]').forEach(b=>b.onclick=()=>window.KeySuitePricing?.addEs?.(b.dataset.esAssembly,'assembly',materialFor(b)));
-    body.querySelectorAll('[data-es-quote]').forEach(b=>b.onclick=()=>window.KeySuitePricing?.addEs?.(b.dataset.esQuote,'quotation',materialFor(b)));
+    const refreshSealApplicability=row=>{const material=row.querySelector('[data-es-material-select]')?.value||'';const seal=row.querySelector('[data-es-seal-select]');const gland=/\bGP\b/i.test(material);if(seal){seal.disabled=gland;seal.title=gland?'Not applicable to Gland Packing construction':'';if(gland){seal.value=ES_DEFAULT_SEAL;updateDefaultState(seal)}}};
+    body.querySelectorAll('[data-es-material-select],[data-es-seal-select],[data-es-elastomer-select]').forEach(bindDefaultState);
+    body.querySelectorAll('[data-es-product-row]').forEach(row=>{refreshSealApplicability(row);row.querySelector('[data-es-material-select]')?.addEventListener('change',()=>refreshSealApplicability(row))});
+    const choicesFor=button=>{const row=button.closest('[data-es-product-row]');return {material:row?.querySelector('[data-es-material-select]')?.value||ES_DEFAULT_MATERIAL,seal:row?.querySelector('[data-es-seal-select]')?.value||ES_DEFAULT_SEAL,elastomer:row?.querySelector('[data-es-elastomer-select]')?.value||ES_DEFAULT_ELASTOMER}};
+    body.querySelectorAll('[data-es-assembly]').forEach(b=>b.onclick=()=>{const c=choicesFor(b);window.KeySuitePricing?.addEs?.(b.dataset.esAssembly,'assembly',c.material,{seal:c.seal,elastomer:c.elastomer})});
+    body.querySelectorAll('[data-es-quote]').forEach(b=>b.onclick=()=>{const c=choicesFor(b);window.KeySuitePricing?.addEs?.(b.dataset.esQuote,'quotation',c.material,{seal:c.seal,elastomer:c.elastomer})});
   }
   function renderKeyplc(){
     const body=$('keyplcProductRows');if(!body)return;

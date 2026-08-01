@@ -1,22 +1,20 @@
-# KeySuite V2.14
+# KeySuite V2.15
 
-KeySuite V2.14 improves System and Pumpset quotation transfer, isolates each new quotation from previous quotation/System work, and adds automatic KeyPLC control-panel, Manifold and GWS tank selection from the pump BOM.
+KeySuite V2.15 improves End Suction product descriptions and configuration, and refines the System draft and BOM workflow.
 
-## Highlights
+## Main changes
 
-- End Suction materials appear in the required sequence with the two obsolete BR options removed.
-- Coupled KeyPLC descriptions use `c/w` on row 1 and exactly four leading spaces on continuation rows; direct Product > KeyPLC quotations omit `c/w`.
-- KeyPLC wiring is separated into pump wiring and pressure-transmitter wiring lines.
-- System/Pumpset quotation items use Set/Sets and no longer include the internal Pumpset/Control Panel BOM summary.
-- New Quotation creates a separate quotation/System session so old customer pricing and working data are not reused.
-- Automatically selected System BOM control-panel quantity and unit price are read-only and visibly filled.
-- Manifold defaults are GI, Flange 16 Bar, 2 Pumps and Common; non-default fields are highlighted pink.
-- Automatic Manifold pricing follows pump DN, total pump quantity and the selected pressure connection.
-- Manifold pressure connection follows zero-flow shut-off head, with Flange 16 Bar as the no-curve fallback.
-- Automatic GWS tank volume follows the CHC series and tank pressure rating is selected strictly above the zero-flow shut-off pressure.
+- End Suction descriptions now show the clean pump model, suction/discharge DN sizes, expanded Mech Seal/Gland Packing wording, and bare-shaft wording.
+- Product > End Suction includes Mech Seal Material and Elastomer selectors with pink non-default highlighting.
+- The System New button is hidden; adding another Pumpset automatically saves the existing System draft and opens a new System.
+- Existing System drafts can be reopened and updated with Pumpsets, panels, Manifolds, Tanks and MISC items while preserving fixed description grouping.
+- System Description has a highlighted variable-value preview for internal checking only.
+- System BOM rows use category background colours.
+- Coupled descriptions use tab-aligned `c/w` formatting.
 
-## Installation
+## Upgrade from V2.14
 
-1. Deploy the V2.14 changed-files patch over V2.13, preserving the existing working `config.js`.
-2. No new Supabase migration is required for V2.14. V2.13's Manifold migration must already be installed.
-3. Hard-refresh the application with `Ctrl + Shift + R`.
+1. Apply `KeySuite_V2.15_Changed_Files_Patch.zip` over V2.14.
+2. Preserve the existing working `config.js`.
+3. No new Supabase migration is required.
+4. Hard refresh after deployment.

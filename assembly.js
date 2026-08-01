@@ -2,7 +2,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let type='system',drafts=[],current=null,loaded=false,autoSaveTimer=null,saveQueue=Promise.resolve();
+let type='system',drafts=[],current=null,loaded=false,autoSaveTimer=null,saveQueue=Promise.resolve(),currentPinned=false;
 const dirtyDraftIds=new Set(),autoSaveRetries=new Map();
 const sections={system:['pumpset','control_panel','manifold','tank','misc'],pumpset:['pump','motor','coupling','baseplate']};
 const labels={pumpset:'Pumpset',control_panel:'Control Panel',manifold:'Manifold',tank:'Tank',misc:'MISC',pump:'Pump',motor:'Motor',coupling:'Coupling',baseplate:'Baseplate'};
@@ -44,7 +44,7 @@ function tankDescription(item,qty=item?.qty){
  const litres=Number(item?.tankData?.sizeLitres||0),pressure=Number(item?.tankData?.pressureBar||0),quantity=Math.max(0,Number(qty)||0);
  if(!(litres>0)||!(pressure>0))return item?.description||'';
  const clean=value=>Number.isInteger(value)?value.toFixed(0):String(value);
- return `c/w ${clean(litres)} litres (${clean(pressure)} bar) non-jkkp approved tank @ ${clean(quantity)} ${quantity===1?'unit':'units'}`;
+ return `c/w\t${clean(litres)} litres (${clean(pressure)} bar) non-jkkp approved tank @ ${clean(quantity)} ${quantity===1?'unit':'units'}`;
 }
 function replaceDescriptionBlock(source,previous,next){
  const text=String(source||'');if(!previous||previous===next)return text;
@@ -59,13 +59,30 @@ function removeDescriptionBlock(source,block){
  return `${before}${after}`.replace(/\n{3,}/g,'\n\n').trim();
 }
 function keyplcDescription(item){
- const data=item?.keyplcData||{},qty=Math.max(1,Number(data.pumpQty)||1),numberWord=qty===1?'no':'nos',indent='    ';
- return `c/w KeyPLC Control Panel (${panelTypeLabel(data.enclosure)})
+ const data=item?.keyplcData||{},qty=Math.max(1,Number(data.pumpQty)||1),numberWord=qty===1?'no':'nos',indent='\t';
+ return `c/w\tKeyPLC Control Panel (${panelTypeLabel(data.enclosure)})
 ${indent}Pump Controller & HMI Touch Screen @ 1 Lot
 ${indent}${data.motorRating||''} VFD @ ${qty} ${numberWord} & Pressure Transmitter @ 1 no
 ${indent}Wiring for pumps within pump skid @ 1 Lot
 ${indent}Wiring for pressure transmitter within pump skid @ 1 Lot`;
 }
+function orderedItems(d=current){
+ const order=sections[d?.assembly_type||type]||[];return order.flatMap(section=>(d?.items||[]).filter(item=>item.section===section));
+}
+function rebuildDescription(d=current){
+ if(!d)return '';d.description=orderedItems(d).map(item=>String(item.description||'').trimEnd()).filter(Boolean).join('\n');return d.description;
+}
+function highlightDescription(text){
+ let html=esc(String(text||''));
+ const patterns=[
+  /(Model:\s*)([^\n]+)/gi,/(\b\d+(?:\.\d+)?\s*(?:HP|kW|Pole|Hz|V|Ph|bar|litres?|Lot|nos?|units?|Pumps?|Sets?)\b)/gi,
+  /(DN\s*\d+(?:\s*x\s*DN\s*\d+)?)/gi,/(\d+(?:\.\d+)?&quot;\s+(?:inlet|outlet)(?:\s*&amp;\s*\d+(?:\.\d+)?&quot;\s+(?:inlet|outlet))?)/gi,
+  /(Indoor Type|Sheltered|SS304 \(Cast Iron Connection\)|SS316|Mech Seal|Gland Packing|Viton|EPDM|NBR|Carbon Ceramic \(Ca Ce\)|Silicon Carbide \(Sic Sic\)|Tungsten \(Tuc Tuc\))/gi
+ ];
+ patterns.forEach((pattern,index)=>{html=html.replace(pattern,(match,prefix,value)=>index===0?`${prefix}<mark>${value}</mark>`:`<mark>${match}</mark>`)});
+ return html.replace(/\n/g,'<br>');
+}
+function renderDescriptionPreview(){const preview=$('assemblyDescriptionPreview'),input=$('assemblyDescription');if(preview)preview.innerHTML=highlightDescription(input?.value||current?.description||'')}
 function pumpMotorKw(item){return Number(item?.pumpData?.motor_kw??item?.pumpData?.motorKw??item?.motor_kw??item?.motorKw??0)}
 function pumpItems(d=current){return (d?.items||[]).filter(x=>x.section==='pumpset'||x.section==='pump'||pumpMotorKw(x)>0).filter(x=>!x.keyplcData&&String(sourceObject(x).product_family||'').toUpperCase()!=='KEYPLC')}
 function totalPumpQty(d=current){return pumpItems(d).reduce((sum,item)=>sum+Math.max(0,Number(item.qty)||0),0)}
@@ -207,46 +224,53 @@ function read(){
  syncAutomaticComponents(current);if($('assemblyDescription'))$('assemblyDescription').value=current.description||''
 }
 function currentSessionDrafts(t=type){const session=quoteSessionId();return drafts.filter(x=>x.assembly_type===t&&x.quote_session_id===session)}
-function renderList(){const list=$('assemblyDraftList');if(!list)return;const rows=currentSessionDrafts(type);list.innerHTML=rows.map(d=>`<button type="button" class="${d.id===current?.id?'active':''}" data-draft="${esc(d.id)}"><b>${esc(d.model_item||d.name)}</b><br><small>${esc(d.status)} · ${money(quoteUnitPrice(d))}</small></button>`).join('')||'<div class="muted">No saved drafts.</div>';list.querySelectorAll('[data-draft]').forEach(b=>b.onclick=()=>{current=drafts.find(x=>x.id===b.dataset.draft);render()})}
+function renderList(){const list=$('assemblyDraftList');if(!list)return;const rows=currentSessionDrafts(type);list.innerHTML=rows.map(d=>`<button type="button" class="${d.id===current?.id?'active':''}" data-draft="${esc(d.id)}"><b>${esc(d.model_item||d.name)}</b><br><small>${esc(d.status)} · ${money(quoteUnitPrice(d))}</small></button>`).join('')||'<div class="muted">No saved drafts.</div>';list.querySelectorAll('[data-draft]').forEach(b=>b.onclick=()=>{current=drafts.find(x=>x.id===b.dataset.draft);currentPinned=true;render()})}
 function itemHtml(x){
  const autoPanel=!!(x.keyplcData?.autoSized||sourceObject(x).auto_sized_panel),autoGenerated=autoPanel||autoComponent(x,'manifold')||autoComponent(x,'tank'),locked=autoPanel?' readonly aria-readonly="true" class="assembly-qty assembly-auto-locked"':' class="assembly-qty"',priceLocked=autoPanel?' readonly aria-readonly="true" class="assembly-price assembly-auto-locked"':' class="assembly-price"';
  const panel=x.keyplcData?`<div class="assembly-item-option"><label>Panel Type</label><select class="assembly-keyplc-type"><option value="indoor" ${normalizePanelType(x.keyplcData.enclosure)==='indoor'?'selected':''}>Indoor</option><option value="sheltered" ${normalizePanelType(x.keyplcData.enclosure)==='sheltered'?'selected':''}>Sheltered (+ RM 1,000.00)</option></select></div>`:'';
  const badge=autoGenerated?'<span class="assembly-auto-badge">Auto</span>':'';
- return `<div class="assembly-item ${autoGenerated?'auto-generated':''}" data-assembly-item="${esc(x.id)}"><div><b>${esc(x.bomDescription||x.model)}</b>${badge}${panel}</div><div><label>Qty</label><input${locked} type="number" min="0" step="1" value="${Number(x.qty||1)}"></div><div><label>Unit Price</label><input${priceLocked} type="number" min="0" step="0.01" value="${Number(x.unitPrice||0).toFixed(2)}"></div><div><label>Total Price</label><div class="assembly-line-total">${money(Number(x.qty||0)*Number(x.unitPrice||0))}</div></div><button class="btn danger assembly-delete" type="button">Delete</button></div>`
+ return `<div class="assembly-item assembly-item-${esc(x.section||'misc')} ${autoGenerated?'auto-generated':''}" data-assembly-item="${esc(x.id)}"><div><b>${esc(x.bomDescription||x.model)}</b>${badge}${panel}</div><div><label>Qty</label><input${locked} type="number" min="0" step="1" value="${Number(x.qty||1)}"></div><div><label>Unit Price</label><input${priceLocked} type="number" min="0" step="0.01" value="${Number(x.unitPrice||0).toFixed(2)}"></div><div><label>Total Price</label><div class="assembly-line-total">${money(Number(x.qty||0)*Number(x.unitPrice||0))}</div></div><button class="btn danger assembly-delete" type="button">Delete</button></div>`
 }
 function renderItems(){
  const box=$('assemblyItems');if(!box)return;box.innerHTML=sections[type].map(section=>{const rows=(current?.items||[]).filter(x=>x.section===section);return `<section class="assembly-section"><div class="assembly-section-head"><h2>${labels[section]}</h2><span>${rows.length} item${rows.length===1?'':'s'}</span></div><div class="assembly-section-body">${rows.map(itemHtml).join('')||'<p class="muted assembly-empty">Empty</p>'}</div></section>`}).join('');
  box.querySelectorAll('input').forEach(i=>i.oninput=()=>{read();renderItems();renderQuoteFields();scheduleAutoSave()});
  box.querySelectorAll('.assembly-keyplc-type').forEach(select=>select.onchange=()=>{read();const row=select.closest('[data-assembly-item]'),item=current.items.find(x=>x.id===row?.dataset.assemblyItem);updateKeyplcItem(item,select.value);localSave();renderItems();renderQuoteFields();scheduleAutoSave(100)});
- box.querySelectorAll('.assembly-delete').forEach(b=>b.onclick=()=>{read();const row=b.closest('[data-assembly-item]'),item=current.items.find(x=>x.id===row?.dataset.assemblyItem);if(item)current.description=removeDescriptionBlock(current.description,item.description);current.items=current.items.filter(x=>x.id!==row.dataset.assemblyItem);syncAutomaticComponents(current);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';localSave();renderItems();renderQuoteFields();scheduleAutoSave(100)});
+ box.querySelectorAll('.assembly-delete').forEach(b=>b.onclick=()=>{read();const row=b.closest('[data-assembly-item]'),item=current.items.find(x=>x.id===row?.dataset.assemblyItem);if(item)current.description=removeDescriptionBlock(current.description,item.description);current.items=current.items.filter(x=>x.id!==row.dataset.assemblyItem);syncAutomaticComponents(current);rebuildDescription(current);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';renderDescriptionPreview();localSave();renderItems();renderQuoteFields();scheduleAutoSave(100)});
  $('assemblyTotal').textContent=money(total())
 }
 function renderQuoteFields(){
  updateModelSuggestions();if($('assemblyModelItem'))$('assemblyModelItem').value=current.model_item||'';if($('assemblyQuoteQty'))$('assemblyQuoteQty').value=Number(current.quote_qty||1);if($('assemblyQuoteUnitPrice'))$('assemblyQuoteUnitPrice').value=Number(quoteUnitPrice(current)).toFixed(2)
 }
 function render(){
- if(!current||current.assembly_type!==type||current.quote_session_id!==quoteSessionId())current=currentSessionDrafts(type)[0]||blank(type);current=normalize(current);const qCustomer=quoteCustomerId();if(qCustomer)current.customer_id=qCustomer;syncAutomaticComponents(current);
- $('assemblyBuilderTitle').textContent=type==='system'?'System':'Pumpset';$('assemblyDescription').value=current.description||'';$('assemblyDescriptionLabel').textContent=type==='system'?'System Description':'Pumpset Description';$('assemblyCustomer').innerHTML='<option value="">No quotation customer selected</option>'+customers().map(c=>`<option value="${esc(c.id)}">${esc(c.company)}</option>`).join('');$('assemblyCustomer').value=current.customer_id||'';$('assemblyCustomer').disabled=true;if($('assemblyStatus'))$('assemblyStatus').value=current.status||'draft';$('assemblyNotice').textContent=qCustomer?'Customer is locked to the active Quotation selection. The KeyPLC panel, Manifold and Tank are selected automatically from the pump BOM, connection data and shut-off head.':'Select a customer in Dashboard or Quotation first. Assembly customer cannot be entered manually.';renderQuoteFields();renderList();renderItems()
+ if(!current||current.assembly_type!==type||current.quote_session_id!==quoteSessionId())current=currentSessionDrafts(type)[0]||blank(type);current=normalize(current);const qCustomer=quoteCustomerId();if(qCustomer)current.customer_id=qCustomer;syncAutomaticComponents(current);rebuildDescription(current);
+ $('assemblyBuilderTitle').textContent=type==='system'?'System':'Pumpset';if($('newAssemblyDraft'))$('newAssemblyDraft').style.display=type==='system'?'none':'inline-flex';$('assemblyDescription').value=current.description||'';$('assemblyDescriptionLabel').textContent=type==='system'?'System Description':'Pumpset Description';$('assemblyCustomer').innerHTML='<option value="">No quotation customer selected</option>'+customers().map(c=>`<option value="${esc(c.id)}">${esc(c.company)}</option>`).join('');$('assemblyCustomer').value=current.customer_id||'';$('assemblyCustomer').disabled=true;if($('assemblyStatus'))$('assemblyStatus').value=current.status||'draft';$('assemblyNotice').textContent=qCustomer?'Customer is locked to the active Quotation selection. The KeyPLC panel, Manifold and Tank are selected automatically from the pump BOM, connection data and shut-off head.':'Select a customer in Dashboard or Quotation first. Assembly customer cannot be entered manually.';renderQuoteFields();renderList();renderItems();renderDescriptionPreview()
 }
-async function open(t){type=t;window.KeySuiteApp?.showPage?.('assemblyBuilder');if(!loaded)await load();if(!current||current.assembly_type!==type||current.quote_session_id!==quoteSessionId())current=currentSessionDrafts(type).find(x=>x.status==='draft')||currentSessionDrafts(type)[0]||blank(type);render()}
+async function open(t){type=t;currentPinned=false;window.KeySuiteApp?.showPage?.('assemblyBuilder');if(!loaded)await load();if(!current||current.assembly_type!==type||current.quote_session_id!==quoteSessionId())current=currentSessionDrafts(type).find(x=>x.status==='draft')||currentSessionDrafts(type)[0]||blank(type);render()}
 function routeItem(item={}){const level=String(item.assemblyLevel||item.assembly_level||'').toUpperCase();const section=String(item.assemblySection||item.assembly_section||'').toLowerCase();if(level==='COMPLETE_PUMPSET'||section==='pumpset')return {type:'system',section:'pumpset'};if(['pump','motor','coupling','baseplate'].includes(section))return {type:'pumpset',section};if(['control_panel','manifold','tank','misc'].includes(section))return {type:'system',section};const model=String(item.model||'');if(/^CHC\b/i.test(model))return {type:'system',section:'pumpset'};if(/^ES\b/i.test(model))return {type:'pumpset',section:'pump'};if(/tank|gws/i.test(model+' '+(item.description||'')))return {type:'system',section:'tank'};return {type:'system',section:'misc'}}
 async function addItem(item,explicitRoute){
- const route=explicitRoute||routeItem(item),customerId=quoteCustomerId();if(!customerId){alert('Select the customer in Dashboard or Quotation first. Assembly follows the Quotation customer and cannot be filled manually.');window.KeySuiteApp?.showPage?.('dashboard');return}if(!loaded)await load();type=route.type;const session=quoteSessionId(),target=drafts.find(x=>x.assembly_type===type&&x.status==='draft'&&x.customer_id===customerId&&x.quote_session_id===session)||blank(type);if(!drafts.some(x=>x.id===target.id))drafts.unshift(target);target.customer_id=customerId;target.quote_session_id=session;
- const rawDescription=item.keyplcData?keyplcDescription(item):String(item.description||'').trim(),description=String(rawDescription||'').trimEnd();if(description){const existing=String(target.description||'').replace(/\s+$/,'');const compact=route.section==='tank'||route.section==='control_panel';target.description=existing?`${existing}${compact?'\n':'\n\n'}${description}`:description}if(type==='pumpset'&&route.section==='pump'&&!target.model_item)target.model_item=item.model||'';
+ const route=explicitRoute||routeItem(item),customerId=quoteCustomerId();if(!customerId){alert('Select the customer in Dashboard or Quotation first. Assembly follows the Quotation customer and cannot be filled manually.');window.KeySuiteApp?.showPage?.('dashboard');return}if(!loaded)await load();type=route.type;const session=quoteSessionId();
+ let target=(current&&current.assembly_type===type&&current.customer_id===customerId&&current.quote_session_id===session)?current:null;
+ if(!target)target=drafts.find(x=>x.assembly_type===type&&x.status==='draft'&&x.customer_id===customerId&&x.quote_session_id===session)||blank(type);
+ if(type==='system'&&route.section==='pumpset'&&(target.items||[]).some(x=>x.section==='pumpset')&&!currentPinned){
+   if(target===current){read();rebuildDescription(target);try{await persist(target)}catch(error){console.warn('Existing System draft saved locally only.',error)}}
+   target=blank(type);drafts.unshift(target);
+ }
+ if(!drafts.some(x=>x.id===target.id))drafts.unshift(target);target.customer_id=customerId;target.quote_session_id=session;
+ const rawDescription=item.keyplcData?keyplcDescription(item):String(item.description||'').trim(),description=String(rawDescription||'').trimEnd();if(type==='pumpset'&&route.section==='pump'&&!target.model_item)target.model_item=item.model||'';
  target.items.push(normalizeItem({id:uid(),section:route.section,model:item.model||'Product',bomDescription:item.bomDescription||item.model||'Product',description,qty:Number(item.qty||1),unitPrice:Number(item.unitPrice||0),pricingSource:item.pricingSource||null,pumpData:item.pumpData||null,tankData:item.tankData||null,keyplcData:item.keyplcData||null,manifoldData:item.manifoldData||null},type));
- current=target;syncAutomaticComponents(current);localSave();await open(type);scheduleAutoSave(100);$('assemblyNotice').textContent=`${item.model||'Product'} routed to ${type==='system'?'System':'Pumpset'} → ${labels[route.section]}. Saving automatically…`;
+ current=target;syncAutomaticComponents(current);rebuildDescription(current);localSave();window.KeySuiteApp?.showPage?.('assemblyBuilder');render();scheduleAutoSave(100);$('assemblyNotice').textContent=`${item.model||'Product'} routed to ${type==='system'?'System':'Pumpset'} → ${labels[route.section]}. Saving automatically…`;
 }
 async function toQuotation(){
  read();if(!current?.items?.length){alert('Add at least one component first.');return}if(!current.customer_id){alert('Select a customer for this assembly.');return}window.KeySuiteApp?.selectCustomerForQuotation?.(current.customer_id);window.KeySuiteApp?.showPage?.('quotation');const description=String(current.description||'').trim();const row=window.KeySuiteApp?.addExternalQuoteItem?.({model:current.model_item||current.name||'',qty:Number(current.quote_qty||1),unitPrice:quoteUnitPrice(current),description,unit:'set',sourceType:type});if(!row){alert('Unable to add the assembly to Quotation.');return}current.status='quoted';dirtyDraftIds.delete(current.id);try{await persist(current)}catch(e){alert(`Assembly quotation was created, but the assembly status could not be saved: ${e.message||e}`)}
 }
-function resetForNewQuotation(){clearTimeout(autoSaveTimer);autoSaveTimer=null;dirtyDraftIds.clear();autoSaveRetries.clear();current=blank(type);if(document.getElementById('assemblyBuilder')?.classList.contains('active'))render();else localSave()}
+function resetForNewQuotation(){clearTimeout(autoSaveTimer);autoSaveTimer=null;dirtyDraftIds.clear();autoSaveRetries.clear();current=blank(type);currentPinned=false;if(document.getElementById('assemblyBuilder')?.classList.contains('active'))render();else localSave()}
 function pageShown(id){if(id==='assemblyBuilder'&&loaded)render()}
 document.addEventListener('DOMContentLoaded',()=>{
- document.querySelectorAll('[data-assembly-open]').forEach(b=>b.onclick=()=>open(b.dataset.assemblyOpen));$('newAssemblyDraft')?.addEventListener('click',()=>{current=blank(type);render()});$('deleteAssemblyDraft')?.addEventListener('click',()=>remove().catch(e=>alert(e.message||e)));$('assemblyToQuotation')?.addEventListener('click',()=>toQuotation());
+ document.querySelectorAll('[data-assembly-open]').forEach(b=>b.onclick=()=>open(b.dataset.assemblyOpen));$('newAssemblyDraft')?.addEventListener('click',()=>{if(type==='system')return;current=blank(type);currentPinned=false;render()});$('deleteAssemblyDraft')?.addEventListener('click',()=>remove().catch(e=>alert(e.message||e)));$('assemblyToQuotation')?.addEventListener('click',()=>toQuotation());
  $('assemblyModelItem')?.addEventListener('input',()=>{current.model_item=$('assemblyModelItem').value.trim();current.name=current.model_item||current.name;scheduleAutoSave()});
  $('assemblyQuoteQty')?.addEventListener('input',()=>{current.quote_qty=Math.max(.01,Number($('assemblyQuoteQty').value)||1);scheduleAutoSave()});
  $('assemblyQuoteUnitPrice')?.addEventListener('input',()=>{const value=$('assemblyQuoteUnitPrice').value;if(value===''){current.quote_price_manual=false;syncQuoteUnitPrice(current);$('assemblyQuoteUnitPrice').value=Number(quoteUnitPrice(current)).toFixed(2)}else{current.quote_price_manual=true;current.quote_unit_price=Math.max(0,Number(value)||0)}scheduleAutoSave()});
- const main=$('assemblyDescription'),dlg=$('assemblyDescriptionDialog'),popup=$('assemblyDescriptionPopup');main?.addEventListener('input',()=>{read();scheduleAutoSave()});main?.addEventListener('dblclick',()=>{popup.value=main.value;dlg.showModal()});$('saveAssemblyDescriptionPopup')?.addEventListener('click',()=>{main.value=popup.value;read();scheduleAutoSave(100)})
+ const main=$('assemblyDescription'),dlg=$('assemblyDescriptionDialog'),popup=$('assemblyDescriptionPopup');main?.addEventListener('input',()=>{read();renderDescriptionPreview();scheduleAutoSave()});main?.addEventListener('dblclick',()=>{popup.value=main.value;dlg.showModal()});$('saveAssemblyDescriptionPopup')?.addEventListener('click',()=>{main.value=popup.value;read();renderDescriptionPreview();scheduleAutoSave(100)})
 });
 window.KeySuiteAssembly={open,addItem,routeItem,pageShown,resetForNewQuotation,refreshAutomaticPanel:()=>{if(current){syncAutomaticComponents(current);render();scheduleAutoSave(100)}}};
 })();

@@ -1,0 +1,14 @@
+KeySuite V2.15 Changes
+======================
+
+1. End Suction description now includes clean model text, suction/discharge DN sizes, expanded MS/GP material wording and bare-shaft wording.
+2. End Suction Product adds Mech Seal Material and Elastomer selectors. Defaults are Carbon Ceramic (Ca Ce) and Viton; only non-default selections appear in quotation descriptions.
+3. System hides the New button and automatically creates a new System draft when another Pumpset is added. The previous System remains saved in Drafts.
+4. Selecting an existing System draft allows Pumpset, KeyPLC panel, Manifold, Tank and MISC items to be added back into that System. Description groups remain Pumpset, Panel, Manifold, Tank and MISC.
+5. System Description includes an on-screen highlighted preview for variable values. Quotation and PDF text remain plain.
+6. System BOM category backgrounds: Pumpset #C0C0C0, Panel #FFFE91, Manifold #D2FFFD, Tank #FFFAE4 and MISC #8C90CF.
+7. Coupled component descriptions use a tab stop after c/w, with continuation lines aligned to the same description column.
+
+Database
+--------
+No new Supabase migration is required.
