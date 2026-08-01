@@ -1,0 +1,22 @@
+KeySuite V2.12 QA Report
+========================
+
+Automated browser checks: 31 / 31 passed
+JavaScript syntax checks: passed
+Git whitespace/error check: passed
+
+Verified areas
+--------------
+- Product and Selector default values and pink non-default highlighting
+- ES material dropdown default and non-default behaviour
+- GWS Pressure Wave model dropdown filtering
+- KeyPLC 2-pump default and pink non-default highlighting
+- USD/RMB/MYR filled/total Price List indicators and live updates
+- Manual Many/Common/Rare calculations and USD/RMB/MYR conversion
+- Internal quotation item Remark persistence, gold button/indicator, and print exclusion
+- KeyPLC System Description left alignment
+- V2.12 page version and runtime error check
+
+Database
+--------
+No Supabase migration is required for V2.12.

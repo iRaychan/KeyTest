@@ -1,0 +1,32 @@
+KeySuite V2.12 Changes
+======================
+
+1. Product and Selector defaults
+- Added pink highlighting when CHC Product or Selector selections differ from their defaults.
+- ES Product now provides a material dropdown per model with CI SS SS MS as the default.
+- GWS Product now provides Series and Model dropdowns, including Pressure Wave models.
+- KeyPLC Product now defaults to 2 pumps and highlights non-default quantities.
+
+2. Price List currency completion indicator
+- Added USD, RMB and MYR filled/total indicators beside the active Editing currency text.
+- Indicators update immediately when a visible price is entered, changed or cleared.
+- Totals cover every valid price cell for the selected product family.
+
+3. Category Pricing Rule manual calculator
+- Added manual Cost Figure, Currency and Many/Common/Rare selection.
+- Manual input uses the selected product family's saved USD/RMB/MYR exchange rate.
+- The calculator applies the currently displayed category rule, transport, optional discounts, active-customer fuel charge and RM10 upward rounding.
+- The quoted MYR value updates immediately.
+
+4. Quotation item internal remark
+- Added Remark beside Copy and Delete.
+- Remarks are stored with the quotation item for internal records only.
+- Remark buttons and collapsed-item indicators use #D5BD50 when a remark exists.
+- Internal remarks are excluded from quotation print and PDF output.
+
+5. System Description alignment
+- Removed non-breaking-space indentation from Assembly KeyPLC continuation lines.
+- KeyPLC, Pump Controller, motor kW/VFD and Wiring lines now share the same left starting position.
+
+6. Database
+- No Supabase migration is required for V2.12.

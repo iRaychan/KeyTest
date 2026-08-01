@@ -1,0 +1,21 @@
+KeySuite V2.12 Installation
+===========================
+
+Recommended: deploy the changed-files patch over KeySuite V2.11.
+
+1. Keep a copy of the current deployment.
+2. Extract KeySuite_V2.12_Changed_Files_Patch.zip.
+3. Upload the extracted files over the existing deployment, preserving folder paths.
+4. Do not replace your working config.js.
+5. No Supabase migration is required for V2.12.
+6. Hard-refresh with Ctrl + Shift + R.
+7. If the old version remains visible, close all KeySuite tabs, reopen the site, and hard-refresh again so the V2.12 service worker takes control.
+
+Verification
+------------
+- Product and Selector non-default choices turn pink; default choices remain white.
+- ES material defaults to CI SS SS MS, GWS Model is a dropdown, and KeyPLC defaults to 2 pumps.
+- Each Price List shows USD/RMB/MYR filled counts out of total and updates while editing.
+- Category manual pricing displays the MYR quoted value for USD/RMB/MYR and Many/Common/Rare.
+- Quotation item Remark is saved internally, shows #D5BD50 when present, and does not print.
+- System Description KeyPLC, Pump Controller, kW/VFD and Wiring lines align at the same left edge.

@@ -24,6 +24,57 @@
   const esPriceField=currency=>({USD:'priceUsd',RMB:'priceRmb',MYR:'priceMyr'})[validCurrency(currency)];
   const keyplcPriceField=esPriceField;
   const normMaterial=value=>String(value||'').toUpperCase().replace(/[^A-Z0-9]+/g,'');
+  const countId=prefix=>`${prefix}PriceListCount`;
+  const isFilled=value=>value!==null&&value!==''&&Number.isFinite(Number(value));
+
+  function storedInputValue(prefix,input,currency){
+    if(prefix==='chc'){
+      const product=chcProducts().find(item=>String(item.id)===String(input.dataset.priceProduct));
+      return currencyPrices(product,currency)?.[input.dataset.priceVariant];
+    }
+    if(prefix==='gws'){
+      const product=gwsProducts().find(item=>String(item.id)===String(input.dataset.priceProduct));
+      return currencyPrices(product,currency)?.SKU;
+    }
+    if(prefix==='es'){
+      const product=esProducts().find(item=>String(item.id)===String(input.dataset.esPrice));
+      const variant=(product?.variants||[]).find(item=>normMaterial(item.material)===normMaterial(input.dataset.esMaterial));
+      return variant?.[esPriceField(currency)];
+    }
+    if(prefix==='keyplc'){
+      const product=keyplcProducts().find(item=>String(item.id)===String(input.dataset.keyplcPrice));
+      const qty=Number(input.dataset.keyplcPump),variant=(product?.variants||[]).find(item=>Number(item.pumpQty||item.pump_qty||String(item.label||'').match(/\d+/)?.[0]||0)===qty);
+      return variant?.[keyplcPriceField(currency)];
+    }
+    return null;
+  }
+
+  function completion(prefix,currency){
+    let total=0,filled=0;
+    if(prefix==='chc'){
+      total=chcProducts().length*3;
+      chcProducts().forEach(product=>['CHC','CHCS','CHCN'].forEach(variant=>{if(isFilled(currencyPrices(product,currency)?.[variant]))filled++}));
+    }else if(prefix==='es'){
+      total=esProducts().length*ES_MATERIALS.length;
+      esProducts().forEach(product=>ES_MATERIALS.forEach(material=>{const variant=(product.variants||[]).find(item=>normMaterial(item.material)===normMaterial(material));if(isFilled(variant?.[esPriceField(currency)]))filled++}));
+    }else if(prefix==='gws'){
+      total=gwsProducts().length;
+      gwsProducts().forEach(product=>{if(isFilled(currencyPrices(product,currency)?.SKU))filled++});
+    }else if(prefix==='keyplc'){
+      total=keyplcProducts().length*6;
+      keyplcProducts().forEach(product=>{for(let qty=1;qty<=6;qty++){const variant=(product.variants||[]).find(item=>Number(item.pumpQty||item.pump_qty||String(item.label||'').match(/\d+/)?.[0]||0)===qty);if(isFilled(variant?.[keyplcPriceField(currency)]))filled++}});
+    }
+    if(currency===currentCurrency(prefix)){
+      const selectors={chc:'#chcPriceRows [data-price-product]',es:'#esPriceRows [data-es-price]',gws:'#gwsPriceRows [data-price-product]',keyplc:'#keyplcPriceRows [data-keyplc-price]'};
+      document.querySelectorAll(selectors[prefix]||'__none__').forEach(input=>{filled+=Number(isFilled(input.value))-Number(isFilled(storedInputValue(prefix,input,currency)))});
+    }
+    return {filled:Math.max(0,filled),total};
+  }
+
+  function completionText(prefix){return ['USD','RMB','MYR'].map(currency=>{const result=completion(prefix,currency);return `${currency} ${result.filled.toLocaleString('en-MY')}/${result.total.toLocaleString('en-MY')}`}).join(' · ')}
+  function updateCompletionLabel(prefix){const node=el(countId(prefix));if(!node)return;node.innerHTML=`${esc(node.dataset.baseText||'')} · <span class="price-completion-indicator">${esc(completionText(prefix))}</span>`}
+  function setCountLabel(prefix,text){const node=el(countId(prefix));if(!node)return;node.dataset.baseText=text;updateCompletionLabel(prefix)}
+  function bindCompletionInputs(prefix,body){body?.querySelectorAll('input[type="number"]').forEach(input=>input.addEventListener('input',()=>updateCompletionLabel(prefix)))}
 
   function message(prefix,text,type='info'){
     const box=el(`${prefix}PriceListMessage`);if(!box)return;
@@ -98,7 +149,8 @@
         <td class="pricelist-row-actions"><button class="btn icon-save-button" type="button" data-save-chc-row="${esc(product.id)}" title="Save ${esc(product.model)}" aria-label="Save ${esc(product.model)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h12l2 2v14H5z"></path><path d="M8 4v6h8V4"></path><path d="M8 20v-6h8v6"></path></svg></button></td>
       </tr>`;
     }).join('')||'<tr><td colspan="8" class="muted">No matching CHC models.</td></tr>';
-    el('chcPriceListCount').textContent=`Showing ${rows.length.toLocaleString('en-MY')} of ${chcProducts().length.toLocaleString('en-MY')} CHC models · Editing ${currency}`;
+    setCountLabel('chc',`Showing ${rows.length.toLocaleString('en-MY')} of ${chcProducts().length.toLocaleString('en-MY')} CHC models · Editing ${currency}`);
+    bindCompletionInputs('chc',body);
     body.querySelectorAll('[data-save-chc-row]').forEach(button=>button.addEventListener('click',()=>saveChcRow(button.dataset.saveChcRow,button)));
   }
 
@@ -125,7 +177,8 @@
       }).join('');
       return `<tr data-es-pricelist-row="${esc(product.id)}"><td><b>${esc(product.model)}</b></td><td><select data-es-rarity aria-label="${esc(product.model)} rarity">${rarityOptions(validRarity(product.rarity))}</select></td>${cells}<td class="pricelist-row-actions"><button class="btn icon-save-button" type="button" data-save-es-row="${esc(product.id)}" title="Save ${esc(product.model)}" aria-label="Save ${esc(product.model)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h12l2 2v14H5z"></path><path d="M8 4v6h8V4"></path><path d="M8 20v-6h8v6"></path></svg></button></td></tr>`;
     }).join('')||'<tr><td colspan="9" class="muted">No matching ES models.</td></tr>';
-    el('esPriceListCount').textContent=`Showing ${rows.length.toLocaleString('en-MY')} of ${esProducts().length.toLocaleString('en-MY')} ES models · Editing ${currency}`;
+    setCountLabel('es',`Showing ${rows.length.toLocaleString('en-MY')} of ${esProducts().length.toLocaleString('en-MY')} ES models · Editing ${currency}`);
+    bindCompletionInputs('es',body);
     body.querySelectorAll('[data-save-es-row]').forEach(button=>button.addEventListener('click',()=>saveEsRow(button.dataset.saveEsRow,button)));
     requestAnimationFrame(syncEsScrollWidth);
   }
@@ -149,7 +202,8 @@
         <td class="pricelist-row-actions"><button class="btn icon-save-button" type="button" data-save-gws-row="${esc(product.id)}" title="Save ${esc(product.model)}" aria-label="Save ${esc(product.model)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h12l2 2v14H5z"></path><path d="M8 4v6h8V4"></path><path d="M8 20v-6h8v6"></path></svg></button></td>
       </tr>`;
     }).join('')||'<tr><td colspan="7" class="muted">No matching GWS Tank SKUs.</td></tr>';
-    el('gwsPriceListCount').textContent=`Showing ${rows.length.toLocaleString('en-MY')} valid GWS Tank SKU${rows.length===1?'':'s'} · Editing ${currency}`;
+    setCountLabel('gws',`Showing ${rows.length.toLocaleString('en-MY')} valid GWS Tank SKU${rows.length===1?'':'s'} · Editing ${currency}`);
+    bindCompletionInputs('gws',body);
     body.querySelectorAll('[data-save-gws-row]').forEach(button=>button.addEventListener('click',()=>saveGwsRow(button.dataset.saveGwsRow,button)));
   }
 
@@ -163,7 +217,8 @@
       const cells=Array.from({length:6},(_,index)=>{const qty=index+1,variant=variants.find(v=>Number(v.pumpQty||v.pump_qty||String(v.label||'').match(/\d+/)?.[0]||0)===qty),value=variant?.[field];return `<td><div class="currency-price-input"><span>${esc(currency)}</span><input type="number" min="0" step="0.01" value="${esc(value===null||value===''||!Number.isFinite(Number(value))?'':Number(value).toFixed(2))}" data-keyplc-price="${esc(product.id)}" data-keyplc-pump="${qty}" aria-label="${esc(product.model)} ${qty} pump ${esc(currency)} price"></div></td>`}).join('');
       return `<tr data-keyplc-pricelist-row="${esc(product.id)}"><td><b>${esc(product.model)}</b></td><td><select data-keyplc-rarity aria-label="${esc(product.model)} rarity">${rarityOptions(validRarity(product.rarity))}</select></td>${cells}<td class="pricelist-row-actions"><button class="btn icon-save-button" type="button" data-save-keyplc-row="${esc(product.id)}" title="Save ${esc(product.model)}" aria-label="Save ${esc(product.model)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h12l2 2v14H5z"></path><path d="M8 4v6h8V4"></path><path d="M8 20v-6h8v6"></path></svg></button></td></tr>`;
     }).join('')||'<tr><td colspan="9" class="muted">No matching KeyPLC panel models.</td></tr>';
-    el('keyplcPriceListCount').textContent=`Showing ${rows.length.toLocaleString('en-MY')} of ${keyplcProducts().length.toLocaleString('en-MY')} KeyPLC models · Editing ${currency}`;
+    setCountLabel('keyplc',`Showing ${rows.length.toLocaleString('en-MY')} of ${keyplcProducts().length.toLocaleString('en-MY')} KeyPLC models · Editing ${currency}`);
+    bindCompletionInputs('keyplc',body);
     body.querySelectorAll('[data-save-keyplc-row]').forEach(button=>button.addEventListener('click',()=>saveKeyplcRow(button.dataset.saveKeyplcRow,button)));
   }
 

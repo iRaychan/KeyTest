@@ -9,8 +9,23 @@
   const gwsProducts=()=>window.KEYSUITE_SECURE_DATA?.gwsProducts||[];
   const esProducts=()=>window.KEYSUITE_SECURE_DATA?.esProducts||[];
   const keyplcProducts=()=>window.KEYSUITE_SECURE_DATA?.keyplcProducts||[];
+  const ES_DEFAULT_MATERIAL='CI / SS / SS / MS';
   const seriesName=model=>{const m=String(model||'').match(/^CHC\s+(\d+)/i);return m?`CHC ${m[1]}`:'Other'};
   const orderedSeries=()=>[...new Set(products().map(p=>seriesName(p.model)))].sort((a,b)=>Number((a.match(/\d+/)||[999])[0])-Number((b.match(/\d+/)||[999])[0]));
+  const normMaterial=value=>String(value||'').toUpperCase().replace(/[^A-Z0-9]+/g,'');
+
+  function updateDefaultState(control){
+    if(!control)return;
+    if(control.type==='checkbox'){
+      const defaultChecked=String(control.dataset.defaultChecked||'false')==='true';
+      (control.closest('.default-choice-control')||control).classList.toggle('non-default-selection',control.checked!==defaultChecked);
+      return;
+    }
+    if(control.dataset.defaultValue!==undefined)control.classList.toggle('non-default-selection',String(control.value)!==String(control.dataset.defaultValue));
+  }
+
+  function bindDefaultState(control){if(!control||control.dataset.defaultStateBound==='1')return;control.dataset.defaultStateBound='1';const refresh=()=>updateDefaultState(control);control.addEventListener('change',refresh);control.addEventListener('input',refresh);refresh()}
+  function bindStaticDefaults(){['pumpMaterial','sealFaces','sealElastomer','connectionType','bareShaft','productMaterial','productSeal','productElastomer','productConnection','productBareShaft'].forEach(id=>bindDefaultState($(id)))}
 
   function ensureFrame(){const frame=$('productSelectorFrame');if(frame&&frame.src==='about:blank'){frameReady=false;frame.src=frame.dataset.src}return frame}
   function options(){return {material:$('productMaterial')?.value||'SS304 (Cast Iron Connection)',seal:$('productSeal')?.value||'Car/Cer',elastomer:$('productElastomer')?.value||'Viton',connection:$('productConnection')?.value||'round',bare:!!$('productBareShaft')?.checked,hz:50}}
@@ -50,10 +65,19 @@
     select.innerHTML='<option value="ALL">All Series</option>'+series.map(name=>`<option value="${esc(name)}">${esc(name)}</option>`).join('');select.value=series.includes(current)?current:'ALL';
   }
 
+  function gwsModelOptions(){
+    const select=$('gwsProductModel');if(!select)return;
+    const series=$('gwsProductSeries')?.value||'ALL',current=select.value||'ALL';
+    const rows=gwsProducts().filter(product=>series==='ALL'||gwsSeriesKey(product)===series);
+    const models=[...new Set(rows.map(product=>String(product.model||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+    select.innerHTML='<option value="ALL">All Models</option>'+models.map(model=>`<option value="${esc(model)}">${esc(model)}</option>`).join('');
+    select.value=models.includes(current)?current:'ALL';
+  }
+
   function renderGws(){
-    const body=$('gwsProductRows');if(!body)return;gwsSeriesOptions();
-    const series=$('gwsProductSeries')?.value||'ALL',query=String($('gwsProductSearch')?.value||'').trim().toLowerCase();
-    const rows=gwsProducts().filter(product=>(series==='ALL'||gwsSeriesKey(product)===series)&&(!query||[product.seriesName,product.model,product.sizeCode,product.pressureBar].join(' ').toLowerCase().includes(query)));
+    const body=$('gwsProductRows');if(!body)return;gwsSeriesOptions();gwsModelOptions();
+    const series=$('gwsProductSeries')?.value||'ALL',model=$('gwsProductModel')?.value||'ALL';
+    const rows=gwsProducts().filter(product=>(series==='ALL'||gwsSeriesKey(product)===series)&&(model==='ALL'||String(product.model)===model));
     body.innerHTML=rows.map(product=>`<tr><td>${esc(product.seriesName)}</td><td><b>${esc(product.model)}</b></td><td>${esc(product.sizeLitres)} Litres</td><td>${esc(product.pressureBar)} Bar</td><td style="text-align:right"><div class="route-actions"><button class="btn secondary" type="button" data-gws-assembly="${esc(product.id)}">Add to Assembly</button><button class="btn" type="button" data-gws-quote="${esc(product.id)}">Quote</button></div></td></tr>`).join('')||'<tr><td colspan="5" class="muted">No matching GWS Tank models.</td></tr>';
     $('gwsProductCount').textContent=`${rows.length} valid tank SKU${rows.length===1?'':'s'}`;
     body.querySelectorAll('[data-gws-quote]').forEach(button=>button.addEventListener('click',()=>window.KeySuitePricing?.addGwsToQuotation?.(button.dataset.gwsQuote,null)));
@@ -64,31 +88,41 @@
   function renderEs(){
     const body=$('esProductRows');if(!body)return;const q=String($('esProductSearch')?.value||'').trim().toLowerCase();
     const rows=esProducts().filter(x=>!q||x.model.toLowerCase().includes(q));
-    body.innerHTML=rows.map(x=>{const v=(x.variants||[]).find(v=>['priceUsd','priceRmb','priceMyr'].some(key=>Number(v[key])>0))||x.variants?.[0]||{};return `<tr><td><b>${esc(x.model)}</b></td><td>${esc(v.material||'Standard')}</td><td style="text-align:right"><div class="route-actions"><button class="btn secondary" data-es-assembly="${esc(x.id)}">Assembly</button><button class="btn" data-es-quote="${esc(x.id)}">Quote</button></div></td></tr>`}).join('')||'<tr><td colspan="3" class="muted">No matching ES models.</td></tr>';
+    body.innerHTML=rows.map(x=>{
+      const materials=[...new Set((x.variants||[]).map(v=>String(v.material||'').trim()).filter(Boolean))];
+      if(!materials.some(value=>normMaterial(value)===normMaterial(ES_DEFAULT_MATERIAL)))materials.unshift(ES_DEFAULT_MATERIAL);
+      const ordered=[...materials].sort((a,b)=>normMaterial(a)===normMaterial(ES_DEFAULT_MATERIAL)?-1:normMaterial(b)===normMaterial(ES_DEFAULT_MATERIAL)?1:a.localeCompare(b));
+      const options=ordered.map(material=>`<option value="${esc(material)}" ${normMaterial(material)===normMaterial(ES_DEFAULT_MATERIAL)?'selected':''}>${esc(material.replace(/\s*\/\s*/g,' '))}</option>`).join('');
+      return `<tr data-es-product-row="${esc(x.id)}"><td><b>${esc(x.model)}</b></td><td><select class="es-product-material" data-es-material-select data-default-value="${esc(ES_DEFAULT_MATERIAL)}" aria-label="Material for ${esc(x.model)}">${options}</select></td><td style="text-align:right"><div class="route-actions"><button class="btn secondary" data-es-assembly="${esc(x.id)}">Assembly</button><button class="btn" data-es-quote="${esc(x.id)}">Quote</button></div></td></tr>`;
+    }).join('')||'<tr><td colspan="3" class="muted">No matching ES models.</td></tr>';
     $('esProductCount').textContent=`${rows.length} model${rows.length===1?'':'s'}`;
-    body.querySelectorAll('[data-es-assembly]').forEach(b=>b.onclick=()=>window.KeySuitePricing?.addEs?.(b.dataset.esAssembly,'assembly'));
-    body.querySelectorAll('[data-es-quote]').forEach(b=>b.onclick=()=>window.KeySuitePricing?.addEs?.(b.dataset.esQuote,'quotation'));
+    body.querySelectorAll('[data-es-material-select]').forEach(bindDefaultState);
+    const materialFor=button=>button.closest('[data-es-product-row]')?.querySelector('[data-es-material-select]')?.value||ES_DEFAULT_MATERIAL;
+    body.querySelectorAll('[data-es-assembly]').forEach(b=>b.onclick=()=>window.KeySuitePricing?.addEs?.(b.dataset.esAssembly,'assembly',materialFor(b)));
+    body.querySelectorAll('[data-es-quote]').forEach(b=>b.onclick=()=>window.KeySuitePricing?.addEs?.(b.dataset.esQuote,'quotation',materialFor(b)));
   }
   function renderKeyplc(){
     const body=$('keyplcProductRows');if(!body)return;
     const q=String($('keyplcProductSearch')?.value||'').trim().toLowerCase();
     const rows=keyplcProducts().filter(x=>!q||String(x.model||'').toLowerCase().includes(q));
-    const pumpOptions=Array.from({length:6},(_,i)=>`<option value="${i+1}">${i+1} ${i===0?'Pump':'Pumps'}</option>`).join('');
+    const pumpOptions=Array.from({length:6},(_,i)=>`<option value="${i+1}" ${i+1===2?'selected':''}>${i+1} ${i===0?'Pump':'Pumps'}</option>`).join('');
     const actions=(product,type)=>`<div class="route-actions keyplc-route-actions"><button class="btn secondary" type="button" data-keyplc-assembly="${esc(product.id)}" data-keyplc-type="${type}">Assembly</button><button class="btn" type="button" data-keyplc-quote="${esc(product.id)}" data-keyplc-type="${type}">Quote</button></div>`;
-    body.innerHTML=rows.map(product=>`<tr data-keyplc-product-row="${esc(product.id)}"><td><b>${esc(product.model)}</b></td><td><select data-keyplc-pump-count aria-label="Number of pumps for ${esc(product.model)}">${pumpOptions}</select></td><td>${actions(product,'indoor')}</td><td>${actions(product,'sheltered')}<div class="keyplc-surcharge-note">Indoor + RM 1,000.00</div></td></tr>`).join('')||'<tr><td colspan="4" class="muted">No matching KeyPLC panel models.</td></tr>';
+    body.innerHTML=rows.map(product=>`<tr data-keyplc-product-row="${esc(product.id)}"><td><b>${esc(product.model)}</b></td><td><select data-keyplc-pump-count data-default-value="2" aria-label="Number of pumps for ${esc(product.model)}">${pumpOptions}</select></td><td>${actions(product,'indoor')}</td><td>${actions(product,'sheltered')}<div class="keyplc-surcharge-note">Indoor + RM 1,000.00</div></td></tr>`).join('')||'<tr><td colspan="4" class="muted">No matching KeyPLC panel models.</td></tr>';
     $('keyplcProductCount').textContent=`${rows.length} panel model${rows.length===1?'':'s'}`;
     const qtyFor=button=>Number(button.closest('[data-keyplc-product-row]')?.querySelector('[data-keyplc-pump-count]')?.value||1);
+    body.querySelectorAll('[data-keyplc-pump-count]').forEach(bindDefaultState);
     body.querySelectorAll('[data-keyplc-assembly]').forEach(button=>button.addEventListener('click',()=>window.KeySuitePricing?.addKeyplc?.(button.dataset.keyplcAssembly,qtyFor(button),'assembly',button.dataset.keyplcType||'indoor')));
     body.querySelectorAll('[data-keyplc-quote]').forEach(button=>button.addEventListener('click',()=>window.KeySuitePricing?.addKeyplc?.(button.dataset.keyplcQuote,qtyFor(button),'quotation',button.dataset.keyplcType||'indoor')));
   }
 
-  function render(){if($('productModelOptions'))$('productModelOptions').innerHTML=products().map(p=>`<option value="${esc(p.model)}"></option>`).join('');renderSeries();renderModels();renderEs();renderGws();renderKeyplc()}
+  function render(){if($('productModelOptions'))$('productModelOptions').innerHTML=products().map(p=>`<option value="${esc(p.model)}"></option>`).join('');bindStaticDefaults();renderSeries();renderModels();renderEs();renderGws();renderKeyplc()}
   function pageShown(id){if(['productChc','productEs','productGws','productKeyplc'].includes(id))render()}
 
   window.addEventListener('message',event=>{if(event.source===$('productSelectorFrame')?.contentWindow&&event.data?.type==='KEYSUITE_PRODUCT_FRAME_READY'){frameReady=true;if(queued){const message=queued;queued=null;postToFrame($('productSelectorFrame'),message)}}});
   document.addEventListener('DOMContentLoaded',()=>{
     $('productModelInput')?.addEventListener('input',()=>{const exact=products().find(p=>p.model.toLowerCase()===$('productModelInput').value.trim().toLowerCase());if(exact)selectedSeries=seriesName(exact.model);renderSeries();renderModels()});
-    $('closeProductCurve')?.addEventListener('click',()=>$('productCurveDialog')?.close());$('exportProductCurve')?.addEventListener('click',()=>{if(currentCurveModel)send(currentCurveModel,'export')});$('esProductSearch')?.addEventListener('input',renderEs);$('gwsProductSeries')?.addEventListener('change',renderGws);$('gwsProductSearch')?.addEventListener('input',renderGws);$('keyplcProductSearch')?.addEventListener('input',renderKeyplc);
+    bindStaticDefaults();
+    $('closeProductCurve')?.addEventListener('click',()=>$('productCurveDialog')?.close());$('exportProductCurve')?.addEventListener('click',()=>{if(currentCurveModel)send(currentCurveModel,'export')});$('esProductSearch')?.addEventListener('input',renderEs);$('gwsProductSeries')?.addEventListener('change',()=>{if($('gwsProductModel'))$('gwsProductModel').value='ALL';renderGws()});$('gwsProductModel')?.addEventListener('change',renderGws);$('keyplcProductSearch')?.addEventListener('input',renderKeyplc);
   });
   window.KeySuiteProduct={pageShown,render};
 })();

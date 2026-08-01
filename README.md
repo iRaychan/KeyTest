@@ -1,17 +1,17 @@
-# KeySuite V2.11
+# KeySuite V2.12
 
-KeySuite V2.11 adds a customer-led Dashboard start workflow and improves System / Pumpset assembly quoting.
+KeySuite V2.12 adds consistent default-selection highlighting across Product and Selector, source-price completion indicators, a manual category-rule quoted-value calculator, internal quotation-item remarks, and corrected KeyPLC description alignment.
 
 ## Highlights
 
-- Dashboard **Start** customer stays synchronized with the Quotation customer.
-- Changing the Dashboard customer saves the current valid draft quotation, then opens a new quotation for the selected customer.
-- Start contains four actions in one row: **Selection**, **Product**, **System**, and **Pumpset**.
-- Assembly KeyPLC continuation lines align under `KeyPLC`, with no blank row above the panel description.
-- System and Pumpset builders include **Model / Item**, **Qty**, and **Unit Price** above the description.
-- System model suggestions follow the pump arrangement in the BOM while still allowing custom text.
-- System Control Panel sizing follows total pump quantity and the highest motor kW, selecting the equal or next larger KeyPLC rating.
-- Automatically sized panels start as **Indoor Type** and remain switchable to Sheltered.
-- Assembly quotation Qty and manual Unit Price are stored through the existing assembly item JSON, so no database migration is required.
+- CHC defaults are highlighted pink whenever Product or Selector uses a non-default material, mechanical seal, elastomer, connection, or supply option.
+- ES Product rows provide a material dropdown with `CI SS SS MS` as the default; non-default materials are highlighted pink.
+- GWS Product provides Series and Model dropdowns, including Pressure Wave models.
+- KeyPLC Product defaults to 2 pumps and highlights non-default pump quantities pink.
+- Every Price List family shows USD, RMB, and MYR filled counts against the total available price cells.
+- Category Pricing Rule includes a manual USD/RMB/MYR cost calculator with Many, Common, and Rare formula selection and immediate MYR quoted value.
+- Quotation items include an internal-only Remark button and collapsed-item indicator in `#D5BD50`; remarks are excluded from print and PDF output.
+- KeyPLC System Description lines now share the same left alignment without spaces or non-breaking-space indentation.
+- No Supabase migration is required for V2.12.
 
-Preserve the deployment's working `config.js`, deploy the V2.11 changed-files patch, and hard-refresh the application.
+Preserve the deployment's working `config.js`, deploy the V2.12 changed-files patch, and hard-refresh the application.

@@ -12,7 +12,7 @@ function newUuid(){
 }
 function validUuid(value){return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value||''))}
 function customerUuid(value){return validUuid(value)?value:newUuid()}
-let editingQuoteId=null, viewedCustomerId=null;
+let editingQuoteId=null, viewedCustomerId=null, itemRemarkTarget=null;
 let quotationPricingCustomerId='', quotationPricingCustomerSnapshot=null;
 let quotationStatus='new',quotationRevisionOf='',quotationRevisionRootId='',quotationRevisionNumber=0,quotationAudit=[];
 let secureCustomers=[],customerSyncMode='local',customerSyncError='';
@@ -252,7 +252,7 @@ function updateQuotationCustomerLock(){
 function setQuotationEditingLocked(locked){
  const root=$('quotation');if(!root)return;root.classList.toggle('quotation-locked',!!locked);
  root.querySelectorAll('input,select,textarea').forEach(el=>{if(['preparedBy','preparedByDesignation'].includes(el.id))return;el.disabled=!!locked});
- root.querySelectorAll('.remove-quote-item,.duplicate-quote-item,.drag-handle,#addQuoteItem,#expandAllItems,#collapseAllItems').forEach(el=>{if(el)el.style.pointerEvents=locked?'none':'';if(el&&'disabled' in el)el.disabled=!!locked});
+ root.querySelectorAll('.remove-quote-item,.duplicate-quote-item,.remark-quote-item,.drag-handle,#addQuoteItem,#expandAllItems,#collapseAllItems').forEach(el=>{if(el)el.style.pointerEvents=locked?'none':'';if(el&&'disabled' in el)el.disabled=!!locked});
  if(!locked){
    setControlLocked($('quoteNo'),isRevisionCopy(),false);
    setControlLocked($('qDate'),isRevisionCopy(),true);
@@ -428,6 +428,21 @@ function updateCustomerSummary(){
 }
 
 function setAllItemsCollapsed(collapsed){document.querySelectorAll('.quote-item').forEach(r=>{r.classList.toggle('collapsed',collapsed);const b=r.querySelector('.collapse-item');if(b){b.textContent=collapsed?'▼':'▲';b.title=collapsed?'Expand item':'Collapse item';}})}
+function syncItemRemarkUi(row){
+ if(!row)return;const remark=String(row.dataset.internalRemark||'').trim(),hasRemark=!!remark,button=row.querySelector('.remark-quote-item'),indicator=row.querySelector('.item-remark-indicator');
+ row.classList.toggle('has-internal-remark',hasRemark);button?.classList.toggle('has-remark',hasRemark);
+ if(button){button.title=hasRemark?'View or edit internal remark':'Add internal remark';button.setAttribute('aria-label',button.title)}
+ if(indicator){indicator.title=hasRemark?'This item has an internal remark':'';indicator.setAttribute('aria-label',hasRemark?'Internal remark exists':'')}
+}
+function openItemRemark(row){
+ if(!row||!canEditQuotation(true))return;itemRemarkTarget=row;const input=$('itemRemarkInput'),dialog=$('itemRemarkDialog');if(!input||!dialog)return;
+ input.value=row.dataset.internalRemark||'';dialog.showModal();setTimeout(()=>{input.focus();input.setSelectionRange(input.value.length,input.value.length)},0);
+}
+function saveItemRemark(){
+ if(!itemRemarkTarget||!canEditQuotation(true))return;const value=String($('itemRemarkInput')?.value||'').trim();
+ if(value)itemRemarkTarget.dataset.internalRemark=value;else delete itemRemarkTarget.dataset.internalRemark;
+ syncItemRemarkUi(itemRemarkTarget);itemRemarkTarget=null;
+}
 function refreshQuotationContacts(){
  const customerId=$('qCustomer').value;
  const c=customers().find(x=>x.id===customerId);
@@ -456,12 +471,14 @@ function quoteItemRow(data={}){
  const wrap=document.createElement('div');wrap.className='quote-item collapsed';wrap.draggable=false;
  if(data.pumpData) wrap.dataset.pumpData=JSON.stringify(data.pumpData);
  if(data.pricingSource) wrap.dataset.pricingSource=typeof data.pricingSource==='string'?data.pricingSource:JSON.stringify(data.pricingSource);
- wrap.innerHTML=`<div class="quote-item-head"><button type="button" class="item-status-indicator no-print" aria-label="Item status" data-tooltip="Checking item..."></button><span class="drag-handle no-print" draggable="true" role="button" tabindex="0" aria-label="Drag item to reorder" title="Drag to reorder">☰</span><button type="button" class="collapse-item no-print" title="Expand item">▼</button><b>Item #<span class="item-number"></span></b><span class="item-summary-model">${esc(data.model||'New Item')}</span><span class="item-summary-qty">Qty: ${data.qty??1}</span><span class="item-summary-total">RM 0.00</span></div><div class="quote-item-body"><div class="quote-item-grid"><div><label>Model / Item</label><input class="item-model" value="${esc(data.model||'')}"></div><div><label>Quantity</label><input class="item-qty" type="number" min="1" value="${data.qty??1}"></div><div><label>Unit Price (RM)</label><input class="item-price" type="number" min="0" step="0.01" value="${data.unitPrice??0}"></div></div><div style="margin-top:12px"><label>Description</label><textarea class="item-description">${esc(data.description||'')}</textarea></div><div class="quote-total" style="margin-top:10px;font-size:16px">Item Total: <span class="item-total">RM 0.00</span></div><div class="item-body-actions no-print"><button type="button" class="btn secondary duplicate-quote-item" title="Duplicate">Copy</button><button type="button" class="btn danger remove-quote-item" title="Delete">Delete</button></div></div>`;
+ const savedRemark=String(data.internalRemark??data.remark??'').trim();if(savedRemark)wrap.dataset.internalRemark=savedRemark;
+ wrap.innerHTML=`<div class="quote-item-head"><button type="button" class="item-status-indicator no-print" aria-label="Item status" data-tooltip="Checking item..."></button><span class="item-remark-indicator no-print" aria-hidden="true"></span><span class="drag-handle no-print" draggable="true" role="button" tabindex="0" aria-label="Drag item to reorder" title="Drag to reorder">☰</span><button type="button" class="collapse-item no-print" title="Expand item">▼</button><b>Item #<span class="item-number"></span></b><span class="item-summary-model">${esc(data.model||'New Item')}</span><span class="item-summary-qty">Qty: ${data.qty??1}</span><span class="item-summary-total">RM 0.00</span></div><div class="quote-item-body"><div class="quote-item-grid"><div><label>Model / Item</label><input class="item-model" value="${esc(data.model||'')}"></div><div><label>Quantity</label><input class="item-qty" type="number" min="1" value="${data.qty??1}"></div><div><label>Unit Price (RM)</label><input class="item-price" type="number" min="0" step="0.01" value="${data.unitPrice??0}"></div></div><div style="margin-top:12px"><label>Description</label><textarea class="item-description">${esc(data.description||'')}</textarea></div><div class="quote-total" style="margin-top:10px;font-size:16px">Item Total: <span class="item-total">RM 0.00</span></div><div class="item-body-actions no-print"><button type="button" class="btn secondary duplicate-quote-item" title="Duplicate">Copy</button><button type="button" class="btn secondary remark-quote-item" title="Add internal remark">Remark</button><button type="button" class="btn danger remove-quote-item" title="Delete">Delete</button></div></div>`;
  $('quoteItems').appendChild(wrap);
  const toggle=()=>{wrap.classList.toggle('collapsed');wrap.querySelector('.collapse-item').textContent=wrap.classList.contains('collapsed')?'▼':'▲';wrap.querySelector('.collapse-item').title=wrap.classList.contains('collapsed')?'Expand item':'Collapse item'};
  wrap.querySelector('.collapse-item').onclick=toggle;
  wrap.querySelector('.remove-quote-item').onclick=()=>{if(!canEditQuotation(true))return;wrap.remove();renumberQuoteItems();calcTotal();updateQuotationStateUi()};
  wrap.querySelector('.duplicate-quote-item').onclick=()=>{if(!canEditQuotation(true))return;const d=getQuoteItemData(wrap);const copy=quoteItemRow(d);wrap.after(copy);renumberQuoteItems();calcTotal();updateQuotationStateUi()};
+ wrap.querySelector('.remark-quote-item').onclick=()=>openItemRemark(wrap);
  wrap.querySelector('.item-price')?.addEventListener('input',()=>{delete wrap.dataset.pricingSource});
  wrap.querySelectorAll('input,textarea').forEach(x=>x.addEventListener('input',()=>{calcTotal();refreshItemExportButtons();updateQuotePageIndicators()}));
  const dragHandle=wrap.querySelector('.drag-handle');
@@ -470,9 +487,9 @@ function quoteItemRow(data={}){
  wrap.addEventListener('dragover',e=>{e.preventDefault();if(!wrap.classList.contains('is-dragging'))wrap.classList.add('drag-over')});
  wrap.addEventListener('dragleave',()=>wrap.classList.remove('drag-over'));
  wrap.addEventListener('drop',e=>{e.preventDefault();wrap.classList.remove('drag-over');const moving=document.querySelector('.quote-item.is-dragging');if(!moving||moving===wrap)return;const rect=wrap.getBoundingClientRect();wrap.parentNode.insertBefore(moving,e.clientY<rect.top+rect.height/2?wrap:wrap.nextSibling)});
- renumberQuoteItems();calcTotal();return wrap;
+ syncItemRemarkUi(wrap);renumberQuoteItems();calcTotal();return wrap;
 }
-function getQuoteItemData(r){return {model:r.querySelector('.item-model').value.trim(),qty:+r.querySelector('.item-qty').value||0,unitPrice:+r.querySelector('.item-price').value||0,description:r.querySelector('.item-description').value.trim(),pumpData:r.dataset.pumpData?JSON.parse(r.dataset.pumpData):null,pricingSource:r.dataset.pricingSource?JSON.parse(r.dataset.pricingSource):null}}
+function getQuoteItemData(r){return {model:r.querySelector('.item-model').value.trim(),qty:+r.querySelector('.item-qty').value||0,unitPrice:+r.querySelector('.item-price').value||0,description:r.querySelector('.item-description').value.trim(),internalRemark:String(r.dataset.internalRemark||'').trim(),pumpData:r.dataset.pumpData?JSON.parse(r.dataset.pumpData):null,pricingSource:r.dataset.pricingSource?JSON.parse(r.dataset.pricingSource):null}}
 
 function renumberQuoteItems(){[...document.querySelectorAll('.quote-item')].forEach((r,i)=>r.querySelector('.item-number').textContent=i+1);refreshItemExportButtons()}
 
@@ -607,6 +624,7 @@ function updateConnectionAvailabilityFromSelection(selection){
  if(!sel||!oval)return;
  if(roundOnly){
    sel.value='round';
+   sel.dispatchEvent(new Event('change'));
    oval.disabled=true;
    sel.disabled=true;
    sel.title='CHC 32 series / DN65 and larger use Round Flange only';
@@ -694,6 +712,7 @@ window.addEventListener('message',function(event){
  const roundOnly=seriesSize>=32 || connectionDN>=65;
  if(roundOnly){
    connectionSelect.value='round';
+   connectionSelect.dispatchEvent(new Event('change'));
    connectionSelect.disabled=true;
    connectionSelect.title='DN65 and larger use Round Flange only';
    if(ovalOption) ovalOption.disabled=true;
@@ -923,6 +942,8 @@ $('qContact').addEventListener('change',()=>{
 });
 $('companyPhone').addEventListener('blur',()=>$('companyPhone').value=formatMYPhone($('companyPhone').value));
 $('addQuoteItem').onclick=()=>{if(!canEditQuotation(true))return;quoteItemRow({});updateQuotationStateUi()};
+$('saveItemRemark')?.addEventListener('click',saveItemRemark);
+$('itemRemarkDialog')?.addEventListener('close',()=>{itemRemarkTarget=null});
 $('expandAllItems')?.addEventListener('click',()=>setAllItemsCollapsed(false));
 $('collapseAllItems')?.addEventListener('click',()=>setAllItemsCollapsed(true));
 $('collapseCustomer')?.addEventListener('click',()=>setQuoteCustomerCollapsed(!$('quoteCustomerCard').classList.contains('collapsed')));

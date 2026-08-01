@@ -27,6 +27,7 @@
   const roundUp10=value=>Math.ceil((Number(value||0)-1e-9)/10)*10;
   const normalizeRarity=value=>['common','many','rare'].includes(String(value||'').toLowerCase())?String(value).toLowerCase():'common';
   const rarityLabel=value=>({common:'Common',many:'Many',rare:'Rare'})[normalizeRarity(value)];
+  const normMaterial=value=>String(value||'').toUpperCase().replace(/[^A-Z0-9]+/g,'');
 
   function customersList(){return window.KeySuiteApp?.getCustomers?.()||[]}
   function company(){return customersList().find(x=>x.id===companyId)||null}
@@ -90,6 +91,13 @@
   function calculate(sourceOrBook,material='CHC',cat=category(),options={}){
     if(sourceOrBook&&typeof sourceOrBook==='object')return calculatePrice(sourceOrBook,material,cat,options.productFamily||'CHC',options);
     return calculatePrice({USD:{[material]:sourceOrBook},RMB:{},MYR:{}},material,cat,options.productFamily||'CHC',options);
+  }
+
+  function calculateManual(sourcePrice,currency='USD',rarity='common',cat=category(),family='CHC',options={}){
+    const code=['USD','RMB','MYR'].includes(String(currency||'').toUpperCase())?String(currency).toUpperCase():'USD';
+    const value=Number(sourcePrice);if(!cat||!Number.isFinite(value)||value<=0)return null;
+    const variant='MANUAL',book={USD:{},RMB:{},MYR:{}};book[code][variant]=value;
+    return calculatePrice(book,variant,cat,family,{...options,rarity:normalizeRarity(rarity)});
   }
 
   function variants(includeUnpriced=false){
@@ -253,15 +261,15 @@
     const product=(secureData.esProducts||[]).find(x=>x.id===id);if(!product)return null;
     const cat=options.category||categoryForCustomer(options.customer||selectedCustomer());if(!cat)return null;
     const variants=product.variants||[];
-    const variant=material?variants.find(v=>String(v.material)===String(material)):variants.find(v=>['priceUsd','priceRmb','priceMyr'].some(key=>Number(v[key])>0));
+    const variant=material?variants.find(v=>normMaterial(v.material)===normMaterial(material)):variants.find(v=>['priceUsd','priceRmb','priceMyr'].some(key=>Number(v[key])>0));
     if(!variant)return null;
     const calc=calculatePrice(esPriceBook(product),variant.material,cat,'ES',{...options,rarity:product.rarity||'common'});
     return calc?{product,variant,calc}:null;
   }
 
-  function addEs(id,route='quotation'){
+  function addEs(id,route='quotation',material='CI / SS / SS / MS'){
     if(!window.KeySuiteApp?.ensureQuotationPricingContext?.(`add an ES pump to the ${route==='assembly'?'Assembly':'quotation'}`))return;
-    const found=findEsPrice(id);if(!found){alert('No ES source price or ES Category Pricing Rule is available.');return}
+    const found=findEsPrice(id,material);if(!found){alert(`No ES source price or ES Category Pricing Rule is available for ${material}.`);return}
     const {product,variant,calc}=found;
     const item={model:product.model,description:`B.G.Reich End Suction Pump Model: ${product.model}`,qty:1,unitPrice:calc.finalPrice,pricingSource:{product_family:'ES',product_id:product.id,variant:variant.material,source_currency:calc.sourceCurrency,source_price:calc.sourcePrice,multiplier:calc.multiplier,rarity:product.rarity||'common'},assemblyLevel:'PUMPSET_COMPONENT',assemblySection:'pump'};
     if(route==='assembly'){window.KeySuiteAssembly?.addItem?.(item);return}
@@ -313,7 +321,7 @@
   function keyplcTitle(product,pumpQty,enclosure='indoor'){const qty=Math.max(1,Number(pumpQty)||1);return `KeyPLC ${product?.model||''} · ${qty} ${qty===1?'Pump':'Pumps'} · ${keyplcPanelLabel(enclosure)}`}
   function keyplcDescription(product,pumpQty,enclosure='indoor'){
     const qty=Math.max(1,Math.min(6,Number(pumpQty)||1)),numberWord=qty===1?'no':'nos';
-    return `KeyPLC Control Panel (${keyplcPanelLabel(enclosure)})
+    return `c/w KeyPLC Control Panel (${keyplcPanelLabel(enclosure)})
 Pump Controller & HMI Touch Screen @ 1 Lot
 ${product?.model||''} VFD @ ${qty} ${numberWord} & Pressure Transmitter @ 1 no
 Wiring for pumps & pressure transmitter within pump skid @ 1 Lot`;
@@ -328,5 +336,5 @@ Wiring for pumps & pressure transmitter within pump skid @ 1 Lot`;
     const row=quoteRowForNewItem();row.querySelector('.item-model').value=item.model;row.querySelector('.item-qty').value=1;row.querySelector('.item-price').value=found.calc.finalPrice.toFixed(2);row.querySelector('.item-description').value=item.description;row.dataset.pricingSource=JSON.stringify(item.pricingSource);calcTotal();refreshItemExportButtons();showPage('quotation');
   }
 
-  window.KeySuitePricing={init,calculate,calculatePrice,findPrice,findGwsPrice,findKeyplcPrice,applyPriceToQuoteRow,refreshQuotePrices,addGwsToQuotation,addEs,addKeyplc,keyplcDescription,keyplcTitle,normalizePanelType,findEsPrice,buildChcAssemblyItem,buildGwsAssemblyItem,selectCustomer,refreshCustomers,hasPricingContext,syncPriceListSettings,render:()=>{renderSummary();renderTable()}};
+  window.KeySuitePricing={init,calculate,calculatePrice,calculateManual,findPrice,findGwsPrice,findKeyplcPrice,applyPriceToQuoteRow,refreshQuotePrices,addGwsToQuotation,addEs,addKeyplc,keyplcDescription,keyplcTitle,normalizePanelType,findEsPrice,buildChcAssemblyItem,buildGwsAssemblyItem,selectCustomer,refreshCustomers,hasPricingContext,syncPriceListSettings,render:()=>{renderSummary();renderTable()}};
 })();

@@ -80,6 +80,24 @@
   function updateFormula(){
     const rule=readRule(false),box=byId('categoryFormulaPreview');if(!box)return;
     box.innerHTML=`<div class="category-formula-lines"><div class="category-formula-line"><b>Many</b>${esc(formulaText(rule,'many'))}</div><div class="category-formula-line"><b>Common</b>${esc(formulaText(rule,'common'))}</div><div class="category-formula-line"><b>Rare</b>${esc(formulaText(rule,'rare'))}</div></div>`;
+    updateManualQuote();
+  }
+
+  function manualCategory(){
+    const base=currentCategory()||{id:'manual',name:'Manual',productRules:{}};
+    return {...base,productRules:{...(base.productRules||{}),[selectedProduct]:readRule(false)}};
+  }
+
+  function updateManualQuote(){
+    const valueBox=byId('categoryManualQuotedValue'),detail=byId('categoryManualBreakdown');if(!valueBox||!detail)return;
+    const source=Number(byId('categoryManualCost')?.value),currency=String(byId('categoryManualCurrency')?.value||'USD').toUpperCase(),rarity=String(byId('categoryManualRarity')?.value||'common').toLowerCase();
+    if(!Number.isFinite(source)||source<=0){valueBox.textContent='RM 0.00';detail.textContent='Enter a cost figure to calculate.';return}
+    const customer=window.KeySuiteApp?.getPricingCustomer?.()||window.KeySuiteApp?.getSelectedCustomer?.()||null;
+    const calc=window.KeySuitePricing?.calculateManual?.(source,currency,rarity,manualCategory(),selectedProduct,{customer});
+    if(!calc){valueBox.textContent='RM 0.00';detail.textContent='Unable to calculate with the current pricing rule.';return}
+    const rarityName={many:'Many',common:'Common',rare:'Rare'}[rarity]||'Common';
+    valueBox.textContent=`RM ${num(calc.finalPrice,2)}`;
+    detail.textContent=`${currency} ${num(source,2)} × ${num(calc.multiplier,4)} = RM ${num(calc.baseMyr,2)} · ${rarityName} · Fuel RM ${num(calc.fuelCharge,2)} · rounded up to RM10${customer?` · ${customer.company||'active customer'}`:' · no active customer (fuel distance 0 km)'}`;
   }
 
   function fillRule(category){
@@ -159,6 +177,7 @@
     byId('categoryRows')?.addEventListener('click',event=>{const button=event.target.closest('[data-category-open]');if(!button)return;const category=categories().find(item=>item.id===button.dataset.categoryOpen);if(category)openCategory(category,false)});
     document.querySelectorAll('[data-category-product]').forEach(button=>button.addEventListener('click',()=>{selectedProduct=button.dataset.categoryProduct;fillRule(currentCategory());message(editing?`${selectedProduct} pricing rule loaded. All fields are unlocked.`:`${selectedProduct} pricing rule loaded. Hold the Edit button for 3 seconds to unlock all fields.`,'info')}));
     ['categoryMarginInput','categoryNormalInput','categoryRareInput','categoryTransportInput','categoryCommissionInput','categorySetDiscountInput','categoryFinalDiscountInput','categoryCommissionEnabled','categorySetDiscountEnabled','categoryFinalDiscountEnabled','categoryFuelChargeEnabled'].forEach(id=>{byId(id)?.addEventListener('input',updateFormula);byId(id)?.addEventListener('change',updateFormula)});
+    ['categoryManualCost','categoryManualCurrency','categoryManualRarity'].forEach(id=>{byId(id)?.addEventListener('input',updateManualQuote);byId(id)?.addEventListener('change',updateManualQuote)});
   }
 
   function render(){

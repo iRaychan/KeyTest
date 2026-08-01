@@ -58,8 +58,8 @@ function removeDescriptionBlock(source,block){
  return `${before}${after}`.replace(/\n{3,}/g,'\n\n').trim();
 }
 function keyplcDescription(item){
- const data=item?.keyplcData||{},qty=Math.max(1,Number(data.pumpQty)||1),numberWord=qty===1?'no':'nos',indent='\u00a0'.repeat(9);
- return `c/w KeyPLC Control Panel (${panelTypeLabel(data.enclosure)})\n${indent}Pump Controller & HMI Touch Screen @ 1 Lot\n${indent}${data.motorRating||''} VFD @ ${qty} ${numberWord} & Pressure Transmitter @ 1 no\n${indent}Wiring for pumps & pressure transmitter within pump skid @ 1 Lot`;
+ const data=item?.keyplcData||{},qty=Math.max(1,Number(data.pumpQty)||1),numberWord=qty===1?'no':'nos';
+ return `c/w KeyPLC Control Panel (${panelTypeLabel(data.enclosure)})\nPump Controller & HMI Touch Screen @ 1 Lot\n${data.motorRating||''} VFD @ ${qty} ${numberWord} & Pressure Transmitter @ 1 no\nWiring for pumps & pressure transmitter within pump skid @ 1 Lot`;
 }
 function pumpMotorKw(item){return Number(item?.pumpData?.motor_kw??item?.pumpData?.motorKw??item?.motor_kw??item?.motorKw??0)}
 function pumpItems(d=current){return (d?.items||[]).filter(x=>x.section==='pumpset'||x.section==='pump'||pumpMotorKw(x)>0).filter(x=>!x.keyplcData&&String(sourceObject(x).product_family||'').toUpperCase()!=='KEYPLC')}
