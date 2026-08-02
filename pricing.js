@@ -361,13 +361,12 @@
 
   function keyplcTitle(product,pumpQty,enclosure='indoor'){const qty=Math.max(1,Number(pumpQty)||1);return `KeyPLC ${product?.model||''} · ${qty} ${qty===1?'Pump':'Pumps'} · ${keyplcPanelLabel(enclosure)}`}
   function keyplcDescription(product,pumpQty,enclosure='indoor',options={}){
-    const qty=Math.max(1,Math.min(6,Number(pumpQty)||1)),numberWord=qty===1?'no':'nos',includeCw=!!options.includeCw,indent=includeCw?'    ':'';
+    const qty=Math.max(1,Math.min(6,Number(pumpQty)||1)),numberWord=qty===1?'no':'nos',includeCw=!!options.includeCw,indent=includeCw?'\t':'';
     const first=`${includeCw?'c/w ':''}KeyPLC Control Panel (${keyplcPanelLabel(enclosure)})`;
     return `${first}
 ${indent}Pump Controller & HMI Touch Screen @ 1 Lot
 ${indent}${product?.model||''} VFD @ ${qty} ${numberWord} & Pressure Transmitter @ 1 no
-${indent}Wiring for pumps within pump skid @ 1 Lot
-${indent}Wiring for pressure transmitter within pump skid @ 1 Lot`;
+${indent}Wiring for pumps & pressure transmitter within pump skid @ 1 Lot`;
   }
 
   function addKeyplc(id,pumpQty=1,route='quotation',enclosure='indoor'){

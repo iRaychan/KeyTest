@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V2.17</title>
+  <title>KeySuite V2.18</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -242,12 +242,15 @@
     .assembly-description-preview:focus{outline:2px solid #2563eb;outline-offset:2px}.assembly-description-preview mark{padding:1px 3px;border-radius:4px;background:#fff1a8;color:#172033;font-weight:800}#assemblyDescriptionPopup{font-family:Arial,Helvetica,sans-serif;tab-size:4;white-space:pre-wrap}.assembly-description-source{display:none!important}
     .assembly-section{border:1px solid rgba(15,23,42,.16);border-radius:10px;overflow:hidden;margin:10px 0}.assembly-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;margin:0}.assembly-section-head h2{margin:0}.assembly-section-body{padding:5px 8px 8px}.assembly-section-pumpset,.assembly-section-pumpset .assembly-section-head,.assembly-section-pumpset .assembly-section-body,.assembly-item-pumpset{background:#DDEBF7!important}.assembly-section-control_panel,.assembly-section-control_panel .assembly-section-head,.assembly-section-control_panel .assembly-section-body,.assembly-item-control_panel{background:#BDD7EE!important}.assembly-section-manifold,.assembly-section-manifold .assembly-section-head,.assembly-section-manifold .assembly-section-body,.assembly-item-manifold{background:#9BC2E6!important}.assembly-section-tank,.assembly-section-tank .assembly-section-head,.assembly-section-tank .assembly-section-body,.assembly-item-tank{background:#6AA4D8!important}.assembly-item{padding:10px;border-radius:8px;margin:5px 0;border-bottom:1px solid rgba(15,23,42,.18)}.assembly-item.auto-generated>div:first-child{border-left-color:#334155}.assembly-section-tank,.assembly-section-tank label,.assembly-section-tank .muted{color:#10243a}.assembly-section .assembly-empty{padding:8px;margin:0;background:rgba(255,255,255,.45);border-radius:7px}
     .item-description,.print-item-desc{font-family:Arial,Helvetica,sans-serif;tab-size:4;white-space:pre-wrap}
+
+    .quotation-template-field{display:grid;grid-template-columns:minmax(210px,1fr) auto;gap:8px;align-items:end}.quotation-template-field .btn{height:42px;white-space:nowrap}.template-dialog{width:min(1180px,calc(100vw - 28px))!important}.template-manager-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px}.template-list{display:grid;gap:8px;max-height:68vh;overflow:auto}.template-list button{text-align:left;border:1px solid #dbe3ec;border-radius:9px;background:#fff;padding:11px}.template-list button.active{border-color:#2563eb;background:#eff6ff}.template-list small{display:block;color:#64748b;margin-top:4px}.template-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.template-form-grid .span-2{grid-column:1/-1}.template-logo-preview{display:none;max-width:260px;max-height:100px;object-fit:contain;border:1px solid #dbe3ec;border-radius:8px;background:#fff;padding:7px}.template-check{display:flex;align-items:center;gap:8px;margin:0;font-weight:700}.template-check input{width:auto}.template-message{min-height:22px;margin:8px 0}.template-preview-card{border:1px solid #dbe3ec;border-radius:10px;padding:16px;background:#fff}.template-preview-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;border-bottom:3px solid var(--template-preview-color,#17365d);padding-bottom:12px}.template-preview-head img{max-width:180px;max-height:70px;object-fit:contain}.template-preview-title{color:var(--template-preview-color,#17365d)}@media(max-width:850px){.template-manager-layout{grid-template-columns:1fr}.template-list{max-height:220px}.template-form-grid{grid-template-columns:1fr}.template-form-grid .span-2{grid-column:auto}.quotation-template-field{grid-template-columns:1fr}}
+    #pTemplateAddress{white-space:pre-line}.template-preview-header{font-size:12px;text-align:center;color:#475569;margin-bottom:8px}.template-preview-company{display:flex;gap:14px;align-items:flex-start;border-bottom:3px solid var(--preview-color,#17365d);padding-bottom:12px}.template-preview-company img{max-width:180px;max-height:75px;object-fit:contain}.template-preview-card h3{color:var(--preview-color,#17365d)}.template-preview-line{border-top:2px solid var(--preview-color,#17365d);margin:16px 0 8px}#printQuotationDocument{--template-primary:#17365d;--template-font:Calibri,Arial,Helvetica,sans-serif}.print-template-header{position:absolute;top:3mm;left:8mm;right:8mm;text-align:center;font-size:9pt;color:#475569}.print-template-bank{white-space:pre-line;margin-top:3mm;font-size:9.5pt}.print-page{font-family:var(--template-font)!important}.print-page h1{color:var(--template-primary)}.print-items-table thead::after,.print-summary-rule{border-color:var(--template-primary)!important}.template-amount-only .print-items-table th:nth-child(4),.template-amount-only .print-items-table td:nth-child(4){display:none}.template-amount-only .print-system-item-desc-row .print-system-price-spacer{display:none}.template-amount-only .print-items-table th:nth-child(5),.template-amount-only .print-items-table td:nth-child(5){width:32mm}.template-no-signature .signatory-block{display:none!important}
 </style>
 </head>
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.17 secure quotation, assembly and product system</small></div>
+    <div class="auth-brand">KeySuite<small>V2.18 secure quotation, assembly and template system</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -262,7 +265,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.17</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.18</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -285,7 +288,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.17 · Live BOM description refresh, four-space alignment and full-width System PDF descriptions</div>
+    <div class="suite-version">KeySuite V2.18 · quotation templates, isolated Assembly drafts and tab-aligned descriptions</div>
   </aside>
 
   <main>
@@ -527,6 +530,7 @@
           <div id="revisionLockNote" class="span-3 revision-note" style="display:none">Revision copy: Customer and original Date are locked. Only Revision Date may be changed.</div>
           <div class="span-3"><label>Contact Details</label><div id="qContactInfo" class="detail-value">-</div></div>
           <div class="short-field"><label>Document Type</label><select id="qDocumentType"><option>Quotation</option><option>Proforma Invoice</option></select></div>
+          <div class="quotation-template-field"><div><label for="qTemplate">Quotation Template</label><select id="qTemplate"></select></div><button class="btn secondary no-print" id="manageQuotationTemplates" type="button">Templates</button></div>
           <div class="short-field"><label>Validity</label><input id="validity" value="14 days"></div>
           <div class="full-field"><label>Project</label><input id="project" class="popup-input" readonly placeholder="Click to enter up to 2 lines"><input id="project2" type="hidden"></div>
           <div class="full-field"><label>Delivery</label><input id="delivery" class="popup-input" readonly value="Ex - Stock subject to prior sales. Otherwise 2-3 months upon confirmation order."><input id="delivery2" type="hidden"></div>
@@ -984,6 +988,8 @@
       <div class="span-2"><label>Login Email</label><input id="settingsEmail" type="email" readonly><div class="muted" style="margin-top:5px">Ask an administrator before changing a login email because access approval uses this address.</div></div>
     </div>
     <hr style="border:0;border-top:1px solid #e2e8f0;margin:20px 0">
+    <div class="page-title-row" style="margin-bottom:12px"><div><h2 style="margin:0">Quotation Templates</h2><div class="muted">Create company or personal/dealer PDF layouts.</div></div><button class="btn secondary" id="settingsQuotationTemplates" type="button">Manage Templates</button></div>
+    <hr style="border:0;border-top:1px solid #e2e8f0;margin:20px 0">
     <h2 style="margin-bottom:12px">Quotation Signature</h2>
     <div class="form-grid">
       <div class="span-2"><label>Signatory</label><input id="settingsSignatoryName" placeholder="Name used as the typed signature when no image is attached"><div class="muted" style="margin-top:5px">The signature image is used first. The signatory text is used only when no image is attached.</div></div>
@@ -1020,15 +1026,14 @@
         <div><span>Mobile</span><b>:</b><strong id="pMobile"></strong></div>
         <div><span>Email</span><b>:</b><strong id="pEmail"></strong></div>
       </div>
+      <div id="pTemplateHeader" class="print-template-header"></div>
       <div class="print-company">
-        <img src="keylargo-logo.png" alt="Keylargo">
-        <strong>Keylargo Industrial Sdn. Bhd. (297660-M)</strong>
-        <div>No. 73, Jalan Industri 2/5</div>
-        <div>Rawang Integrated Industrial Park, 48000</div>
-        <div>Rawang, Selangor Darul Ehsan, Malaysia</div>
-        <div>Tel&nbsp;&nbsp;&nbsp;&nbsp;: +60 (3) 6094 2099</div>
-        <div>Fax&nbsp;&nbsp;&nbsp;: +60 (3) 6094 2033</div>
-        <div>email&nbsp;: <span class="print-company-email">keylargo@keylargo.com.my</span></div>
+        <img id="pTemplateLogo" src="keylargo-logo.png" alt="Keylargo">
+        <strong id="pTemplateCompanyName">Keylargo Industrial Sdn. Bhd. (297660-M)</strong>
+        <div id="pTemplateAddress">No. 73, Jalan Industri 2/5<br>Rawang Integrated Industrial Park, 48000<br>Rawang, Selangor Darul Ehsan, Malaysia</div>
+        <div id="pTemplatePhone">Tel&nbsp;&nbsp;&nbsp;&nbsp;: +60 (3) 6094 2099</div>
+        <div id="pTemplateFax">Fax&nbsp;&nbsp;&nbsp;: +60 (3) 6094 2033</div>
+        <div id="pTemplateEmail">email&nbsp;: <span class="print-company-email">keylargo@keylargo.com.my</span></div>
         <div class="print-date"><span>Date</span><b>:</b><strong id="pDate"></strong></div>
         <div id="pRevisionRow" class="print-date print-revision-date"><span>Rev</span><b>:</b><strong id="pRevisionDate"></strong></div>
       </div>
@@ -1041,7 +1046,7 @@
       <div><span>Handled by</span><b>:</b><strong id="pPreparedBy"></strong></div>
     </div>
     <p class="print-dear" id="pDear">Dear Sir / Madam,</p>
-    <p class="print-intro">We like to thank you for your inquiry and pleased to submit our quotation on the terms set out below.</p>
+    <p class="print-intro" id="pTemplateIntro">We like to thank you for your inquiry and pleased to submit our quotation on the terms set out below.</p>
     <div class="print-terms">
       <div><span>Delivery</span><b>:</b><strong id="pDelivery"></strong></div>
       <div><span>Term</span><b>:</b><strong id="pPayment"></strong></div>
@@ -1049,8 +1054,8 @@
       <div><span>Price Basis</span><b>:</b><strong id="pPriceBasis"></strong></div>
     </div>
     <div class="print-closing">
-      <p>Please contact us if you have any remaining question(s) or when this quotation is not in line with your requirements.</p>
-      <p>We would appreciate to receive feedback and to keep us informed about the status of this quotation.</p>
+      <p id="pTemplateClosing1">Please contact us if you have any remaining question(s) or when this quotation is not in line with your requirements.</p>
+      <p id="pTemplateClosing2">We would appreciate to receive feedback and to keep us informed about the status of this quotation.</p>
       <p>Your sincerely,</p>
       <div class="signatory-block">
         <div class="signature-space">
@@ -1058,24 +1063,67 @@
           <div id="pClosingSignature" class="signature"></div>
         </div>
         <div class="signature-line"></div>
-        <div class="signatory-company">Keylargo Industrial Sdn. Bhd.</div>
+        <div class="signatory-company" id="pTemplateSignatoryCompany">Keylargo Industrial Sdn. Bhd.</div><div id="pTemplateBank" class="print-template-bank"></div>
       </div>
     </div>
-    <footer><div>E &amp; O.E.</div><div>Page 1 of 2</div></footer>
+    <footer><div id="pTemplateFooter">E &amp; O.E.</div><div>Page 1 of 2</div></footer>
   </section>
   <div id="pItemPages"></div>
 </div>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=216"></script>
-<script src="app.js?v=216"></script>
-<script src="pricing.js?v=216"></script>
+<script src="app.js?v=218"></script>
+<script src="pricing.js?v=218"></script>
 <script src="categories.js?v=216"></script>
 <script src="pricelist.js?v=216"></script>
 <script src="product.js?v=216"></script>
 <script src="manifold.js?v=216"></script>
 <script src="roles.js?v=216"></script>
-<script src="assembly.js?v=216"></script>
+<script src="assembly.js?v=218"></script>
+<script src="quotation-templates.js?v=218"></script>
+
+<dialog id="quotationTemplateDialog" class="ks-dialog template-dialog">
+  <div class="dialog-body">
+    <div class="page-title-row"><div><h2 style="margin:0">Quotation Templates</h2><div class="muted">Company templates are shared. Personal templates are visible only to their owner.</div></div><button class="dialog-close" id="closeQuotationTemplates" type="button" aria-label="Close">×</button></div>
+    <div id="quotationTemplateMessage" class="template-message muted"></div>
+    <div class="template-manager-layout">
+      <div><div class="actions" style="margin:0 0 10px"><button class="btn" id="newQuotationTemplate" type="button">+ New</button><button class="btn secondary" id="copyQuotationTemplate" type="button">Copy</button></div><div id="quotationTemplateList" class="template-list"></div></div>
+      <div>
+        <div class="template-form-grid">
+          <input id="templateId" type="hidden">
+          <div><label>Template Name</label><input id="templateName"></div>
+          <div><label>Ownership</label><select id="templateScope"><option value="company">Company-wide</option><option value="personal">Personal / Dealer</option></select></div>
+          <div><label>Status</label><select id="templateStatus"><option value="active">Active</option><option value="disabled">Disabled</option></select></div>
+          <div><label>Default</label><label class="template-check"><input id="templateDefault" type="checkbox"> Use as my default</label></div>
+          <div class="span-2"><label>Logo</label><input id="templateLogoUpload" type="file" accept="image/png,image/jpeg,image/webp"><div class="actions" style="justify-content:flex-start"><img id="templateLogoPreview" class="template-logo-preview" alt="Template logo"><button class="btn secondary" id="removeTemplateLogo" type="button">Remove Logo</button></div></div>
+          <div><label>Company / Dealer Name</label><input id="templateCompanyName"></div>
+          <div><label>Registration No.</label><input id="templateRegistration"></div>
+          <div class="span-2"><label>Address</label><textarea id="templateAddress" rows="3"></textarea></div>
+          <div><label>Telephone</label><input id="templatePhone"></div>
+          <div><label>Fax</label><input id="templateFax"></div>
+          <div><label>Email</label><input id="templateEmail" type="email"></div>
+          <div><label>Primary Colour</label><input id="templatePrimaryColor" type="color" value="#17365d"></div>
+          <div><label>Font</label><select id="templateFont"><option value="Calibri,Arial,Helvetica,sans-serif">Calibri / Arial</option><option value="Arial,Helvetica,sans-serif">Arial</option><option value="Georgia,serif">Georgia</option><option value="Times New Roman,serif">Times New Roman</option></select></div>
+          <div><label>Price Columns</label><select id="templatePriceColumns"><option value="full">Qty, Unit Price & Total</option><option value="amount-only">Qty & Total only</option></select></div>
+          <div class="span-2"><label>Header Text</label><input id="templateHeader"></div>
+          <div class="span-2"><label>Footer Text</label><input id="templateFooter" value="E & O.E."></div>
+          <div class="span-2"><label>Introduction</label><textarea id="templateIntro" rows="2"></textarea></div>
+          <div><label>Default Delivery Term</label><input id="templateDelivery"></div>
+          <div><label>Default Payment Term</label><input id="templatePayment"></div>
+          <div><label>Default Validity</label><input id="templateValidity"></div>
+          <div><label>Default Price Basis</label><input id="templatePriceBasis"></div>
+          <div class="span-2"><label>Closing Message</label><textarea id="templateClosing" rows="3"></textarea></div>
+          <div class="span-2"><label>Bank Details</label><textarea id="templateBank" rows="3"></textarea></div>
+          <div><label>Signature Section</label><label class="template-check"><input id="templateShowSignature" type="checkbox" checked> Show signature</label></div>
+          <div><label>PDF Filename</label><input id="templatePdfName" value="{quoteNo} - {customer}"><div class="muted" style="margin-top:4px">Tokens: {quoteNo}, {customer}, {date}, {template}</div></div>
+        </div>
+        <div class="actions"><button class="btn secondary" id="previewQuotationTemplate" type="button">Preview</button><button class="btn danger" id="deleteQuotationTemplate" type="button">Delete</button><button class="btn" id="saveQuotationTemplate" type="button">Save Template</button></div>
+        <div id="quotationTemplatePreview" class="template-preview-card" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+</dialog>
 
 <dialog id="assemblyDescriptionDialog" class="ks-dialog"><form method="dialog" class="dialog-body assembly-description-dialog"><div class="page-title-row"><h2>System Description</h2><button class="dialog-close" value="cancel" aria-label="Close">×</button></div><textarea id="assemblyDescriptionPopup"></textarea><div class="dialog-actions"><button class="btn secondary" value="cancel">Cancel</button><button class="btn" id="saveAssemblyDescriptionPopup" value="default">Save</button></div></form></dialog>
 
@@ -1085,6 +1133,6 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="auth.js?v=216"></script>
+<script src="auth.js?v=218"></script>
 </body>
 </html>

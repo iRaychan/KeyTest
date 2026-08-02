@@ -1,0 +1,14 @@
+KeySuite V2.18 Installation
+===========================
+
+Existing V2.17 deployment
+-------------------------
+1. Back up the current deployment and Supabase database.
+2. Run V218_SUPABASE_MIGRATION.sql in Supabase SQL Editor.
+3. Extract KeySuite_V2.18_Changed_Files_Patch.zip over the V2.17 files.
+4. Keep the existing working config.js.
+5. Deploy and hard refresh with Ctrl + Shift + R.
+
+Clean installation
+------------------
+Use KeySuite_V2.18_GitHub.zip, run all required Supabase migrations through V218, and retain/configure config.js for the target deployment.

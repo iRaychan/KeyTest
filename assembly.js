@@ -22,8 +22,8 @@ function panelTypeLabel(value){return normalizePanelType(value)==='sheltered'?'S
 function normalizeDescriptionIndentation(value){
  const lines=String(value||'').replace(/\r\n?/g,'\n').split('\n');
  return lines.map(line=>{
-   if(/^c\/w(?:\t+| {2,})/.test(line))return line.replace(/^c\/w(?:\t+| +)/,'c/w ');
-   if(/^\t+/.test(line)){const tabs=(line.match(/^\t+/)||[''])[0].length;return '    '.repeat(tabs)+line.slice(tabs)}
+   if(/^c\/w(?:\t+| +)/i.test(line))return line.replace(/^c\/w(?:\t+| +)/i,'c/w ');
+   if(/^(?:\t+| {4,})/.test(line))return `\t${line.replace(/^(?:\t+| +)/,'')}`;
    return line;
  }).join('\n');
 }
@@ -42,7 +42,7 @@ function normalize(input){
  const allowed=sections[assemblyType]||[],items=(original.items||[]).map(x=>normalizeItem(x,assemblyType)).filter(item=>allowed.includes(item.section));
  const meta=quoteMetaFromItems(items),d={...blank(assemblyType),...original,items,description_manual:original.description_manual==null?!!meta?.descriptionManual:!!original.description_manual,auto_suppressed:{manifold:false,tank:false,...(meta?.autoSuppressed||{}),...(original.auto_suppressed||{})}};
  d.quote_qty=Math.max(.01,Number(original.quote_qty??meta?.qty??1)||1);d.quote_price_manual=original.quote_price_manual==null?!!meta?.manual:!!original.quote_price_manual;
- const storedPrice=original.quote_unit_price??meta?.unitPrice;d.quote_unit_price=storedPrice==null?null:Math.max(0,Number(storedPrice)||0);d.quote_session_id=original.quote_session_id||quoteSessionId();return d
+ const storedPrice=original.quote_unit_price??meta?.unitPrice;d.quote_unit_price=storedPrice==null?null:Math.max(0,Number(storedPrice)||0);d.quote_session_id=original.quote_session_id||`legacy:${d.id}`;return d
 }
 function localLoad(){try{return (JSON.parse(localStorage.getItem(key())||'[]')||[]).map(normalize)}catch(_){return []}}
 function localSave(){localStorage.setItem(key(),JSON.stringify(drafts))}
@@ -69,12 +69,11 @@ function removeDescriptionBlock(source,block){
  return `${before}${after}`.replace(/\n{3,}/g,'\n\n').trim();
 }
 function keyplcDescription(item){
- const data=item?.keyplcData||{},qty=Math.max(1,Number(data.pumpQty)||1),numberWord=qty===1?'no':'nos',indent='    ';
+ const data=item?.keyplcData||{},qty=Math.max(1,Number(data.pumpQty)||1),numberWord=qty===1?'no':'nos',indent='\t';
  return `c/w KeyPLC Control Panel (${panelTypeLabel(data.enclosure)})
 ${indent}Pump Controller & HMI Touch Screen @ 1 Lot
 ${indent}${data.motorRating||''} VFD @ ${qty} ${numberWord} & Pressure Transmitter @ 1 no
-${indent}Wiring for pumps within pump skid @ 1 Lot
-${indent}Wiring for pressure transmitter within pump skid @ 1 Lot`;
+${indent}Wiring for pumps & pressure transmitter within pump skid @ 1 Lot`;
 }
 function orderedItems(d=current){
  const order=sections[d?.assembly_type||type]||[];return order.flatMap(section=>(d?.items||[]).filter(item=>item.section===section));
@@ -202,15 +201,15 @@ async function load(){
  const localById=new Map(localLoad().map(d=>[d.id,d])),client=window.KeySuiteAuth?.getClient?.();
  if(client){
    try{
-     const {data,error}=await client.rpc('keysuite_list_assemblies_v201');if(error)throw error;
+     let {data,error}=await client.rpc('keysuite_list_assemblies_v218');if(error){const fallback=await client.rpc('keysuite_list_assemblies_v201');data=fallback.data;error=fallback.error}if(error)throw error;
      drafts=(data||[]).map(remote=>{
        const local=localById.get(remote.id)||{};
        const items=(remote.items||[]).map(item=>{
          const localItem=(local.items||[]).find(x=>x.id===item.id)||{};
-         return {...item,bomDescription:localItem.bomDescription,tankData:localItem.tankData,keyplcData:localItem.keyplcData,manifoldData:localItem.manifoldData};
+         return {...item,bomDescription:localItem.bomDescription??item.bomDescription,tankData:localItem.tankData??item.tankData,keyplcData:localItem.keyplcData??item.keyplcData,manifoldData:localItem.manifoldData??item.manifoldData};
        });
        const meta=quoteMetaFromItems(items);
-       return normalize({...remote,quote_session_id:local.quote_session_id||remote.quote_session_id,quote_qty:local.quote_qty??meta?.qty,quote_unit_price:local.quote_unit_price??meta?.unitPrice,quote_price_manual:local.quote_price_manual??meta?.manual,auto_suppressed:local.auto_suppressed||remote.auto_suppressed,items});
+       return normalize({...remote,quote_session_id:local.quote_session_id||remote.quote_session_id||`legacy:${remote.id}`,quote_qty:local.quote_qty??meta?.qty,quote_unit_price:local.quote_unit_price??meta?.unitPrice,quote_price_manual:local.quote_price_manual??meta?.manual,auto_suppressed:local.auto_suppressed||remote.auto_suppressed,items});
      });
      loaded=true;localSave();return;
    }catch(e){console.warn('Assembly V2.01 Supabase fallback',e)}
@@ -219,7 +218,7 @@ async function load(){
 }
 async function persist(d){
  const originalId=d.id,wasCurrent=current?.id===originalId,meta=quoteMeta(d),items=(d.items||[]).map((item,index)=>index===0?{...item,pricingSource:{...sourceObject(item),assembly_quote:meta}}:item),payload=JSON.parse(JSON.stringify({...d,items,updated_at:new Date().toISOString()}));let savedDraft=d;const client=window.KeySuiteAuth?.getClient?.();
- if(client){const {data,error}=await client.rpc('keysuite_save_assembly_v201',{p_assembly:payload});if(error)throw error;const saved=Array.isArray(data)?data[0]:data,latest=drafts.find(x=>x.id===originalId)||d;if(saved)savedDraft=normalize({...saved,...latest,id:saved.id||latest.id,created_at:saved.created_at||latest.created_at,updated_at:saved.updated_at||payload.updated_at,items:latest.items})}
+ if(client){let {data,error}=await client.rpc('keysuite_save_assembly_v218',{p_assembly:payload});if(error){const fallback=await client.rpc('keysuite_save_assembly_v201',{p_assembly:payload});data=fallback.data;error=fallback.error}if(error)throw error;const saved=Array.isArray(data)?data[0]:data,latest=drafts.find(x=>x.id===originalId)||d;if(saved)savedDraft=normalize({...saved,...latest,id:saved.id||latest.id,created_at:saved.created_at||latest.created_at,updated_at:saved.updated_at||payload.updated_at,items:latest.items})}
  else d.updated_at=payload.updated_at;
  const i=drafts.findIndex(x=>x.id===originalId);if(i>=0)drafts[i]=savedDraft;else drafts.unshift(savedDraft);if(wasCurrent)current=savedDraft;localSave();return savedDraft
 }
@@ -238,7 +237,7 @@ function read(){
  document.querySelectorAll('[data-assembly-item]').forEach(row=>{const item=current.items.find(x=>x.id===row.dataset.assemblyItem);if(item){const previousDescription=item.description||'',autoPanel=!!(item.keyplcData?.autoSized||sourceObject(item).auto_sized_panel),autoLocked=autoPanel||autoComponent(item,'manifold')||autoComponent(item,'tank');if(!autoLocked){item.qty=Math.max(0,Number(row.querySelector('.assembly-qty').value)||0);item.unitPrice=Math.max(0,Number(row.querySelector('.assembly-price').value)||0)}if(item.keyplcData&&!autoPanel){const currentSurcharge=normalizePanelType(item.keyplcData.enclosure)==='sheltered'?Number(item.keyplcData.shelteredSurcharge||1000):0;item.keyplcData.indoorUnitPrice=Math.max(0,item.unitPrice-currentSurcharge)}if(item.tankData&&!item.tankData.autoSelected){item.description=tankDescription(item,item.qty);current.description=replaceDescriptionBlock(current.description,previousDescription,item.description)}}});
  syncAutomaticComponents(current);if(!current.description_manual)rebuildDescription(current);current.description=normalizeDescriptionIndentation(current.description);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';renderDescriptionPreview()
 }
-function currentSessionDrafts(t=type){const session=quoteSessionId();return drafts.filter(x=>x.assembly_type===t&&x.quote_session_id===session)}
+function currentSessionDrafts(t=type){const session=quoteSessionId();return drafts.filter(x=>x.assembly_type===t&&x.quote_session_id===session&&((x.items||[]).length||String(x.model_item||'').trim()||String(x.description||'').trim()))}
 function renderList(){const list=$('assemblyDraftList');if(!list)return;const rows=currentSessionDrafts(type);list.innerHTML=rows.map(d=>`<button type="button" class="${d.id===current?.id?'active':''}" data-draft="${esc(d.id)}"><b>${esc(d.model_item||d.name)}</b><br><small>${esc(d.status)} · ${money(quoteUnitPrice(d))}</small></button>`).join('')||'<div class="muted">No saved drafts.</div>';list.querySelectorAll('[data-draft]').forEach(b=>b.onclick=()=>{current=drafts.find(x=>x.id===b.dataset.draft);currentPinned=true;render()})}
 function itemHtml(x){
  const autoPanel=!!(x.keyplcData?.autoSized||sourceObject(x).auto_sized_panel),autoGenerated=autoPanel||autoComponent(x,'manifold')||autoComponent(x,'tank'),autoLocked=autoGenerated;

@@ -1,0 +1,22 @@
+KeySuite V2.18 Changes
+======================
+
+1. Quotation-scoped Assembly drafts
+   - New quotations no longer display drafts from previous quotation sessions.
+   - Empty and legacy drafts are excluded from the active quotation draft list.
+   - Supabase Assembly records now store quote_session_id.
+
+2. Assembly/System description indentation
+   - The first line begins with c/w.
+   - Every continuation line begins with exactly one tab and zero spaces.
+   - The same indentation is preserved in Quotation and PDF output.
+
+3. KeyPLC wiring wording
+   - The two separate wiring rows are combined into one row for pumps and pressure transmitter wiring.
+
+4. Multiple quotation templates
+   - Company-wide templates for Owners/Admins.
+   - Personal/dealer templates visible only to the owner.
+   - Template logo, company details, colour, font, price columns, defaults, signature visibility, header/footer, bank details and PDF filename.
+   - Template copy, preview, default, disable and delete controls.
+   - Sealed quotation template snapshots preserve historical output.

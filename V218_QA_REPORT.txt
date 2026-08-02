@@ -1,0 +1,79 @@
+KeySuite V2.18 QA Report
+========================
+
+Build date: 2026-08-02
+Base version: V2.17 (commit 1895e17)
+
+Implemented scope
+-----------------
+1. New quotation / Assembly draft isolation
+2. One-tab continuation indentation in Assembly, Quotation and PDF data
+3. Combined KeyPLC wiring description
+4. Company and personal/dealer quotation templates
+5. Sealed quotation template snapshot
+6. V2.18 Supabase migration for Assembly sessions and quotation templates
+
+Validation performed
+--------------------
+
+1. JavaScript syntax
+   - Ran `node --check` against every root JavaScript file.
+   - Result: PASS.
+
+2. Full application integration harness
+   - Loaded the complete V2.18 HTML structure in headless Chromium.
+   - Loaded permissions, app, pricing, category, pricelist, product, manifold,
+     role, assembly, quotation-template and authentication scripts.
+   - Verified no JavaScript page errors or console errors.
+   - Verified V2.18 title/version labels.
+   - Verified Quotation Template API and dropdown initialise.
+   - Verified System descriptions copied into quotation normalise continuation
+     rows to character code 9 (one tab), with no leading spaces.
+   - Result: PASS.
+
+3. Assembly draft and KeyPLC description harness
+   - Loaded one old-session System draft, one current-session System draft and
+     one empty current-session draft.
+   - Verified only the meaningful current quotation draft appears.
+   - Added a KeyPLC panel and verified the generated description contains:
+       c/w KeyPLC Control Panel (Indoor Type)
+       <TAB>Pump Controller & HMI Touch Screen @ 1 Lot
+       <TAB>0.75kW VFD @ 1 no & Pressure Transmitter @ 1 no
+       <TAB>Wiring for pumps & pressure transmitter within pump skid @ 1 Lot
+   - Verified all continuation rows use one tab and zero spaces.
+   - Result: PASS.
+
+4. Quotation Template browser harness
+   - Created a personal/dealer template as a non-admin user.
+   - Verified company scope is locked for non-admin users.
+   - Verified template save, selection, company/dealer name, primary colour,
+     default delivery/payment terms and PDF filename tokens.
+   - Verified the selected template applies to the print document.
+   - Result: PASS.
+
+5. Template Manager visual review
+   - Rendered the Quotation Templates modal at 1440 x 1000.
+   - Reviewed ownership, status, default, logo, company details, colour, font,
+     price columns, header/footer, quotation defaults, closing, bank, signature
+     and PDF filename controls.
+   - Result: PASS.
+
+6. HTML structure
+   - Parsed index.html and checked 459 element IDs.
+   - Duplicate IDs: 0.
+   - Result: PASS.
+
+7. Supabase migration structure
+   - Verified transaction wrapper and V2.18 migration copy in root and setup/.
+   - Verified quote_session_id and Assembly V2.18 list/save RPCs.
+   - Verified ks_quotation_templates table and list/save/delete RPCs.
+   - Result: PASS (static validation; execute in the target Supabase project).
+
+8. Git whitespace validation
+   - Ran `git diff --check`.
+   - Result: PASS.
+
+Important deployment requirement
+--------------------------------
+Run V218_SUPABASE_MIGRATION.sql before deploying the changed files. Preserve the
+existing working config.js and hard refresh after deployment.
