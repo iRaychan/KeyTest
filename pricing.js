@@ -48,16 +48,18 @@
 
   const normalizePricingMode=value=>String(value||'quotation').toLowerCase()==='assembly'?'assembly':'quotation';
   function normalizeRule(raw={},family='CHC',cat=null){
-    const fallback={margin:.38,normal:0,rare:0,transport:30};
-    return {margin:Number(raw.margin??(family==='CHC'?(cat?.margins?.CHC??cat?.factors?.CHC):fallback.margin)??fallback.margin),normal:Number(raw.normal??fallback.normal),rare:Number(raw.rare??fallback.rare),transport:Number(raw.transport??cat?.transport??fallback.transport)};
+    const fallback={margin:.38,normal:0,rare:0,transport:30,useCommission:true,useSetDiscount:true,useFinalDiscount:true,useFuelCharge:true};
+    const bool=(value,defaultValue=true)=>value===undefined||value===null?defaultValue:!!value;
+    return {margin:Number(raw.margin??(family==='CHC'?(cat?.margins?.CHC??cat?.factors?.CHC):fallback.margin)??fallback.margin),normal:Number(raw.normal??fallback.normal),rare:Number(raw.rare??fallback.rare),transport:Number(raw.transport??cat?.transport??fallback.transport),useCommission:bool(raw.useCommission??raw.use_commission??raw.includeCommission??raw.include_commission,fallback.useCommission),useSetDiscount:bool(raw.useSetDiscount??raw.use_set_discount??raw.includeSetDiscount??raw.include_set_discount,fallback.useSetDiscount),useFinalDiscount:bool(raw.useFinalDiscount??raw.use_final_discount??raw.includeFinalDiscount??raw.include_final_discount,fallback.useFinalDiscount),useFuelCharge:bool(raw.useFuelCharge??raw.use_fuel_charge??raw.includeFuelCharge??raw.include_fuel_charge,fallback.useFuelCharge)};
   }
   function categoryRule(cat,family='CHC'){const raw=String(family||'CHC').toUpperCase();const code=['CHC','ES','GWS','KEYPLC','MANIFOLD'].includes(raw)?raw:'CHC';return normalizeRule(cat?.productRules?.[code]||{},code,code==='CHC'?cat:null)}
-  function companyFactors(mode='quotation'){
-    const pricingMode=normalizePricingMode(mode),source=secureData.companyPricing?.[pricingMode]||{},quotation=secureData.companyPricing?.quotation||{};
-    return {commission:Number(source.commission??quotation.commission??.03),setDiscount:pricingMode==='quotation'?Number(source.setDiscount??quotation.setDiscount??.068):0,finalDiscount:Number(source.finalDiscount??quotation.finalDiscount??.08),includeCommission:source.includeCommission??quotation.includeCommission??true,includeSetDiscount:pricingMode==='quotation'?(source.includeSetDiscount??quotation.includeSetDiscount??true):false,includeFinalDiscount:source.includeFinalDiscount??quotation.includeFinalDiscount??true,includeFuelCharge:source.includeFuelCharge??quotation.includeFuelCharge??true};
+  function companyFactors(mode='quotation',cat=category(),family='CHC'){
+    const pricingMode=normalizePricingMode(mode),master=secureData.companyPricing||{},quotation=master.quotation||{},rule=categoryRule(cat,family);
+    const commission=Number(master.commission??quotation.commission??0),setDiscount=pricingMode==='quotation'?Number(master.setDiscount??quotation.setDiscount??0):0,finalDiscount=Number(master.finalDiscount??quotation.finalDiscount??0);
+    return {commission,setDiscount,finalDiscount,includeCommission:!!rule.useCommission,includeSetDiscount:pricingMode==='quotation'&&!!rule.useSetDiscount,includeFinalDiscount:!!rule.useFinalDiscount,includeFuelCharge:!!rule.useFuelCharge};
   }
   function formula(cat=category(),family='CHC',rarity='many',mode='quotation'){
-    const rule=categoryRule(cat,family),company=companyFactors(mode),level=normalizeRarity(rarity),pricingMode=normalizePricingMode(mode),parts=['Highest of (USD × USD rate), (RMB × RMB rate), MYR','÷ (1 − Margin)'];
+    const rule=categoryRule(cat,family),company=companyFactors(mode,cat,family),level=normalizeRarity(rarity),pricingMode=normalizePricingMode(mode),parts=['Highest of (USD × USD rate), (RMB × RMB rate), MYR','÷ (1 − Margin)'];
     if(level==='common'||level==='rare')parts.push('÷ (1 − Normal)');if(level==='rare')parts.push('÷ (1 − Rare)');parts.push('+ Transport');if(company.includeCommission)parts.push('÷ (1 − Company Commission)');if(pricingMode==='quotation'&&company.includeSetDiscount)parts.push('÷ (1 − Company Set Discount)');if(company.includeFinalDiscount)parts.push('÷ (1 − Company Final Discount)');if(company.includeFuelCharge)parts.push('+ Company Fuel Charge');parts.push('Round up to RM10');
     return `${family} ${rarityLabel(level)} · ${pricingMode==='assembly'?'Assembly':'Quotation'} = ${parts.join(' → ')}`;
   }
@@ -75,7 +77,7 @@
   function calculatePrice(priceBook,variant,cat=category(),family='CHC',options={}){
     if(!cat)return null;
     const candidates=currencyCandidates(priceBook,options.rarityBook||{},variant,family);if(!candidates.length)return null;
-    const pricingMode=normalizePricingMode(options.pricingMode),chosen=candidates.reduce((best,row)=>!best||row.baseMyr>best.baseMyr?row:best,null),rule=categoryRule(cat,family),company=companyFactors(pricingMode),priceContext=context(options),rarity=normalizeRarity(options.rarity||chosen.rarity);
+    const pricingMode=normalizePricingMode(options.pricingMode),chosen=candidates.reduce((best,row)=>!best||row.baseMyr>best.baseMyr?row:best,null),rule=categoryRule(cat,family),company=companyFactors(pricingMode,cat,family),priceContext=context(options),rarity=normalizeRarity(options.rarity||chosen.rarity);
     const marginPrice=chosen.baseMyr/Math.max(.0001,1-rule.margin);
     const afterNormal=(rarity==='common'||rarity==='rare')?marginPrice/Math.max(.0001,1-rule.normal):marginPrice;
     const afterRare=rarity==='rare'?afterNormal/Math.max(.0001,1-rule.rare):afterNormal;
@@ -150,9 +152,13 @@
     if(document.activeElement!==input)input.value=Number(secureData.fuel_price??2).toFixed(2);input.disabled=!canChangeFuel();button.disabled=!canChangeFuel();button.style.display=canChangeFuel()?'inline-block':'none';message.textContent=canChangeFuel()?`Saved globally until changed. Base fuel price: ${cash(secureData.fuel_base_price??2)}/L`:`Current fuel price: ${cash(secureData.fuel_price??2)}/L`;
   }
 
-  function ruleSummary(cat,family){
-    const rule=categoryRule(cat,family),rates=multipliers(family);
-    return [[`${family} Margin`,percent(rule.margin)],['Normal',percent(rule.normal)],['Rare',percent(rule.rare)],['Transport',cash(rule.transport)],[`${family} Currency`,`USD (MYR ${n(rates.USD,2)}) · RMB (MYR ${n(rates.RMB,2)}) · MYR (MYR 1.00)`]];
+  function ruleSummary(cat,family,mode=selectedFactorMode){
+    const rule=categoryRule(cat,family),rates=multipliers(family),company=companyFactors(mode,cat,family),rows=[[`${family} Margin`,percent(rule.margin)],['Normal',percent(rule.normal)],['Rare',percent(rule.rare)],['Transport',cash(rule.transport)]];
+    if(company.includeCommission)rows.push(['Commission',percent(company.commission)]);
+    if(normalizePricingMode(mode)==='quotation'&&company.includeSetDiscount)rows.push(['Set Discount',percent(company.setDiscount)]);
+    if(company.includeFinalDiscount)rows.push(['Final Discount',percent(company.finalDiscount)]);
+    if(company.includeFuelCharge)rows.push(['Fuel Charge','Customer distance × fuel price variance']);
+    rows.push([`${family} Currency`,`USD (MYR ${n(rates.USD,2)}) · RMB (MYR ${n(rates.RMB,2)}) · MYR (MYR 1.00)`]);return rows;
   }
 
   function renderPricingManualQuote(){
@@ -164,7 +170,7 @@
     const calc=calculateManual(source,currency,rarity,cat,selectedPricingFamily,{customer:c,pricingMode:selectedFactorMode});
     if(!calc){valueBox.textContent='RM 0.00';detail.textContent='Unable to calculate with the selected rule.';detail.style.color='';return}
     const blocked=quoteBlockReason(calc);if(blocked){valueBox.textContent='RM 0.00';detail.textContent=blocked;detail.style.color='#b91c1c';return}
-    detail.style.color='';valueBox.textContent=cash(calc.finalPrice);detail.textContent=`${currency} ${n(source,2)} × ${n(calc.multiplier,4)} = ${cash(calc.baseMyr)} · ${rarityLabel(rarity)} · Quotation factors · Fuel ${cash(calc.fuelCharge)} · rounded up to RM10`;
+    detail.style.color='';valueBox.textContent=cash(calc.finalPrice);detail.textContent=`${currency} ${n(source,2)} × ${n(calc.multiplier,4)} = ${cash(calc.baseMyr)} · ${rarityLabel(rarity)} · ${selectedFactorMode==='assembly'?'Assembly':'Quote'} factors · Fuel ${cash(calc.fuelCharge)} · rounded up to RM10`;
   }
 
   function renderSummary(){
@@ -174,7 +180,8 @@
     byId('pricingCompanySummary').innerHTML=c?[[ 'Company Name',c.company],['Classification',c.classification||'-'],['Pricing Category',categoryForCustomer(c)?.name||'Not assigned'],['Assigned User',typeof customerOwnerName==='function'?customerOwnerName(c.assignedUserEmail):(c.assignedUserEmail||'-')],['Phone',c.companyPhone||'-'],['Payment Term',c.terms||'-'],['TIN',c.tinNumber||'-'],['Business Registration No.',c.brnNumber||'-'],['SST No.',c.sstNumber||'-'],['Address',c.address||'-'],['Distance',`${n(c.distanceKm,1)} km`]].map(([k,v])=>`<div class="pricing-kv"><b>${e(k)}</b><span>${e(v)}</span></div>`).join(''):'<p class="muted">Select a customer/company to view its saved details.</p>';
     document.querySelectorAll('[data-pricing-family]').forEach(button=>{const active=button.dataset.pricingFamily===selectedPricingFamily;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active))});
     const otherRows=[['Current Fuel Price',`${cash(ctx.fuelPrice)}/L`],['Customer Distance',`${n(ctx.distanceKm,1)} km`]];
-    byId('pricingCategorySummary').innerHTML=cat?[['Category Name',cat.name],...ruleSummary(cat,selectedPricingFamily),...otherRows].map(([k,v])=>`<div class="pricing-kv"><b>${e(k)}</b><span>${e(v)}</span></div>`).join(''):'<p class="muted">No pricing category is assigned to this customer.</p>';
+    byId('pricingCategorySummary').innerHTML=cat?[['Category Name',cat.name],['Factor View',selectedFactorMode==='assembly'?'Assembly':'Quote'],...ruleSummary(cat,selectedPricingFamily,selectedFactorMode),...otherRows].map(([k,v])=>`<div class="pricing-kv"><b>${e(k)}</b><span>${e(v)}</span></div>`).join(''):'<p class="muted">No pricing category is assigned to this customer.</p>';
+    document.querySelectorAll('[data-pricing-factor-mode]').forEach(button=>{const active=button.dataset.pricingFactorMode===selectedFactorMode;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active))});
     const formulaBox=byId('pricingFormula'),formulaToggle=byId('togglePricingFormula');
     if(formulaBox){formulaBox.textContent=cat?[formula(cat,selectedPricingFamily,'many',selectedFactorMode),formula(cat,selectedPricingFamily,'common',selectedFactorMode),formula(cat,selectedPricingFamily,'rare',selectedFactorMode)].join('\n'):'';formulaBox.style.display=pricingFormulaVisible&&cat?'block':'none'}
     if(formulaToggle){formulaToggle.textContent=pricingFormulaVisible?'Hide Formula':'Show Formula';formulaToggle.setAttribute('aria-expanded',String(pricingFormulaVisible));formulaToggle.disabled=!cat}
@@ -327,11 +334,12 @@ BOM item: ${item?.model||'Unnamed item'}`,total:0,items:priced};
     byId('saveFuelPrice')?.addEventListener('click',saveFuelPrice);
     ['pricingManualCost','pricingManualCurrency','pricingManualRarity'].forEach(id=>{byId(id)?.addEventListener('input',renderPricingManualQuote);byId(id)?.addEventListener('change',renderPricingManualQuote)});
     document.querySelectorAll('[data-pricing-family]').forEach(button=>button.addEventListener('click',()=>{selectedPricingFamily=['CHC','ES','GWS','KEYPLC','MANIFOLD'].includes(button.dataset.pricingFamily)?button.dataset.pricingFamily:'CHC';renderSummary()}));
+    document.querySelectorAll('[data-pricing-factor-mode]').forEach(button=>button.addEventListener('click',()=>{selectedFactorMode=button.dataset.pricingFactorMode==='assembly'?'assembly':'quotation';renderSummary()}));
     byId('togglePricingFormula')?.addEventListener('click',()=>{pricingFormulaVisible=!pricingFormulaVisible;renderSummary()});
   }
 
   function syncPriceListSettings(next={}){secureData={...secureData,...next};renderSummary();renderTable();refreshQuotePrices()}
-  function init(data,userAccess){secureData={...secureData,...(data||{})};access=userAccess||access;window.addEventListener('keysuite-company-pricing-changed',event=>{secureData.companyPricing=event.detail?.settings||window.KEYSUITE_SECURE_DATA?.companyPricing||secureData.companyPricing;renderSummary();renderTable();refreshQuotePrices()});const list=customersList(),quoteId=quotationCustomer()?.id||'';companyId=(quoteId&&list.some(x=>x.id===quoteId))?quoteId:(list[0]?.id||'');syncCompanyCategory();fillSelects();bind();renderSummary();renderTable()}
+  function init(data,userAccess){secureData={...secureData,...(data||{})};access=userAccess||access;window.addEventListener('keysuite-company-pricing-changed',event=>{secureData.companyPricing=window.KEYSUITE_SECURE_DATA?.companyPricing||secureData.companyPricing;renderSummary();renderTable();refreshQuotePrices()});const list=customersList(),quoteId=quotationCustomer()?.id||'';companyId=(quoteId&&list.some(x=>x.id===quoteId))?quoteId:(list[0]?.id||'');syncCompanyCategory();fillSelects();bind();renderSummary();renderTable()}
 
 
 

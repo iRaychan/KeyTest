@@ -1,0 +1,60 @@
+KeySuite V2.21 QA Report
+========================
+Build date: 2026-08-02
+Base version: KeySuite V2.20
+
+1. JavaScript and source validation
+-----------------------------------
+PASS - node --check completed for every JavaScript file in the project.
+PASS - git diff --check completed with no whitespace errors.
+PASS - No duplicate HTML IDs were found.
+PASS - Service-worker cache and application labels were updated to V2.21.
+
+2. Key > Company correction
+---------------------------
+PASS - Assembly / Quote company-factor tabs were removed.
+PASS - Company-level Use checkboxes were removed.
+PASS - The editor contains only Commission, Set Discount and Final Discount inputs.
+PASS - The page remains Owner-only in both application permissions and the save RPC.
+PASS - Company selector loads company-specific values.
+PASS - Browser test confirmed Not Set Only filters companies whose three factors are all zero.
+PASS - Browser test confirmed Not Set: X / Total refreshes after saving a company.
+
+3. Key > Category > Edit Category
+---------------------------------
+PASS - Margin, Normal, Rare and Transport remain editable category values.
+PASS - Commission, Set Discount and Final Discount display company values as read-only.
+PASS - Fuel Charge displays as an automatic read-only factor.
+PASS - Four independent Use checkboxes were added.
+PASS - Browser save-payload test confirmed all four Use values are sent to keysuite_manage_pricing_category_v221.
+
+4. Pricing > Category Pricing Rule
+----------------------------------
+PASS - Assembly and Quote factor-view buttons were added.
+PASS - Only factors enabled by the selected category are displayed.
+PASS - Browser test confirmed unticked Set Discount is hidden from Quote and Assembly views.
+PASS - Assembly always excludes Set Discount, including when the category Use checkbox is ticked.
+
+5. Pricing calculations
+-----------------------
+PASS - Executable browser calculation: MYR 100, Margin 20%, Commission 5%, Final Discount 2% produced RM140 for Assembly.
+PASS - The same calculation produced RM140 for Quote while Set Discount was unticked.
+PASS - Ticking Set Discount 10% produced RM150 for Quote while Assembly remained RM140.
+PASS - Category factor flags are stored in pricing snapshots through the existing include_* fields.
+
+6. Supabase migration
+----------------------
+PASS - V221 migration creates Owner list/save RPCs for company rates.
+PASS - Missing company settings are seeded at zero for the Not Set workflow.
+PASS - Existing company rate values are preserved.
+PASS - Existing categories are seeded with their previous factor-inclusion behaviour.
+PASS - New category RPC stores use_commission, use_set_discount, use_final_discount and use_fuel_charge by product family.
+PASS - Root and setup migration copies are identical.
+NOTE - The migration was validated statically but was not executed against the live Supabase project.
+
+7. Packaging
+------------
+PASS - Full GitHub package, changed-files patch and Git patch were generated from the release commit.
+PASS - Both ZIP archives passed integrity tests.
+PASS - config.js and .git metadata are excluded from release packages.
+PASS - SHA-256 checksums were generated for all delivery files.

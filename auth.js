@@ -40,8 +40,11 @@
       client.from('ks_app_settings').select('*').eq('id','default').limit(1)
     ]);
     const failed=[companies,users,categories,products,esProducts,gwsProducts,keyplcProducts,manifoldProducts,settings].find(x=>x.error);if(failed?.error)throw new Error(failed.error.message);
-    let companyPricingRow=null;
-    try{const result=await client.rpc('keysuite_get_company_pricing_v220');if(result.error)throw result.error;companyPricingRow=Array.isArray(result.data)?result.data[0]:result.data}catch(error){console.warn('V2.20 Company pricing is not available yet. Legacy quotation factors will be used until the migration is run.',error)}
+    let companyPricingRows=[];
+    try{const result=await client.rpc('keysuite_get_company_pricing_v221');if(result.error)throw result.error;companyPricingRows=Array.isArray(result.data)?result.data:(result.data?[result.data]:[])}catch(error){
+      console.warn('V2.21 Company pricing is not available yet. Trying the V2.20 company setting.',error);
+      try{const legacy=await client.rpc('keysuite_get_company_pricing_v220');if(legacy.error)throw legacy.error;companyPricingRows=Array.isArray(legacy.data)?legacy.data:(legacy.data?[legacy.data]:[])}catch(legacyError){console.warn('Company pricing could not be loaded. Legacy category values will be used until the migration is run.',legacyError)}
+    }
     const setting=settings.data?.[0]||{};
     const chcUsdMultiplier=Number(setting.chc_usd_multiplier??setting.usd_multiplier??5.8);
     const chcRmbMultiplier=Number(setting.chc_rmb_multiplier??setting.rmb_multiplier??.65);
@@ -54,19 +57,21 @@
     const manifoldUsdMultiplier=Number(setting.manifold_usd_multiplier??setting.usd_multiplier??5.8);
     const manifoldRmbMultiplier=Number(setting.manifold_rmb_multiplier??setting.rmb_multiplier??.65);
     const parseRules=value=>{if(!value)return{};if(typeof value==='object')return value;try{return JSON.parse(value)}catch(_){return{}}};
-    const normalizeRule=(raw={},fallback={})=>({margin:Number(raw.margin??fallback.margin??.38),transport:Number(raw.transport??fallback.transport??30),normal:Number(raw.normal??fallback.normal??0),rare:Number(raw.rare??fallback.rare??0)});
+    const bool=(value,fallback=true)=>value===undefined||value===null?fallback:!!value;
+    const normalizeRule=(raw={},fallback={})=>({margin:Number(raw.margin??fallback.margin??.38),transport:Number(raw.transport??fallback.transport??30),normal:Number(raw.normal??fallback.normal??0),rare:Number(raw.rare??fallback.rare??0),useCommission:bool(raw.useCommission??raw.use_commission??raw.includeCommission??raw.include_commission,fallback.useCommission??true),useSetDiscount:bool(raw.useSetDiscount??raw.use_set_discount??raw.includeSetDiscount??raw.include_set_discount,fallback.useSetDiscount??true),useFinalDiscount:bool(raw.useFinalDiscount??raw.use_final_discount??raw.includeFinalDiscount??raw.include_final_discount,fallback.useFinalDiscount??true),useFuelCharge:bool(raw.useFuelCharge??raw.use_fuel_charge??raw.includeFuelCharge??raw.include_fuel_charge,fallback.useFuelCharge??true)});
     const activeCompany=(companies.data||[]).find(row=>String(row.id)===String(userAccess?.company_id||''))||{},firstCategory=(categories.data||[]).find(row=>String(row.category_name||'').toLowerCase()===String(activeCompany.pricing_category||'').toLowerCase())||(categories.data||[])[0]||{},firstRules=parseRules(firstCategory.product_rules),legacyRule=firstRules.CHC||{};
-    const legacyCompanyPricing={companyId:userAccess?.company_id||'',quotation:{commission:Number(legacyRule.commission??firstCategory.commission??.03),setDiscount:Number(legacyRule.set_discount??legacyRule.setDiscount??firstCategory.set_discount??.068),finalDiscount:Number(legacyRule.final_discount??legacyRule.finalDiscount??firstCategory.final_discount??.08),includeCommission:legacyRule.include_commission??legacyRule.includeCommission??true,includeSetDiscount:legacyRule.include_set_discount??legacyRule.includeSetDiscount??true,includeFinalDiscount:legacyRule.include_final_discount??legacyRule.includeFinalDiscount??true,includeFuelCharge:legacyRule.include_fuel_charge??legacyRule.includeFuelCharge??true},assembly:{commission:Number(legacyRule.commission??firstCategory.commission??.03),setDiscount:0,finalDiscount:Number(legacyRule.final_discount??legacyRule.finalDiscount??firstCategory.final_discount??.08),includeCommission:legacyRule.include_commission??legacyRule.includeCommission??true,includeSetDiscount:false,includeFinalDiscount:legacyRule.include_final_discount??legacyRule.includeFinalDiscount??true,includeFuelCharge:legacyRule.include_fuel_charge??legacyRule.includeFuelCharge??true}};
-    const companyPricing=window.KeySuiteCompanySettings?.normalizeRow?.(companyPricingRow||{},legacyCompanyPricing)||legacyCompanyPricing;
+    const legacyCompanyPricing={companyId:userAccess?.company_id||'',commission:Number(legacyRule.commission??firstCategory.commission??0),setDiscount:Number(legacyRule.set_discount??legacyRule.setDiscount??firstCategory.set_discount??0),finalDiscount:Number(legacyRule.final_discount??legacyRule.finalDiscount??firstCategory.final_discount??0)};
+    const normalizedCompanyRows=window.KeySuiteCompanySettings?.normalizeRows?.(companyPricingRows)||companyPricingRows.map(row=>window.KeySuiteCompanySettings?.normalizeRow?.(row)||row);
+    const companyPricing=normalizedCompanyRows.find(row=>String(row.companyId||row.company_id)===String(userAccess?.company_id||''))||window.KeySuiteCompanySettings?.normalizeRow?.(legacyCompanyPricing)||legacyCompanyPricing;
     return {
-      version:'2.20',release_date:'2026-08-02',currency:setting.currency||'MYR',
+      version:'2.21',release_date:'2026-08-02',currency:setting.currency||'MYR',
       usd_multiplier:chcUsdMultiplier,rmb_multiplier:chcRmbMultiplier,myr_multiplier:1,
       productMultipliers:{CHC:{USD:chcUsdMultiplier,RMB:chcRmbMultiplier,MYR:1},ES:{USD:esUsdMultiplier,RMB:esRmbMultiplier,MYR:1},GWS:{USD:gwsUsdMultiplier,RMB:gwsRmbMultiplier,MYR:1},KEYPLC:{USD:keyplcUsdMultiplier,RMB:keyplcRmbMultiplier,MYR:1},MANIFOLD:{USD:manifoldUsdMultiplier,RMB:manifoldRmbMultiplier,MYR:1}},
-      fuel_price:Number(setting.fuel_price??2),fuel_base_price:Number(setting.fuel_base_price??2),companyPricing,
+      fuel_price:Number(setting.fuel_price??2),fuel_base_price:Number(setting.fuel_base_price??2),companyPricing,companyPricingRows:normalizedCompanyRows,
       companies:(companies.data||[]).map(c=>({id:c.id,name:c.company_name,category:c.pricing_category,delivery_distance:Number(c.delivery_distance||0),phone:c.company_phone,term_days:c.term_days,address:c.address,tin:c.tin_number,business_registration_no:c.business_registration_no,sst_no:c.sst_no,msic_code:c.msic_code,business_activities:c.business_activities})),
       users:(users.data||[]).map(u=>({id:u.id,company_id:u.company_id,source_company_id:u.source_company_id,prefix:u.prefix,name:u.full_name,phone:u.phone,email:u.email})),
       categories:(categories.data||[]).map(c=>{
-        const rules=parseRules(c.product_rules),chcFallback={margin:Number(c.chc_margin??c.chc_factor??.38),normal:0,rare:0,transport:Number(c.transport??30)},otherFallback={margin:0,normal:0,rare:0,transport:0};
+        const rules=parseRules(c.product_rules),chcFallback={margin:Number(c.chc_margin??c.chc_factor??.38),normal:0,rare:0,transport:Number(c.transport??30),useCommission:true,useSetDiscount:true,useFinalDiscount:true,useFuelCharge:true},otherFallback={margin:0,normal:0,rare:0,transport:0,useCommission:true,useSetDiscount:true,useFinalDiscount:true,useFuelCharge:true};
         return {id:c.id,name:c.category_name,productRules:{CHC:normalizeRule(rules.CHC,chcFallback),ES:normalizeRule(rules.ES,otherFallback),GWS:normalizeRule(rules.GWS,otherFallback),KEYPLC:normalizeRule(rules.KEYPLC,otherFallback),MANIFOLD:normalizeRule(rules.MANIFOLD,otherFallback)},margins:{CHC:chcFallback.margin},factors:{CHC:chcFallback.margin},transport:chcFallback.transport};
       }),
       products:(products.data||[]).map(p=>({

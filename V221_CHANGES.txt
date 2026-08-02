@@ -1,0 +1,26 @@
+KeySuite V2.21 Changes
+======================
+
+1. Key > Company correction
+   - Removed Assembly / Quote factor tabs and all company-level Use checkboxes.
+   - Added one Owner-only Commission, Set Discount and Final Discount input set.
+
+2. Company setup management
+   - Added company selection.
+   - Added Not Set: X / Total indicator.
+   - Added All Companies / Not Set Only filter.
+
+3. Category factor controls
+   - Margin, Normal, Rare and Transport remain editable per category and product family.
+   - Commission, Set Discount and Final Discount display the company values as read-only.
+   - Fuel Charge displays as automatic.
+   - Added independent Use checkboxes for all four factors.
+
+4. Assembly / Quote factor preview
+   - Added Assembly and Quote buttons to Pricing > Category Pricing Rule.
+   - Only selected factors appear and apply.
+   - Set Discount never applies to Assembly pricing.
+
+5. Database
+   - Added V221 RPCs for multi-company Owner maintenance.
+   - Added category-level Use flags to product_rules.
