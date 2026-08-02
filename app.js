@@ -25,15 +25,15 @@ document.querySelectorAll('[data-nav-toggle]').forEach(button=>button.addEventLi
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.go)));
 const keyButton=document.getElementById('keyButton');
 if(keyButton){keyButton.addEventListener('click',()=>showPage('keyDashboard'));}
-const KEY_PAGE_PERMISSIONS={keyDashboard:'key_dashboard',roleManagement:'manage_roles',categoryManagement:'manage_categories',priceListDashboard:'manage_price_list',chcPriceList:'manage_price_list',gwsPriceList:'manage_price_list',esPriceList:'manage_price_list',keyplcPriceList:'manage_price_list',manifoldPriceList:'manage_price_list',companyPricing:'company_pricing'};
+const KEY_PAGE_PERMISSIONS={keyDashboard:'key_dashboard',roleManagement:'manage_roles',categoryManagement:'manage_categories',priceListDashboard:'manage_price_list',chcPriceList:'manage_price_list',gwsPriceList:'manage_price_list',esPriceList:'manage_price_list',keyplcPriceList:'manage_price_list',manifoldPriceList:'manage_price_list',companySettings:'company_pricing',companyPricing:'company_pricing'};
 function permissionLevel(key){return window.KeySuitePermissions?.level?.(key,currentRole())||(currentRole()==='owner'?'full':'none')}
 function hasPermission(key){return permissionLevel(key)!=='none'}
 function syncOwnerKeyVisibility(){
  const button=$('keyButton'),allowed=hasPermission('key_dashboard');
  if(button){button.hidden=!allowed;button.style.display=allowed?'inline-flex':'none'}
- const modulePermissions={openRoleModule:'manage_roles',categoryManagement:'manage_categories',priceListDashboard:'manage_price_list',companyPricing:'company_pricing'};
+ const modulePermissions={openRoleModule:'manage_roles',categoryManagement:'manage_categories',priceListDashboard:'manage_price_list',companySettings:'company_pricing',companyPricing:'company_pricing'};
  const roleModule=$('openRoleModule');if(roleModule)roleModule.style.display=hasPermission('manage_roles')?'flex':'none';
- Object.entries(modulePermissions).forEach(([target,key])=>{if(target==='openRoleModule')return;document.querySelectorAll(`#keyDashboard [data-go="${target}"]`).forEach(card=>card.style.display=hasPermission(key)?'flex':'none')});
+ Object.entries(modulePermissions).forEach(([target,key])=>{if(target==='openRoleModule')return;const allowed=target==='companySettings'?currentRole()==='owner':hasPermission(key);document.querySelectorAll(`#keyDashboard [data-go="${target}"]`).forEach(card=>card.style.display=allowed?'flex':'none')});
  document.querySelectorAll('nav button[data-page="customers"]').forEach(b=>b.style.display=hasPermission('view_customers')?'block':'none');
  document.querySelectorAll('nav button[data-page="quotation"]').forEach(b=>b.style.display=(hasPermission('create_quotations')||hasPermission('view_quotations'))?'block':'none');
  document.querySelectorAll('nav button[data-page="history"]').forEach(b=>b.style.display=hasPermission('view_quotations')?'block':'none');
@@ -42,6 +42,7 @@ function syncOwnerKeyVisibility(){
  const active=document.querySelector('.page.active');if(active&&!canOpenPage(active.id))showPage('dashboard');
 }
 function canOpenPage(id){
+ if(id==='companySettings')return currentRole()==='owner';
  if(id==='customers')return hasPermission('view_customers');
  if(id==='assembly'||id==='assemblyBuilder')return hasPermission('create_quotations');
  if(id==='quotation')return hasPermission('create_quotations')||hasPermission('view_quotations');
@@ -58,6 +59,7 @@ function showPage(id){
  window.KeySuitePriceList?.pageShown?.(id);
  window.KeySuiteProduct?.pageShown?.(id);
  window.KeySuiteManifold?.pageShown?.(id);
+ window.KeySuiteCompanySettings?.pageShown?.(id);
  if(id==='quotation'){setQuoteCustomerCollapsed(true);updateQuotationStateUi?.()}
  window.KeySuiteAssembly?.pageShown?.(id);
  refreshAll();

@@ -15,8 +15,8 @@
   const isOwner=()=>permissionLevel('manage_categories')==='full';
   const categories=()=>window.KEYSUITE_SECURE_DATA?.categories||[];
 
-  const defaultRule=()=>({margin:.38,normal:0,rare:0,transport:30,commission:.03,setDiscount:.068,finalDiscount:.08,includeCommission:true,includeSetDiscount:true,includeFinalDiscount:true,includeFuelCharge:true});
-  const newCategoryRule=()=>({margin:0,normal:0,rare:0,transport:0,commission:0,setDiscount:0,finalDiscount:0,includeCommission:false,includeSetDiscount:false,includeFinalDiscount:false,includeFuelCharge:false});
+  const defaultRule=()=>({margin:.38,normal:0,rare:0,transport:30});
+  const newCategoryRule=()=>({margin:0,normal:0,rare:0,transport:0});
 
   function message(text,type='info'){
     const box=byId('categoryMessage');if(!box)return;
@@ -24,18 +24,13 @@
   }
 
   function normalizeRule(rule={},fallback=defaultRule()){
-    return {
-      margin:Number(rule.margin??fallback.margin),normal:Number(rule.normal??fallback.normal??0),rare:Number(rule.rare??fallback.rare??0),transport:Number(rule.transport??fallback.transport),commission:Number(rule.commission??fallback.commission),
-      setDiscount:Number(rule.setDiscount??rule.set_discount??fallback.setDiscount),finalDiscount:Number(rule.finalDiscount??rule.final_discount??fallback.finalDiscount),
-      includeCommission:rule.includeCommission??rule.include_commission??fallback.includeCommission,includeSetDiscount:rule.includeSetDiscount??rule.include_set_discount??fallback.includeSetDiscount,
-      includeFinalDiscount:rule.includeFinalDiscount??rule.include_final_discount??fallback.includeFinalDiscount,includeFuelCharge:rule.includeFuelCharge??rule.include_fuel_charge??fallback.includeFuelCharge
-    };
+    return {margin:Number(rule.margin??fallback.margin),normal:Number(rule.normal??fallback.normal??0),rare:Number(rule.rare??fallback.rare??0),transport:Number(rule.transport??fallback.transport)};
   }
 
   function ruleFor(category,product=selectedProduct){
     const fallback=defaultRule();
     if(product==='CHC'){
-      fallback.margin=Number(category?.margins?.CHC??category?.factors?.CHC??fallback.margin);fallback.transport=Number(category?.transport??fallback.transport);fallback.commission=Number(category?.commission??fallback.commission);fallback.setDiscount=Number(category?.set_discount??fallback.setDiscount);fallback.finalDiscount=Number(category?.final_discount??fallback.finalDiscount);
+      fallback.margin=Number(category?.margins?.CHC??category?.factors?.CHC??fallback.margin);fallback.transport=Number(category?.transport??fallback.transport);
     }
     return normalizeRule(category?.productRules?.[product]||{},fallback);
   }
@@ -68,13 +63,11 @@
     if(box)box.innerHTML=`<b>${esc(selectedProduct)} Price List Currency</b><span>USD (MYR ${num(rates.USD,2)})</span><span>RMB (MYR ${num(rates.RMB,2)})</span><span>MYR (MYR 1.00)</span>`;
   }
 
-  function optionalFormulaParts(rule){
-    const parts=[];if(rule.includeCommission)parts.push('÷ (1 − Commission)');if(rule.includeSetDiscount)parts.push('÷ (1 − Set Discount)');if(rule.includeFinalDiscount)parts.push('÷ (1 − Final Discount)');if(rule.includeFuelCharge)parts.push('+ Fuel Charge');parts.push('Round up to RM10');return parts;
-  }
-
+  function quotationFactors(){return window.KEYSUITE_SECURE_DATA?.companyPricing?.quotation||{commission:.03,setDiscount:.068,finalDiscount:.08,includeCommission:true,includeSetDiscount:true,includeFinalDiscount:true,includeFuelCharge:true}}
   function formulaText(rule,rarity){
-    const parts=['Highest of USD × USD rate / RMB × RMB rate / MYR','÷ (1 − Margin)'];
-    if(rarity==='common'||rarity==='rare')parts.push('÷ (1 − Normal)');if(rarity==='rare')parts.push('÷ (1 − Rare)');parts.push('+ Transport',...optionalFormulaParts(rule));return parts.join('  →  ');
+    const company=quotationFactors(),parts=['Highest of USD × USD rate / RMB × RMB rate / MYR','÷ (1 − Margin)'];
+    if(rarity==='common'||rarity==='rare')parts.push('÷ (1 − Normal)');if(rarity==='rare')parts.push('÷ (1 − Rare)');parts.push('+ Transport');
+    if(company.includeCommission!==false)parts.push('÷ (1 − Company Commission)');if(company.includeSetDiscount!==false)parts.push('÷ (1 − Company Set Discount)');if(company.includeFinalDiscount!==false)parts.push('÷ (1 − Company Final Discount)');if(company.includeFuelCharge!==false)parts.push('+ Company Fuel Charge');parts.push('Round up to RM10');return parts.join('  →  ');
   }
 
   function updateFormula(){
@@ -102,9 +95,7 @@
 
   function fillRule(category){
     const rule=category?ruleFor(category,selectedProduct):newCategoryRule();
-    byId('categoryMarginInput').value=num(rule.margin*100,2).replace(/,/g,'');byId('categoryNormalInput').value=num(rule.normal*100,2).replace(/,/g,'');byId('categoryRareInput').value=num(rule.rare*100,2).replace(/,/g,'');byId('categoryTransportInput').value=num(rule.transport,2).replace(/,/g,'');byId('categoryCommissionInput').value=num(rule.commission*100,2).replace(/,/g,'');byId('categorySetDiscountInput').value=num(rule.setDiscount*100,2).replace(/,/g,'');byId('categoryFinalDiscountInput').value=num(rule.finalDiscount*100,2).replace(/,/g,'');
-    if(byId('categoryFuelChargeInput'))byId('categoryFuelChargeInput').value='0.00';
-    byId('categoryCommissionEnabled').checked=!!rule.includeCommission;byId('categorySetDiscountEnabled').checked=!!rule.includeSetDiscount;byId('categoryFinalDiscountEnabled').checked=!!rule.includeFinalDiscount;byId('categoryFuelChargeEnabled').checked=!!rule.includeFuelCharge;
+    byId('categoryMarginInput').value=num(rule.margin*100,2).replace(/,/g,'');byId('categoryNormalInput').value=num(rule.normal*100,2).replace(/,/g,'');byId('categoryRareInput').value=num(rule.rare*100,2).replace(/,/g,'');byId('categoryTransportInput').value=num(rule.transport,2).replace(/,/g,'');
     byId('categoryProductHeading').textContent=`${selectedProduct} Pricing Rule`;if(byId('categoryMarginLabel'))byId('categoryMarginLabel').textContent=`${selectedProduct} Margin`;
     document.querySelectorAll('[data-category-product]').forEach(button=>button.classList.toggle('active',button.dataset.categoryProduct===selectedProduct));
     setRuleFieldsEditable(editing);showCurrencySummary();updateFormula();
@@ -128,8 +119,8 @@
   function mapRows(rows){
     return (rows||[]).map(c=>{
       let rules=c.product_rules||{};if(typeof rules==='string'){try{rules=JSON.parse(rules)}catch(_){rules={}}}
-      const normalize=code=>normalizeRule(rules?.[code]||{},code==='CHC'?{margin:Number(c.chc_margin??c.chc_factor??.38),normal:0,rare:0,transport:Number(c.transport??30),commission:Number(c.commission??.03),setDiscount:Number(c.set_discount??.068),finalDiscount:Number(c.final_discount??.08),includeCommission:true,includeSetDiscount:true,includeFinalDiscount:true,includeFuelCharge:true}:{margin:0,normal:0,rare:0,transport:0,commission:0,setDiscount:0,finalDiscount:0,includeCommission:false,includeSetDiscount:false,includeFinalDiscount:false,includeFuelCharge:false});
-      return {id:c.id,name:String(c.category_name||c.name||'Unnamed Category'),productRules:{CHC:normalize('CHC'),ES:normalize('ES'),GWS:normalize('GWS'),KEYPLC:normalize('KEYPLC'),MANIFOLD:normalize('MANIFOLD')},margins:{CHC:Number(c.chc_margin??c.chc_factor??0)},factors:{CHC:Number(c.chc_margin??c.chc_factor??0)},transport:Number(c.transport||0),commission:Number(c.commission||0),set_discount:Number(c.set_discount||0),final_discount:Number(c.final_discount||0)};
+      const normalize=code=>normalizeRule(rules?.[code]||{},code==='CHC'?{margin:Number(c.chc_margin??c.chc_factor??.38),normal:0,rare:0,transport:Number(c.transport??30)}:{margin:0,normal:0,rare:0,transport:0});
+      return {id:c.id,name:String(c.category_name||c.name||'Unnamed Category'),productRules:{CHC:normalize('CHC'),ES:normalize('ES'),GWS:normalize('GWS'),KEYPLC:normalize('KEYPLC'),MANIFOLD:normalize('MANIFOLD')},margins:{CHC:Number(c.chc_margin??c.chc_factor??0)},factors:{CHC:Number(c.chc_margin??c.chc_factor??0)},transport:Number(c.transport||0)};
     });
   }
 
@@ -140,7 +131,7 @@
   }
 
   function percentValue(id,label,validate=true){const value=Number(byId(id)?.value);if(validate&&(!Number.isFinite(value)||value<0||value>=100))throw new Error(`${label} must be from 0% to below 100%.`);return Number.isFinite(value)?value/100:0}
-  function readRule(validate=true){const transport=Number(byId('categoryTransportInput')?.value||0);if(validate&&(!Number.isFinite(transport)||transport<0))throw new Error('Transport must be RM0.00 or more.');return {margin:percentValue('categoryMarginInput',`${selectedProduct} Margin`,validate),normal:percentValue('categoryNormalInput','Normal',validate),rare:percentValue('categoryRareInput','Rare',validate),transport:Number.isFinite(transport)?transport:0,commission:percentValue('categoryCommissionInput','Commission',validate),setDiscount:percentValue('categorySetDiscountInput','Set Discount',validate),finalDiscount:percentValue('categoryFinalDiscountInput','Final Discount',validate),includeCommission:!!byId('categoryCommissionEnabled')?.checked,includeSetDiscount:!!byId('categorySetDiscountEnabled')?.checked,includeFinalDiscount:!!byId('categoryFinalDiscountEnabled')?.checked,includeFuelCharge:!!byId('categoryFuelChargeEnabled')?.checked}}
+  function readRule(validate=true){const transport=Number(byId('categoryTransportInput')?.value||0);if(validate&&(!Number.isFinite(transport)||transport<0))throw new Error('Transport must be RM0.00 or more.');return {margin:percentValue('categoryMarginInput',`${selectedProduct} Margin`,validate),normal:percentValue('categoryNormalInput','Normal',validate),rare:percentValue('categoryRareInput','Rare',validate),transport:Number.isFinite(transport)?transport:0}}
 
   async function save(event){
     event.preventDefault();if(!editing)return;if(!isOwner()){message('Your role is not allowed to edit pricing categories.','error');return}
@@ -149,9 +140,9 @@
     const client=window.KeySuiteAuth?.getClient?.();if(!client){message('Supabase is not connected.','error');return}
     const button=byId('saveCategoryRule'),original=button.textContent;button.disabled=true;button.textContent='Saving…';message('');
     try{
-      const {error}=await client.rpc('keysuite_manage_pricing_category_v119',{p_category_id:selectedId||null,p_category_name:name,p_product_code:selectedProduct,p_margin:rule.margin,p_normal:rule.normal,p_rare:rule.rare,p_transport:rule.transport,p_commission:rule.commission,p_set_discount:rule.setDiscount,p_final_discount:rule.finalDiscount,p_include_commission:rule.includeCommission,p_include_set_discount:rule.includeSetDiscount,p_include_final_discount:rule.includeFinalDiscount,p_include_fuel_charge:rule.includeFuelCharge});
+      const {error}=await client.rpc('keysuite_manage_pricing_category_v220',{p_category_id:selectedId||null,p_category_name:name,p_product_code:selectedProduct,p_margin:rule.margin,p_normal:rule.normal,p_rare:rule.rare,p_transport:rule.transport});
       if(error)throw error;const rows=await reload(),saved=(rows||categories()).find(item=>item.name.toLowerCase()===name.toLowerCase());openCategory(saved||rows[0],false);message(`${selectedProduct} pricing rule for “${name}” saved.`,'info');
-    }catch(error){console.error(error);message(`${error.message||error}. Run V213_SUPABASE_MIGRATION.sql first.`,'error')}
+    }catch(error){console.error(error);message(`${error.message||error}. Run V220_SUPABASE_MIGRATION.sql first.`,'error')}
     finally{button.disabled=false;button.textContent=original}
   }
 
@@ -176,17 +167,17 @@
     const editButton=byId('editCategoryRule');if(editButton)bindEditLongHold(editButton,unlockCategoryEditor);
     byId('categoryRows')?.addEventListener('click',event=>{const button=event.target.closest('[data-category-open]');if(!button)return;const category=categories().find(item=>item.id===button.dataset.categoryOpen);if(category)openCategory(category,false)});
     document.querySelectorAll('[data-category-product]').forEach(button=>button.addEventListener('click',()=>{selectedProduct=button.dataset.categoryProduct;fillRule(currentCategory());message(editing?`${selectedProduct} pricing rule loaded. All fields are unlocked.`:`${selectedProduct} pricing rule loaded. Hold the Edit button for 3 seconds to unlock all fields.`,'info')}));
-    ['categoryMarginInput','categoryNormalInput','categoryRareInput','categoryTransportInput','categoryCommissionInput','categorySetDiscountInput','categoryFinalDiscountInput','categoryCommissionEnabled','categorySetDiscountEnabled','categoryFinalDiscountEnabled','categoryFuelChargeEnabled'].forEach(id=>{byId(id)?.addEventListener('input',updateFormula);byId(id)?.addEventListener('change',updateFormula)});
+    ['categoryMarginInput','categoryNormalInput','categoryRareInput','categoryTransportInput'].forEach(id=>{byId(id)?.addEventListener('input',updateFormula);byId(id)?.addEventListener('change',updateFormula)});
     ['categoryManualCost','categoryManualCurrency','categoryManualRarity'].forEach(id=>{byId(id)?.addEventListener('input',updateManualQuote);byId(id)?.addEventListener('change',updateManualQuote)});
   }
 
   function render(){
     if(!canView())return;const add=byId('newPricingCategory');if(add)add.style.display=isOwner()?'inline-flex':'none';const list=categories();if(selectedId&&!list.some(item=>item.id===selectedId))selectedId='';renderRows();showCurrencySummary();
     if(!selectedId&&list.length)openCategory(list[0],false);else if(selectedId){const category=currentCategory();if(category&&!editing){fill(category);setEditable(false)}}
-    const notice=byId('categoryAccessNotice');if(notice)notice.innerHTML=`Signed in as <b>${esc(access?.display_name||access?.email||'user')}</b>. Select a Category Name on the left; its saved CHC/ES/GWS/KeyPLC/Manifold rules will appear on the right.`;
+    const notice=byId('categoryAccessNotice');if(notice)notice.innerHTML=`Signed in as <b>${esc(access?.display_name||access?.email||'user')}</b>. Select a Category Name on the left; its saved Margin, Normal, Rare and Transport rules will appear on the right. Company factors are maintained in Key → Company.`;
   }
 
-  function init(data,userAccess){access=userAccess||access;bind();render()}
+  function init(data,userAccess){access=userAccess||access;bind();window.addEventListener('keysuite-company-pricing-changed',updateFormula);render()}
   function pageShown(id){if(id==='categoryManagement')render()}
   window.KeySuiteCategories={init,pageShown,reload,render};
 })();

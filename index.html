@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V2.19</title>
+  <title>KeySuite V2.20</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -245,12 +245,14 @@
 
     .quotation-template-field{display:grid;grid-template-columns:minmax(210px,1fr) auto;gap:8px;align-items:end}.quotation-template-field .btn{height:42px;white-space:nowrap}.template-dialog{width:min(1180px,calc(100vw - 28px))!important}.template-manager-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px}.template-list{display:grid;gap:8px;max-height:68vh;overflow:auto}.template-list button{text-align:left;border:1px solid #dbe3ec;border-radius:9px;background:#fff;padding:11px}.template-list button.active{border-color:#2563eb;background:#eff6ff}.template-list small{display:block;color:#64748b;margin-top:4px}.template-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.template-form-grid .span-2{grid-column:1/-1}.template-logo-preview{display:none;max-width:260px;max-height:100px;object-fit:contain;border:1px solid #dbe3ec;border-radius:8px;background:#fff;padding:7px}.template-check{display:flex;align-items:center;gap:8px;margin:0;font-weight:700}.template-check input{width:auto}.template-message{min-height:22px;margin:8px 0}.template-preview-card{border:1px solid #dbe3ec;border-radius:10px;padding:16px;background:#fff}.template-preview-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;border-bottom:3px solid var(--template-preview-color,#17365d);padding-bottom:12px}.template-preview-head img{max-width:180px;max-height:70px;object-fit:contain}.template-preview-title{color:var(--template-preview-color,#17365d)}@media(max-width:850px){.template-manager-layout{grid-template-columns:1fr}.template-list{max-height:220px}.template-form-grid{grid-template-columns:1fr}.template-form-grid .span-2{grid-column:auto}.quotation-template-field{grid-template-columns:1fr}}
     #pTemplateAddress{white-space:pre-line}.template-preview-header{font-size:12px;text-align:center;color:#475569;margin-bottom:8px}.template-preview-company{display:flex;gap:14px;align-items:flex-start;border-bottom:3px solid var(--preview-color,#17365d);padding-bottom:12px}.template-preview-company img{max-width:180px;max-height:75px;object-fit:contain}.template-preview-card h3{color:var(--preview-color,#17365d)}.template-preview-line{border-top:2px solid var(--preview-color,#17365d);margin:16px 0 8px}#printQuotationDocument{--template-primary:#17365d;--template-font:Calibri,Arial,Helvetica,sans-serif}.print-template-header{position:absolute;top:3mm;left:8mm;right:8mm;text-align:center;font-size:9pt;color:#475569}.print-template-bank{white-space:pre-line;margin-top:3mm;font-size:9.5pt}.print-page{font-family:var(--template-font)!important}.print-page h1{color:var(--template-primary)}.print-items-table thead::after,.print-summary-rule{border-color:var(--template-primary)!important}.template-amount-only .print-items-table th:nth-child(4),.template-amount-only .print-items-table td:nth-child(4){display:none}.template-amount-only .print-system-item-desc-row .print-system-price-spacer{display:none}.template-amount-only .print-items-table th:nth-child(5),.template-amount-only .print-items-table td:nth-child(5){width:32mm}.template-no-signature .signatory-block{display:none!important}
+
+  .company-factor-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.company-factor-tab{border:1px solid #94a3b8;background:#f8fafc;color:#334155;border-radius:10px;padding:9px 18px;font-weight:800;cursor:pointer}.company-factor-tab.active{background:#17365d;color:#fff;border-color:#17365d}.company-settings-layout{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(420px,1.2fr);gap:16px;margin-top:16px}.company-factor-grid{display:grid;gap:10px}.company-factor-row{display:grid;grid-template-columns:minmax(150px,1fr) minmax(130px,180px) 84px;gap:10px;align-items:center;padding:10px 12px;border:1px solid #dbe4ee;border-radius:10px;background:#f8fafc}.company-factor-row input[type=number]{width:100%}.company-factor-use{display:flex;align-items:center;gap:6px;font-weight:700}.company-factor-formula{white-space:normal;line-height:1.55}.company-sensitive-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#fee2e2;color:#991b1b;padding:5px 10px;font-weight:800;font-size:12px}@media(max-width:900px){.company-settings-layout{grid-template-columns:1fr}.company-factor-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.19 secure quotation, assembly and template system</small></div>
+    <div class="auth-brand">KeySuite<small>V2.20 company pricing, assembly and quotation system</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -265,7 +267,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.19</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.20</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -288,7 +290,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.19 · template logo preview, two-tab descriptions and pricing safeguards</div>
+    <div class="suite-version">KeySuite V2.20 · Owner-only Company factors with separate Assembly and Quotation pricing</div>
   </aside>
 
   <main>
@@ -576,11 +578,17 @@
           <p>Maintain USD, RMB and MYR source prices for CHC and GWS Tank.</p>
           <span class="module-order">03</span>
         </button>
+        <button type="button" class="key-module-card" data-go="companySettings">
+          <span class="module-icon">🏢</span>
+          <h2>Company</h2>
+          <p>Maintain Owner-only Assembly and Quotation pricing factors for this company.</p>
+          <span class="module-order">04</span>
+        </button>
         <button type="button" class="key-module-card" data-go="companyPricing">
           <span class="module-icon">RM</span>
           <h2>Company &amp; Pricing</h2>
-          <p>Assign customer pricing categories, maintain fuel price and view protected CHC selling prices.</p>
-          <span class="module-order">04</span>
+          <p>Assign customer pricing categories, maintain fuel price and view protected selling prices.</p>
+          <span class="module-order">05</span>
         </button>
       </div>
     </section>
@@ -667,27 +675,6 @@
                       <label for="categoryTransportInput">Transport</label>
                       <div class="category-inline-input"><span>RM</span><input id="categoryTransportInput" type="number" min="0" step="0.01" value="30.00" readonly></div>
                       <span class="category-inline-check" aria-hidden="true"></span>
-                    </div>
-                    <div class="category-lock-field locked category-inline-rule" id="categoryLock_commission" data-lock-key="commission" data-lock-label="Commission">
-                      <label for="categoryCommissionInput">Commission</label>
-                      <div class="category-inline-input"><input id="categoryCommissionInput" type="number" min="0" max="99.99" step="0.01" value="3.00" readonly><span>%</span></div>
-                      <label class="category-inline-check" title="Include Commission"><input id="categoryCommissionEnabled" type="checkbox" checked disabled><span>Use</span></label>
-                    </div>
-                    <div class="category-lock-field locked category-inline-rule" id="categoryLock_setDiscount" data-lock-key="setDiscount" data-lock-label="Set Discount">
-                      <label for="categorySetDiscountInput">Set Discount</label>
-                      <div class="category-inline-input"><input id="categorySetDiscountInput" type="number" min="0" max="99.99" step="0.01" value="6.80" readonly><span>%</span></div>
-                      <label class="category-inline-check" title="Include Set Discount"><input id="categorySetDiscountEnabled" type="checkbox" checked disabled><span>Use</span></label>
-                    </div>
-                    <div class="category-lock-field locked category-inline-rule" id="categoryLock_finalDiscount" data-lock-key="finalDiscount" data-lock-label="Final Discount">
-                      <label for="categoryFinalDiscountInput">Final</label>
-                      <div class="category-inline-input"><input id="categoryFinalDiscountInput" type="number" min="0" max="99.99" step="0.01" value="8.00" readonly><span>%</span></div>
-                      <label class="category-inline-check" title="Include Final Discount"><input id="categoryFinalDiscountEnabled" type="checkbox" checked disabled><span>Use</span></label>
-                    </div>
-                    <div class="category-lock-field locked category-inline-rule category-fuel-toggle" id="categoryLock_fuelCharge" data-lock-key="fuelCharge" data-lock-label="Fuel Charge">
-                      <label for="categoryFuelChargeInput">Fuel Charge</label>
-                      <div class="category-inline-input"><span>RM</span><input id="categoryFuelChargeInput" type="number" min="0" step="0.01" value="0.00" readonly data-always-readonly="true" title="Calculated automatically from customer distance and the saved Fuel Price"></div>
-                      <label class="category-inline-check" title="Include automatic Fuel Charge"><input id="categoryFuelChargeEnabled" type="checkbox" checked disabled><span>Use</span></label>
-                      <small class="category-inline-note">Auto: customer distance × (Fuel Price − RM2.00)</small>
                     </div>
                   </div>
                   <div class="formula" id="categoryFormulaPreview" style="margin-top:14px"></div>
@@ -856,6 +843,34 @@
       <div class="card" style="margin-top:16px"><div class="page-title-row"><div><h2 style="margin:0">Manifold Tables</h2><div id="manifoldPriceListCount" class="muted"></div></div></div>
         <div class="manifold-pricelist-tabs" role="tablist"><button class="btn secondary active" type="button" data-manifold-table="branch">Branch</button><button class="btn secondary" type="button" data-manifold-table="sizing">Manifold Sizing</button><button class="btn secondary" type="button" data-manifold-table="header">Header</button><button class="btn secondary" type="button" data-manifold-table="tank_fitting">Tank Fitting</button></div>
         <div id="manifoldPriceTableHost" class="table-wrap" style="max-height:650px;margin-top:12px"></div>
+      </div>
+    </section>
+
+    <section id="companySettings" class="page">
+      <div class="key-back-row"><button class="btn secondary" type="button" data-go="keyDashboard">← Key Dashboard</button></div>
+      <div class="page-title-row">
+        <div><h1>Company</h1><div class="muted">Company information and Owner-only commercial pricing factors.</div></div>
+        <span class="company-sensitive-badge">Owner Only</span>
+      </div>
+      <div id="companySettingsOwnerNotice" class="notice active-customer">Loading Company access…</div>
+      <div class="company-settings-layout">
+        <div class="card"><h2>Company Information</h2><div id="companyIdentitySummary"></div></div>
+        <div class="card" id="companyPricingEditor">
+          <div class="page-title-row" style="margin-bottom:6px"><div><h2 id="companyFactorHeading" style="margin:0">Quotation Factors</h2><div id="companyFactorNote" class="muted"></div></div></div>
+          <div class="company-factor-tabs" role="tablist" aria-label="Company pricing factor type">
+            <button class="company-factor-tab" type="button" role="tab" data-company-factor-mode="assembly">Assembly</button>
+            <button class="company-factor-tab active" type="button" role="tab" data-company-factor-mode="quotation">Quotation</button>
+          </div>
+          <div id="companySettingsMessage" class="auth-message"></div>
+          <div class="company-factor-grid">
+            <div class="company-factor-row"><label for="companyCommissionInput"><b>Commission</b></label><div class="category-inline-input"><input id="companyCommissionInput" type="number" min="0" max="99.99" step="0.01"><span>%</span></div><label class="company-factor-use"><input id="companyCommissionEnabled" type="checkbox"> Use</label></div>
+            <div class="company-factor-row" id="companySetDiscountRow"><label for="companySetDiscountInput"><b>Set Discount</b></label><div class="category-inline-input"><input id="companySetDiscountInput" type="number" min="0" max="99.99" step="0.01"><span>%</span></div><label class="company-factor-use"><input id="companySetDiscountEnabled" type="checkbox"> Use</label></div>
+            <div class="company-factor-row"><label for="companyFinalDiscountInput"><b>Final Discount</b></label><div class="category-inline-input"><input id="companyFinalDiscountInput" type="number" min="0" max="99.99" step="0.01"><span>%</span></div><label class="company-factor-use"><input id="companyFinalDiscountEnabled" type="checkbox"> Use</label></div>
+            <div class="company-factor-row"><label><b>Fuel Charge</b><small class="muted" style="display:block">Customer distance × (Fuel Price − RM2.00)</small></label><div class="muted">Automatic</div><label class="company-factor-use"><input id="companyFuelChargeEnabled" type="checkbox"> Use</label></div>
+          </div>
+          <div id="companyFactorFormula" class="formula company-factor-formula" style="margin-top:14px"></div>
+          <div class="actions" style="justify-content:flex-end"><button class="btn" id="saveCompanyPricing" type="button">Save Company Factors</button></div>
+        </div>
       </div>
     </section>
 
@@ -1074,15 +1089,15 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=216"></script>
-<script src="app.js?v=219"></script>
-<script src="pricing.js?v=219"></script>
-<script src="categories.js?v=216"></script>
+<script src="app.js?v=220"></script>
+<script src="pricing.js?v=220"></script>
+<script src="categories.js?v=220"></script>
 <script src="pricelist.js?v=216"></script>
 <script src="product.js?v=216"></script>
-<script src="manifold.js?v=219"></script>
+<script src="manifold.js?v=220"></script>
 <script src="roles.js?v=216"></script>
-<script src="assembly.js?v=219"></script>
-<script src="quotation-templates.js?v=219"></script>
+<script src="assembly.js?v=220"></script>
+<script src="quotation-templates.js?v=220"></script>
 
 <dialog id="quotationTemplateDialog" class="ks-dialog template-dialog">
   <div class="dialog-body">
@@ -1134,6 +1149,7 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="auth.js?v=219"></script>
+<script src="company-settings.js?v=220"></script>
+<script src="auth.js?v=220"></script>
 </body>
 </html>

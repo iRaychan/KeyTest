@@ -131,12 +131,12 @@ function syncAutomaticControlPanel(d=current){
  const priceQty=Math.max(1,Math.min(6,qty));
  let panel=(d.items||[]).find(item=>item.keyplcData?.autoSized||sourceObject(item).auto_sized_panel);
  const previous=panel?.description||'',existingEnclosure=normalizePanelType(panel?.keyplcData?.enclosure||sourceObject(panel).panel_type||'indoor');
- const found=window.KeySuitePricing?.findKeyplcPrice?.(product.id,priceQty,{enclosure:existingEnclosure});
+ const found=window.KeySuitePricing?.findKeyplcPrice?.(product.id,priceQty,{enclosure:existingEnclosure,pricingMode:'assembly'});
  const indoorPrice=Number(found?.calc?.indoorPrice??Math.max(0,Number(panel?.unitPrice||0)-(existingEnclosure==='sheltered'?1000:0)));
  const surcharge=existingEnclosure==='sheltered'?1000:0;
  const data={productId:product.id,motorRating:product.model,pumpQty:qty,enclosure:existingEnclosure,indoorUnitPrice:indoorPrice,shelteredSurcharge:1000,autoSized:true};
  const model=`KeyPLC ${product.model} · ${qty} ${qty===1?'Pump':'Pumps'} · ${panelTypeLabel(existingEnclosure)}`;
- const pricingSource={...(panel?sourceObject(panel):{}),product_family:'KEYPLC',product_id:product.id,variant:`P${priceQty}`,material:`P${priceQty}`,category_id:found?.category?.id||'',source_currency:found?.calc?.sourceCurrency||'',currency_multiplier:Number(found?.calc?.multiplier||0),source_price:Number(found?.calc?.sourcePrice||0),base_myr:Number(found?.calc?.baseMyr||0),margin:Number(found?.calc?.margin||0),panel_type:existingEnclosure,enclosure_surcharge:surcharge,calculated_price:Number(found?.calc?.finalPrice??indoorPrice+surcharge),auto_sized_panel:true};
+ const pricingSource={...(panel?sourceObject(panel):{}),...(found?window.KeySuitePricing?.sourceSnapshot?.(found)||{}:{}),product_family:'KEYPLC',product_id:product.id,variant:`P${priceQty}`,material:`P${priceQty}`,pricing_mode:'assembly',panel_type:existingEnclosure,enclosure_surcharge:surcharge,calculated_price:Number(found?.calc?.finalPrice??indoorPrice+surcharge),auto_sized_panel:true};
  if(!panel){panel={id:uid(),section:'control_panel',model,bomDescription:model,description:'',qty:1,unitPrice:Number(found?.calc?.finalPrice??indoorPrice+surcharge),pricingSource,pumpData:null,keyplcData:data};d.items.push(panel)}
  else{panel.section='control_panel';panel.model=model;panel.bomDescription=model;panel.qty=1;panel.unitPrice=Number(found?.calc?.finalPrice??indoorPrice+surcharge);panel.pricingSource=pricingSource;panel.keyplcData=data}
  panel.description=keyplcDescription(panel);
@@ -168,7 +168,7 @@ function syncAutomaticManifold(d=current){
  const shutoffHead=systemShutoffHead(d),connectionChoice=window.KeySuiteManifold.connectionForShutoffHead?.(shutoffHead)||{connection:'FLANGE_16',fallback:true};
  if(!connectionChoice.connection){removeAutoComponent(d,'manifold');return}
  const config={material:'GI',connection:connectionChoice.connection,suctionDn:`DN${dn}`,dischargeDn:`DN${dn}`,pumpQty:Math.max(1,Math.min(6,qty)),tankSize:'',rarity:'common'};
- const built=window.KeySuiteManifold.buildConfiguredItem(config,{includeCw:true,auto:true});if(!built){removeAutoComponent(d,'manifold');return}
+ const built=window.KeySuiteManifold.buildConfiguredItem(config,{includeCw:true,auto:true,pricingMode:'assembly'});if(!built){removeAutoComponent(d,'manifold');return}
  let item=(d.items||[]).find(x=>autoComponent(x,'manifold')),previous=item?.description||'';
  const manifoldData={...(built.manifoldData||{}),autoSelected:true,shutoffHeadM:shutoffHead,shutoffPressureBar:connectionChoice.pressureBar,fallbackConnection:!!connectionChoice.fallback};
  if(!item){item={id:uid(),section:'manifold'};d.items.push(item)}
@@ -179,8 +179,8 @@ function tankLitresForSeries(series){const value=Number(series)||0;if(value>0&&v
 function syncAutomaticTank(d=current){
  if(!d||d.assembly_type!=='system')return;if(d.auto_suppressed?.tank){removeAutoComponent(d,'tank');return}const pumps=pumpItems(d),litres=Math.max(0,...pumps.map(item=>tankLitresForSeries(pumpSeriesNumber(item)))),head=systemShutoffHead(d),pressureBar=Number.isFinite(Number(head))?Number(head)*.0981:null;
  if(!pumps.length||!litres||!Number.isFinite(pressureBar)||!window.KeySuitePricing?.findAutoGwsTank){removeAutoComponent(d,'tank');return}
- const found=window.KeySuitePricing.findAutoGwsTank(litres,pressureBar);if(!found){removeAutoComponent(d,'tank');return}
- const built=window.KeySuitePricing.buildGwsAssemblyItem?.(found.product.id,null);if(!built){removeAutoComponent(d,'tank');return}
+ const found=window.KeySuitePricing.findAutoGwsTank(litres,pressureBar,{pricingMode:'assembly'});if(!found){removeAutoComponent(d,'tank');return}
+ const built=window.KeySuitePricing.buildGwsAssemblyItem?.(found.product.id,null,{pricingMode:'assembly'});if(!built){removeAutoComponent(d,'tank');return}
  let item=(d.items||[]).find(x=>autoComponent(x,'tank')),previous=item?.description||'';const tankData={...(built.tankData||{}),autoSelected:true,chcSeries:pumps.map(pumpSeriesNumber).filter(Boolean),shutoffHeadM:head,shutoffPressureBar:pressureBar};
  if(!item){item={id:uid(),section:'tank'};d.items.push(item)}
  Object.assign(item,normalizeItem({...item,...built,section:'tank',qty:1,bomDescription:built.model,tankData,pricingSource:{...sourceObject(built),auto_sized_tank:true}},'system'));item.description=tankDescription(item,1);
@@ -192,9 +192,9 @@ function updateKeyplcItem(item,enclosure){
  if(!item?.keyplcData)return;
  const previous=item.description||'',data=item.keyplcData,qty=Math.max(1,Number(data.pumpQty)||1);data.enclosure=normalizePanelType(enclosure);
  item.model=`KeyPLC ${data.motorRating||''} · ${qty} ${qty===1?'Pump':'Pumps'} · ${panelTypeLabel(data.enclosure)}`;item.bomDescription=item.model;item.description=keyplcDescription(item);
- const priceQty=Math.max(1,Math.min(6,qty)),found=window.KeySuitePricing?.findKeyplcPrice?.(data.productId,priceQty,{enclosure:data.enclosure});
+ const priceQty=Math.max(1,Math.min(6,qty)),found=window.KeySuitePricing?.findKeyplcPrice?.(data.productId,priceQty,{enclosure:data.enclosure,pricingMode:'assembly'});
  const indoor=Number(found?.calc?.indoorPrice??data.indoorUnitPrice??item.unitPrice??0),surcharge=data.enclosure==='sheltered'?Number(data.shelteredSurcharge||1000):0;data.indoorUnitPrice=indoor;item.unitPrice=Number(found?.calc?.finalPrice??indoor+surcharge);
- item.pricingSource={...sourceObject(item),product_family:'KEYPLC',product_id:data.productId,variant:`P${priceQty}`,material:`P${priceQty}`,category_id:found?.category?.id||'',source_currency:found?.calc?.sourceCurrency||'',currency_multiplier:Number(found?.calc?.multiplier||0),source_price:Number(found?.calc?.sourcePrice||0),base_myr:Number(found?.calc?.baseMyr||0),margin:Number(found?.calc?.margin||0),panel_type:data.enclosure,enclosure_surcharge:surcharge,calculated_price:item.unitPrice,...(data.autoSized?{auto_sized_panel:true}:{})};
+ item.pricingSource={...sourceObject(item),...(found?window.KeySuitePricing?.sourceSnapshot?.(found)||{}:{}),product_family:'KEYPLC',product_id:data.productId,variant:`P${priceQty}`,material:`P${priceQty}`,pricing_mode:'assembly',panel_type:data.enclosure,enclosure_surcharge:surcharge,calculated_price:item.unitPrice,...(data.autoSized?{auto_sized_panel:true}:{})};
  current.description=replaceDescriptionBlock(current.description,previous,item.description);syncQuoteUnitPrice(current);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';
 }
 async function load(){
@@ -211,10 +211,10 @@ async function load(){
        const meta=quoteMetaFromItems(items);
        return normalize({...remote,quote_session_id:local.quote_session_id||remote.quote_session_id||`legacy:${remote.id}`,quote_qty:local.quote_qty??meta?.qty,quote_unit_price:local.quote_unit_price??meta?.unitPrice,quote_price_manual:local.quote_price_manual??meta?.manual,auto_suppressed:local.auto_suppressed||remote.auto_suppressed,items});
      });
-     loaded=true;localSave();return;
+     loaded=true;refreshPricing();localSave();return;
    }catch(e){console.warn('Assembly V2.01 Supabase fallback',e)}
  }
- drafts=localLoad();loaded=true;
+ drafts=localLoad();loaded=true;refreshPricing();
 }
 async function persist(d){
  const originalId=d.id,wasCurrent=current?.id===originalId,meta=quoteMeta(d),items=(d.items||[]).map((item,index)=>index===0?{...item,pricingSource:{...sourceObject(item),assembly_quote:meta}}:item),payload=JSON.parse(JSON.stringify({...d,items,updated_at:new Date().toISOString()}));let savedDraft=d;const client=window.KeySuiteAuth?.getClient?.();
@@ -277,8 +277,26 @@ async function addItem(item,explicitRoute){
 }
 async function toQuotation(){
  read();if(!current?.items?.length){alert('Add at least one component first.');return}if(!current.customer_id){alert('Select a customer for this assembly.');return}
- for(const item of current.items){const reason=window.KeySuitePricing?.pricingSourceBlockReason?.(sourceObject(item));if(reason){alert(`${reason}\n\nBOM item: ${item.model||'Unnamed item'}`);return}}
- window.KeySuiteApp?.selectCustomerForQuotation?.(current.customer_id);window.KeySuiteApp?.showPage?.('quotation');const description=normalizeDescriptionIndentation(String(current.description||'')).trim();const row=window.KeySuiteApp?.addExternalQuoteItem?.({model:current.model_item||current.name||'',qty:Number(current.quote_qty||1),unitPrice:quoteUnitPrice(current),description,unit:'set',sourceType:type});if(!row){alert('Unable to add the assembly to Quotation.');return}current.status='quoted';dirtyDraftIds.delete(current.id);try{await persist(current)}catch(e){alert(`Assembly quotation was created, but the assembly status could not be saved: ${e.message||e}`)}
+ window.KeySuiteApp?.selectCustomerForQuotation?.(current.customer_id);
+ const repriced=window.KeySuitePricing?.priceAssemblyForQuotation?.(current.items)||{error:'Quotation pricing is not available.'};if(repriced.error){alert(repriced.error);return}
+ window.KeySuiteApp?.showPage?.('quotation');const description=normalizeDescriptionIndentation(String(current.description||'')).trim();
+ current.quote_price_manual=false;current.quote_unit_price=Number(repriced.total||0);
+ const row=window.KeySuiteApp?.addExternalQuoteItem?.({model:current.model_item||current.name||'',qty:Number(current.quote_qty||1),unitPrice:Number(repriced.total||0),description,unit:'set',sourceType:type,pricingSource:repriced.source});if(!row){alert('Unable to add the assembly to Quotation.');return}current.status='quoted';dirtyDraftIds.delete(current.id);try{await persist(current)}catch(e){alert(`Assembly quotation was created, but the assembly status could not be saved: ${e.message||e}`)}
+}
+
+function refreshPricing(){
+ const pricing=window.KeySuitePricing;if(!pricing?.repriceSource)return;
+ for(const draft of drafts){
+   const customer=customers().find(row=>String(row.id)===String(draft.customer_id));if(!customer)continue;let changed=false;
+   for(const item of draft.items||[]){
+     const source=sourceObject(item);if(!source.product_family)continue;
+     const found=pricing.repriceSource(source,'assembly',{customer});if(!found?.calc)continue;
+     const nextPrice=Number(found.calc.finalPrice||0);if(Math.abs(nextPrice-Number(item.unitPrice||0))>.001||String(source.pricing_mode||'')!=='assembly')changed=true;
+     item.unitPrice=nextPrice;item.pricingSource={...source,...(pricing.sourceSnapshot?.(found)||{}),pricing_mode:'assembly'};
+   }
+   if(changed){syncQuoteUnitPrice(draft);draft.updated_at=new Date().toISOString();dirtyDraftIds.add(draft.id);autoSaveRetries.set(draft.id,0)}
+ }
+ localSave();if(current)render();if(dirtyDraftIds.size){clearTimeout(autoSaveTimer);autoSaveTimer=setTimeout(()=>flushAutoSave(),100)}
 }
 function resetForNewQuotation(){clearTimeout(autoSaveTimer);autoSaveTimer=null;dirtyDraftIds.clear();autoSaveRetries.clear();current=blank(type);currentPinned=false;if(document.getElementById('assemblyBuilder')?.classList.contains('active'))render();else localSave()}
 function pageShown(id){if(id==='assemblyBuilder'&&loaded)render()}
@@ -292,5 +310,5 @@ document.addEventListener('DOMContentLoaded',()=>{
  preview?.addEventListener('dblclick',openDescriptionEditor);preview?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openDescriptionEditor()}});
  $('saveAssemblyDescriptionPopup')?.addEventListener('click',()=>{current.description_manual=true;current.description=normalizeDescriptionIndentation(popup.value);main.value=current.description;renderDescriptionPreview();scheduleAutoSave(100)})
 });
-window.KeySuiteAssembly={open,addItem,routeItem,pageShown,resetForNewQuotation,refreshAutomaticPanel:()=>{if(current){syncAutomaticComponents(current);render();scheduleAutoSave(100)}}};
+window.KeySuiteAssembly={open,addItem,routeItem,pageShown,resetForNewQuotation,refreshPricing,refreshAutomaticPanel:()=>{if(current){syncAutomaticComponents(current);render();scheduleAutoSave(100)}}};
 })();

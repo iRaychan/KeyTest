@@ -27,7 +27,7 @@
     if(error)throw new Error(`Access check failed: ${error.message}`);
     return data?.[0]?.active?data[0]:null;
   }
-  async function loadData(){
+  async function loadData(userAccess=null){
     const [companies,users,categories,products,esProducts,gwsProducts,keyplcProducts,manifoldProducts,settings]=await Promise.all([
       client.from('ks_companies').select('*').order('company_name'),
       client.from('ks_company_users').select('*').order('full_name'),
@@ -40,6 +40,8 @@
       client.from('ks_app_settings').select('*').eq('id','default').limit(1)
     ]);
     const failed=[companies,users,categories,products,esProducts,gwsProducts,keyplcProducts,manifoldProducts,settings].find(x=>x.error);if(failed?.error)throw new Error(failed.error.message);
+    let companyPricingRow=null;
+    try{const result=await client.rpc('keysuite_get_company_pricing_v220');if(result.error)throw result.error;companyPricingRow=Array.isArray(result.data)?result.data[0]:result.data}catch(error){console.warn('V2.20 Company pricing is not available yet. Legacy quotation factors will be used until the migration is run.',error)}
     const setting=settings.data?.[0]||{};
     const chcUsdMultiplier=Number(setting.chc_usd_multiplier??setting.usd_multiplier??5.8);
     const chcRmbMultiplier=Number(setting.chc_rmb_multiplier??setting.rmb_multiplier??.65);
@@ -52,29 +54,20 @@
     const manifoldUsdMultiplier=Number(setting.manifold_usd_multiplier??setting.usd_multiplier??5.8);
     const manifoldRmbMultiplier=Number(setting.manifold_rmb_multiplier??setting.rmb_multiplier??.65);
     const parseRules=value=>{if(!value)return{};if(typeof value==='object')return value;try{return JSON.parse(value)}catch(_){return{}}};
-    const normalizeRule=(raw={},fallback={})=>({
-      margin:Number(raw.margin??fallback.margin??.38),
-      transport:Number(raw.transport??fallback.transport??30),
-      commission:Number(raw.commission??fallback.commission??.03),
-      setDiscount:Number(raw.set_discount??raw.setDiscount??fallback.setDiscount??.068),
-      finalDiscount:Number(raw.final_discount??raw.finalDiscount??fallback.finalDiscount??.08),
-      includeCommission:raw.include_commission??raw.includeCommission??true,
-      includeSetDiscount:raw.include_set_discount??raw.includeSetDiscount??true,
-      includeFinalDiscount:raw.include_final_discount??raw.includeFinalDiscount??true,
-      includeFuelCharge:raw.include_fuel_charge??raw.includeFuelCharge??true,
-      normal:Number(raw.normal??fallback.normal??0),
-      rare:Number(raw.rare??fallback.rare??0)
-    });
+    const normalizeRule=(raw={},fallback={})=>({margin:Number(raw.margin??fallback.margin??.38),transport:Number(raw.transport??fallback.transport??30),normal:Number(raw.normal??fallback.normal??0),rare:Number(raw.rare??fallback.rare??0)});
+    const activeCompany=(companies.data||[]).find(row=>String(row.id)===String(userAccess?.company_id||''))||{},firstCategory=(categories.data||[]).find(row=>String(row.category_name||'').toLowerCase()===String(activeCompany.pricing_category||'').toLowerCase())||(categories.data||[])[0]||{},firstRules=parseRules(firstCategory.product_rules),legacyRule=firstRules.CHC||{};
+    const legacyCompanyPricing={companyId:userAccess?.company_id||'',quotation:{commission:Number(legacyRule.commission??firstCategory.commission??.03),setDiscount:Number(legacyRule.set_discount??legacyRule.setDiscount??firstCategory.set_discount??.068),finalDiscount:Number(legacyRule.final_discount??legacyRule.finalDiscount??firstCategory.final_discount??.08),includeCommission:legacyRule.include_commission??legacyRule.includeCommission??true,includeSetDiscount:legacyRule.include_set_discount??legacyRule.includeSetDiscount??true,includeFinalDiscount:legacyRule.include_final_discount??legacyRule.includeFinalDiscount??true,includeFuelCharge:legacyRule.include_fuel_charge??legacyRule.includeFuelCharge??true},assembly:{commission:Number(legacyRule.commission??firstCategory.commission??.03),setDiscount:0,finalDiscount:Number(legacyRule.final_discount??legacyRule.finalDiscount??firstCategory.final_discount??.08),includeCommission:legacyRule.include_commission??legacyRule.includeCommission??true,includeSetDiscount:false,includeFinalDiscount:legacyRule.include_final_discount??legacyRule.includeFinalDiscount??true,includeFuelCharge:legacyRule.include_fuel_charge??legacyRule.includeFuelCharge??true}};
+    const companyPricing=window.KeySuiteCompanySettings?.normalizeRow?.(companyPricingRow||{},legacyCompanyPricing)||legacyCompanyPricing;
     return {
-      version:'2.19',release_date:'2026-08-02',currency:setting.currency||'MYR',
+      version:'2.20',release_date:'2026-08-02',currency:setting.currency||'MYR',
       usd_multiplier:chcUsdMultiplier,rmb_multiplier:chcRmbMultiplier,myr_multiplier:1,
       productMultipliers:{CHC:{USD:chcUsdMultiplier,RMB:chcRmbMultiplier,MYR:1},ES:{USD:esUsdMultiplier,RMB:esRmbMultiplier,MYR:1},GWS:{USD:gwsUsdMultiplier,RMB:gwsRmbMultiplier,MYR:1},KEYPLC:{USD:keyplcUsdMultiplier,RMB:keyplcRmbMultiplier,MYR:1},MANIFOLD:{USD:manifoldUsdMultiplier,RMB:manifoldRmbMultiplier,MYR:1}},
-      fuel_price:Number(setting.fuel_price??2),fuel_base_price:Number(setting.fuel_base_price??2),
+      fuel_price:Number(setting.fuel_price??2),fuel_base_price:Number(setting.fuel_base_price??2),companyPricing,
       companies:(companies.data||[]).map(c=>({id:c.id,name:c.company_name,category:c.pricing_category,delivery_distance:Number(c.delivery_distance||0),phone:c.company_phone,term_days:c.term_days,address:c.address,tin:c.tin_number,business_registration_no:c.business_registration_no,sst_no:c.sst_no,msic_code:c.msic_code,business_activities:c.business_activities})),
       users:(users.data||[]).map(u=>({id:u.id,company_id:u.company_id,source_company_id:u.source_company_id,prefix:u.prefix,name:u.full_name,phone:u.phone,email:u.email})),
       categories:(categories.data||[]).map(c=>{
-        const rules=parseRules(c.product_rules),chcFallback={margin:Number(c.chc_margin??c.chc_factor??.38),normal:0,rare:0,transport:Number(c.transport??30),commission:Number(c.commission??.03),setDiscount:Number(c.set_discount??.068),finalDiscount:Number(c.final_discount??.08),includeCommission:true,includeSetDiscount:true,includeFinalDiscount:true,includeFuelCharge:true},otherFallback={margin:0,normal:0,rare:0,transport:0,commission:0,setDiscount:0,finalDiscount:0,includeCommission:false,includeSetDiscount:false,includeFinalDiscount:false,includeFuelCharge:false};
-        return {id:c.id,name:c.category_name,productRules:{CHC:normalizeRule(rules.CHC,chcFallback),ES:normalizeRule(rules.ES,otherFallback),GWS:normalizeRule(rules.GWS,otherFallback),KEYPLC:normalizeRule(rules.KEYPLC,otherFallback),MANIFOLD:normalizeRule(rules.MANIFOLD,otherFallback)},final_discount:chcFallback.finalDiscount,set_discount:chcFallback.setDiscount,commission:chcFallback.commission,margins:{CHC:chcFallback.margin},factors:{CHC:chcFallback.margin},transport:chcFallback.transport};
+        const rules=parseRules(c.product_rules),chcFallback={margin:Number(c.chc_margin??c.chc_factor??.38),normal:0,rare:0,transport:Number(c.transport??30)},otherFallback={margin:0,normal:0,rare:0,transport:0};
+        return {id:c.id,name:c.category_name,productRules:{CHC:normalizeRule(rules.CHC,chcFallback),ES:normalizeRule(rules.ES,otherFallback),GWS:normalizeRule(rules.GWS,otherFallback),KEYPLC:normalizeRule(rules.KEYPLC,otherFallback),MANIFOLD:normalizeRule(rules.MANIFOLD,otherFallback)},margins:{CHC:chcFallback.margin},factors:{CHC:chcFallback.margin},transport:chcFallback.transport};
       }),
       products:(products.data||[]).map(p=>({
         id:p.id,category:p.product_category,model:p.model,source_row:p.source_row,
@@ -150,10 +143,10 @@
       const userAccess=await verify(s?.user?.email||'');
       if(!userAccess){await client.auth.signOut({scope:'local'});showLogin('This account is valid, but it is not approved for KeySuite.');return}
       showLoading('Loading protected company and pricing data…');
-      const data=await loadData();if(!data.companies.length)throw new Error('No company data was returned. Check the database and RLS policies.');
+      const data=await loadData(userAccess);if(!data.companies.length)throw new Error('No company data was returned. Check the database and RLS policies.');
       session=s;access=userAccess;window.KEYSUITE_ACCESS=access;await loadRolePermissions();const savedProfile=await loadUserProfile(s?.user?.email||'');profile=buildProfile(s,access,data,savedProfile);
       window.KEYSUITE_SECURE_DATA=data;applyProfile(profile);
-      window.KeySuitePricing?.init(data,access);window.KeySuiteCategories?.init(data,access);window.KeySuitePriceList?.init(data,access);window.KeySuiteManifold?.init(data,access);window.KeySuiteRoles?.init(access);await window.KeySuiteTemplates?.init?.(access);unlockSelector();
+      window.KeySuitePricing?.init(data,access);window.KeySuiteCategories?.init(data,access);window.KeySuiteCompanySettings?.init(data,access);window.KeySuitePriceList?.init(data,access);window.KeySuiteManifold?.init(data,access);window.KeySuiteRoles?.init(access);await window.KeySuiteTemplates?.init?.(access);unlockSelector();
       showLoading('Loading your customer access…');
       try{await window.KeySuiteCustomerStore?.load?.()}catch(error){console.warn('Customer load warning',error)}
       refreshAll();setView('app');

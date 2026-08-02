@@ -1,0 +1,14 @@
+KeySuite V2.20 Installation
+===========================
+
+Existing V2.19 deployment
+-------------------------
+1. Back up the current deployment and Supabase database.
+2. Run V220_SUPABASE_MIGRATION.sql in the Supabase SQL Editor.
+3. Extract KeySuite_V2.20_Changed_Files_Patch.zip over the V2.19 files.
+4. Keep the existing working config.js.
+5. Deploy and hard refresh with Ctrl + Shift + R.
+
+Clean installation
+------------------
+Use KeySuite_V2.20_GitHub.zip, provide the deployment config.js, and run all required Supabase migrations in sequence through V2.20.

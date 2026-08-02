@@ -1,0 +1,24 @@
+KeySuite V2.20 Changes
+======================
+
+1. Key > Company
+   - Adds a dedicated Company page in the Key Dashboard.
+   - Shows the signed-in company information and protected commercial settings.
+   - The Company page and pricing-factor editor are visible only to the Owner.
+
+2. Company Assembly and Quotation factors
+   - Adds Assembly and Quotation tabs under Key > Company.
+   - Existing Commission, Set Discount, Final Discount and Fuel Charge settings move to Quotation.
+   - Assembly has its own Commission, Final Discount and Fuel Charge settings.
+   - Assembly deliberately excludes Set Discount.
+
+3. Category Pricing Rule simplification
+   - Category Pricing Rule now contains only Margin, Normal, Rare and Transport.
+   - Company factors are no longer edited or displayed in the Category editor.
+   - Manual quoted-value calculation continues to use the protected Quotation company factors in the background.
+
+4. Separate Assembly and Quotation pricing
+   - Products and automatic BOM components added to Assembly use Assembly factors.
+   - Direct Quote actions use Quotation factors.
+   - System and Pumpset transfer recalculates every source-priced BOM component with Quotation factors.
+   - Sealed quotations are not recalculated when Company factors change.

@@ -67,7 +67,7 @@
     const normalized={material:String(config.material||'GI').toUpperCase(),connection:normalizeConnection(config.connection||'FLANGE_16'),suctionDn:String(config.suctionDn||'DN25'),dischargeDn:String(config.dischargeDn||'DN25'),pumpQty:Math.max(1,Math.min(6,Number(config.pumpQty)||2)),tankSize:String(config.tankSize||''),rarity:validRarity(config.rarity)};
     const customer=options.customer||pricingCustomer(),category=options.category||categoryFor(customer);if(!customer||!category)return null;
     const source=sourceBook(normalized);if(!source)return null;
-    const calc=window.KeySuitePricing?.calculatePrice?.(source.book,'TOTAL',category,'MANIFOLD',{customer,rarity:normalized.rarity});if(!calc)return null;
+    const calc=window.KeySuitePricing?.calculatePrice?.(source.book,'TOTAL',category,'MANIFOLD',{...options,customer,rarity:normalized.rarity,pricingMode:options.pricingMode||'quotation'});if(!calc)return null;
     return {product:{id:'MANIFOLD-CALCULATOR',model:`${normalized.material} Manifold ${source.manifoldDn}`},material:'TOTAL',variant:'TOTAL',calc,category,customer,family:'MANIFOLD',configuration:normalized,source,sourceExtra:{configuration:normalized}};
   }
 
@@ -82,7 +82,7 @@ ${indent}1 Pressure gauge on discharge ports`;
   }
   function itemFrom(found,options={}){
     const auto=!!options.auto,model=`Manifold ${dnInches(found.source.manifoldDn)}" · ${found.configuration.pumpQty} ${found.configuration.pumpQty===1?'Pump':'Pumps'} · ${connectionLabel(found.configuration.connection)}`;
-    return {model,bomDescription:model,description:description(found,{includeCw:!!options.includeCw}),qty:1,unitPrice:found.calc.finalPrice,pricingSource:{product_family:'MANIFOLD',product_id:'MANIFOLD-CALCULATOR',material:'TOTAL',variant:'TOTAL',rarity:found.calc.rarity,customer_id:found.customer?.id||'',category_id:found.category?.id||'',source_currency:found.calc.sourceCurrency,currency_multiplier:found.calc.multiplier,source_price:found.calc.sourcePrice,base_myr:found.calc.baseMyr,margin:found.calc.margin,distance_km:found.calc.distanceKm,fuel_price:found.calc.fuelPrice,fuel_base_price:found.calc.fuelBasePrice,fuel_charge:found.calc.fuelCharge,unrounded_price:found.calc.unroundedPrice,calculated_price:found.calc.finalPrice,configuration:found.configuration,...(auto?{auto_sized_manifold:true}:{})},productFamily:'MANIFOLD',assemblyLevel:'SYSTEM_COMPONENT',assemblySection:'manifold',manifoldData:{...found.configuration,manifoldDn:found.source.manifoldDn,autoSelected:auto}};
+    return {model,bomDescription:model,description:description(found,{includeCw:!!options.includeCw}),qty:1,unitPrice:found.calc.finalPrice,pricingSource:{product_family:'MANIFOLD',product_id:'MANIFOLD-CALCULATOR',material:'TOTAL',variant:'TOTAL',rarity:found.calc.rarity,pricing_mode:found.calc.pricingMode||'quotation',customer_id:found.customer?.id||'',category_id:found.category?.id||'',source_currency:found.calc.sourceCurrency,currency_multiplier:found.calc.multiplier,source_price:found.calc.sourcePrice,base_myr:found.calc.baseMyr,margin:found.calc.margin,normal:found.calc.normal,rare:found.calc.rare,transport:found.calc.transport,commission:found.calc.commission,set_discount:found.calc.setDiscount,final_discount:found.calc.finalDiscount,include_commission:found.calc.includeCommission,include_set_discount:found.calc.includeSetDiscount,include_final_discount:found.calc.includeFinalDiscount,include_fuel_charge:found.calc.includeFuelCharge,distance_km:found.calc.distanceKm,fuel_price:found.calc.fuelPrice,fuel_base_price:found.calc.fuelBasePrice,fuel_charge:found.calc.fuelCharge,unrounded_price:found.calc.unroundedPrice,calculated_price:found.calc.finalPrice,configuration:found.configuration,...(auto?{auto_sized_manifold:true}:{})},productFamily:'MANIFOLD',assemblyLevel:'SYSTEM_COMPONENT',assemblySection:'manifold',manifoldData:{...found.configuration,manifoldDn:found.source.manifoldDn,autoSelected:auto}};
   }
   function buildConfiguredItem(config={},options={}){const found=findConfiguredPrice(config,options);return found?itemFrom(found,{includeCw:options.includeCw!==false,auto:!!options.auto}):null}
 
@@ -104,9 +104,11 @@ ${indent}1 Pressure gauge on discharge ports`;
     ['manifoldAddAssembly','manifoldAddQuotation'].forEach(id=>{if($(id))$(id).disabled=!found});
   }
   function addTo(route){
-    if(!lastFound){updateProduct();if(!lastFound)return}const item=itemFrom(lastFound,{includeCw:route==='assembly'});
+    if(!lastFound){updateProduct();if(!lastFound)return}
+    const found=route==='assembly'?findConfiguredPrice(lastFound.configuration,{pricingMode:'assembly'}):lastFound;if(!found)return;
+    const item=itemFrom(found,{includeCw:route==='assembly'});
     if(route==='assembly'){window.KeySuiteAssembly?.addItem?.(item);return}
-    if(!window.KeySuitePricing?.ensureQuoteableCalculation?.(lastFound.calc,item.model))return;
+    if(!window.KeySuitePricing?.ensureQuoteableCalculation?.(found.calc,item.model))return;
     if(window.KeySuiteApp?.canEditQuotation&&!window.KeySuiteApp.canEditQuotation(true))return;
     const row=window.KeySuiteApp?.addExternalQuoteItem?.(item);if(!row)return;
     row.dataset.pricingSource=JSON.stringify(item.pricingSource);window.KeySuiteApp?.showPage?.('quotation');

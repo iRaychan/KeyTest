@@ -1,0 +1,57 @@
+KeySuite V2.20 QA Report
+========================
+Build date: 2026-08-02
+Base version: KeySuite V2.19
+
+1. JavaScript and source validation
+-----------------------------------
+PASS - node --check completed for every JavaScript file in the project.
+PASS - git diff --check completed with no whitespace errors.
+PASS - No duplicate HTML IDs were found.
+PASS - The V2.20 service-worker cache includes company-settings.js.
+
+2. Key > Company and access control
+-----------------------------------
+PASS - Key Dashboard contains the new Company module.
+PASS - Company navigation is restricted to the Owner in the application router.
+PASS - Company factor editor is hidden for a non-Owner role.
+PASS - Browser UI test confirmed the Assembly and Quotation tabs and Owner-only display.
+PASS - Supabase save RPC independently enforces the Owner role.
+
+3. Company pricing-factor split
+-------------------------------
+PASS - Quotation stores Commission, Set Discount, Final Discount and Fuel Charge inclusion.
+PASS - Assembly stores Commission, Final Discount and Fuel Charge inclusion.
+PASS - Assembly has no Set Discount field or database column.
+PASS - Browser save-payload test confirmed both tab values are preserved and saved together.
+
+4. Category Pricing Rule
+------------------------
+PASS - Category editor contains only Margin, Normal, Rare and Transport.
+PASS - Company factor values are not shown in Company & Pricing > Category Pricing Rule.
+PASS - Category save uses keysuite_manage_pricing_category_v220.
+PASS - Manual Category calculator continues to apply Quotation company factors in the background.
+
+5. Pricing calculation and routing
+----------------------------------
+PASS - Executable pricing test: MYR 100 source with the test rule produced RM160 for Assembly and RM180 for Quotation.
+PASS - Executable test confirmed Assembly Set Discount is zero and disabled.
+PASS - CHC, ES, GWS Tank, KeyPLC and Manifold Assembly routes request Assembly pricing.
+PASS - Automatic Control Panel, Manifold and Tank BOM selection uses Assembly pricing.
+PASS - System/Pumpset transfer recalculates source-priced BOM items with Quotation pricing.
+PASS - Manual BOM items without a source-price record retain their entered amount.
+PASS - Sealed quotations are excluded from automatic repricing.
+
+6. Supabase migration
+----------------------
+PASS - V220_SUPABASE_MIGRATION.sql creates protected company pricing settings.
+PASS - Existing company factors seed into Quotation; Assembly copies applicable factors but excludes Set Discount.
+PASS - Category-management RPC accepts only Margin, Normal, Rare and Transport.
+PASS - Root and setup migration copies are identical.
+
+7. Packaging
+------------
+PASS - Full GitHub package and changed-files patch were created from the release commit.
+PASS - Both ZIP archives passed integrity checks.
+PASS - config.js and .git metadata are excluded from the release ZIP files.
+PASS - The Git patch, Supabase migration and SHA-256 checksum manifest were generated.
