@@ -22,8 +22,8 @@ function panelTypeLabel(value){return normalizePanelType(value)==='sheltered'?'S
 function normalizeDescriptionIndentation(value){
  const lines=String(value||'').replace(/\r\n?/g,'\n').split('\n');
  return lines.map(line=>{
-   if(/^c\/w(?:\t+| +)/i.test(line))return line.replace(/^c\/w(?:\t+| +)/i,'c/w ');
-   if(/^(?:\t+| {4,})/.test(line))return `\t${line.replace(/^(?:\t+| +)/,'')}`;
+   if(/^c\/w(?:\t+| +)/i.test(line))return `c/w\t${line.replace(/^c\/w(?:\t+| +)/i,'')}`;
+   if(/^(?:\t+| {4,})/.test(line))return `\t\t${line.replace(/^(?:\t+| +)/,'')}`;
    return line;
  }).join('\n');
 }
@@ -54,7 +54,7 @@ function tankDescription(item,qty=item?.qty){
  const litres=Number(item?.tankData?.sizeLitres||0),pressure=Number(item?.tankData?.pressureBar||0),quantity=Math.max(0,Number(qty)||0);
  if(!(litres>0)||!(pressure>0))return item?.description||'';
  const clean=value=>Number.isInteger(value)?value.toFixed(0):String(value);
- return `c/w ${clean(litres)} litres (${clean(pressure)} bar) non-jkkp approved tank @ ${clean(quantity)} ${quantity===1?'unit':'units'}`;
+ return `c/w\t${clean(litres)} litres (${clean(pressure)} bar) non-jkkp approved tank @ ${clean(quantity)} ${quantity===1?'unit':'units'}`;
 }
 function replaceDescriptionBlock(source,previous,next){
  const text=String(source||'');if(!previous||previous===next)return text;
@@ -69,8 +69,8 @@ function removeDescriptionBlock(source,block){
  return `${before}${after}`.replace(/\n{3,}/g,'\n\n').trim();
 }
 function keyplcDescription(item){
- const data=item?.keyplcData||{},qty=Math.max(1,Number(data.pumpQty)||1),numberWord=qty===1?'no':'nos',indent='\t';
- return `c/w KeyPLC Control Panel (${panelTypeLabel(data.enclosure)})
+ const data=item?.keyplcData||{},qty=Math.max(1,Number(data.pumpQty)||1),numberWord=qty===1?'no':'nos',indent='\t\t';
+ return `c/w\tKeyPLC Control Panel (${panelTypeLabel(data.enclosure)})
 ${indent}Pump Controller & HMI Touch Screen @ 1 Lot
 ${indent}${data.motorRating||''} VFD @ ${qty} ${numberWord} & Pressure Transmitter @ 1 no
 ${indent}Wiring for pumps & pressure transmitter within pump skid @ 1 Lot`;
@@ -136,7 +136,7 @@ function syncAutomaticControlPanel(d=current){
  const surcharge=existingEnclosure==='sheltered'?1000:0;
  const data={productId:product.id,motorRating:product.model,pumpQty:qty,enclosure:existingEnclosure,indoorUnitPrice:indoorPrice,shelteredSurcharge:1000,autoSized:true};
  const model=`KeyPLC ${product.model} · ${qty} ${qty===1?'Pump':'Pumps'} · ${panelTypeLabel(existingEnclosure)}`;
- const pricingSource={...(panel?sourceObject(panel):{}),product_family:'KEYPLC',product_id:product.id,variant:`P${priceQty}`,material:`P${priceQty}`,panel_type:existingEnclosure,enclosure_surcharge:surcharge,calculated_price:Number(found?.calc?.finalPrice??indoorPrice+surcharge),auto_sized_panel:true};
+ const pricingSource={...(panel?sourceObject(panel):{}),product_family:'KEYPLC',product_id:product.id,variant:`P${priceQty}`,material:`P${priceQty}`,category_id:found?.category?.id||'',source_currency:found?.calc?.sourceCurrency||'',currency_multiplier:Number(found?.calc?.multiplier||0),source_price:Number(found?.calc?.sourcePrice||0),base_myr:Number(found?.calc?.baseMyr||0),margin:Number(found?.calc?.margin||0),panel_type:existingEnclosure,enclosure_surcharge:surcharge,calculated_price:Number(found?.calc?.finalPrice??indoorPrice+surcharge),auto_sized_panel:true};
  if(!panel){panel={id:uid(),section:'control_panel',model,bomDescription:model,description:'',qty:1,unitPrice:Number(found?.calc?.finalPrice??indoorPrice+surcharge),pricingSource,pumpData:null,keyplcData:data};d.items.push(panel)}
  else{panel.section='control_panel';panel.model=model;panel.bomDescription=model;panel.qty=1;panel.unitPrice=Number(found?.calc?.finalPrice??indoorPrice+surcharge);panel.pricingSource=pricingSource;panel.keyplcData=data}
  panel.description=keyplcDescription(panel);
@@ -194,7 +194,7 @@ function updateKeyplcItem(item,enclosure){
  item.model=`KeyPLC ${data.motorRating||''} · ${qty} ${qty===1?'Pump':'Pumps'} · ${panelTypeLabel(data.enclosure)}`;item.bomDescription=item.model;item.description=keyplcDescription(item);
  const priceQty=Math.max(1,Math.min(6,qty)),found=window.KeySuitePricing?.findKeyplcPrice?.(data.productId,priceQty,{enclosure:data.enclosure});
  const indoor=Number(found?.calc?.indoorPrice??data.indoorUnitPrice??item.unitPrice??0),surcharge=data.enclosure==='sheltered'?Number(data.shelteredSurcharge||1000):0;data.indoorUnitPrice=indoor;item.unitPrice=Number(found?.calc?.finalPrice??indoor+surcharge);
- item.pricingSource={...sourceObject(item),product_family:'KEYPLC',product_id:data.productId,variant:`P${priceQty}`,material:`P${priceQty}`,panel_type:data.enclosure,enclosure_surcharge:surcharge,calculated_price:item.unitPrice,...(data.autoSized?{auto_sized_panel:true}:{})};
+ item.pricingSource={...sourceObject(item),product_family:'KEYPLC',product_id:data.productId,variant:`P${priceQty}`,material:`P${priceQty}`,category_id:found?.category?.id||'',source_currency:found?.calc?.sourceCurrency||'',currency_multiplier:Number(found?.calc?.multiplier||0),source_price:Number(found?.calc?.sourcePrice||0),base_myr:Number(found?.calc?.baseMyr||0),margin:Number(found?.calc?.margin||0),panel_type:data.enclosure,enclosure_surcharge:surcharge,calculated_price:item.unitPrice,...(data.autoSized?{auto_sized_panel:true}:{})};
  current.description=replaceDescriptionBlock(current.description,previous,item.description);syncQuoteUnitPrice(current);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';
 }
 async function load(){
@@ -276,7 +276,9 @@ async function addItem(item,explicitRoute){
  current=target;current.description_manual=false;syncAutomaticComponents(current);rebuildDescription(current);localSave();window.KeySuiteApp?.showPage?.('assemblyBuilder');render();scheduleAutoSave(100);$('assemblyNotice').textContent=`${item.model||'Product'} routed to ${type==='system'?'System':'Pumpset'} → ${labels[route.section]}. Saving automatically…`;
 }
 async function toQuotation(){
- read();if(!current?.items?.length){alert('Add at least one component first.');return}if(!current.customer_id){alert('Select a customer for this assembly.');return}window.KeySuiteApp?.selectCustomerForQuotation?.(current.customer_id);window.KeySuiteApp?.showPage?.('quotation');const description=normalizeDescriptionIndentation(String(current.description||'')).trim();const row=window.KeySuiteApp?.addExternalQuoteItem?.({model:current.model_item||current.name||'',qty:Number(current.quote_qty||1),unitPrice:quoteUnitPrice(current),description,unit:'set',sourceType:type});if(!row){alert('Unable to add the assembly to Quotation.');return}current.status='quoted';dirtyDraftIds.delete(current.id);try{await persist(current)}catch(e){alert(`Assembly quotation was created, but the assembly status could not be saved: ${e.message||e}`)}
+ read();if(!current?.items?.length){alert('Add at least one component first.');return}if(!current.customer_id){alert('Select a customer for this assembly.');return}
+ for(const item of current.items){const reason=window.KeySuitePricing?.pricingSourceBlockReason?.(sourceObject(item));if(reason){alert(`${reason}\n\nBOM item: ${item.model||'Unnamed item'}`);return}}
+ window.KeySuiteApp?.selectCustomerForQuotation?.(current.customer_id);window.KeySuiteApp?.showPage?.('quotation');const description=normalizeDescriptionIndentation(String(current.description||'')).trim();const row=window.KeySuiteApp?.addExternalQuoteItem?.({model:current.model_item||current.name||'',qty:Number(current.quote_qty||1),unitPrice:quoteUnitPrice(current),description,unit:'set',sourceType:type});if(!row){alert('Unable to add the assembly to Quotation.');return}current.status='quoted';dirtyDraftIds.delete(current.id);try{await persist(current)}catch(e){alert(`Assembly quotation was created, but the assembly status could not be saved: ${e.message||e}`)}
 }
 function resetForNewQuotation(){clearTimeout(autoSaveTimer);autoSaveTimer=null;dirtyDraftIds.clear();autoSaveRetries.clear();current=blank(type);currentPinned=false;if(document.getElementById('assemblyBuilder')?.classList.contains('active'))render();else localSave()}
 function pageShown(id){if(id==='assemblyBuilder'&&loaded)render()}

@@ -53,9 +53,15 @@ function renderSelect(preferredId=''){
  select.innerHTML=rows.map(item=>`<option value="${esc(item.id)}">${esc(item.template_name)}${item.template_scope==='personal'?' — Personal':''}${item.is_default?' ★':''}</option>`).join('');
  if(sealedSnapshot&&preferred&&!rows.some(item=>item.id===preferred))select.insertAdjacentHTML('beforeend',`<option value="${esc(preferred)}">${esc(sealedSnapshot.template_name||'Sealed Template Snapshot')} — Sealed</option>`);
  selectedId=([...select.options].some(option=>option.value===preferred)?preferred:(rows[0]?.id||''));select.value=selectedId;
- if(selectedId)localStorage.setItem(selectionKey(),selectedId);
+ if(selectedId)localStorage.setItem(selectionKey(),selectedId);updateHeaderLogo();
 }
 function getTemplate(id=selectedId){return templates.find(item=>item.id===id)||null}
+function updateHeaderLogo(){
+ const item=sealedSnapshot?normalizeTemplate(sealedSnapshot):(getTemplate(selectedId)||chosenDefault()),settings=item?.settings||DEFAULT_SETTINGS;
+ const img=$('quotationTemplateHeaderLogo'),button=$('quotationTemplateLogoButton');if(!img||!button)return;
+ img.src=settings.logoData||'keylargo-logo.png';img.alt=`${item.template_name||'Quotation template'} logo`;
+ button.title=`Quotation template: ${item.template_name||'Quotation Template'}`;button.setAttribute('aria-label',`Open quotation template: ${item.template_name||'Quotation Template'}`);
+}
 function snapshotOf(template){if(!template)return null;return JSON.parse(JSON.stringify({...template,settings:normalizeSettings(template.settings),snapshot_at:now()}))}
 function selectedSnapshot(){return sealedSnapshot?JSON.parse(JSON.stringify(sealedSnapshot)):snapshotOf(getTemplate(selectedId)||chosenDefault())}
 function resetSelection(){sealedSnapshot=null;selectedId=chosenDefault().id;renderSelect(selectedId)}
@@ -121,9 +127,9 @@ async function init(nextAccess={}){
  access=nextAccess||access;let loaded=null;try{loaded=await remoteLoad()}catch(error){console.warn(error)}const local=localLoad();const merged=loaded===null?local:[...loaded,...local.filter(item=>!loaded.some(remote=>remote.id===item.id))];templates=merged.map(normalizeTemplate);ensureStandard();localSave();initialized=true;renderSelect();if(window.KeySuiteApp?.isNewQuotation?.())window.KeySuiteApp?.applyQuotationTemplateDefaults?.(selectedSnapshot(),true);
 }
 function bind(){
- $('qTemplate')?.addEventListener('change',event=>{selectedId=event.target.value;sealedSnapshot=null;localStorage.setItem(selectionKey(),selectedId);window.KeySuiteApp?.applyQuotationTemplateDefaults?.(selectedSnapshot(),!window.KeySuiteApp?.hasQuotationItems?.())});
- $('manageQuotationTemplates')?.addEventListener('click',openManager);$('settingsQuotationTemplates')?.addEventListener('click',()=>{$('settingsDialog')?.close();openManager()});$('closeQuotationTemplates')?.addEventListener('click',()=>$('quotationTemplateDialog')?.close());$('newQuotationTemplate')?.addEventListener('click',newTemplate);$('copyQuotationTemplate')?.addEventListener('click',copyTemplate);$('saveQuotationTemplate')?.addEventListener('click',saveTemplate);$('deleteQuotationTemplate')?.addEventListener('click',deleteTemplate);$('previewQuotationTemplate')?.addEventListener('click',preview);$('removeTemplateLogo')?.addEventListener('click',()=>{pendingLogo='';renderLogo()});$('templateLogoUpload')?.addEventListener('change',async event=>{try{pendingLogo=await optimizeLogo(event.target.files?.[0]);renderLogo();message('Logo ready. Save the template to keep it.','success')}catch(error){message(error.message,'error');event.target.value=''}});
+ $('qTemplate')?.addEventListener('change',event=>{selectedId=event.target.value;sealedSnapshot=null;localStorage.setItem(selectionKey(),selectedId);updateHeaderLogo();window.KeySuiteApp?.applyQuotationTemplateDefaults?.(selectedSnapshot(),!window.KeySuiteApp?.hasQuotationItems?.())});
+ $('quotationTemplateLogoButton')?.addEventListener('click',openManager);$('manageQuotationTemplates')?.addEventListener('click',openManager);$('settingsQuotationTemplates')?.addEventListener('click',()=>{$('settingsDialog')?.close();openManager()});$('closeQuotationTemplates')?.addEventListener('click',()=>$('quotationTemplateDialog')?.close());$('newQuotationTemplate')?.addEventListener('click',newTemplate);$('copyQuotationTemplate')?.addEventListener('click',copyTemplate);$('saveQuotationTemplate')?.addEventListener('click',saveTemplate);$('deleteQuotationTemplate')?.addEventListener('click',deleteTemplate);$('previewQuotationTemplate')?.addEventListener('click',preview);$('removeTemplateLogo')?.addEventListener('click',()=>{pendingLogo='';renderLogo()});$('templateLogoUpload')?.addEventListener('change',async event=>{try{pendingLogo=await optimizeLogo(event.target.files?.[0]);renderLogo();message('Logo ready. Save the template to keep it.','success')}catch(error){message(error.message,'error');event.target.value=''}});
 }
 document.addEventListener('DOMContentLoaded',()=>{bind();if(!initialized)init(window.KEYSUITE_ACCESS||{})});
-window.KeySuiteTemplates={init,openManager,resetSelection,loadSelection,getSelectedId:()=>selectedId,getSelectedSnapshot:selectedSnapshot,applyToPrint,getPdfName:pdfName,getTemplates:()=>templates.map(snapshotOf)};
+window.KeySuiteTemplates={init,openManager,resetSelection,loadSelection,getSelectedId:()=>selectedId,getSelectedSnapshot:selectedSnapshot,applyToPrint,getPdfName:pdfName,getTemplates:()=>templates.map(snapshotOf),refreshHeaderLogo:updateHeaderLogo};
 })();

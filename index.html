@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V2.18</title>
+  <title>KeySuite V2.19</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -214,7 +214,7 @@
     .es-matrix-table thead th:first-child{z-index:6;background:#e6edf5}
 
     /* V2.05 quotation and ES Price List */
-    .quote-head{display:flex;align-items:center;justify-content:space-between;gap:18px}.quote-head>h1{margin:0}.quote-head-right{margin-left:auto;display:flex;align-items:center;justify-content:flex-end;gap:12px}.quote-number-field{display:grid!important;grid-template-columns:auto minmax(260px,380px);align-items:center;gap:10px;min-width:0!important}.quote-number-field label{margin:0;white-space:nowrap}.quote-number-field input{width:100%}.es-matrix-table{min-width:1180px}.es-matrix-table select[data-es-rarity]{min-width:96px}
+    .quote-head{display:flex;align-items:center;justify-content:space-between;gap:18px}.quote-head>h1{margin:0}.quote-head-right{margin-left:auto;display:flex;align-items:center;justify-content:flex-end;gap:12px}.quotation-template-logo-button{width:68px;height:48px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;padding:4px 6px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;cursor:pointer}.quotation-template-logo-button:hover{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.12)}.quotation-template-logo-button img{display:block;max-width:56px;max-height:38px;object-fit:contain}.quote-number-field{display:grid!important;grid-template-columns:auto minmax(260px,380px);align-items:center;gap:10px;min-width:0!important}.quote-number-field label{margin:0;white-space:nowrap}.quote-number-field input{width:100%}.es-matrix-table{min-width:1180px}.es-matrix-table select[data-es-rarity]{min-width:96px}
     @media(max-width:700px){.quote-head{align-items:stretch;flex-direction:column}.quote-head-right{margin-left:0;display:block}.quote-number-field{grid-template-columns:1fr}.quote-number-field label{margin-bottom:5px}}
 
     /* V2.13 defaults, manual pricing, internal remarks and Manifold integration */
@@ -250,7 +250,7 @@
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.18 secure quotation, assembly and template system</small></div>
+    <div class="auth-brand">KeySuite<small>V2.19 secure quotation, assembly and template system</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -265,7 +265,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.18</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.19</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -288,7 +288,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.18 · quotation templates, isolated Assembly drafts and tab-aligned descriptions</div>
+    <div class="suite-version">KeySuite V2.19 · template logo preview, two-tab descriptions and pricing safeguards</div>
   </aside>
 
   <main>
@@ -504,6 +504,7 @@
       <div class="quote-head">
         <h1>Quotation</h1>
         <div class="quote-head-right">
+          <button id="quotationTemplateLogoButton" class="quotation-template-logo-button" type="button" title="Quotation template" aria-label="Open selected quotation template"><img id="quotationTemplateHeaderLogo" src="keylargo-logo.png" alt="Selected quotation template logo"></button>
           <div class="quote-number-field"><label for="quoteNo">Quotation No.</label><input id="quoteNo"></div>
           <button class="btn action-pdf no-print export-center-hidden" type="button" id="topPrintQuote">PDF</button>
           <input id="preparedBy" type="hidden">
@@ -1073,15 +1074,15 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=216"></script>
-<script src="app.js?v=218"></script>
-<script src="pricing.js?v=218"></script>
+<script src="app.js?v=219"></script>
+<script src="pricing.js?v=219"></script>
 <script src="categories.js?v=216"></script>
 <script src="pricelist.js?v=216"></script>
 <script src="product.js?v=216"></script>
-<script src="manifold.js?v=216"></script>
+<script src="manifold.js?v=219"></script>
 <script src="roles.js?v=216"></script>
-<script src="assembly.js?v=218"></script>
-<script src="quotation-templates.js?v=218"></script>
+<script src="assembly.js?v=219"></script>
+<script src="quotation-templates.js?v=219"></script>
 
 <dialog id="quotationTemplateDialog" class="ks-dialog template-dialog">
   <div class="dialog-body">
@@ -1133,6 +1134,6 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="auth.js?v=218"></script>
+<script src="auth.js?v=219"></script>
 </body>
 </html>

@@ -74,15 +74,15 @@
   function connectionLabel(value){return ({THREAD_8:'Thread @ 8 Bar',FLANGE_10:'Flange @ 10 Bar',FLANGE_16:'Flange @ 16 Bar',FLANGE_25:'Flange @ 25 Bar'})[normalizeConnection(value)]||value}
   function dnInches(value){const dn=dnNumber(value),map={15:'.5',20:'.75',25:'1',32:'1.25',40:'1.5',50:'2',65:'2.5',80:'3',100:'4',125:'5',150:'6',200:'8',250:'10',300:'12'};return map[dn]||String(Number((dn/25.4).toFixed(1))||'')}
   function description(found,options={}){
-    const c=found.configuration,s=found.source,includeCw=!!options.includeCw,indent=includeCw?'    ':'',size=dnInches(s.manifoldDn);
-    return `${includeCw?'c/w ':''}Baseplate in mild steel, SS manifold ${size}" inlet & ${size}" outlet
+    const c=found.configuration,s=found.source,includeCw=!!options.includeCw,indent=includeCw?'\t\t':'',size=dnInches(s.manifoldDn);
+    return `${includeCw?'c/w\t':''}Baseplate in mild steel, SS manifold ${size}" inlet & ${size}" outlet
 ${indent}Gate valves on suction & discharge ports of each pump
 ${indent}Check valves on discharge ports of each pump
 ${indent}1 Pressure gauge on discharge ports`;
   }
   function itemFrom(found,options={}){
     const auto=!!options.auto,model=`Manifold ${dnInches(found.source.manifoldDn)}" · ${found.configuration.pumpQty} ${found.configuration.pumpQty===1?'Pump':'Pumps'} · ${connectionLabel(found.configuration.connection)}`;
-    return {model,bomDescription:model,description:description(found,{includeCw:!!options.includeCw}),qty:1,unitPrice:found.calc.finalPrice,pricingSource:{product_family:'MANIFOLD',product_id:'MANIFOLD-CALCULATOR',material:'TOTAL',variant:'TOTAL',rarity:found.calc.rarity,customer_id:found.customer?.id||'',category_id:found.category?.id||'',source_currency:found.calc.sourceCurrency,currency_multiplier:found.calc.multiplier,source_price:found.calc.sourcePrice,distance_km:found.calc.distanceKm,fuel_price:found.calc.fuelPrice,fuel_base_price:found.calc.fuelBasePrice,fuel_charge:found.calc.fuelCharge,unrounded_price:found.calc.unroundedPrice,calculated_price:found.calc.finalPrice,configuration:found.configuration,...(auto?{auto_sized_manifold:true}:{})},productFamily:'MANIFOLD',assemblyLevel:'SYSTEM_COMPONENT',assemblySection:'manifold',manifoldData:{...found.configuration,manifoldDn:found.source.manifoldDn,autoSelected:auto}};
+    return {model,bomDescription:model,description:description(found,{includeCw:!!options.includeCw}),qty:1,unitPrice:found.calc.finalPrice,pricingSource:{product_family:'MANIFOLD',product_id:'MANIFOLD-CALCULATOR',material:'TOTAL',variant:'TOTAL',rarity:found.calc.rarity,customer_id:found.customer?.id||'',category_id:found.category?.id||'',source_currency:found.calc.sourceCurrency,currency_multiplier:found.calc.multiplier,source_price:found.calc.sourcePrice,base_myr:found.calc.baseMyr,margin:found.calc.margin,distance_km:found.calc.distanceKm,fuel_price:found.calc.fuelPrice,fuel_base_price:found.calc.fuelBasePrice,fuel_charge:found.calc.fuelCharge,unrounded_price:found.calc.unroundedPrice,calculated_price:found.calc.finalPrice,configuration:found.configuration,...(auto?{auto_sized_manifold:true}:{})},productFamily:'MANIFOLD',assemblyLevel:'SYSTEM_COMPONENT',assemblySection:'manifold',manifoldData:{...found.configuration,manifoldDn:found.source.manifoldDn,autoSelected:auto}};
   }
   function buildConfiguredItem(config={},options={}){const found=findConfiguredPrice(config,options);return found?itemFrom(found,{includeCw:options.includeCw!==false,auto:!!options.auto}):null}
 
@@ -106,6 +106,7 @@ ${indent}1 Pressure gauge on discharge ports`;
   function addTo(route){
     if(!lastFound){updateProduct();if(!lastFound)return}const item=itemFrom(lastFound,{includeCw:route==='assembly'});
     if(route==='assembly'){window.KeySuiteAssembly?.addItem?.(item);return}
+    if(!window.KeySuitePricing?.ensureQuoteableCalculation?.(lastFound.calc,item.model))return;
     if(window.KeySuiteApp?.canEditQuotation&&!window.KeySuiteApp.canEditQuotation(true))return;
     const row=window.KeySuiteApp?.addExternalQuoteItem?.(item);if(!row)return;
     row.dataset.pricingSource=JSON.stringify(item.pricingSource);window.KeySuiteApp?.showPage?.('quotation');

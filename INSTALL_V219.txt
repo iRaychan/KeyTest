@@ -1,0 +1,14 @@
+KeySuite V2.19 Installation
+===========================
+
+Existing V2.18 deployment
+-------------------------
+1. Back up the current deployment.
+2. Extract KeySuite_V2.19_Changed_Files_Patch.zip over the V2.18 files.
+3. Keep the existing working config.js.
+4. No Supabase migration is required.
+5. Deploy and hard refresh with Ctrl + Shift + R.
+
+Clean installation
+------------------
+Use KeySuite_V2.19_GitHub.zip and retain/configure config.js for the target deployment. Run all previous required Supabase migrations through V2.18.

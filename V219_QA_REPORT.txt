@@ -1,0 +1,43 @@
+KeySuite V2.19 QA Report
+========================
+Build date: 2026-08-02
+Base version: KeySuite V2.18
+
+1. JavaScript syntax
+--------------------
+PASS - node --check completed for every JavaScript file in the full project.
+
+2. Quotation template logo
+--------------------------
+PASS - Quotation header contains the selected-template logo button beside Quotation No.
+PASS - Default logo resolves to keylargo-logo.png.
+PASS - Template name is exposed in the button title/accessible label.
+PASS - Template selection and sealed-template loading call the header-logo refresh routine.
+PASS - Clicking the logo opens Quotation Templates.
+
+3. Coupled-description tab alignment
+------------------------------------
+PASS - First coupled row is generated as: c/w + one tab + description.
+PASS - Continuation rows are generated with exactly two tabs and zero spaces.
+PASS - KeyPLC output verified by executable Node VM test.
+PASS - Manifold output verified by executable Node VM test.
+PASS - Application and Assembly normalizers convert prior spaces/tabs to the V2.19 format.
+PASS - Updated app, pricing, assembly, manifold and quotation-template cache versions are referenced by index.html.
+
+4. Category Pricing Rule retained
+---------------------------------
+PASS - Margin, Normal, Rare, Transport, Commission, Set Discount, Final Discount and Fuel Charge remain in the company pricing calculation.
+PASS - Executable calculation test confirmed all percentages and fuel charge are applied.
+
+5. Zero-pricing quotation safeguard
+-----------------------------------
+PASS - Zero/blank highest converted USD/RMB/MYR source cost returns a blocking validation message.
+PASS - Zero/blank Category Margin returns a blocking validation message.
+PASS - A positive source cost with positive Margin remains quoteable.
+PASS - Validation is applied to direct product/selector Quote actions, manual pricing result, System/Pumpset transfer, quotation recalculation, sealing and PDF generation.
+
+6. Packaging
+------------
+PASS - No new Supabase schema change is required.
+PASS - Full and changed-files packages exclude deployment config.js.
+PASS - ZIP integrity and SHA-256 checksum verification completed.

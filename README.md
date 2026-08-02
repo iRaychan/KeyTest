@@ -1,18 +1,22 @@
-# KeySuite V2.18
+# KeySuite V2.19
 
-KeySuite V2.18 isolates Assembly drafts by quotation, standardises coupled-description indentation, and adds reusable quotation templates for company and dealer use.
+KeySuite V2.19 adds quotation-template identification, consistent coupled-description tab alignment, and quotation safeguards for invalid pricing inputs.
 
 ## Main changes
 
-- New quotations start with an empty Assembly/System draft workspace; drafts are linked to their quotation session.
-- Coupled component continuation rows use exactly one tab and no extra spaces in Assembly, Quotation and PDF output.
-- KeyPLC wiring is combined into one line: `Wiring for pumps & pressure transmitter within pump skid @ 1 Lot`.
-- Multiple quotation templates support company-wide and personal/dealer ownership, logos, company details, colours, fonts, price-column layout, quotation defaults, signature visibility, headers, footers and PDF filename patterns.
-- Sealed quotations retain a template snapshot so later template edits do not change the original output.
+- Shows the selected quotation-template logo beside the Quotation No.; sealed quotations use the saved template snapshot logo.
+- Formats coupled descriptions with exactly one tab after `c/w` on the first row and exactly two tabs on continuation rows.
+- Keeps all existing company Category Pricing Rule percentages: Margin, Normal, Rare, Transport, Commission, Set Discount, Final Discount and Fuel Charge.
+- Blocks quotation actions when the applicable Margin is blank/0% or when no positive converted USD, RMB or MYR source cost is available.
 
-## Upgrade from V2.17
+## Upgrade from V2.18
 
-1. Run `V218_SUPABASE_MIGRATION.sql` in Supabase SQL Editor.
-2. Apply `KeySuite_V2.18_Changed_Files_Patch.zip` over V2.17.
+1. Back up the existing deployment.
+2. Apply `KeySuite_V2.19_Changed_Files_Patch.zip` over V2.18.
 3. Preserve the existing working `config.js`.
-4. Deploy and hard refresh with `Ctrl + Shift + R`.
+4. No new Supabase migration is required.
+5. Deploy and hard-refresh with `Ctrl + Shift + R`.
+
+## Clean installation
+
+Use `KeySuite_V2.19_GitHub.zip`, provide the deployment `config.js`, and run all previously required Supabase migrations through V2.18.

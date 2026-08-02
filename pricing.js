@@ -100,6 +100,27 @@
     return calculatePrice(book,variant,cat,family,{...options,rarity:normalizeRarity(rarity)});
   }
 
+  function quoteBlockReason(calc){
+    if(!calc||!(Number(calc.baseMyr)>0))return 'Cannot quote: No valid USD, RMB or MYR cost is available.';
+    if(!(Number(calc.margin)>0))return 'Cannot quote: Category Margin is 0%.';
+    return '';
+  }
+  function ensureQuoteableCalculation(calc,label='item'){
+    const reason=quoteBlockReason(calc);if(!reason)return true;
+    alert(`${reason}${label?`\n\nItem: ${label}`:''}`);return false;
+  }
+  function pricingSourceBlockReason(source={}){
+    const family=String(source.product_family||source.family||'CHC').toUpperCase();
+    const customer=quotationCustomer(),cat=(secureData.categories||[]).find(row=>String(row.id)===String(source.category_id||''))||categoryForCustomer(customer)||category();
+    const rule=cat?categoryRule(cat,family):null;
+    const multiplier=Number(source.currency_multiplier??source.multiplier??1),sourcePrice=Number(source.source_price??0);
+    const baseMyr=Number(source.base_myr??source.baseMyr??(sourcePrice*multiplier));
+    const margin=Number(source.margin??rule?.margin??0);
+    if(!(baseMyr>0))return 'Cannot quote: No valid USD, RMB or MYR cost is available.';
+    if(!(margin>0))return 'Cannot quote: Category Margin is 0%.';
+    return '';
+  }
+
   function variants(includeUnpriced=false){
     const result=[];
     for(const product of secureData.products||[])for(const material of ['CHC','CHCS','CHCN']){
@@ -134,8 +155,9 @@
     if(!c||!cat){valueBox.textContent='RM 0.00';detail.textContent='Select a customer with a Pricing Category.';return}
     if(!Number.isFinite(source)||source<=0){valueBox.textContent='RM 0.00';detail.textContent='Enter a cost figure to calculate.';return}
     const calc=calculateManual(source,currency,rarity,cat,selectedPricingFamily,{customer:c});
-    if(!calc){valueBox.textContent='RM 0.00';detail.textContent='Unable to calculate with the selected rule.';return}
-    valueBox.textContent=cash(calc.finalPrice);detail.textContent=`${currency} ${n(source,2)} × ${n(calc.multiplier,4)} = ${cash(calc.baseMyr)} · ${rarityLabel(rarity)} · Fuel ${cash(calc.fuelCharge)} · rounded up to RM10`;
+    if(!calc){valueBox.textContent='RM 0.00';detail.textContent='Unable to calculate with the selected rule.';detail.style.color='';return}
+    const blocked=quoteBlockReason(calc);if(blocked){valueBox.textContent='RM 0.00';detail.textContent=blocked;detail.style.color='#b91c1c';return}
+    detail.style.color='';valueBox.textContent=cash(calc.finalPrice);detail.textContent=`${currency} ${n(source,2)} × ${n(calc.multiplier,4)} = ${cash(calc.baseMyr)} · ${rarityLabel(rarity)} · Fuel ${cash(calc.fuelCharge)} · rounded up to RM10`;
   }
 
   function renderSummary(){
@@ -185,9 +207,9 @@
     return null;
   }
 
-  function sourceSnapshot(found){return {product_family:found.family||found.calc.family||'CHC',product_id:found.product.id,material:found.material,variant:found.variant||found.material,rarity:found.calc.rarity,customer_id:found.customer?.id||'',category_id:found.category?.id||'',source_currency:found.calc.sourceCurrency,currency_multiplier:found.calc.multiplier,source_price:found.calc.sourcePrice,distance_km:found.calc.distanceKm,fuel_price:found.calc.fuelPrice,fuel_base_price:found.calc.fuelBasePrice,fuel_charge:found.calc.fuelCharge,unrounded_price:found.calc.unroundedPrice,calculated_price:found.calc.finalPrice,...(found.enclosure?{panel_type:found.enclosure,enclosure_surcharge:Number(found.calc.enclosureSurcharge||0)}:{}),...(found.sourceExtra||{})}}
+  function sourceSnapshot(found){return {product_family:found.family||found.calc.family||'CHC',product_id:found.product.id,material:found.material,variant:found.variant||found.material,rarity:found.calc.rarity,customer_id:found.customer?.id||'',category_id:found.category?.id||'',source_currency:found.calc.sourceCurrency,currency_multiplier:found.calc.multiplier,source_price:found.calc.sourcePrice,base_myr:found.calc.baseMyr,margin:found.calc.margin,distance_km:found.calc.distanceKm,fuel_price:found.calc.fuelPrice,fuel_base_price:found.calc.fuelBasePrice,fuel_charge:found.calc.fuelCharge,unrounded_price:found.calc.unroundedPrice,calculated_price:found.calc.finalPrice,...(found.enclosure?{panel_type:found.enclosure,enclosure_surcharge:Number(found.calc.enclosureSurcharge||0)}:{}),...(found.sourceExtra||{})}}
 
-  function applyPriceToQuoteRow(row,model,options={}){if(window.KeySuiteApp?.canEditQuotation&&!window.KeySuiteApp.canEditQuotation(true))return false;const found=options.productFamily==='GWS'?findGwsPrice(model,options.pressure,options):findPrice(model,options);if(!row||!found)return false;const input=row.querySelector('.item-price');if(!input)return false;input.value=found.calc.finalPrice.toFixed(2);row.dataset.pricingSource=JSON.stringify(sourceSnapshot(found));if(typeof calcTotal==='function')calcTotal();return true}
+  function applyPriceToQuoteRow(row,model,options={}){if(window.KeySuiteApp?.canEditQuotation&&!window.KeySuiteApp.canEditQuotation(true))return false;const found=options.productFamily==='GWS'?findGwsPrice(model,options.pressure,options):findPrice(model,options);if(!row||!found||!ensureQuoteableCalculation(found.calc,model))return false;const input=row.querySelector('.item-price');if(!input)return false;input.value=found.calc.finalPrice.toFixed(2);row.dataset.pricingSource=JSON.stringify(sourceSnapshot(found));if(typeof calcTotal==='function')calcTotal();return true}
 
   function refreshQuotePrices(){
     const customer=quotationCustomer(),cat=categoryForCustomer(customer);if(!customer||!cat)return;
@@ -199,7 +221,7 @@
       else if(source.product_family==='KEYPLC'){const product=(secureData.keyplcProducts||[]).find(p=>p.id===source.product_id);if(product)found=findKeyplcPrice(product.id,Number(String(source.variant||source.material||'1').replace(/\D/g,''))||1,{customer,category:cat,enclosure:source.panel_type||'indoor'})}
       else if(source.product_family==='MANIFOLD'){found=window.KeySuiteManifold?.findConfiguredPrice?.(source.configuration||{}, {customer,category:cat})||null}
       else{const product=(secureData.products||[]).find(p=>p.id===source.product_id);if(product){const model=(source.material==='CHC'?product.model:product.model.replace(/^CHC\b/,source.material||'CHC'));found=findPrice(model,{customer,category:cat})}}
-      if(!found)continue;row.querySelector('.item-price').value=found.calc.finalPrice.toFixed(2);const refreshed=sourceSnapshot(found);if(source.product_family==='ES'){refreshed.seal_material=source.seal_material||ES_DEFAULT_SEAL;refreshed.elastomer=source.elastomer||ES_DEFAULT_ELASTOMER}row.dataset.pricingSource=JSON.stringify(refreshed);
+      if(!found)continue;const blocked=quoteBlockReason(found.calc);if(blocked){row.querySelector('.item-price').value='0.00';row.dataset.pricingValidationError=blocked;continue}delete row.dataset.pricingValidationError;row.querySelector('.item-price').value=found.calc.finalPrice.toFixed(2);const refreshed=sourceSnapshot(found);if(source.product_family==='ES'){refreshed.seal_material=source.seal_material||ES_DEFAULT_SEAL;refreshed.elastomer=source.elastomer||ES_DEFAULT_ELASTOMER}row.dataset.pricingSource=JSON.stringify(refreshed);
     }
     if(typeof calcTotal==='function')calcTotal();
   }
@@ -210,7 +232,7 @@
     if(window.KeySuiteApp?.canEditQuotation&&!window.KeySuiteApp.canEditQuotation(true))return;
     const customer=quotationCustomer();if(!customer){if(typeof showPage==='function')showPage('quotation');alert('Select a pricing customer before adding an item.');return}
     const cat=categoryForCustomer(customer);if(!cat){alert(`No Pricing Category is assigned to ${customer.company}.`);return}
-    const row=visibleRows[index];if(!row)return;const calc=calculatePrice(row.product.pricesByCurrency||{},row.material,cat,'CHC',{customer,rarityBook:row.product.rarityByCurrency||{}});if(!calc)return;
+    const row=visibleRows[index];if(!row)return;const calc=calculatePrice(row.product.pricesByCurrency||{},row.material,cat,'CHC',{customer,rarityBook:row.product.rarityByCurrency||{}});if(!ensureQuoteableCalculation(calc,row.product.model))return;
     const shownModel=row.material==='CHC'?row.product.model:row.product.model.replace(/^CHC\b/,row.material),description=`B.G.Reich Vertical Multistage Pump Model: ${shownModel}`;
     const quoteRow=quoteRowForNewItem();quoteRow.querySelector('.item-model').value=shownModel;quoteRow.querySelector('.item-qty').value=1;quoteRow.querySelector('.item-price').value=calc.finalPrice.toFixed(2);quoteRow.querySelector('.item-description').value=description;quoteRow.dataset.pricingSource=JSON.stringify(sourceSnapshot({product:row.product,material:row.material,rarity:calc.rarity,calc,category:cat,customer,family:'CHC'}));calcTotal();refreshItemExportButtons();showPage('quotation');
   }
@@ -225,7 +247,7 @@
   function addGwsToQuotation(model,pressure){
     if(window.KeySuiteApp?.canEditQuotation&&!window.KeySuiteApp.canEditQuotation(true))return;
     const customer=quotationCustomer();if(!customer){if(typeof showPage==='function')showPage('quotation');alert('Select a pricing customer before adding a GWS Tank.');return}
-    const found=findGwsPrice(model,pressure,{customer});if(!found){alert('No price is available for this GWS Tank SKU, or the customer has no pricing category.');return}
+    const found=findGwsPrice(model,pressure,{customer});if(!found){alert('No price is available for this GWS Tank SKU, or the customer has no pricing category.');return}if(!ensureQuoteableCalculation(found.calc,gwsQuoteTitle(found.product)))return
     const quoteRow=quoteRowForNewItem();quoteRow.querySelector('.item-model').value=gwsQuoteTitle(found.product);quoteRow.querySelector('.item-qty').value=1;quoteRow.querySelector('.item-price').value=found.calc.finalPrice.toFixed(2);quoteRow.querySelector('.item-description').value=gwsDescription(found.product);quoteRow.dataset.pricingSource=JSON.stringify(sourceSnapshot(found));calcTotal();refreshItemExportButtons();showPage('quotation');
   }
 
@@ -311,8 +333,8 @@
   function addEs(id,route='quotation',material='CI / SS / SS / MS',options={}){
     if(!window.KeySuiteApp?.ensureQuotationPricingContext?.(`add an ES pump to the ${route==='assembly'?'Assembly':'quotation'}`))return;
     const found=findEsPrice(id,material);if(!found){alert(`No ES source price or ES Category Pricing Rule is available for ${material}.`);return}
-    const {product,variant,calc}=found,seal=String(options.seal||ES_DEFAULT_SEAL),elastomer=String(options.elastomer||ES_DEFAULT_ELASTOMER),description=esDescription(product,variant.material,{seal,elastomer});
-    const item={model:product.model,description,qty:1,unitPrice:calc.finalPrice,pricingSource:{product_family:'ES',product_id:product.id,variant:variant.material,material:variant.material,source_currency:calc.sourceCurrency,source_price:calc.sourcePrice,multiplier:calc.multiplier,rarity:product.rarity||'common',seal_material:seal,elastomer},assemblyLevel:'PUMPSET_COMPONENT',assemblySection:'pump'};
+    const {product,variant,calc}=found;if(route!=='assembly'&&!ensureQuoteableCalculation(calc,product?.model||'End Suction Pump'))return;const seal=String(options.seal||ES_DEFAULT_SEAL),elastomer=String(options.elastomer||ES_DEFAULT_ELASTOMER),description=esDescription(product,variant.material,{seal,elastomer});
+    const item={model:product.model,description,qty:1,unitPrice:calc.finalPrice,pricingSource:{product_family:'ES',product_id:product.id,variant:variant.material,material:variant.material,source_currency:calc.sourceCurrency,source_price:calc.sourcePrice,currency_multiplier:calc.multiplier,base_myr:calc.baseMyr,margin:calc.margin,category_id:found.category?.id||'',rarity:product.rarity||'common',seal_material:seal,elastomer},assemblyLevel:'PUMPSET_COMPONENT',assemblySection:'pump'};
     if(route==='assembly'){window.KeySuiteAssembly?.addItem?.(item);return}
     if(window.KeySuiteApp?.canEditQuotation&&!window.KeySuiteApp.canEditQuotation(true))return;
     const row=quoteRowForNewItem();row.querySelector('.item-model').value=product.model;row.querySelector('.item-qty').value=1;row.querySelector('.item-price').value=calc.finalPrice.toFixed(2);row.querySelector('.item-description').value=item.description;row.dataset.pricingSource=JSON.stringify(item.pricingSource);calcTotal();refreshItemExportButtons();showPage('quotation');
@@ -327,7 +349,7 @@
     const pressureBar=Number(product?.pressureBar||0);
     const quantity=Math.max(0,Number(qty)||1);
     const clean=value=>Number.isInteger(value)?value.toFixed(0):String(value);
-    return `c/w ${clean(litres)} litres (${clean(pressureBar)} bar) non-jkkp approved tank @ ${clean(quantity)} ${quantity===1?'unit':'units'}`;
+    return `c/w\t${clean(litres)} litres (${clean(pressureBar)} bar) non-jkkp approved tank @ ${clean(quantity)} ${quantity===1?'unit':'units'}`;
   }
   function buildGwsAssemblyItem(model,pressure,options={}){
     const found=findGwsPrice(model,pressure,options);if(!found)return null;
@@ -361,8 +383,8 @@
 
   function keyplcTitle(product,pumpQty,enclosure='indoor'){const qty=Math.max(1,Number(pumpQty)||1);return `KeyPLC ${product?.model||''} · ${qty} ${qty===1?'Pump':'Pumps'} · ${keyplcPanelLabel(enclosure)}`}
   function keyplcDescription(product,pumpQty,enclosure='indoor',options={}){
-    const qty=Math.max(1,Math.min(6,Number(pumpQty)||1)),numberWord=qty===1?'no':'nos',includeCw=!!options.includeCw,indent=includeCw?'\t':'';
-    const first=`${includeCw?'c/w ':''}KeyPLC Control Panel (${keyplcPanelLabel(enclosure)})`;
+    const qty=Math.max(1,Math.min(6,Number(pumpQty)||1)),numberWord=qty===1?'no':'nos',includeCw=!!options.includeCw,indent=includeCw?'\t\t':'';
+    const first=`${includeCw?'c/w\t':''}KeyPLC Control Panel (${keyplcPanelLabel(enclosure)})`;
     return `${first}
 ${indent}Pump Controller & HMI Touch Screen @ 1 Lot
 ${indent}${product?.model||''} VFD @ ${qty} ${numberWord} & Pressure Transmitter @ 1 no
@@ -371,12 +393,12 @@ ${indent}Wiring for pumps & pressure transmitter within pump skid @ 1 Lot`;
 
   function addKeyplc(id,pumpQty=1,route='quotation',enclosure='indoor'){
     if(!window.KeySuiteApp?.ensureQuotationPricingContext?.(`add a KeyPLC panel to the ${route==='assembly'?'Assembly':'quotation'}`))return;
-    const found=findKeyplcPrice(id,pumpQty,{enclosure});if(!found){alert('No KeyPLC source price or KeyPLC Category Pricing Rule is available for this panel.');return}
+    const found=findKeyplcPrice(id,pumpQty,{enclosure});if(!found){alert('No KeyPLC source price or KeyPLC Category Pricing Rule is available for this panel.');return}if(route!=='assembly'&&!ensureQuoteableCalculation(found.calc,keyplcTitle(found.product,found.pumpQty,found.enclosure)))return
     const item={model:keyplcTitle(found.product,found.pumpQty,found.enclosure),description:keyplcDescription(found.product,found.pumpQty,found.enclosure,{includeCw:route==='assembly'}),qty:1,unitPrice:found.calc.finalPrice,pricingSource:sourceSnapshot(found),productFamily:'KEYPLC',assemblyLevel:'SYSTEM_COMPONENT',assemblySection:'control_panel',keyplcData:{productId:found.product.id,motorRating:found.product.model,pumpQty:found.pumpQty,enclosure:found.enclosure,indoorUnitPrice:found.calc.indoorPrice,shelteredSurcharge:1000}};
     if(route==='assembly'){window.KeySuiteAssembly?.addItem?.(item);return}
     if(window.KeySuiteApp?.canEditQuotation&&!window.KeySuiteApp.canEditQuotation(true))return;
     const row=quoteRowForNewItem();row.querySelector('.item-model').value=item.model;row.querySelector('.item-qty').value=1;row.querySelector('.item-price').value=found.calc.finalPrice.toFixed(2);row.querySelector('.item-description').value=item.description;row.dataset.pricingSource=JSON.stringify(item.pricingSource);calcTotal();refreshItemExportButtons();showPage('quotation');
   }
 
-  window.KeySuitePricing={init,calculate,calculatePrice,calculateManual,findPrice,findGwsPrice,findAutoGwsTank,findKeyplcPrice,applyPriceToQuoteRow,refreshQuotePrices,addGwsToQuotation,addEs,esDescription,addKeyplc,keyplcDescription,keyplcTitle,normalizePanelType,findEsPrice,buildChcAssemblyItem,buildGwsAssemblyItem,selectCustomer,refreshCustomers,hasPricingContext,syncPriceListSettings,render:()=>{renderSummary();renderTable()}};
+  window.KeySuitePricing={init,calculate,calculatePrice,calculateManual,quoteBlockReason,pricingSourceBlockReason,ensureQuoteableCalculation,findPrice,findGwsPrice,findAutoGwsTank,findKeyplcPrice,applyPriceToQuoteRow,refreshQuotePrices,addGwsToQuotation,addEs,esDescription,addKeyplc,keyplcDescription,keyplcTitle,normalizePanelType,findEsPrice,buildChcAssemblyItem,buildGwsAssemblyItem,selectCustomer,refreshCustomers,hasPricingContext,syncPriceListSettings,render:()=>{renderSummary();renderTable()}};
 })();

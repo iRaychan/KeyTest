@@ -66,7 +66,7 @@
       rare:Number(raw.rare??fallback.rare??0)
     });
     return {
-      version:'2.18',release_date:'2026-08-02',currency:setting.currency||'MYR',
+      version:'2.19',release_date:'2026-08-02',currency:setting.currency||'MYR',
       usd_multiplier:chcUsdMultiplier,rmb_multiplier:chcRmbMultiplier,myr_multiplier:1,
       productMultipliers:{CHC:{USD:chcUsdMultiplier,RMB:chcRmbMultiplier,MYR:1},ES:{USD:esUsdMultiplier,RMB:esRmbMultiplier,MYR:1},GWS:{USD:gwsUsdMultiplier,RMB:gwsRmbMultiplier,MYR:1},KEYPLC:{USD:keyplcUsdMultiplier,RMB:keyplcRmbMultiplier,MYR:1},MANIFOLD:{USD:manifoldUsdMultiplier,RMB:manifoldRmbMultiplier,MYR:1}},
       fuel_price:Number(setting.fuel_price??2),fuel_base_price:Number(setting.fuel_base_price??2),

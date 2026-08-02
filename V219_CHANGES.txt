@@ -1,0 +1,21 @@
+KeySuite V2.19 Changes
+======================
+
+1. Quotation template logo beside Quotation No.
+   - Displays the selected template logo beside the quotation number.
+   - Updates immediately when the template changes.
+   - Clicking the logo opens Quotation Templates.
+   - Sealed quotations display the saved template snapshot logo.
+
+2. System and Quotation description tab alignment
+   - Every first row containing c/w uses exactly one tab after c/w.
+   - Every continuation row uses exactly two tabs and zero spaces.
+   - Applies to KeyPLC Panel, Manifold, Tank and other coupled descriptions.
+
+3. Category Pricing Rule retained
+   - Margin, Normal, Rare, Transport, Commission, Set Discount, Final Discount and Fuel Charge remain company pricing controls.
+
+4. Zero-pricing quotation safeguard
+   - Blocks Quote when Category Margin is blank or 0%.
+   - Blocks Quote when the highest converted USD/RMB/MYR source cost is zero or unavailable.
+   - Applies to direct Product/Selector quote actions, manual calculator, System/Pumpset transfer, recalculation, sealing and PDF output.
