@@ -1,25 +1,28 @@
-# KeySuite V2.21
+# KeySuite V2.22
 
-KeySuite V2.21 corrects the company and category pricing-factor workflow.
+KeySuite V2.22 changes the Owner pricing setup from company-based records to customer-based records.
 
 ## Main changes
 
-- Key > Company now has one Owner-only set of Commission, Set Discount and Final Discount values.
-- The Owner can choose a company, see the Not Set count and filter companies whose three values are all zero.
-- Key > Category > Edit Category keeps Margin, Normal, Rare and Transport editable.
-- Company Commission, Set Discount and Final Discount are read-only in Category, with category-level Use checkboxes.
-- Fuel Charge remains automatic and has a category-level Use checkbox.
-- Pricing > Category Pricing Rule has Assembly and Quote factor views. Unticked factors are hidden and excluded.
-- Assembly pricing always excludes Set Discount.
+- **Key > Company** is renamed to **Key > Customer**.
+- The Owner can select every active customer, including Keylargo and Apex.
+- Commission, Set Discount and Final Discount are saved separately for each customer.
+- The Not Set count and filter now use the customer list.
+- Category factor Use controls remain unchanged.
+- Assembly pricing excludes Set Discount; Quote pricing uses it when enabled.
+- The V2.21 `company_id is ambiguous` save error is removed by the new customer RPC and named conflict constraint.
 
-## Upgrade from V2.20
+## Upgrade from V2.21
 
-1. Back up the current deployment and Supabase database.
-2. Run `V221_SUPABASE_MIGRATION.sql` in Supabase SQL Editor.
-3. Apply `KeySuite_V2.21_Changed_Files_Patch.zip` over V2.20.
-4. Preserve the existing deployment `config.js`.
+1. Back up the deployment and Supabase database.
+2. Run `V222_SUPABASE_MIGRATION.sql` in Supabase SQL Editor.
+3. Apply `KeySuite_V2.22_Changed_Files_Patch.zip` over V2.21.
+4. Preserve the existing working `config.js`.
 5. Deploy and hard-refresh the browser.
 
-## Clean installation
+## Data migration
 
-Use `KeySuite_V2.21_GitHub.zip`, provide the deployment `config.js`, and run all required migrations through V2.21.
+- Active customers receive a customer-pricing row.
+- A customer whose name matches the existing company master inherits the old company percentages when its customer percentages are still zero.
+- Other customers remain Not Set until the Owner enters their rates.
+- Existing company pricing tables and sealed quotations are not deleted or recalculated.

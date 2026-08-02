@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V2.21</title>
+  <title>KeySuite V2.22</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -252,7 +252,7 @@
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.21 company rates and category factor controls</small></div>
+    <div class="auth-brand">KeySuite<small>V2.22 customer rates and category factor controls</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -267,7 +267,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.21</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.22</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -290,7 +290,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.21 · Company rates with category-level factor controls</div>
+    <div class="suite-version">KeySuite V2.22 · Customer rates with category-level factor controls</div>
   </aside>
 
   <main>
@@ -556,7 +556,7 @@
 
     <section id="keyDashboard" class="page">
       <div class="page-title-row">
-        <div><h1>Key Dashboard</h1><div class="muted">Administration, roles and protected company pricing.</div></div>
+        <div><h1>Key Dashboard</h1><div class="muted">Administration, roles and protected customer pricing.</div></div>
       </div>
       <div id="keyDashboardNotice" class="notice">Loading your Key permissions…</div>
       <div class="key-dashboard-grid">
@@ -579,9 +579,9 @@
           <span class="module-order">03</span>
         </button>
         <button type="button" class="key-module-card" data-go="companySettings">
-          <span class="module-icon">🏢</span>
-          <h2>Company</h2>
-          <p>Maintain Owner-only company Commission, Set Discount and Final Discount rates.</p>
+          <span class="module-icon">👥</span>
+          <h2>Customer</h2>
+          <p>Maintain Owner-only customer Commission, Set Discount and Final Discount rates.</p>
           <span class="module-order">04</span>
         </button>
         <button type="button" class="key-module-card" data-go="companyPricing">
@@ -855,25 +855,25 @@
     <section id="companySettings" class="page">
       <div class="key-back-row"><button class="btn secondary" type="button" data-go="keyDashboard">← Key Dashboard</button></div>
       <div class="page-title-row">
-        <div><h1>Company</h1><div class="muted">Choose a company and maintain Owner-only commercial pricing percentages.</div></div>
+        <div><h1>Customer</h1><div class="muted">Choose a customer and maintain Owner-only commercial pricing percentages.</div></div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span id="companySetupCount" class="company-setup-count">Not Set: 0 / 0</span><span class="company-sensitive-badge">Owner Only</span></div>
       </div>
-      <div id="companySettingsOwnerNotice" class="notice active-customer">Loading Company access…</div>
+      <div id="companySettingsOwnerNotice" class="notice active-customer">Loading Customer access…</div>
       <div class="company-settings-toolbar">
-        <div><label for="companySettingsCompanySelect">Company</label><select id="companySettingsCompanySelect"></select></div>
-        <div><label for="companySetupFilter">Filter</label><select id="companySetupFilter"><option value="all">All Companies</option><option value="not-set">Not Set Only</option></select></div>
+        <div><label for="companySettingsCompanySelect">Customer</label><select id="companySettingsCompanySelect"></select></div>
+        <div><label for="companySetupFilter">Filter</label><select id="companySetupFilter"><option value="all">All Customers</option><option value="not-set">Not Set Only</option></select></div>
       </div>
       <div class="company-settings-layout">
-        <div class="card"><h2>Company Information</h2><div id="companyIdentitySummary"></div></div>
+        <div class="card"><h2>Customer Information</h2><div id="companyIdentitySummary"></div></div>
         <div class="card" id="companyPricingEditor">
-          <div class="page-title-row" style="margin-bottom:6px"><div><h2 style="margin:0">Company Pricing Settings</h2><div class="muted">Enter the three company percentages. Category rules decide whether each factor is used.</div></div></div>
+          <div class="page-title-row" style="margin-bottom:6px"><div><h2 style="margin:0">Customer Pricing Settings</h2><div class="muted">Enter the three customer percentages. Category rules decide whether each factor is used.</div></div></div>
           <div id="companySettingsMessage" class="auth-message"></div>
           <div class="company-factor-grid">
             <div class="company-factor-row"><label for="companyCommissionInput"><b>Commission</b></label><div class="category-inline-input"><input id="companyCommissionInput" type="number" min="0" max="99.99" step="0.01"><span>%</span></div></div>
             <div class="company-factor-row"><label for="companySetDiscountInput"><b>Set Discount</b></label><div class="category-inline-input"><input id="companySetDiscountInput" type="number" min="0" max="99.99" step="0.01"><span>%</span></div></div>
             <div class="company-factor-row"><label for="companyFinalDiscountInput"><b>Final Discount</b></label><div class="category-inline-input"><input id="companyFinalDiscountInput" type="number" min="0" max="99.99" step="0.01"><span>%</span></div></div>
           </div>
-          <div class="actions" style="justify-content:flex-end"><button class="btn" id="saveCompanyPricing" type="button">Save Company Rates</button></div>
+          <div class="actions" style="justify-content:flex-end"><button class="btn" id="saveCompanyPricing" type="button">Save Customer Rates</button></div>
         </div>
       </div>
     </section>
@@ -881,7 +881,7 @@
     <section id="companyPricing" class="page">
       <div class="key-back-row"><button class="btn secondary" type="button" data-go="keyDashboard">← Key Dashboard</button></div>
       <div class="page-title-row">
-        <div><h1>Company &amp; Pricing</h1><div class="muted">Customer/company address, pricing category and protected product selling prices.</div></div>
+        <div><h1>Company &amp; Pricing</h1><div class="muted">Customer address, pricing category and protected product selling prices.</div></div>
         <div class="pricing-title-tools">
           <div class="fuel-inline-setting">
             <label for="pricingFuelPrice">Fuel Price (RM/L)</label>
@@ -897,15 +897,15 @@
       </div>
       <div id="pricingAccessNotice" class="notice">Secure pricing is loading.</div>
       <div class="pricing-metrics" style="margin-top:16px">
-        <div class="card metric"><span class="muted">Companies</span><b id="pricingCompanyCount">0</b></div>
+        <div class="card metric"><span class="muted">Customers</span><b id="pricingCompanyCount">0</b></div>
         <div class="card metric"><span class="muted">Categories</span><b id="pricingCategoryCount">0</b></div>
         <div class="card metric"><span class="muted">CHC Models</span><b id="pricingModelCount">0</b></div>
         <div class="card metric"><span class="muted">Priced Variants</span><b id="pricingVariantCount">0</b></div>
       </div>
       <div class="pricing-layout">
         <div class="card">
-          <h2>Customer / Company</h2>
-          <div><label>Customer / Company</label><select id="pricingCompanySelect"></select></div>
+          <h2>Customer</h2>
+          <div><label>Customer</label><select id="pricingCompanySelect"></select></div>
           <div id="pricingCompanySummary" style="margin-top:12px"></div>
         </div>
         <div class="card">
@@ -1097,15 +1097,15 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=216"></script>
-<script src="app.js?v=221"></script>
-<script src="pricing.js?v=221"></script>
-<script src="categories.js?v=221"></script>
+<script src="app.js?v=222"></script>
+<script src="pricing.js?v=222"></script>
+<script src="categories.js?v=222"></script>
 <script src="pricelist.js?v=216"></script>
 <script src="product.js?v=216"></script>
-<script src="manifold.js?v=221"></script>
+<script src="manifold.js?v=222"></script>
 <script src="roles.js?v=216"></script>
-<script src="assembly.js?v=221"></script>
-<script src="quotation-templates.js?v=221"></script>
+<script src="assembly.js?v=222"></script>
+<script src="quotation-templates.js?v=222"></script>
 
 <dialog id="quotationTemplateDialog" class="ks-dialog template-dialog">
   <div class="dialog-body">
@@ -1157,7 +1157,7 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="company-settings.js?v=221"></script>
-<script src="auth.js?v=221"></script>
+<script src="company-settings.js?v=222"></script>
+<script src="auth.js?v=222"></script>
 </body>
 </html>

@@ -1,0 +1,44 @@
+KeySuite V2.22 QA Report
+========================
+
+Build basis
+- Source: KeySuite V2.21 GitHub package
+- Target: KeySuite V2.22
+
+Validation completed
+1. JavaScript syntax
+   PASS - app.js
+   PASS - auth.js
+   PASS - categories.js
+   PASS - company-settings.js
+   PASS - pricing.js
+
+2. Customer pricing interface
+   PASS - Page title and selector show Customer.
+   PASS - Keylargo and Apex both appear from the customer list.
+   PASS - Not Set Only filter returns customers whose three rates are zero.
+   PASS - Saving Apex updates only the Apex pricing row.
+   PASS - Only Owner access enables the inputs.
+
+3. Pricing calculations
+   PASS - Keylargo quotation uses Keylargo customer rates.
+   PASS - Apex quotation uses Apex customer rates.
+   PASS - Assembly excludes Set Discount.
+   PASS - Quote includes Set Discount when the category Use control is enabled.
+   PASS - Four category Use controls remain available.
+   PASS - Category edit shows the selected customer's 5.00%, 7.00% and 8.00% test values as read-only factors.
+   PASS - Category save continues using the V2.21 category RPC and preserves all Use flags.
+
+4. Database migration review
+   PASS - Customer pricing table uses customer_id UUID linked to ks_customers.
+   PASS - Customer read/save RPCs are present.
+   PASS - Save RPC is Owner-only.
+   PASS - ON CONFLICT uses ks_customer_pricing_settings_pkey.
+   PASS - No bare ON CONFLICT(customer_id) ambiguity remains.
+
+5. Browser test
+   PASS - Headless Chromium workflow completed with no page errors.
+
+Deployment note
+- V222_SUPABASE_MIGRATION.sql is required and was validated statically.
+- The migration was not executed against the user's live Supabase database.

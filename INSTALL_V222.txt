@@ -1,0 +1,11 @@
+KeySuite V2.22 Upgrade
+======================
+
+Upgrade from V2.21:
+1. Back up the deployment and Supabase database.
+2. Run V222_SUPABASE_MIGRATION.sql.
+3. Copy the V2.22 changed files over V2.21.
+4. Keep the existing working config.js.
+5. Deploy and hard-refresh (Ctrl + Shift + R).
+
+The Supabase migration is required.

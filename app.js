@@ -112,7 +112,7 @@ async function loadSecureCustomers(){
      if(!result.error)rows=(result.data||[]).map(normalizeCustomerRecord);
    }
    rows=await importCompanyMasters(client,rows);
-   secureCustomers=rows;customerSyncMode='supabase';customerSyncError='';store.set('ks_customers_backup_v105',rows);renderCustomerAccessNotice();refreshAll();return rows;
+   secureCustomers=rows;customerSyncMode='supabase';customerSyncError='';store.set('ks_customers_backup_v105',rows);renderCustomerAccessNotice();window.dispatchEvent(new CustomEvent('keysuite-customers-changed',{detail:{customers:rows.slice()}}));refreshAll();return rows;
  }catch(error){
    console.warn('Secure customers unavailable',error);customerSyncMode='local';customerSyncError=String(error?.message||error);renderCustomerAccessNotice();return customers();
  }
@@ -682,7 +682,7 @@ function requestSelectionForQuotation(){
  frame.contentWindow.postMessage({type:'KEYSUITE_REQUEST_SELECTION'},'*');
 }
 
-function refreshAll(){refreshCustomers();refreshQuotes();renderCustomerAccessNotice();window.KeySuitePricing?.refreshCustomers?.()}
+function refreshAll(){refreshCustomers();refreshQuotes();renderCustomerAccessNotice();window.KeySuitePricing?.refreshCustomers?.();window.KeySuiteCompanySettings?.render?.()}
 
 function chcAssemblyQuoteItem(p={}){
  const material=p.keysuite_material||$('pumpMaterial')?.value||'SS304 (Cast Iron Connection)';

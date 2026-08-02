@@ -37,12 +37,14 @@
     const data=window.KEYSUITE_SECURE_DATA||{},family=String(product||'CHC').toUpperCase(),rates=data.productMultipliers?.[family]||{};
     return {USD:Number(rates.USD??data.usd_multiplier??5.8),RMB:Number(rates.RMB??data.rmb_multiplier??.65),MYR:1};
   }
-  function companyFactors(){
-    const data=window.KEYSUITE_SECURE_DATA?.companyPricing||{};
-    return {commission:Number(data.commission??data.quotation?.commission??0),setDiscount:Number(data.setDiscount??data.quotation?.setDiscount??0),finalDiscount:Number(data.finalDiscount??data.quotation?.finalDiscount??0)};
+  function customerFactors(){
+    const customer=window.KeySuiteApp?.getPricingCustomer?.()||window.KeySuiteApp?.getSelectedCustomer?.()||null;
+    const rows=window.KEYSUITE_SECURE_DATA?.customerPricingRows||[];
+    const data=rows.find(row=>String(row.customerId||row.customer_id||'')===String(customer?.id||''))||{};
+    return {commission:Number(data.commission??data.quotation?.commission??0),setDiscount:Number(data.setDiscount??data.set_discount??data.quotation?.setDiscount??0),finalDiscount:Number(data.finalDiscount??data.final_discount??data.quotation?.finalDiscount??0)};
   }
   function fillCompanyFactorValues(){
-    const company=companyFactors();
+    const company=customerFactors();
     if(byId('categoryCommissionValue'))byId('categoryCommissionValue').value=num(company.commission*100,2).replace(/,/g,'');
     if(byId('categorySetDiscountValue'))byId('categorySetDiscountValue').value=num(company.setDiscount*100,2).replace(/,/g,'');
     if(byId('categoryFinalDiscountValue'))byId('categoryFinalDiscountValue').value=num(company.finalDiscount*100,2).replace(/,/g,'');
@@ -70,9 +72,9 @@
   function formulaText(rule,rarity,mode='quotation'){
     const parts=['Highest of USD × USD rate / RMB × RMB rate / MYR','÷ (1 − Margin)'];
     if(rarity==='common'||rarity==='rare')parts.push('÷ (1 − Normal)');if(rarity==='rare')parts.push('÷ (1 − Rare)');parts.push('+ Transport');
-    if(rule.useCommission)parts.push('÷ (1 − Company Commission)');
-    if(mode==='quotation'&&rule.useSetDiscount)parts.push('÷ (1 − Company Set Discount)');
-    if(rule.useFinalDiscount)parts.push('÷ (1 − Company Final Discount)');
+    if(rule.useCommission)parts.push('÷ (1 − Customer Commission)');
+    if(mode==='quotation'&&rule.useSetDiscount)parts.push('÷ (1 − Customer Set Discount)');
+    if(rule.useFinalDiscount)parts.push('÷ (1 − Customer Final Discount)');
     if(rule.useFuelCharge)parts.push('+ Fuel Charge');
     parts.push('Round up to RM10');return parts.join('  →  ');
   }
@@ -110,7 +112,7 @@
     byId('categoryFormTitle').textContent=category?'Edit Category':'New Category';byId('categorySelectedName').textContent=category?name:'New Category';byId('categoryNameInput').value=name;fillRule(category);renderRows();
   }
   function openCategory(category,forEdit=false){if(!category)return;fill(category);setEditable(forEdit);message(forEdit?'Editing enabled. Category values and Use choices are unlocked.':'Category loaded. Hold the Edit button for 3 seconds to unlock category values and Use choices.','info')}
-  function newCategory(){if(!isOwner()){message('Your role has view-only Category access.','error');return}selectedProduct='CHC';fill(null);setEditable(true);message('New category ready. Values start at 0.00 and company-factor Use choices start unticked.','info');setTimeout(()=>byId('categoryNameInput')?.focus(),0)}
+  function newCategory(){if(!isOwner()){message('Your role has view-only Category access.','error');return}selectedProduct='CHC';fill(null);setEditable(true);message('New category ready. Values start at 0.00 and customer-factor Use choices start unticked.','info');setTimeout(()=>byId('categoryNameInput')?.focus(),0)}
   function renderRows(){
     const body=byId('categoryRows');if(!body)return;const rows=categories();
     if(!rows.length){body.innerHTML='<tr><td class="category-empty">No pricing categories yet.</td></tr>';return}
@@ -166,9 +168,9 @@
   function render(){
     if(!canView())return;const add=byId('newPricingCategory');if(add)add.style.display=isOwner()?'inline-flex':'none';const list=categories();if(selectedId&&!list.some(item=>item.id===selectedId))selectedId='';renderRows();showCurrencySummary();fillCompanyFactorValues();
     if(!selectedId&&list.length)openCategory(list[0],false);else if(selectedId){const category=currentCategory();if(category&&!editing){fill(category);setEditable(false)}}
-    const notice=byId('categoryAccessNotice');if(notice)notice.innerHTML=`Signed in as <b>${esc(access?.display_name||access?.email||'user')}</b>. Margin, Normal, Rare and Transport are category values. Company percentages are read-only here; tick Use to apply each factor.`;
+    const notice=byId('categoryAccessNotice');if(notice)notice.innerHTML=`Signed in as <b>${esc(access?.display_name||access?.email||'user')}</b>. Margin, Normal, Rare and Transport are category values. Customer percentages are read-only here; tick Use to apply each factor.`;
   }
-  function init(data,userAccess){access=userAccess||access;bind();window.addEventListener('keysuite-company-pricing-changed',()=>{fillCompanyFactorValues();updateFormula()});render()}
+  function init(data,userAccess){access=userAccess||access;bind();window.addEventListener('keysuite-customer-pricing-changed',()=>{fillCompanyFactorValues();updateFormula()});render()}
   function pageShown(id){if(id==='categoryManagement')render()}
   window.KeySuiteCategories={init,pageShown,reload,render};
 })();

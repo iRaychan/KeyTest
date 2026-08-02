@@ -1,0 +1,26 @@
+KeySuite V2.22 Changes
+======================
+
+1. Key > Customer
+   - Renamed the visible Company pricing module to Customer.
+   - Loads active records from the existing Customer list.
+   - Keylargo, Apex and other active customers can be selected independently.
+
+2. Customer pricing percentages
+   - Commission, Set Discount and Final Discount are stored per customer.
+   - Only the Owner can view and edit the pricing inputs.
+   - Not Set count and Not Set Only filter are calculated from customer records.
+
+3. Pricing calculation
+   - Product, Assembly, System and Quotation calculations use the selected customer's saved percentages.
+   - Assembly continues to exclude Set Discount.
+   - Quote uses Set Discount only when the Category Use control is enabled.
+
+4. Category and factor display
+   - Category edit shows the active customer's read-only percentage values.
+   - Assembly and Quote factor views show the selected customer's applied factors.
+
+5. Database correction
+   - Added ks_customer_pricing_settings.
+   - Added keysuite_get_customer_pricing_v222 and keysuite_save_customer_pricing_v222.
+   - Replaced the ambiguous company_id conflict target with a named primary-key constraint.
