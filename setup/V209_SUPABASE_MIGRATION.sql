@@ -1,0 +1,3 @@
+-- KeySuite V2.09
+-- No Supabase schema or data migration is required.
+-- Keep the database upgraded through V2.08.

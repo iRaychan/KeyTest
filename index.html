@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V2.22</title>
+  <title>KeySuite V2.23</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -247,12 +247,14 @@
     #pTemplateAddress{white-space:pre-line}.template-preview-header{font-size:12px;text-align:center;color:#475569;margin-bottom:8px}.template-preview-company{display:flex;gap:14px;align-items:flex-start;border-bottom:3px solid var(--preview-color,#17365d);padding-bottom:12px}.template-preview-company img{max-width:180px;max-height:75px;object-fit:contain}.template-preview-card h3{color:var(--preview-color,#17365d)}.template-preview-line{border-top:2px solid var(--preview-color,#17365d);margin:16px 0 8px}#printQuotationDocument{--template-primary:#17365d;--template-font:Calibri,Arial,Helvetica,sans-serif}.print-template-header{position:absolute;top:3mm;left:8mm;right:8mm;text-align:center;font-size:9pt;color:#475569}.print-template-bank{white-space:pre-line;margin-top:3mm;font-size:9.5pt}.print-page{font-family:var(--template-font)!important}.print-page h1{color:var(--template-primary)}.print-items-table thead::after,.print-summary-rule{border-color:var(--template-primary)!important}.template-amount-only .print-items-table th:nth-child(4),.template-amount-only .print-items-table td:nth-child(4){display:none}.template-amount-only .print-system-item-desc-row .print-system-price-spacer{display:none}.template-amount-only .print-items-table th:nth-child(5),.template-amount-only .print-items-table td:nth-child(5){width:32mm}.template-no-signature .signatory-block{display:none!important}
 
   .company-factor-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.company-factor-tab{border:1px solid #94a3b8;background:#f8fafc;color:#334155;border-radius:10px;padding:9px 18px;font-weight:800;cursor:pointer}.company-factor-tab.active{background:#17365d;color:#fff;border-color:#17365d}.company-settings-layout{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(420px,1.2fr);gap:16px;margin-top:16px}.company-factor-grid{display:grid;gap:10px}.company-factor-row{display:grid;grid-template-columns:minmax(150px,1fr) minmax(130px,180px);gap:10px;align-items:center;padding:10px 12px;border:1px solid #dbe4ee;border-radius:10px;background:#f8fafc}.company-factor-row input[type=number]{width:100%}.company-factor-formula{white-space:normal;line-height:1.55}.company-sensitive-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#fee2e2;color:#991b1b;padding:5px 10px;font-weight:800;font-size:12px}.company-settings-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) minmax(180px,240px);gap:12px;align-items:end;margin:12px 0}.company-setup-count{display:inline-flex;align-items:center;border-radius:999px;background:#fff7ed;color:#9a3412;padding:5px 10px;font-weight:800;font-size:12px}.category-company-factor-list{display:grid;gap:8px;margin-top:12px}.category-company-factor{display:grid;grid-template-columns:minmax(160px,1fr) minmax(130px,180px) 92px;gap:10px;align-items:center;padding:10px 12px;border:1px solid #dbe4ee;border-radius:10px;background:#f8fafc}.category-company-factor input[readonly]{background:#e5e7eb;color:#334155}.category-factor-use{display:flex;align-items:center;gap:6px;font-weight:700;margin:0}.pricing-factor-mode-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pricing-factor-mode-tab{border:1px solid #94a3b8;background:#f8fafc;color:#334155;border-radius:10px;padding:8px 16px;font-weight:800;cursor:pointer}.pricing-factor-mode-tab.active{background:#17365d;color:#fff;border-color:#17365d}@media(max-width:900px){.company-settings-layout{grid-template-columns:1fr}.company-factor-row,.category-company-factor{grid-template-columns:1fr}.company-settings-toolbar{grid-template-columns:1fr}}
+
+.motor-filter-grid{display:grid;grid-template-columns:repeat(5,minmax(140px,1fr));gap:12px;align-items:end}.motor-custom-grid{display:grid;grid-template-columns:minmax(220px,1fr) minmax(180px,.7fr) auto;gap:12px;align-items:end;margin-top:14px}.motor-rate-pair{display:grid;grid-template-columns:minmax(110px,1fr) auto;gap:8px;align-items:end}.motor-table-wrap{max-height:650px;overflow:auto}.motor-table-wrap thead{position:sticky;top:0;z-index:2}.motor-table-wrap input,.motor-table-wrap select{min-width:100px}.motor-table-wrap td:last-child{white-space:nowrap}@media(max-width:1050px){.motor-filter-grid{grid-template-columns:repeat(2,minmax(160px,1fr))}}@media(max-width:700px){.motor-filter-grid,.motor-custom-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.22 customer rates and category factor controls</small></div>
+    <div class="auth-brand">KeySuite<small>V2.23 Motor IE1–IE5 and user quotation references</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -267,7 +269,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.22</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.23</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -277,7 +279,7 @@
       </div>
       <div class="nav-group" data-nav-group="productMenu">
         <button type="button" class="nav-toggle" data-nav-toggle="productMenu"><span>Product</span><span class="nav-chevron">⌄</span></button>
-        <div class="nav-submenu"><button data-page="productChc">CHC</button><button data-page="productEs">End Suction</button><button data-page="productGws">GWS Tank</button><button data-page="productKeyplc">KeyPLC Panel</button><button data-page="productManifold">Manifold</button></div>
+        <div class="nav-submenu"><button data-page="productChc">CHC</button><button data-page="productEs">End Suction</button><button data-page="productGws">GWS Tank</button><button data-page="productKeyplc">KeyPLC Panel</button><button data-page="productManifold">Manifold</button><button data-page="productMotor">Motor</button></div>
       </div>
       <button data-page="quotation">Quotation</button>
       <button data-page="history">Quote History</button>
@@ -290,7 +292,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.22 · Customer rates with category-level factor controls</div>
+    <div class="suite-version">KeySuite V2.23 · Motor IE1–IE5 and user quotation references</div>
   </aside>
 
   <main>
@@ -502,6 +504,21 @@
       </div>
     </section>
 
+
+    <section id="productMotor" class="page">
+      <div class="page-title-row"><div><h1>Product · Motor</h1><div class="muted">IE1 to IE5 motors. Assembly always routes to Pumpset → Motor.</div></div></div>
+      <div id="motorProductNotice" class="notice active-customer">Select a quotation customer with a Pricing Category before pricing a motor.</div>
+      <div id="motorProductMessage" class="auth-message"></div>
+      <div class="card motor-filter-grid">
+        <div><label>Efficiency</label><select id="motorEfficiencyFilter"><option value="">All</option><option>IE1</option><option>IE2</option><option>IE3</option><option>IE4</option><option>IE5</option></select></div>
+        <div><label>HP</label><input id="motorHpFilter" type="search" placeholder="Example: 20"></div>
+        <div><label>Pole</label><select id="motorPoleFilter"><option value="">All</option><option value="2">2 Pole</option><option value="4">4 Pole</option><option value="6">6 Pole</option><option value="8">8 Pole</option></select></div>
+        <div><label>Search</label><input id="motorSearch" type="search" placeholder="Model or description"></div>
+      </div>
+      <div class="card" style="margin-top:16px"><div class="page-title-row" style="margin-bottom:12px"><div><h2 style="margin:0">Motor Models</h2><div id="motorProductCount" class="muted"></div></div></div><div class="table-wrap motor-table-wrap"><table><thead><tr><th>Model</th><th>Efficiency</th><th>HP</th><th>Pole</th><th>Description</th><th>Assembly Price</th><th style="text-align:right">Actions</th></tr></thead><tbody id="motorProductRows"></tbody></table></div></div>
+      <div class="card" style="margin-top:16px"><h2>Custom Motor Model</h2><div class="muted">Custom poles are accepted. Example: 3BM50-5 = 50HP 5Pole IE3 Motor.</div><div class="motor-custom-grid"><div><label>Model</label><input id="motorCustomModel" value="3BM50-5" placeholder="Example: BM20-2"></div><div><label>Manual Unit Price (RM)</label><input id="motorCustomPrice" type="number" min="0" step="0.01" value="0"></div><div class="actions" style="margin:0"><button class="btn action-assembly" id="motorCustomAssembly" type="button">Assembly</button><button class="btn green" id="motorCustomQuote" type="button">Quote</button></div></div><div id="motorCustomDecoded" class="formula" style="margin-top:12px"></div></div>
+    </section>
+
     <section id="quotation" class="page">
       <div class="quote-head">
         <h1>Quotation</h1>
@@ -651,6 +668,7 @@
                   <button class="category-product-button" type="button" data-category-product="GWS">GWS</button>
                   <button class="category-product-button" type="button" data-category-product="KEYPLC">KeyPLC</button>
                   <button class="category-product-button" type="button" data-category-product="MANIFOLD">Manifold</button>
+                  <button class="category-product-button" type="button" data-category-product="MOTOR">Motor</button>
                 </div>
                 <div class="category-rule-editor">
                   <h3 id="categoryProductHeading">CHC Pricing Rule</h3>
@@ -738,7 +756,24 @@
         <button type="button" class="key-module-card" data-go="manifoldPriceList">
           <span class="module-icon">MF</span><h2>Manifold</h2><p>Maintain Branch, Manifold Sizing, Header and Tank Fitting source data.</p><span class="module-order">OPEN PRICE LIST</span>
         </button>
+        <button type="button" class="key-module-card" data-go="motorPriceList">
+          <span class="module-icon">MTR</span><h2>Motor</h2><p>Maintain IE1, IE2, IE3, IE4 and IE5 source prices by HP and pole.</p><span class="module-order">OPEN PRICE LIST</span>
+        </button>
       </div>
+    </section>
+
+    <section id="motorPriceList" class="page">
+      <div class="key-back-row"><button class="btn secondary" type="button" data-go="priceListDashboard">← Price List</button></div>
+      <div class="page-title-row"><div><h1>Motor Price List</h1><div class="muted">IE1–IE5 with independent USD, RMB and MYR source prices. Models use BM, 2BM, 3BM, 4BM and 5BM prefixes.</div></div></div>
+      <div id="motorPriceMessage" class="auth-message"></div>
+      <div class="card motor-filter-grid">
+        <div><label>Currency</label><select id="motorPriceCurrency"><option>USD</option><option>RMB</option><option selected>MYR</option></select></div>
+        <div><label>Efficiency</label><select id="motorPriceEfficiency"><option value="">All</option><option>IE1</option><option>IE2</option><option>IE3</option><option>IE4</option><option>IE5</option></select></div>
+        <div><label>Search</label><input id="motorPriceSearch" type="search" placeholder="Model, HP or pole"></div>
+        <div class="motor-rate-pair"><div><label>USD Rate</label><input id="motorUsdRate" type="number" min="0.0001" step="0.0001"></div><button id="saveMotorUsdRate" class="btn secondary" type="button">Save USD</button></div>
+        <div class="motor-rate-pair"><div><label>RMB Rate</label><input id="motorRmbRate" type="number" min="0.0001" step="0.0001"></div><button id="saveMotorRmbRate" class="btn secondary" type="button">Save RMB</button></div>
+      </div>
+      <div class="card" style="margin-top:16px"><div class="page-title-row" style="margin-bottom:12px"><div><h2 style="margin:0">Motor Models</h2><div id="motorPriceCount" class="muted"></div></div></div><div class="table-wrap motor-table-wrap"><table><thead><tr><th>Model</th><th>Efficiency</th><th>HP</th><th>Pole</th><th>Rarity</th><th>Source Price</th><th>Save</th></tr></thead><tbody id="motorPriceRows"></tbody></table></div></div>
     </section>
 
     <section id="chcPriceList" class="page">
@@ -917,6 +952,7 @@
             <button class="pricing-family-tab" type="button" role="tab" aria-selected="false" data-pricing-family="GWS">GWS</button>
             <button class="pricing-family-tab" type="button" role="tab" aria-selected="false" data-pricing-family="KEYPLC">KeyPLC</button>
             <button class="pricing-family-tab" type="button" role="tab" aria-selected="false" data-pricing-family="MANIFOLD">Manifold</button>
+            <button class="pricing-family-tab" type="button" role="tab" aria-selected="false" data-pricing-family="MOTOR">Motor</button>
           </div>
           <div class="pricing-factor-mode-tabs" role="tablist" aria-label="Pricing factor view">
             <button class="pricing-factor-mode-tab" type="button" role="tab" aria-selected="false" data-pricing-factor-mode="assembly">Assembly</button>
@@ -1012,6 +1048,12 @@
       <div class="span-2"><label>Login Email</label><input id="settingsEmail" type="email" readonly><div class="muted" style="margin-top:5px">Ask an administrator before changing a login email because access approval uses this address.</div></div>
     </div>
     <hr style="border:0;border-top:1px solid #e2e8f0;margin:20px 0">
+    <h2 style="margin-bottom:12px">Quotation Reference</h2>
+    <div class="form-grid">
+      <div><label>My Prefix</label><input id="settingsQuotationPrefix" maxlength="8" autocomplete="off" placeholder="Example: B" style="text-transform:uppercase"><div class="muted" style="margin-top:5px">Unique for each user. Letters and numbers only.</div></div>
+      <div><label>Reference Format</label><input value="PREFIX-YYMM-0001" readonly><div class="muted" style="margin-top:5px">The running number resets only when the calendar year changes.</div></div>
+    </div>
+    <hr style="border:0;border-top:1px solid #e2e8f0;margin:20px 0">
     <div class="page-title-row" style="margin-bottom:12px"><div><h2 style="margin:0">Quotation Templates</h2><div class="muted">Create company or personal/dealer PDF layouts.</div></div><button class="btn secondary" id="settingsQuotationTemplates" type="button">Manage Templates</button></div>
     <hr style="border:0;border-top:1px solid #e2e8f0;margin:20px 0">
     <h2 style="margin-bottom:12px">Quotation Signature</h2>
@@ -1097,15 +1139,17 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=216"></script>
-<script src="app.js?v=222"></script>
-<script src="pricing.js?v=222"></script>
-<script src="categories.js?v=222"></script>
-<script src="pricelist.js?v=216"></script>
-<script src="product.js?v=216"></script>
-<script src="manifold.js?v=222"></script>
+<script src="app.js?v=223"></script>
+<script src="pricing.js?v=223"></script>
+<script src="quotation-references.js?v=223"></script>
+<script src="categories.js?v=223"></script>
+<script src="pricelist.js?v=223"></script>
+<script src="product.js?v=223"></script>
+<script src="manifold.js?v=223"></script>
 <script src="roles.js?v=216"></script>
-<script src="assembly.js?v=222"></script>
-<script src="quotation-templates.js?v=222"></script>
+<script src="assembly.js?v=223"></script>
+<script src="motor.js?v=223"></script>
+<script src="quotation-templates.js?v=223"></script>
 
 <dialog id="quotationTemplateDialog" class="ks-dialog template-dialog">
   <div class="dialog-body">
@@ -1157,7 +1201,7 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="company-settings.js?v=222"></script>
-<script src="auth.js?v=222"></script>
+<script src="company-settings.js?v=223"></script>
+<script src="auth.js?v=223"></script>
 </body>
 </html>

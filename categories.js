@@ -122,7 +122,7 @@
     return (rows||[]).map(c=>{
       let rules=c.product_rules||{};if(typeof rules==='string'){try{rules=JSON.parse(rules)}catch(_){rules={}}}
       const normalize=code=>normalizeRule(rules?.[code]||{},code==='CHC'?{margin:Number(c.chc_margin??c.chc_factor??.38),normal:0,rare:0,transport:Number(c.transport??30),useCommission:true,useSetDiscount:true,useFinalDiscount:true,useFuelCharge:true}:{margin:0,normal:0,rare:0,transport:0,useCommission:true,useSetDiscount:true,useFinalDiscount:true,useFuelCharge:true});
-      return {id:c.id,name:String(c.category_name||c.name||'Unnamed Category'),productRules:{CHC:normalize('CHC'),ES:normalize('ES'),GWS:normalize('GWS'),KEYPLC:normalize('KEYPLC'),MANIFOLD:normalize('MANIFOLD')},margins:{CHC:Number(c.chc_margin??c.chc_factor??0)},factors:{CHC:Number(c.chc_margin??c.chc_factor??0)},transport:Number(c.transport||0)};
+      return {id:c.id,name:String(c.category_name||c.name||'Unnamed Category'),productRules:{CHC:normalize('CHC'),ES:normalize('ES'),GWS:normalize('GWS'),KEYPLC:normalize('KEYPLC'),MANIFOLD:normalize('MANIFOLD'),MOTOR:normalize('MOTOR')},margins:{CHC:Number(c.chc_margin??c.chc_factor??0)},factors:{CHC:Number(c.chc_margin??c.chc_factor??0)},transport:Number(c.transport||0)};
     });
   }
   async function reload(){
