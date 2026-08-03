@@ -1,0 +1,9 @@
+KeySuite V2.26 Update Patch
+
+Upgrade path: V2.25 -> V2.26
+
+1. Back up the current deployment and Supabase database.
+2. Run V226_SUPABASE_MIGRATION.sql in Supabase SQL Editor.
+3. Replace the files in this patch, preserving their relative paths.
+4. Keep the existing working config.js.
+5. Deploy, then press Ctrl+F5 and sign in again.

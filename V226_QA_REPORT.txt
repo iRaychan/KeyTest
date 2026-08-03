@@ -1,0 +1,46 @@
+KeySuite V2.26 QA Report
+Date: 2026-08-03
+Upgrade path: V2.25 -> V2.26
+
+PASS - JavaScript syntax
+- app.js
+- quotation-references.js
+- motor.js
+- all remaining root JavaScript files
+
+PASS - Quotation number input
+- One visible input field only
+- Owner-assigned prefix restored when a different prefix is typed
+- R-2608-8 normalizes to R-2608-0008
+- 2608-3 normalizes to R-2608-0003
+- Invalid month and zero running number remain blocked by save validation
+- Duplicate local quotation numbers remain blocked
+
+PASS - Highest annual running-number logic
+- Existing R-2608-0008 -> next local fallback R-2608-0009
+- Existing R-2608-0009 plus lower R-2608-0003 -> next R-2608-0010
+- Local scan sends 8 as the minimum floor to the Supabase allocator
+- Saved references call keysuite_register_quotation_reference_v226
+
+PASS - Database migration structure
+- Corrected Owner prefix list RPC included
+- Corrected Owner prefix assignment RPC avoids ambiguous email conflict targets
+- New sequence table is keyed by quotation prefix and calendar year
+- Existing per-email counters are copied when available
+- Manual higher numbers advance the stored sequence with GREATEST
+- Manual lower numbers cannot reduce the stored sequence
+- PostgREST schema reload notification included
+
+PASS - Product > Motor
+- Assembly Price display removed
+- Assembly and Quote actions retained
+- Motor background price calculation and transfer logic retained
+
+PASS - Version/cache
+- Version updated to 2.26
+- Service worker cache updated to keysuite-v226
+- Script cache-busting parameters updated to v=226
+
+Not performed
+- The SQL migration was not executed against the user's live Supabase database.
+- The patch was not uploaded to GitHub or deployed to the live application.

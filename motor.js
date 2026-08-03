@@ -164,13 +164,10 @@
       :'Select a quotation customer with a Pricing Category before pricing a motor.';
 
     const product=selectedStandardProduct();
-    const found=product?findPrice(product.id,{pricingMode:'assembly'}):null;
     const model=byId('motorSelectedModel');
     const description=byId('motorSelectedDescription');
-    const price=byId('motorSelectedPrice');
     if(model)model.textContent=product?.model||'No matching model';
     if(description)description.textContent=product?(buildMotorModel(product.efficiencyClass,product.hp,product.pole)?.description||product.description):'This HP, Pole and Efficiency combination is not available.';
-    if(price)price.textContent=found?money(found.calc.finalPrice):'Not priced';
     ['motorSelectedAssembly','motorSelectedQuote'].forEach(id=>{if(byId(id))byId(id).disabled=!product});
   }
 

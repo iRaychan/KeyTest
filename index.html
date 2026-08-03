@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V2.25</title>
+  <title>KeySuite V2.26</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -138,7 +138,7 @@
     @media(max-width:560px){.pricing-metrics,.pricing-toolbar{grid-template-columns:1fr}.pricing-kv{grid-template-columns:1fr}.user-panel{display:none}}
 
     .quote-number-field{min-width:380px}.quote-number-field input{width:100%}.quote-top-controls{grid-template-columns:110px minmax(380px,380px)}
-    .quote-number-parts{display:grid;grid-template-columns:minmax(52px,.65fr) 14px minmax(70px,.9fr) 14px minmax(78px,1fr);align-items:center;gap:5px}.quote-number-parts span{text-align:center;font-weight:800;color:#526275}.quote-number-parts input{text-align:center;font-weight:800;letter-spacing:.04em}.quote-number-parts .quote-prefix-part{background:#eef2f7;color:#334155;cursor:not-allowed}.quote-number-help{font-size:11px;color:var(--muted);margin-top:5px}.customer-pricing-lock-tools{display:flex;align-items:center;gap:10px}.customer-pricing-hold.counting{background:#fff7ed;border-color:#f59e0b;color:#92400e}.company-pricing-locked .company-factor-grid{opacity:.72}.company-pricing-locked input{background:#f1f5f9;cursor:not-allowed}.role-prefix-input{text-transform:uppercase;max-width:110px;font-weight:800;letter-spacing:.05em}
+    .quote-number-input{font-weight:800;letter-spacing:.04em;text-transform:uppercase}.quote-number-input.prefix-restored{box-shadow:0 0 0 2px rgba(245,158,11,.28)}.quote-number-help{font-size:11px;color:var(--muted);margin-top:5px}.customer-pricing-lock-tools{display:flex;align-items:center;gap:10px}.customer-pricing-hold.counting{background:#fff7ed;border-color:#f59e0b;color:#92400e}.company-pricing-locked .company-factor-grid{opacity:.72}.company-pricing-locked input{background:#f1f5f9;cursor:not-allowed}.role-prefix-input{text-transform:uppercase;max-width:110px;font-weight:800;letter-spacing:.05em}
     .pricelist-settings{grid-template-columns:repeat(3,minmax(220px,1fr));align-items:stretch}.pricelist-settings>div{min-height:100%}.pricelist-settings>div:first-child{display:grid;align-content:end}.pricelist-multiplier-lock{display:grid;grid-template-rows:auto 42px auto auto;align-content:end}.pricelist-multiplier-lock input{height:42px}
     .permission-title-actions{display:flex;align-items:center;gap:10px}.permission-edit-hold{min-width:150px}.permission-edit-hold.counting{background:#fff7ed;border-color:#f59e0b;color:#92400e}.permission-table select{min-width:104px;padding:7px 8px}.permission-table.editing td{background:#fffdf5}.permission-fixed{font-size:11px;font-weight:800;color:#92400e}.permission-value{font-weight:700;text-transform:capitalize}.permission-value.none{color:#991b1b}.permission-value.full,.permission-value.all{color:#166534}.permission-value.own,.permission-value.assigned,.permission-value.view{color:#92400e}
     @media(max-width:900px){.quote-number-field{min-width:0}.quote-top-controls{grid-template-columns:110px minmax(260px,1fr)}.pricelist-settings{grid-template-columns:1fr}}
@@ -255,7 +255,7 @@
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.25 assembly routing and Owner quotation prefixes</small></div>
+    <div class="auth-brand">KeySuite<small>V2.26 quotation numbering and Motor display</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -270,7 +270,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.25</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.26</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -293,7 +293,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.25 · Assembly routing and Owner quotation prefixes</div>
+    <div class="suite-version">KeySuite V2.26 · Quotation numbering and Motor display</div>
   </aside>
 
   <main>
@@ -521,7 +521,6 @@
       <div class="card motor-selected-card" style="margin-top:16px">
         <div class="motor-selected-value"><small>Model</small><strong id="motorSelectedModel">—</strong></div>
         <div class="motor-selected-value"><small>Description</small><strong id="motorSelectedDescription">—</strong></div>
-        <div class="motor-selected-value"><small>Assembly Price</small><strong id="motorSelectedPrice">Not priced</strong></div>
         <div class="actions" style="margin:0;justify-content:flex-end"><button class="btn action-assembly" id="motorSelectedAssembly" type="button">Assembly</button><button class="btn green" id="motorSelectedQuote" type="button">Quote</button></div>
       </div>
       
@@ -532,7 +531,7 @@
         <h1>Quotation</h1>
         <div class="quote-head-right">
           <button id="quotationTemplateLogoButton" class="quotation-template-logo-button" type="button" title="Quotation template" aria-label="Open selected quotation template"><img id="quotationTemplateHeaderLogo" src="keylargo-logo.png" alt="Selected quotation template logo"></button>
-          <div class="quote-number-field"><label for="quoteYymmPart">Quotation No.</label><div class="quote-number-parts"><input id="quotePrefixPart" class="quote-prefix-part" readonly aria-label="Quotation prefix"><span>-</span><input id="quoteYymmPart" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" aria-label="Quotation year and month"><span>-</span><input id="quoteRunningPart" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" aria-label="Quotation running number"></div><input id="quoteNo" type="hidden"><div class="quote-number-help">Prefix is assigned by the Owner and cannot be amended.</div></div>
+          <div class="quote-number-field"><label for="quoteNo">Quotation No.</label><div><input id="quoteNo" class="quote-number-input" autocomplete="off" spellcheck="false" aria-label="Quotation number"><div class="quote-number-help">The Owner-assigned prefix is locked. YYMM and running number may be amended.</div></div></div>
           <button class="btn action-pdf no-print export-center-hidden" type="button" id="topPrintQuote">PDF</button>
           <input id="preparedBy" type="hidden">
           <input id="preparedByDesignation" type="hidden">
@@ -1153,17 +1152,17 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=216"></script>
-<script src="app.js?v=225"></script>
-<script src="pricing.js?v=225"></script>
-<script src="quotation-references.js?v=225"></script>
-<script src="categories.js?v=225"></script>
-<script src="pricelist.js?v=225"></script>
-<script src="product.js?v=225"></script>
-<script src="manifold.js?v=225"></script>
-<script src="roles.js?v=225"></script>
-<script src="assembly.js?v=225"></script>
-<script src="motor.js?v=225"></script>
-<script src="quotation-templates.js?v=225"></script>
+<script src="app.js?v=226"></script>
+<script src="pricing.js?v=226"></script>
+<script src="quotation-references.js?v=226"></script>
+<script src="categories.js?v=226"></script>
+<script src="pricelist.js?v=226"></script>
+<script src="product.js?v=226"></script>
+<script src="manifold.js?v=226"></script>
+<script src="roles.js?v=226"></script>
+<script src="assembly.js?v=226"></script>
+<script src="motor.js?v=226"></script>
+<script src="quotation-templates.js?v=226"></script>
 
 <dialog id="quotationTemplateDialog" class="ks-dialog template-dialog">
   <div class="dialog-body">
@@ -1215,7 +1214,7 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="company-settings.js?v=225"></script>
-<script src="auth.js?v=225"></script>
+<script src="company-settings.js?v=226"></script>
+<script src="auth.js?v=226"></script>
 </body>
 </html>

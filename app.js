@@ -273,7 +273,7 @@ function setQuotationEditingLocked(locked){
  root.querySelectorAll('input,select,textarea').forEach(el=>{if(['preparedBy','preparedByDesignation'].includes(el.id))return;el.disabled=!!locked});
  root.querySelectorAll('.remove-quote-item,.duplicate-quote-item,.remark-quote-item,.drag-handle,#addQuoteItem,#expandAllItems,#collapseAllItems').forEach(el=>{if(el)el.style.pointerEvents=locked?'none':'';if(el&&'disabled' in el)el.disabled=!!locked});
  if(!locked){
-   setControlLocked($('quotePrefixPart'),true,false);setControlLocked($('quoteYymmPart'),false,false);setControlLocked($('quoteRunningPart'),false,false);
+   setControlLocked($('quoteNo'),false,false);
    setControlLocked($('qDate'),isRevisionCopy(),true);
    setControlLocked($('qRevisionDate'),!isRevisionCopy(),false);
    setControlLocked($('showRevision'),isRevisionCopy(),false);
@@ -563,39 +563,56 @@ function getQuoteItems(){return [...document.querySelectorAll('.quote-item')].ma
 function setQuoteItems(items=[]){$('quoteItems').innerHTML='';(items.length?items:[{}]).forEach(quoteItemRow);calcTotal()}
 function assignedQuotationPrefix(){return String(currentProfile().quotation_prefix||window.KeySuiteQuotationReferences?.getState?.().prefix||'').trim().toUpperCase()}
 function parseQuoteNo(value){
- const text=String(value||'').trim().toUpperCase(),match=text.match(/^([A-Z0-9]{1,8})-(\d{4})-(\d{4})(-V\d+)?$/i);
- return match?{prefix:match[1].toUpperCase(),yymm:match[2],running:match[3],suffix:match[4]||''}:null;
+ const text=String(value||'').trim().toUpperCase(),match=text.match(/^([A-Z0-9]{1,8})-(\d{4})-(\d{1,4})(-V\d+)?$/i);
+ return match?{prefix:match[1].toUpperCase(),yymm:match[2],running:String(match[3]),suffix:match[4]||''}:null;
+}
+function formatQuoteNo(parsed){
+ if(!parsed)return '';
+ return `${parsed.prefix}-${parsed.yymm}-${String(Number(parsed.running)||0).padStart(4,'0')}${parsed.suffix||''}`;
 }
 function setQuoteNoValue(value,{lockPrefix=true}={}){
- const parsed=parseQuoteNo(value),hidden=$('quoteNo'),prefix=$('quotePrefixPart'),yymm=$('quoteYymmPart'),running=$('quoteRunningPart');
- if(parsed){if(lockPrefix)lockedQuotePrefix=parsed.prefix;quoteNumberSuffix=parsed.suffix||'';if(prefix)prefix.value=parsed.prefix;if(yymm)yymm.value=parsed.yymm;if(running)running.value=parsed.running;if(hidden)hidden.value=`${parsed.prefix}-${parsed.yymm}-${parsed.running}${quoteNumberSuffix}`;return hidden?.value||value}
- if(lockPrefix)lockedQuotePrefix=assignedQuotationPrefix();quoteNumberSuffix='';if(prefix)prefix.value=lockedQuotePrefix;if(yymm)yymm.value='';if(running)running.value='';if(hidden)hidden.value='';return '';
+ const input=$('quoteNo'),parsed=parseQuoteNo(value);
+ if(parsed){if(lockPrefix)lockedQuotePrefix=parsed.prefix;quoteNumberSuffix=parsed.suffix||'';const formatted=formatQuoteNo(parsed);if(input)input.value=formatted;return formatted}
+ if(lockPrefix)lockedQuotePrefix=assignedQuotationPrefix();quoteNumberSuffix='';if(input)input.value=lockedQuotePrefix?`${lockedQuotePrefix}-`:'';return input?.value||'';
 }
-function syncQuoteNoFromParts(){
- const prefix=String($('quotePrefixPart')?.value||lockedQuotePrefix||assignedQuotationPrefix()).trim().toUpperCase(),yymm=String($('quoteYymmPart')?.value||'').replace(/\D/g,'').slice(0,4),running=String($('quoteRunningPart')?.value||'').replace(/\D/g,'').slice(0,4);
- if($('quotePrefixPart'))$('quotePrefixPart').value=prefix;if($('quoteYymmPart'))$('quoteYymmPart').value=yymm;if($('quoteRunningPart'))$('quoteRunningPart').value=running;
- const value=prefix&&yymm&&running?`${prefix}-${yymm}-${running}${quoteNumberSuffix}`:'';if($('quoteNo'))$('quoteNo').value=value;return value;
+function normalizeQuoteNoInput({final=false}={}){
+ const input=$('quoteNo');if(!input)return '';
+ const prefix=String(lockedQuotePrefix||assignedQuotationPrefix()).trim().toUpperCase();if(!prefix){input.value='';return ''}
+ const before=String(input.value||'').trim().toUpperCase();
+ const pieces=before.split('-'),typedPrefix=pieces.shift()||'',remainder=typedPrefix===prefix?pieces.join('-'):/^\d{1,4}$/.test(typedPrefix)?[typedPrefix,...pieces].join('-'):pieces.join('-');
+ const values=remainder.split('-'),yymm=String(values[0]||'').replace(/\D/g,'').slice(0,4),runningRaw=String(values[1]||'').replace(/\D/g,'').slice(0,4);
+ const running=final&&runningRaw?String(Number(runningRaw)||0).padStart(4,'0'):runningRaw;
+ let value=prefix;if(yymm||remainder.includes('-')||before.endsWith('-'))value+=`-${yymm}`;if(runningRaw||values.length>1)value+=`-${running}`;if(quoteNumberSuffix&&runningRaw)value+=quoteNumberSuffix;
+ const restored=typedPrefix&&typedPrefix!==prefix;if(input.value!==value)input.value=value;
+ if(restored){input.classList.add('prefix-restored');setTimeout(()=>input.classList.remove('prefix-restored'),650)}
+ return value;
 }
 function validateQuoteNoForSave(options={}){
- const value=syncQuoteNoFromParts(),parsed=parseQuoteNo(value);if(!parsed)throw new Error('Quotation number requires a 4-digit YYMM and a 4-digit running number.');
+ normalizeQuoteNoInput({final:true});const value=String($('quoteNo')?.value||'').trim().toUpperCase(),parsed=parseQuoteNo(value);if(!parsed)throw new Error('Quotation number requires the format PREFIX-YYMM-0001.');
  const month=Number(parsed.yymm.slice(2));if(month<1||month>12)throw new Error('Quotation YYMM must contain a valid month from 01 to 12.');
  if(Number(parsed.running)<1)throw new Error('Quotation running number must be from 0001 to 9999.');
  const expected=String(lockedQuotePrefix||assignedQuotationPrefix()).toUpperCase();if(!expected||parsed.prefix!==expected)throw new Error('The quotation prefix is assigned by the Owner and cannot be amended.');
- const duplicate=quotes().some(row=>String(row.no||'').toUpperCase()===value.toUpperCase()&&String(row.id)!==String(editingQuoteId||''));if(duplicate)throw new Error(`Quotation number ${value} already exists.`);
- return value;
+ const formatted=formatQuoteNo(parsed),duplicate=quotes().some(row=>String(row.no||'').toUpperCase()===formatted.toUpperCase()&&String(row.id)!==String(editingQuoteId||''));if(duplicate)throw new Error(`Quotation number ${formatted} already exists.`);
+ if($('quoteNo'))$('quoteNo').value=formatted;return formatted;
+}
+function highestLocalRunning(prefix,year){
+ const yy=String(year).slice(-2),rx=new RegExp(`^${String(prefix).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}-${yy}\\d{2}-(\\d+)(?:-V\\d+)?$`,'i');
+ return quotes().reduce((maximum,row)=>{const match=String(row.no||'').match(rx);return match?Math.max(maximum,Number(match[1])||0):maximum},0);
 }
 function nextQuoteNo(){
- const d=new Date(),yy=String(d.getFullYear()).slice(-2),mm=String(d.getMonth()+1).padStart(2,'0'),seq=String(quotes().length+1).padStart(4,'0'),prefix=assignedQuotationPrefix();
- return prefix?`${prefix}-${yy}${mm}-${seq}`:'';
+ const d=new Date(),year=d.getFullYear(),yy=String(year).slice(-2),mm=String(d.getMonth()+1).padStart(2,'0'),prefix=assignedQuotationPrefix(),next=highestLocalRunning(prefix,year)+1;
+ return prefix?`${prefix}-${yy}${mm}-${String(next).padStart(4,'0')}`:'';
 }
-['quoteYymmPart','quoteRunningPart'].forEach(id=>$(id)?.addEventListener('input',event=>{event.target.value=String(event.target.value||'').replace(/\D/g,'').slice(0,4);syncQuoteNoFromParts()}));
+$('quoteNo')?.addEventListener('input',()=>normalizeQuoteNoInput());
+$('quoteNo')?.addEventListener('blur',()=>normalizeQuoteNoInput({final:true}));
+$('quoteNo')?.addEventListener('paste',()=>setTimeout(()=>normalizeQuoteNoInput(),0));
 
 let quotationReferenceRequest=0,quotationReferenceAllocated=false;
 function assignNewQuotationReference(){
  const input=$('quoteNo');if(!input)return;const service=window.KeySuiteQuotationReferences,signedIn=!!window.KeySuiteAuth?.getSession?.();quotationReferenceAllocated=false;lockedQuotePrefix=assignedQuotationPrefix();quoteNumberSuffix='';
  if(!signedIn||!service?.allocateNext){setQuoteNoValue(nextQuoteNo());return}
- const request=++quotationReferenceRequest;setQuoteNoValue('');if($('quotePrefixPart'))$('quotePrefixPart').value=lockedQuotePrefix;
- service.allocateNext().then(reference=>{if(request!==quotationReferenceRequest||editingQuoteId||quotationStatus!=='new')return;setQuoteNoValue(reference);quotationReferenceAllocated=true}).catch(error=>{if(request!==quotationReferenceRequest)return;setQuoteNoValue('');if($('quotePrefixPart'))$('quotePrefixPart').value=assignedQuotationPrefix();console.warn(error)});
+ const request=++quotationReferenceRequest;setQuoteNoValue('');
+ service.allocateNext().then(reference=>{if(request!==quotationReferenceRequest||editingQuoteId||quotationStatus!=='new')return;setQuoteNoValue(reference);quotationReferenceAllocated=true}).catch(error=>{if(request!==quotationReferenceRequest)return;setQuoteNoValue('');console.warn(error)});
 }
 function refreshNewQuotationReference(){if(editingQuoteId||quotationStatus!=='new'||quoteHasItems()||quotationReferenceAllocated)return;assignNewQuotationReference()}
 function calcTotal(){
@@ -643,7 +660,7 @@ function saveQuote(options={}){
   assemblySessionId:quotationSessionId,preparedBy:$('preparedBy').value,preparedByDesignation:$('preparedByDesignation').value,signatoryName:window.ksSignatoryName||currentProfile().signatory_name||'',signatureImage:window.ksSignatureImage||currentProfile().signature_image||'',items,
   project:$('project').value,project2:$('project2').value,customerReference:$('customerReference').value,delivery:$('delivery').value,delivery2:$('delivery2').value,validity:$('validity').value,priceBasis:$('priceBasis').value,payment:$('payment').value,remarks:$('remarks').value,total:calcTotal()
  };
- let arr=quotes(),i=arr.findIndex(x=>x.id===q.id);if(i>=0)arr[i]=q;else arr.unshift(q);store.set('ks_quotes',arr);editingQuoteId=q.id;quotationStatus=q.status||'saved';quotationPricingCustomerId=q.pricingCustomerId;quotationPricingCustomerSnapshot=customerSnapshot(q.pricingCustomerSnapshot);setQuoteNoValue(q.no);refreshAll();updateQuotationStateUi();if(!options.silent)alert(`${q.documentType} saved.`);return true
+ let arr=quotes(),i=arr.findIndex(x=>x.id===q.id);if(i>=0)arr[i]=q;else arr.unshift(q);store.set('ks_quotes',arr);window.KeySuiteQuotationReferences?.registerUsed?.(quotationNo).catch(error=>console.warn('Quotation running number could not be synchronized.',error));editingQuoteId=q.id;quotationStatus=q.status||'saved';quotationPricingCustomerId=q.pricingCustomerId;quotationPricingCustomerSnapshot=customerSnapshot(q.pricingCustomerSnapshot);setQuoteNoValue(q.no);refreshAll();updateQuotationStateUi();if(!options.silent)alert(`${q.documentType} saved.`);return true
 }
 function loadQuote(id){
  const q=quotes().find(x=>x.id===id);if(!q)return;quotationSessionId=q.assemblySessionId||`quote:${id}`;window.KeySuiteAssembly?.resetForNewQuotation?.();editingQuoteId=id;quotationStatus=q.status||'saved';quotationRevisionOf=q.revisionOf||'';quotationRevisionRootId=q.revisionRootId||'';quotationRevisionNumber=Number(q.revisionNumber||0);quotationAudit=Array.isArray(q.audit)?q.audit:[];
@@ -1064,7 +1081,7 @@ window.KeySuiteApp={
  isQuotationSealed,
  showPage,
  refreshNewQuotationReference,
- applyProfile(profile){window.KEYSUITE_PROFILE=profile||window.KEYSUITE_PROFILE;syncOwnerKeyVisibility();if(!editingQuoteId){lockedQuotePrefix=assignedQuotationPrefix();if($('quotePrefixPart'))$('quotePrefixPart').value=lockedQuotePrefix;syncQuoteNoFromParts();$('preparedBy').value=currentProfile().display_name||'';$('preparedByDesignation').value=currentProfile().designation||'';window.ksSignatoryName=currentProfile().signatory_name||currentProfile().display_name||'';window.ksSignatureImage=currentProfile().signature_image||''}configureCustomerOwner($('customerOwner')?.value||currentEmail());refreshAll()},
+ applyProfile(profile){window.KEYSUITE_PROFILE=profile||window.KEYSUITE_PROFILE;syncOwnerKeyVisibility();if(!editingQuoteId){lockedQuotePrefix=assignedQuotationPrefix();normalizeQuoteNoInput();$('preparedBy').value=currentProfile().display_name||'';$('preparedByDesignation').value=currentProfile().designation||'';window.ksSignatoryName=currentProfile().signatory_name||currentProfile().display_name||'';window.ksSignatureImage=currentProfile().signature_image||''}configureCustomerOwner($('customerOwner')?.value||currentEmail());refreshAll()},
  showBusinessWorkspace(){showPage(hasPermission('key_dashboard')?'keyDashboard':'dashboard')},
  applyPermissions(){syncOwnerKeyVisibility();refreshAll()} 
 };

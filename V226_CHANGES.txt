@@ -1,0 +1,10 @@
+KeySuite V2.26 Changes
+
+1. Product > Motor no longer displays the Assembly price.
+2. Quotation No. is displayed in one input field.
+3. The Owner-assigned prefix is automatically restored and cannot be amended.
+4. YYMM and running number remain editable.
+5. New quotation numbering follows the highest running number used for the assigned prefix and calendar year.
+6. Manually saving a higher running number advances the sequence; saving a lower number never reduces it.
+7. Running numbers continue across months and reset only when the calendar year changes.
+8. V2.25 Role prefix RPC rollback and ambiguous email issues are included in the V2.26 migration.
