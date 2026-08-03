@@ -39,7 +39,7 @@
     const pole=Number(match[3]);
     const efficiencyClass=PREFIX_TO_IE[match[1]];
     if(!(hp>0)||!Number.isInteger(pole)||pole<=0)return null;
-    return {model,prefix:match[1],efficiencyClass,hp,pole,description:`${hpLabel(hp)}HP ${pole}Pole ${efficiencyClass} Motor`};
+    return {model,prefix:match[1],efficiencyClass,hp,pole,description:`${hpLabel(hp)}HP ${pole}Pole ${efficiencyClass} Motor (415V / 3Ph / 50Hz)`};
   }
 
   function buildMotorModel(efficiencyClass,hp,pole){
@@ -82,13 +82,34 @@
     };
   }
 
-  function makeItem(found){
+  function makeItem(found,route='quotation'){
+    const parsed=buildMotorModel(found.product.efficiencyClass,found.product.hp,found.product.pole);
+    const code=parsed?.model||found.product.model;
+    const plainDescription=parsed?.description||`${hpLabel(found.product.hp)}HP ${Number(found.product.pole)}Pole ${found.product.efficiencyClass} Motor (415V / 3Ph / 50Hz)`;
     return {
-      model:found.product.model,description:found.product.description,qty:1,unitPrice:number(found.calc.finalPrice),
+      model:route==='quotation'?`B.G.Reich Motor Model: ${code}`:code,
+      bomDescription:code,
+      description:route==='assembly'?`c/w\t${plainDescription}`:plainDescription,
+      qty:1,unitPrice:number(found.calc.finalPrice),
       pricingSource:snapshot(found),productFamily:'MOTOR',assemblyLevel:'PUMPSET_COMPONENT',
       assemblySection:'motor',section:'motor',
-      motorData:{productId:found.product.id,efficiencyClass:found.product.efficiencyClass,hp:number(found.product.hp),pole:number(found.product.pole)}
+      motorData:{productId:found.product.id,model:code,efficiencyClass:found.product.efficiencyClass,hp:number(found.product.hp),pole:number(found.product.pole)}
     };
+  }
+
+  function findStandardProduct(hp,pole,efficiencyClass){
+    return products().find(product=>number(product.hp)===number(hp)&&number(product.pole)===number(pole)&&String(product.efficiencyClass)===String(efficiencyClass||'IE3'))||null;
+  }
+
+  function configureAssemblyItem(item,values={}){
+    const hp=number(values.hp??item?.motorData?.hp),pole=number(values.pole??item?.motorData?.pole??2),efficiencyClass=String(values.efficiencyClass??item?.motorData?.efficiencyClass??'IE3');
+    const product=findStandardProduct(hp,pole,efficiencyClass);if(!product)return {error:'The selected Motor combination is not available.'};
+    const found=findPrice(product.id,{pricingMode:'assembly'});const parsed=buildMotorModel(efficiencyClass,hp,pole);const description=parsed?.description||`${hpLabel(hp)}HP ${pole}Pole ${efficiencyClass} Motor (415V / 3Ph / 50Hz)`;
+    item.model=parsed?.model||product.model;item.bomDescription=item.model;item.description=`c/w\t${description}`;item.qty=Math.max(0,number(item.qty||1));
+    item.motorData={productId:product.id,model:item.model,efficiencyClass,hp,pole};
+    if(found){item.unitPrice=number(found.calc.finalPrice);item.pricingSource=snapshot(found)}
+    else{item.unitPrice=0;item.pricingSource={product_family:'MOTOR',product_id:product.id,pricing_mode:'assembly',motor_model:item.model}}
+    return {product,found,item};
   }
 
   function requireContext(action){return window.KeySuiteApp?.ensureQuotationPricingContext?.(action)!==false}
@@ -97,7 +118,7 @@
     if(!product||!requireContext(`add a Motor to the ${route==='assembly'?'Assembly':'quotation'}`))return;
     const found=findPrice(product.id,{pricingMode:route==='assembly'?'assembly':'quotation'});
     if(!found){alert('No Motor source price or Motor Category Pricing Rule is available for this model.');return}
-    const item=makeItem(found);
+    const item=makeItem(found,route);
     if(route==='assembly'){
       await window.KeySuiteAssembly?.addItem?.(item,{type:'pumpset',section:'motor'});
       return;
@@ -107,24 +128,6 @@
     if(row)window.KeySuiteApp?.showPage?.('quotation');
   }
 
-  async function addCustom(route){
-    const parsed=parseMotorModel(byId('motorCustomModel')?.value);
-    const unitPrice=number(byId('motorCustomPrice')?.value);
-    if(!parsed){message('motorProductMessage','Use a model such as BM20-2, 2BM20-4, 3BM50-5, 4BM20-4 or 5BM20-4.','error');return}
-    if(!requireContext(`add a custom Motor to the ${route==='assembly'?'Assembly':'quotation'}`))return;
-    if(route==='quotation'&&unitPrice<=0){message('motorProductMessage','Enter a positive custom unit price before adding this motor to Quotation.','error');return}
-    const item={
-      model:parsed.model,description:parsed.description,qty:1,unitPrice,
-      pricingSource:{product_family:'MANUAL',pricing_mode:route==='assembly'?'assembly':'quotation',source_kind:'CUSTOM_MOTOR',motor_model:parsed.model},
-      productFamily:'MOTOR',assemblyLevel:'PUMPSET_COMPONENT',assemblySection:'motor',section:'motor',motorData:{custom:true,...parsed}
-    };
-    if(route==='assembly'){
-      await window.KeySuiteAssembly?.addItem?.(item,{type:'pumpset',section:'motor'});
-      return;
-    }
-    const row=window.KeySuiteApp?.addExternalQuoteItem?.(item);
-    if(row)window.KeySuiteApp?.showPage?.('quotation');
-  }
 
   function message(id,text,type='info'){
     const box=byId(id);if(!box)return;
@@ -166,7 +169,7 @@
     const description=byId('motorSelectedDescription');
     const price=byId('motorSelectedPrice');
     if(model)model.textContent=product?.model||'No matching model';
-    if(description)description.textContent=product?.description||'This HP, Pole and Efficiency combination is not available.';
+    if(description)description.textContent=product?(buildMotorModel(product.efficiencyClass,product.hp,product.pole)?.description||product.description):'This HP, Pole and Efficiency combination is not available.';
     if(price)price.textContent=found?money(found.calc.finalPrice):'Not priced';
     ['motorSelectedAssembly','motorSelectedQuote'].forEach(id=>{if(byId(id))byId(id).disabled=!product});
   }
@@ -361,11 +364,6 @@
     }catch(error){message('motorPriceMessage',error.message||String(error),'error')}
   }
 
-  function decodeCustom(){
-    const parsed=parseMotorModel(byId('motorCustomModel')?.value);
-    const box=byId('motorCustomDecoded');
-    if(box)box.textContent=parsed?parsed.description:'Invalid Motor model format.';
-  }
 
   function initializeControls(){
     fillHpSelect('motorProductHp');
@@ -404,11 +402,7 @@
       rateGroup(currency)?.querySelector('[data-motor-rate-cancel]')?.addEventListener('click',()=>cancelRateEdit(currency));
     });
 
-    byId('motorCustomModel')?.addEventListener('input',decodeCustom);
-    byId('motorCustomAssembly')?.addEventListener('click',()=>addCustom('assembly'));
-    byId('motorCustomQuote')?.addEventListener('click',()=>addCustom('quotation'));
     window.addEventListener('keysuite-customer-pricing-changed',renderProduct);
-    decodeCustom();
   }
 
   function init(data,userAccess){
@@ -426,7 +420,7 @@
   }
 
   window.KeySuiteMotor={
-    init,pageShown,renderProduct,renderPriceList,findPrice,parseMotorModel,buildMotorModel,addProduct,
+    init,pageShown,renderProduct,renderPriceList,findPrice,parseMotorModel,buildMotorModel,addProduct,findStandardProduct,configureAssemblyItem,
     PREFIX_TO_IE,IE_TO_PREFIX
   };
 })();

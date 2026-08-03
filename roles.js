@@ -44,8 +44,8 @@
   }
 
   function renderUsers(){
-    const rows=el('roleRows');if(!rows)return;if(!users.length){rows.innerHTML='<tr><td colspan="6" class="muted">No approved users found.</td></tr>';return}
-    rows.innerHTML=users.map(user=>{const userRole=String(user.role||'user').toLowerCase();return `<tr><td><b>${esc(user.display_name||'-')}</b></td><td>${esc(user.email)}</td><td><span class="role-badge ${esc(userRole)}">${esc(userRole)}</span></td><td>${user.active?'<span class="badge won">Active</span>':'<span class="badge lost">Inactive</span>'}</td><td>${user.auth_exists?'<span class="auth-state ok">Login ready</span>':'<span class="auth-state missing">Invitation required</span>'}</td><td><div class="role-row-actions"><button class="btn secondary edit-role-user" type="button" data-email="${esc(user.email)}">Edit</button>${!user.auth_exists?`<button class="btn invite-role-user" type="button" data-invite-email="${esc(user.email)}">Invite</button>`:''}</div></td></tr>`}).join('');
+    const rows=el('roleRows');if(!rows)return;if(!users.length){rows.innerHTML='<tr><td colspan="7" class="muted">No approved users found.</td></tr>';return}
+    rows.innerHTML=users.map(user=>{const userRole=String(user.role||'user').toLowerCase(),prefix=String(user.quotation_prefix||'').toUpperCase();return `<tr><td><b>${esc(user.display_name||'-')}</b></td><td>${esc(user.email)}</td><td>${prefix?`<span class="role-badge">${esc(prefix)}</span>`:'<span class="muted">Not assigned</span>'}</td><td><span class="role-badge ${esc(userRole)}">${esc(userRole)}</span></td><td>${user.active?'<span class="badge won">Active</span>':'<span class="badge lost">Inactive</span>'}</td><td>${user.auth_exists?'<span class="auth-state ok">Login ready</span>':'<span class="auth-state missing">Invitation required</span>'}</td><td><div class="role-row-actions"><button class="btn secondary edit-role-user" type="button" data-email="${esc(user.email)}">Edit</button>${!user.auth_exists?`<button class="btn invite-role-user" type="button" data-invite-email="${esc(user.email)}">Invite</button>`:''}</div></td></tr>`}).join('');
     rows.querySelectorAll('.edit-role-user').forEach(button=>button.addEventListener('click',()=>openEdit(button.dataset.email)));
     rows.querySelectorAll('.invite-role-user').forEach(button=>button.addEventListener('click',()=>inviteExisting(button.dataset.inviteEmail,button)));
   }
@@ -76,9 +76,10 @@
     if(!canManage()){if(notice)notice.textContent='Your role is not allowed to manage users.';if(typeof showPage==='function')showPage(can('key_dashboard')?'keyDashboard':'dashboard');return}
     const db=client();if(!db)return;if(notice){notice.textContent='Loading approved users…';notice.classList.remove('active-customer')}
     try{
-      const [userResult,auditResult]=await Promise.all([db.rpc('keysuite_list_role_users'),db.rpc('keysuite_list_role_audit',{p_limit:30})]);
-      if(userResult.error)throw userResult.error;if(auditResult.error)throw auditResult.error;
-      users=userResult.data||[];audit=auditResult.data||[];
+      const [userResult,auditResult,prefixResult]=await Promise.all([db.rpc('keysuite_list_role_users'),db.rpc('keysuite_list_role_audit',{p_limit:30}),isOwner()?db.rpc('keysuite_list_quotation_prefixes_v225'):Promise.resolve({data:[],error:null})]);
+      if(userResult.error)throw userResult.error;if(auditResult.error)throw auditResult.error;if(prefixResult.error)throw prefixResult.error;
+      const prefixMap=new Map((prefixResult.data||[]).map(row=>[String(row.email||'').toLowerCase(),String(row.quotation_prefix||'').toUpperCase()]));
+      users=(userResult.data||[]).map(user=>({...user,quotation_prefix:prefixMap.get(String(user.email||'').toLowerCase())||''}));audit=auditResult.data||[];
       if(notice){notice.innerHTML=`<b>${users.length}</b> approved user${users.length===1?'':'s'}. New users can receive a secure invitation email to set their own password.`;notice.classList.add('active-customer')}
       renderUsers();renderAudit();
     }catch(error){console.error(error);if(notice)notice.textContent=`Role data could not be loaded: ${error.message||error}.`;users=[];audit=[];renderUsers();renderAudit()}
@@ -140,8 +141,8 @@
 
   function setRoleOptions(selected='user'){const select=el('roleUserRole');if(!select)return;select.value=selected||'user';select.disabled=false}
   function setInviteRow(show,checked=true){const row=el('roleInviteRow');if(row)row.style.display=show?'block':'none';const input=el('roleSendInvite');if(input)input.checked=checked}
-  function openAdd(){if(!canManage())return;editingEmail='';editingUser=null;setMessage('roleDialogMessage','');el('roleDialogTitle').textContent='Add User';el('roleUserEmail').readOnly=false;el('roleUserEmail').value='';el('roleUserDisplayName').value='';setRoleOptions('user');el('roleUserActive').value='true';setInviteRow(true,true);el('roleUserDialog').showModal()}
-  function openEdit(email){const user=users.find(item=>String(item.email).toLowerCase()===String(email).toLowerCase());if(!user)return;editingEmail=user.email;editingUser=user;setMessage('roleDialogMessage','');el('roleDialogTitle').textContent='Edit User Role';el('roleUserEmail').value=user.email;el('roleUserEmail').readOnly=true;el('roleUserDisplayName').value=user.display_name||'';setRoleOptions(user.role);el('roleUserActive').value=user.active?'true':'false';setInviteRow(!user.auth_exists,!user.auth_exists);el('roleUserDialog').showModal()}
+  function openAdd(){if(!canManage())return;editingEmail='';editingUser=null;setMessage('roleDialogMessage','');el('roleDialogTitle').textContent='Add User';el('roleUserEmail').readOnly=false;el('roleUserEmail').value='';el('roleUserDisplayName').value='';if(el('roleUserQuotationPrefix')){el('roleUserQuotationPrefix').value='';el('roleUserQuotationPrefix').disabled=!isOwner()}setRoleOptions('user');el('roleUserActive').value='true';setInviteRow(true,true);el('roleUserDialog').showModal()}
+  function openEdit(email){const user=users.find(item=>String(item.email).toLowerCase()===String(email).toLowerCase());if(!user)return;editingEmail=user.email;editingUser=user;setMessage('roleDialogMessage','');el('roleDialogTitle').textContent='Edit User Role';el('roleUserEmail').value=user.email;el('roleUserEmail').readOnly=true;el('roleUserDisplayName').value=user.display_name||'';if(el('roleUserQuotationPrefix')){el('roleUserQuotationPrefix').value=user.quotation_prefix||'';el('roleUserQuotationPrefix').disabled=!isOwner()}setRoleOptions(user.role);el('roleUserActive').value=user.active?'true':'false';setInviteRow(!user.auth_exists,!user.auth_exists);el('roleUserDialog').showModal()}
   function closeDialog(){el('roleUserDialog')?.close()}
   async function openPermissions(){if(!canManage())return;permissionsEditing=false;setMessage('rolePermissionsMessage','');await loadPermissions();renderPermissions();el('rolePermissionsDialog')?.showModal()}
   function closePermissions(){stopPermissionHold();permissionsEditing=false;el('rolePermissionsDialog')?.close()}
@@ -157,12 +158,15 @@
   async function save(event){
     event.preventDefault();if(!canManage())return;
     const email=el('roleUserEmail').value.trim().toLowerCase(),displayName=el('roleUserDisplayName').value.trim(),nextRole=el('roleUserRole').value,active=el('roleUserActive').value==='true',sendInvite=!!el('roleSendInvite')?.checked;
+    const quotationPrefix=isOwner()?String(el('roleUserQuotationPrefix')?.value||'').trim().toUpperCase():String(editingUser?.quotation_prefix||'').trim().toUpperCase();
     if(!/^\S+@\S+\.\S+$/.test(email)){setMessage('roleDialogMessage','Enter a valid email address.');return}if(!displayName){setMessage('roleDialogMessage','Display Name is required.');return}
+    if(isOwner()&&quotationPrefix&&!/^[A-Z0-9]{1,8}$/.test(quotationPrefix)){setMessage('roleDialogMessage','Quotation Prefix must contain 1 to 8 letters or numbers only.');return}
     const button=el('saveRoleUser');button.disabled=true;button.textContent='Saving…';setMessage('roleDialogMessage','');
     try{
       const result=await client().rpc('keysuite_manage_user_role',{p_email:email,p_display_name:displayName,p_role:nextRole,p_active:active});if(result.error)throw result.error;
+      if(isOwner()){button.textContent='Saving prefix…';const prefixResult=await client().rpc('keysuite_assign_quotation_prefix_v225',{p_email:email,p_prefix:quotationPrefix});if(prefixResult.error)throw prefixResult.error;}
       let invitationText='';if(sendInvite&&!editingUser?.auth_exists){button.textContent='Sending invite…';try{const result=await sendInvitation({email,display_name:displayName,role:nextRole});invitationText=result?.status==='already_exists'?' Login account already exists.':' Invitation email sent; the user will set their own password.'}catch(inviteError){invitationText=` Access was saved, but the invitation failed: ${inviteError.message||inviteError}`}}
-      setMessage('roleDialogMessage',`${editingEmail?'Role updated.':'User access added.'}${invitationText}`,'info');await load();if(!invitationText.includes('failed'))setTimeout(closeDialog,1100);
+      setMessage('roleDialogMessage',`${editingEmail?'User access updated.':'User access added.'}${isOwner()?` Prefix ${quotationPrefix||'cleared'}.`:''}${invitationText}`,'info');await load();if(!invitationText.includes('failed'))setTimeout(closeDialog,1100);
     }catch(error){console.error(error);setMessage('roleDialogMessage',error.message||'The user role could not be saved.')}finally{button.disabled=false;button.textContent='Save User'}
   }
 
@@ -172,6 +176,7 @@
     el('viewRolePermissions')?.addEventListener('click',openPermissions);el('closeRolePermissions')?.addEventListener('click',closePermissions);el('closeRolePermissionsBottom')?.addEventListener('click',closePermissions);
     el('editRolePermissions')?.addEventListener('pointerdown',startPermissionHold);['pointerup','pointerleave','pointercancel'].forEach(name=>el('editRolePermissions')?.addEventListener(name,()=>stopPermissionHold()));el('editRolePermissions')?.addEventListener('contextmenu',e=>e.preventDefault());
     el('saveRolePermissions')?.addEventListener('click',savePermissions);el('cancelRolePermissions')?.addEventListener('click',cancelPermissions);
+    el('roleUserQuotationPrefix')?.addEventListener('input',event=>{event.target.value=String(event.target.value||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8)});
     el('addRoleUser')?.addEventListener('click',openAdd);el('reloadRoles')?.addEventListener('click',load);el('roleUserForm')?.addEventListener('submit',save);el('closeRoleDialog')?.addEventListener('click',closeDialog);el('cancelRoleDialog')?.addEventListener('click',closeDialog);
   }
   function init(userAccess){access=userAccess||access;bind();renderKeyDashboard()}

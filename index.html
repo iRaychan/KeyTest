@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V2.24</title>
+  <title>KeySuite V2.25</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -138,6 +138,7 @@
     @media(max-width:560px){.pricing-metrics,.pricing-toolbar{grid-template-columns:1fr}.pricing-kv{grid-template-columns:1fr}.user-panel{display:none}}
 
     .quote-number-field{min-width:380px}.quote-number-field input{width:100%}.quote-top-controls{grid-template-columns:110px minmax(380px,380px)}
+    .quote-number-parts{display:grid;grid-template-columns:minmax(52px,.65fr) 14px minmax(70px,.9fr) 14px minmax(78px,1fr);align-items:center;gap:5px}.quote-number-parts span{text-align:center;font-weight:800;color:#526275}.quote-number-parts input{text-align:center;font-weight:800;letter-spacing:.04em}.quote-number-parts .quote-prefix-part{background:#eef2f7;color:#334155;cursor:not-allowed}.quote-number-help{font-size:11px;color:var(--muted);margin-top:5px}.customer-pricing-lock-tools{display:flex;align-items:center;gap:10px}.customer-pricing-hold.counting{background:#fff7ed;border-color:#f59e0b;color:#92400e}.company-pricing-locked .company-factor-grid{opacity:.72}.company-pricing-locked input{background:#f1f5f9;cursor:not-allowed}.role-prefix-input{text-transform:uppercase;max-width:110px;font-weight:800;letter-spacing:.05em}
     .pricelist-settings{grid-template-columns:repeat(3,minmax(220px,1fr));align-items:stretch}.pricelist-settings>div{min-height:100%}.pricelist-settings>div:first-child{display:grid;align-content:end}.pricelist-multiplier-lock{display:grid;grid-template-rows:auto 42px auto auto;align-content:end}.pricelist-multiplier-lock input{height:42px}
     .permission-title-actions{display:flex;align-items:center;gap:10px}.permission-edit-hold{min-width:150px}.permission-edit-hold.counting{background:#fff7ed;border-color:#f59e0b;color:#92400e}.permission-table select{min-width:104px;padding:7px 8px}.permission-table.editing td{background:#fffdf5}.permission-fixed{font-size:11px;font-weight:800;color:#92400e}.permission-value{font-weight:700;text-transform:capitalize}.permission-value.none{color:#991b1b}.permission-value.full,.permission-value.all{color:#166534}.permission-value.own,.permission-value.assigned,.permission-value.view{color:#92400e}
     @media(max-width:900px){.quote-number-field{min-width:0}.quote-top-controls{grid-template-columns:110px minmax(260px,1fr)}.pricelist-settings{grid-template-columns:1fr}}
@@ -200,7 +201,7 @@
     .start-customer-row{display:grid;grid-template-columns:minmax(240px,1fr) minmax(180px,.75fr);gap:12px;align-items:end;margin:12px 0 14px}.start-customer-status{min-height:42px;display:flex;align-items:center;padding:9px 12px;border:1px solid #dbe3ec;border-radius:8px;background:#f8fafc;color:var(--muted);font-size:12px}.start-action-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.start-action-grid .btn{width:100%;min-height:42px}.assembly-quote-fields{display:grid;grid-template-columns:minmax(280px,1.6fr) minmax(90px,.45fr) minmax(150px,.7fr);gap:12px;align-items:end;margin-bottom:14px}.assembly-quote-fields input{width:100%}.assembly-quote-help{margin-top:5px;font-size:11px;color:var(--muted)}@media(max-width:760px){.start-customer-row,.assembly-quote-fields{grid-template-columns:1fr}.start-action-grid{grid-template-columns:1fr 1fr}}@media(max-width:460px){.start-action-grid{grid-template-columns:1fr}}
     .quotation-title-line{display:flex;align-items:end;gap:22px;flex:1}.quotation-title-line h1{margin:0}.quotation-title-line .quote-number-field{min-width:260px}.quote-head{align-items:end}.quote-top-controls{margin-left:auto}.es-matrix-table{min-width:1450px}.es-matrix-table input{min-width:105px}
 
-    .pricelist-currency-panel{padding:0!important;overflow:hidden}.pricelist-currency-panel>summary{cursor:pointer;list-style:none;padding:14px 18px;font-weight:800;color:var(--navy);display:flex;align-items:center;justify-content:space-between;background:#f8fafc}.pricelist-currency-panel>summary::-webkit-details-marker{display:none}.pricelist-currency-panel>summary:after{content:"▾";font-size:16px;transition:transform .2s}.pricelist-currency-panel[open]>summary:after{transform:rotate(180deg)}.pricelist-currency-panel-body{padding:0 18px 18px}.keyplc-product-toolbar{display:grid;grid-template-columns:minmax(220px,420px);gap:14px}.keyplc-table th,.keyplc-table td{white-space:nowrap}.keyplc-table select{min-width:112px}.keyplc-route-actions{justify-content:flex-start;flex-wrap:nowrap}.keyplc-route-actions .btn{min-width:72px}.keyplc-surcharge-note{font-size:11px;color:var(--muted);margin-top:5px}.assembly-item-option{display:flex;align-items:center;gap:8px;margin-top:7px}.assembly-item-option label{margin:0;font-size:11px}.assembly-item-option select{min-width:190px;padding:6px 8px}
+    .pricelist-currency-panel{padding:0!important;overflow:hidden}.pricelist-currency-panel>summary{cursor:pointer;list-style:none;padding:14px 18px;font-weight:800;color:var(--navy);display:flex;align-items:center;justify-content:space-between;background:#f8fafc}.pricelist-currency-panel>summary::-webkit-details-marker{display:none}.pricelist-currency-panel>summary:after{content:"▾";font-size:16px;transition:transform .2s}.pricelist-currency-panel[open]>summary:after{transform:rotate(180deg)}.pricelist-currency-panel-body{padding:0 18px 18px}.keyplc-product-toolbar{display:grid;grid-template-columns:minmax(220px,420px);gap:14px}.keyplc-table th,.keyplc-table td{white-space:nowrap}.keyplc-table select{min-width:112px}.keyplc-route-actions{justify-content:flex-start;flex-wrap:nowrap}.keyplc-route-actions .btn{min-width:72px}.keyplc-surcharge-note{font-size:11px;color:var(--muted);margin-top:5px}.assembly-item-option{display:flex;align-items:center;gap:8px;margin-top:7px}.assembly-item-option label{margin:0;font-size:11px}.assembly-item-option select{min-width:190px;padding:6px 8px}.assembly-motor-options{display:grid;grid-template-columns:repeat(3,minmax(90px,1fr));gap:7px;margin-top:7px}.assembly-motor-options .assembly-item-option{display:grid;gap:3px;margin:0}.assembly-motor-options .assembly-item-option select{min-width:0;width:100%}
     .product-model-actions [data-product-assembly],.route-actions [data-es-assembly],.route-actions [data-gws-assembly],.route-actions [data-keyplc-assembly]{background:#f59e0b!important;border-color:#d97706!important;color:#fff!important}
     .product-model-actions [data-product-add],.route-actions [data-es-quote],.route-actions [data-gws-quote],.route-actions [data-keyplc-quote]{background:#16a34a!important;border-color:#15803d!important;color:#fff!important}
 
@@ -254,7 +255,7 @@
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.24 Motor selector and collapsible pricelist</small></div>
+    <div class="auth-brand">KeySuite<small>V2.25 assembly routing and Owner quotation prefixes</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -269,7 +270,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.24</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.25</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -292,7 +293,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.24 · Motor selector and collapsible pricelist</div>
+    <div class="suite-version">KeySuite V2.25 · Assembly routing and Owner quotation prefixes</div>
   </aside>
 
   <main>
@@ -489,7 +490,7 @@
         <div class="card"><h2>Drafts</h2><div><label>Customer</label><select id="assemblyCustomer" disabled title="Customer follows the active quotation selection"></select><div class="muted" style="margin:5px 0 14px">Follows Quotation customer</div></div><div id="assemblyDraftList" class="assembly-list"></div></div>
         <div class="card">
           <input id="assemblyStatus" type="hidden" value="draft">
-          <div class="actions assembly-top-actions"><button class="btn action-quote" id="assemblyToQuotation" type="button">Quote</button><button class="btn danger" id="deleteAssemblyDraft" type="button">Delete</button></div>
+          <div class="actions assembly-top-actions"><button class="btn action-assembly" id="assemblyToSystem" type="button">System</button><button class="btn action-quote" id="assemblyToQuotation" type="button">Quote</button><button class="btn danger" id="deleteAssemblyDraft" type="button">Delete</button></div>
           <div class="assembly-quote-fields">
             <div><label for="assemblyModelItem">Model / Item</label><input id="assemblyModelItem" list="assemblyModelItemOptions" placeholder="Select a suggested model or type a custom item"><datalist id="assemblyModelItemOptions"></datalist><div class="assembly-quote-help">System suggestions follow the pump quantity in the BOM; custom text is allowed.</div></div>
             <div><label for="assemblyQuoteQty">Qty</label><input id="assemblyQuoteQty" type="number" min="0.01" step="0.01" value="1"><div class="assembly-quote-help" aria-hidden="true">&nbsp;</div></div>
@@ -523,7 +524,7 @@
         <div class="motor-selected-value"><small>Assembly Price</small><strong id="motorSelectedPrice">Not priced</strong></div>
         <div class="actions" style="margin:0;justify-content:flex-end"><button class="btn action-assembly" id="motorSelectedAssembly" type="button">Assembly</button><button class="btn green" id="motorSelectedQuote" type="button">Quote</button></div>
       </div>
-      <div class="card" style="margin-top:16px"><h2>Custom Motor Model</h2><div class="muted">Custom poles are accepted. Example: 3BM50-5 = 50HP 5Pole IE3 Motor.</div><div class="motor-custom-grid"><div><label>Model</label><input id="motorCustomModel" value="3BM50-5" placeholder="Example: BM20-2"></div><div><label>Manual Unit Price (RM)</label><input id="motorCustomPrice" type="number" min="0" step="0.01" value="0"></div><div class="actions" style="margin:0"><button class="btn action-assembly" id="motorCustomAssembly" type="button">Assembly</button><button class="btn green" id="motorCustomQuote" type="button">Quote</button></div></div><div id="motorCustomDecoded" class="formula" style="margin-top:12px"></div></div>
+      
     </section>
 
     <section id="quotation" class="page">
@@ -531,7 +532,7 @@
         <h1>Quotation</h1>
         <div class="quote-head-right">
           <button id="quotationTemplateLogoButton" class="quotation-template-logo-button" type="button" title="Quotation template" aria-label="Open selected quotation template"><img id="quotationTemplateHeaderLogo" src="keylargo-logo.png" alt="Selected quotation template logo"></button>
-          <div class="quote-number-field"><label for="quoteNo">Quotation No.</label><input id="quoteNo"></div>
+          <div class="quote-number-field"><label for="quoteYymmPart">Quotation No.</label><div class="quote-number-parts"><input id="quotePrefixPart" class="quote-prefix-part" readonly aria-label="Quotation prefix"><span>-</span><input id="quoteYymmPart" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" aria-label="Quotation year and month"><span>-</span><input id="quoteRunningPart" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" aria-label="Quotation running number"></div><input id="quoteNo" type="hidden"><div class="quote-number-help">Prefix is assigned by the Owner and cannot be amended.</div></div>
           <button class="btn action-pdf no-print export-center-hidden" type="button" id="topPrintQuote">PDF</button>
           <input id="preparedBy" type="hidden">
           <input id="preparedByDesignation" type="hidden">
@@ -629,12 +630,12 @@
       <div id="roleAccessNotice" class="notice">Loading role access…</div>
       <div class="card">
         <div class="role-toolbar">
-          <div><h2 style="margin-bottom:4px">Users</h2><div class="role-note">New users can receive an invitation email and set their own password. Role changes apply after refresh or next sign-in.</div></div>
+          <div><h2 style="margin-bottom:4px">Users</h2><div class="role-note">New users can receive an invitation email and set their own password. The Owner assigns each user’s unique quotation prefix here.</div></div>
           <button id="reloadRoles" type="button" class="btn secondary">Reload</button>
         </div>
         <div class="table-wrap" style="margin-top:14px">
           <table class="role-table">
-            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Login</th><th></th></tr></thead>
+            <thead><tr><th>Name</th><th>Email</th><th>Quotation Prefix</th><th>Role</th><th>Status</th><th>Login</th><th></th></tr></thead>
             <tbody id="roleRows"></tbody>
           </table>
         </div>
@@ -919,7 +920,7 @@
       <div class="company-settings-layout">
         <div class="card"><h2>Customer Information</h2><div id="companyIdentitySummary"></div></div>
         <div class="card" id="companyPricingEditor">
-          <div class="page-title-row" style="margin-bottom:6px"><div><h2 style="margin:0">Customer Pricing Settings</h2><div class="muted">Enter the three customer percentages. Category rules decide whether each factor is used.</div></div></div>
+          <div class="page-title-row" style="margin-bottom:6px"><div><h2 style="margin:0">Customer Pricing Settings</h2><div class="muted">Protected from accidental changes. Hold for 3 seconds before editing.</div></div><div class="customer-pricing-lock-tools"><button class="btn secondary customer-pricing-hold" id="unlockCompanyPricing" type="button">Hold 3s to Edit</button></div></div>
           <div id="companySettingsMessage" class="auth-message"></div>
           <div class="company-factor-grid">
             <div class="company-factor-row"><label for="companyCommissionInput"><b>Commission</b></label><div class="category-inline-input"><input id="companyCommissionInput" type="number" min="0" max="99.99" step="0.01"><span>%</span></div></div>
@@ -1018,6 +1019,7 @@
     <div class="form-grid">
       <div class="span-2"><label>Email *</label><input id="roleUserEmail" type="email" autocomplete="off" placeholder="name@keylargo.com.my" required></div>
       <div class="span-2"><label>Display Name *</label><input id="roleUserDisplayName" autocomplete="off" required></div>
+      <div><label>Quotation Prefix</label><input id="roleUserQuotationPrefix" class="role-prefix-input" maxlength="8" autocomplete="off" placeholder="Example: R"><div class="role-note" style="margin-top:5px">Owner-assigned. Letters and numbers only; prefixes must be unique.</div></div>
       <div><label>Role</label><select id="roleUserRole"><option value="viewer">Viewer</option><option value="dealer">Dealer</option><option value="user" selected>User</option><option value="admin">Admin</option><option value="owner">Owner</option></select></div>
       <div><label>Status</label><select id="roleUserActive"><option value="true" selected>Active</option><option value="false">Inactive</option></select></div>
     </div>
@@ -1064,12 +1066,6 @@
       <div><label>Designation / Job Title</label><input id="settingsDesignation" placeholder="Example: Sales Manager"></div>
       <div><label>Contact Number</label><input id="settingsPhone" placeholder="+60 (x) xxxx xxxx"></div>
       <div class="span-2"><label>Login Email</label><input id="settingsEmail" type="email" readonly><div class="muted" style="margin-top:5px">Ask an administrator before changing a login email because access approval uses this address.</div></div>
-    </div>
-    <hr style="border:0;border-top:1px solid #e2e8f0;margin:20px 0">
-    <h2 style="margin-bottom:12px">Quotation Reference</h2>
-    <div class="form-grid">
-      <div><label>My Prefix</label><input id="settingsQuotationPrefix" maxlength="8" autocomplete="off" placeholder="Example: B" style="text-transform:uppercase"><div class="muted" style="margin-top:5px">Unique for each user. Letters and numbers only.</div></div>
-      <div><label>Reference Format</label><input value="PREFIX-YYMM-0001" readonly><div class="muted" style="margin-top:5px">The running number resets only when the calendar year changes.</div></div>
     </div>
     <hr style="border:0;border-top:1px solid #e2e8f0;margin:20px 0">
     <div class="page-title-row" style="margin-bottom:12px"><div><h2 style="margin:0">Quotation Templates</h2><div class="muted">Create company or personal/dealer PDF layouts.</div></div><button class="btn secondary" id="settingsQuotationTemplates" type="button">Manage Templates</button></div>
@@ -1157,17 +1153,17 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=216"></script>
-<script src="app.js?v=224"></script>
-<script src="pricing.js?v=224"></script>
-<script src="quotation-references.js?v=224"></script>
-<script src="categories.js?v=224"></script>
-<script src="pricelist.js?v=224"></script>
-<script src="product.js?v=224"></script>
-<script src="manifold.js?v=224"></script>
-<script src="roles.js?v=216"></script>
-<script src="assembly.js?v=224"></script>
-<script src="motor.js?v=224"></script>
-<script src="quotation-templates.js?v=224"></script>
+<script src="app.js?v=225"></script>
+<script src="pricing.js?v=225"></script>
+<script src="quotation-references.js?v=225"></script>
+<script src="categories.js?v=225"></script>
+<script src="pricelist.js?v=225"></script>
+<script src="product.js?v=225"></script>
+<script src="manifold.js?v=225"></script>
+<script src="roles.js?v=225"></script>
+<script src="assembly.js?v=225"></script>
+<script src="motor.js?v=225"></script>
+<script src="quotation-templates.js?v=225"></script>
 
 <dialog id="quotationTemplateDialog" class="ks-dialog template-dialog">
   <div class="dialog-body">
@@ -1219,7 +1215,7 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="company-settings.js?v=224"></script>
-<script src="auth.js?v=224"></script>
+<script src="company-settings.js?v=225"></script>
+<script src="auth.js?v=225"></script>
 </body>
 </html>

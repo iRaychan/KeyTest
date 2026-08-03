@@ -63,7 +63,7 @@
     const normalizeRule=(raw={},fallback={})=>({margin:Number(raw.margin??fallback.margin??.38),transport:Number(raw.transport??fallback.transport??30),normal:Number(raw.normal??fallback.normal??0),rare:Number(raw.rare??fallback.rare??0),useCommission:bool(raw.useCommission??raw.use_commission??raw.includeCommission??raw.include_commission,fallback.useCommission??true),useSetDiscount:bool(raw.useSetDiscount??raw.use_set_discount??raw.includeSetDiscount??raw.include_set_discount,fallback.useSetDiscount??true),useFinalDiscount:bool(raw.useFinalDiscount??raw.use_final_discount??raw.includeFinalDiscount??raw.include_final_discount,fallback.useFinalDiscount??true),useFuelCharge:bool(raw.useFuelCharge??raw.use_fuel_charge??raw.includeFuelCharge??raw.include_fuel_charge,fallback.useFuelCharge??true)});
     const normalizedCustomerRows=window.KeySuiteCustomerSettings?.normalizeRows?.(customerPricingRows)||window.KeySuiteCompanySettings?.normalizeRows?.(customerPricingRows)||customerPricingRows.map(row=>window.KeySuiteCompanySettings?.normalizeRow?.(row)||row);
     return {
-      version:'2.23',release_date:'2026-08-03',currency:setting.currency||'MYR',
+      version:'2.25',release_date:'2026-08-03',currency:setting.currency||'MYR',
       usd_multiplier:chcUsdMultiplier,rmb_multiplier:chcRmbMultiplier,myr_multiplier:1,
       productMultipliers:{CHC:{USD:chcUsdMultiplier,RMB:chcRmbMultiplier,MYR:1},ES:{USD:esUsdMultiplier,RMB:esRmbMultiplier,MYR:1},GWS:{USD:gwsUsdMultiplier,RMB:gwsRmbMultiplier,MYR:1},KEYPLC:{USD:keyplcUsdMultiplier,RMB:keyplcRmbMultiplier,MYR:1},MANIFOLD:{USD:manifoldUsdMultiplier,RMB:manifoldRmbMultiplier,MYR:1},MOTOR:{USD:motorUsdMultiplier,RMB:motorRmbMultiplier,MYR:1}},
       fuel_price:Number(setting.fuel_price??2),fuel_base_price:Number(setting.fuel_base_price??2),customerPricing:null,customerPricingRows:normalizedCustomerRows,
@@ -186,7 +186,7 @@
   }
   function openSettings(){
     if(!session||!profile)return;
-    settingsMessage('');el('settingsDisplayName').value=profile.display_name||'';el('settingsDesignation').value=profile.designation||'';el('settingsPhone').value=profile.phone||'';el('settingsEmail').value=profile.email||'';if(el('settingsQuotationPrefix'))el('settingsQuotationPrefix').value=profile.quotation_prefix||window.KeySuiteQuotationReferences?.getState?.().prefix||'';el('settingsSignatoryName').value=profile.signatory_name||profile.display_name||'';
+    settingsMessage('');el('settingsDisplayName').value=profile.display_name||'';el('settingsDesignation').value=profile.designation||'';el('settingsPhone').value=profile.phone||'';el('settingsEmail').value=profile.email||'';el('settingsSignatoryName').value=profile.signatory_name||profile.display_name||'';
     pendingSignatureData=profile.signature_image||'';removeSignatureRequested=false;el('settingsSignatureUpload').value='';renderSignaturePreview();
     el('settingsCurrentPassword').value='';el('settingsNewPassword').value='';el('settingsConfirmPassword').value='';el('settingsDialog').showModal();
   }
@@ -227,11 +227,9 @@
     const displayName=el('settingsDisplayName').value.trim(),designation=el('settingsDesignation').value.trim();
     const phone=typeof window.formatMYPhone==='function'?window.formatMYPhone(el('settingsPhone').value):el('settingsPhone').value.trim();
     const signatoryName=el('settingsSignatoryName').value.trim()||displayName;
-    const quotationPrefix=String(el('settingsQuotationPrefix')?.value||'').trim().toUpperCase();
     const signatureImage=removeSignatureRequested?'':(pendingSignatureData!==null?pendingSignatureData:(profile.signature_image||''));
     const currentPassword=el('settingsCurrentPassword').value,newPassword=el('settingsNewPassword').value,confirmPassword=el('settingsConfirmPassword').value;
     if(!displayName){settingsMessage('Display Name is required.');return}
-    try{window.KeySuiteQuotationReferences?.validatePrefix?.(quotationPrefix)}catch(error){settingsMessage(error.message);return}
     const changingPassword=!!(currentPassword||newPassword||confirmPassword);
     if(changingPassword){
       if(!currentPassword||!newPassword||!confirmPassword){settingsMessage('Complete all three password fields.');return}
@@ -255,16 +253,15 @@
         p_signature_image:signatureImage
       });
       if(profileError)throw new Error(`${profileError.message}. Run the V1.16 Supabase migration first.`);
-      const savedPrefix=await window.KeySuiteQuotationReferences.savePrefix(quotationPrefix);
       const metadata={...(session?.user?.user_metadata||{}),display_name:displayName,designation,phone,signatory_name:signatoryName};
       const profileResult=await client.auth.updateUser({data:metadata});
       if(profileResult.error&&!String(profileResult.error.message||'').toLowerCase().includes('auth session missing'))throw profileResult.error;
       if(changingPassword){const passwordResult=await client.auth.updateUser({password:newPassword});if(passwordResult.error)throw passwordResult.error}
       const sessionResult=await client.auth.getSession();if(sessionResult.data?.session)session=sessionResult.data.session;
       const saved=Array.isArray(profileRows)?profileRows[0]:profileRows||{};
-      pendingSignatureData=signatureImage;removeSignatureRequested=false;applyProfile({...profile,...saved,display_name:displayName,designation,phone,signatory_name:signatoryName,signature_image:signatureImage,quotation_prefix:savedPrefix});window.KeySuiteApp?.refreshNewQuotationReference?.();
+      pendingSignatureData=signatureImage;removeSignatureRequested=false;applyProfile({...profile,...saved,display_name:displayName,designation,phone,signatory_name:signatoryName,signature_image:signatureImage});
       el('settingsPhone').value=phone;el('settingsCurrentPassword').value='';el('settingsNewPassword').value='';el('settingsConfirmPassword').value='';
-      settingsMessage(changingPassword?'Profile, quotation prefix and password updated.':'Profile, quotation prefix and signatory updated.','info');
+      settingsMessage(changingPassword?'Profile and password updated.':'Profile and signatory updated.','info');
       setTimeout(closeSettings,700);
     }catch(error){console.error(error);settingsMessage(error.message||'Settings could not be saved.')}finally{button.disabled=false;button.textContent='Save Settings'}
   }

@@ -1,0 +1,11 @@
+KeySuite V2.25 Changes
+
+1. Customer Pricing Hold-to-Edit
+2. Motor Quotation Model and Electrical Description
+3. Motor Assembly Description Alignment
+4. Motor BOM HP / Pole / Efficiency Selection
+5. Custom Motor Model Removed
+6. Pumpset Quote Missing-Price Fix
+7. Pumpset System / Quote Actions
+8. Owner-Assigned User Quotation Prefix
+9. Locked Quotation Prefix with Editable YYMM and Running Number

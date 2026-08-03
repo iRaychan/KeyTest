@@ -1,4 +1,12 @@
-# KeySuite V2.24
+# KeySuite V2.25
+
+KeySuite V2.25 updates V2.24 with protected customer pricing editing, Motor BOM selectors, Pumpset System/Quote routing, and Owner-assigned quotation prefixes.
+
+## V2.25 installation
+
+Run `V225_SUPABASE_MIGRATION.sql`, then replace the V2.25 changed files. Keep the existing working `config.js`.
+
+## Previous release notes
 
 KeySuite V2.24 is a complete source build based on V2.23.
 

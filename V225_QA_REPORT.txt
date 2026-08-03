@@ -1,0 +1,34 @@
+KeySuite V2.25 Update Patch QA Report
+Baseline: KeySuite V2.24
+Patch target: V2.24 -> V2.25
+
+STATIC CHECKS
+PASS - All root JavaScript files pass node --check.
+PASS - Customer Pricing Setting is locked until a continuous 3-second pointer/touch hold.
+PASS - Motor quotation model uses “B.G.Reich Motor Model: [model]”.
+PASS - Motor description includes “(415V / 3Ph / 50Hz)”.
+PASS - Custom Motor Model field and handlers are removed.
+PASS - Motor BOM has HP, Pole and Efficiency selectors.
+PASS - Motor routes to Assembly -> Pumpset -> Motor.
+PASS - Pumpset has separate System and Quote actions.
+PASS - Owner-only prefix assignment RPC and case-insensitive unique index are included.
+PASS - Quotation prefix is locked while YYMM and running number remain editable.
+PASS - Duplicate quotation numbers are blocked before local save.
+
+CHROMIUM FUNCTIONAL CHECKS
+PASS - KeySuite V2.25 UI loaded with the new controls.
+PASS - 3BM1-2 decoded as 1HP 2Pole IE3 Motor (415V / 3Ph / 50Hz).
+PASS - Motor BOM reconfiguration produced c/w + tab aligned description and recalculated price.
+PASS - Motor routing returned {type: pumpset, section: motor}.
+PASS - Pumpset System action created one System/Pumpset grouped item with two nested BOM items.
+PASS - Pumpset Quote action used the Pumpset header model, quantity, price and description.
+PASS - Missing ES 32-26 component price did not block Pumpset Quote; a warning was shown.
+PASS - Prefix R stayed locked while YYMM and running number remained editable.
+PASS - Duplicate R-2608-0100 was rejected.
+PASS - Customer pricing fields remained read-only before the hold and became editable after 3 seconds.
+
+DATABASE
+V225_SUPABASE_MIGRATION.sql was statically checked but was not executed against the user's live Supabase project.
+
+DEPLOYMENT
+The patch was not uploaded to GitHub and was not deployed to the live KeySuite site.

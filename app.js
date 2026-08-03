@@ -17,6 +17,7 @@ function customerUuid(value){return validUuid(value)?value:newUuid()}
 let editingQuoteId=null, viewedCustomerId=null, itemRemarkTarget=null;
 let quotationPricingCustomerId='', quotationPricingCustomerSnapshot=null;
 let quotationStatus='new',quotationRevisionOf='',quotationRevisionRootId='',quotationRevisionNumber=0,quotationAudit=[];
+let lockedQuotePrefix='',quoteNumberSuffix='';
 let quotationSessionId=newUuid();
 let secureCustomers=[],customerSyncMode='local',customerSyncError='';
 
@@ -191,6 +192,7 @@ function selectedQuotationCustomer(){
  return null;
 }
 function ensureQuotationPricingContext(action='continue'){
+ if(!editingQuoteId&&!String(currentProfile().quotation_prefix||window.KeySuiteQuotationReferences?.getState?.().prefix||'').trim()){alert('No quotation prefix has been assigned. Please contact the Owner.');return false}
  const customer=selectedQuotationCustomer();
  if(!customer){showPage('quotation');$('qCustomer')?.focus();alert(`Select a customer before you ${action}. KeySuite cannot calculate the price without the customer's pricing category.`);return false}
  if(!customer.pricingCategoryId){showPage('quotation');alert(`No Pricing Category is assigned to ${customer.company}. Open Key → Company & Pricing and assign a category before you ${action}.`);return false}
@@ -271,7 +273,7 @@ function setQuotationEditingLocked(locked){
  root.querySelectorAll('input,select,textarea').forEach(el=>{if(['preparedBy','preparedByDesignation'].includes(el.id))return;el.disabled=!!locked});
  root.querySelectorAll('.remove-quote-item,.duplicate-quote-item,.remark-quote-item,.drag-handle,#addQuoteItem,#expandAllItems,#collapseAllItems').forEach(el=>{if(el)el.style.pointerEvents=locked?'none':'';if(el&&'disabled' in el)el.disabled=!!locked});
  if(!locked){
-   setControlLocked($('quoteNo'),isRevisionCopy(),false);
+   setControlLocked($('quotePrefixPart'),true,false);setControlLocked($('quoteYymmPart'),false,false);setControlLocked($('quoteRunningPart'),false,false);
    setControlLocked($('qDate'),isRevisionCopy(),true);
    setControlLocked($('qRevisionDate'),!isRevisionCopy(),false);
    setControlLocked($('showRevision'),isRevisionCopy(),false);
@@ -559,16 +561,41 @@ function refreshItemExportButtons(){
 
 function getQuoteItems(){return [...document.querySelectorAll('.quote-item')].map(getQuoteItemData).filter(x=>x.model||x.description||Number(x.unitPrice)>0)}
 function setQuoteItems(items=[]){$('quoteItems').innerHTML='';(items.length?items:[{}]).forEach(quoteItemRow);calcTotal()}
-function nextQuoteNo(){
- const d=new Date(),yy=String(d.getFullYear()).slice(-2),mm=String(d.getMonth()+1).padStart(2,'0'),seq=String(quotes().length+1).padStart(4,'0');
- return `R-${yy}${mm}-${seq}`;
+function assignedQuotationPrefix(){return String(currentProfile().quotation_prefix||window.KeySuiteQuotationReferences?.getState?.().prefix||'').trim().toUpperCase()}
+function parseQuoteNo(value){
+ const text=String(value||'').trim().toUpperCase(),match=text.match(/^([A-Z0-9]{1,8})-(\d{4})-(\d{4})(-V\d+)?$/i);
+ return match?{prefix:match[1].toUpperCase(),yymm:match[2],running:match[3],suffix:match[4]||''}:null;
 }
+function setQuoteNoValue(value,{lockPrefix=true}={}){
+ const parsed=parseQuoteNo(value),hidden=$('quoteNo'),prefix=$('quotePrefixPart'),yymm=$('quoteYymmPart'),running=$('quoteRunningPart');
+ if(parsed){if(lockPrefix)lockedQuotePrefix=parsed.prefix;quoteNumberSuffix=parsed.suffix||'';if(prefix)prefix.value=parsed.prefix;if(yymm)yymm.value=parsed.yymm;if(running)running.value=parsed.running;if(hidden)hidden.value=`${parsed.prefix}-${parsed.yymm}-${parsed.running}${quoteNumberSuffix}`;return hidden?.value||value}
+ if(lockPrefix)lockedQuotePrefix=assignedQuotationPrefix();quoteNumberSuffix='';if(prefix)prefix.value=lockedQuotePrefix;if(yymm)yymm.value='';if(running)running.value='';if(hidden)hidden.value='';return '';
+}
+function syncQuoteNoFromParts(){
+ const prefix=String($('quotePrefixPart')?.value||lockedQuotePrefix||assignedQuotationPrefix()).trim().toUpperCase(),yymm=String($('quoteYymmPart')?.value||'').replace(/\D/g,'').slice(0,4),running=String($('quoteRunningPart')?.value||'').replace(/\D/g,'').slice(0,4);
+ if($('quotePrefixPart'))$('quotePrefixPart').value=prefix;if($('quoteYymmPart'))$('quoteYymmPart').value=yymm;if($('quoteRunningPart'))$('quoteRunningPart').value=running;
+ const value=prefix&&yymm&&running?`${prefix}-${yymm}-${running}${quoteNumberSuffix}`:'';if($('quoteNo'))$('quoteNo').value=value;return value;
+}
+function validateQuoteNoForSave(options={}){
+ const value=syncQuoteNoFromParts(),parsed=parseQuoteNo(value);if(!parsed)throw new Error('Quotation number requires a 4-digit YYMM and a 4-digit running number.');
+ const month=Number(parsed.yymm.slice(2));if(month<1||month>12)throw new Error('Quotation YYMM must contain a valid month from 01 to 12.');
+ if(Number(parsed.running)<1)throw new Error('Quotation running number must be from 0001 to 9999.');
+ const expected=String(lockedQuotePrefix||assignedQuotationPrefix()).toUpperCase();if(!expected||parsed.prefix!==expected)throw new Error('The quotation prefix is assigned by the Owner and cannot be amended.');
+ const duplicate=quotes().some(row=>String(row.no||'').toUpperCase()===value.toUpperCase()&&String(row.id)!==String(editingQuoteId||''));if(duplicate)throw new Error(`Quotation number ${value} already exists.`);
+ return value;
+}
+function nextQuoteNo(){
+ const d=new Date(),yy=String(d.getFullYear()).slice(-2),mm=String(d.getMonth()+1).padStart(2,'0'),seq=String(quotes().length+1).padStart(4,'0'),prefix=assignedQuotationPrefix();
+ return prefix?`${prefix}-${yy}${mm}-${seq}`:'';
+}
+['quoteYymmPart','quoteRunningPart'].forEach(id=>$(id)?.addEventListener('input',event=>{event.target.value=String(event.target.value||'').replace(/\D/g,'').slice(0,4);syncQuoteNoFromParts()}));
+
 let quotationReferenceRequest=0,quotationReferenceAllocated=false;
 function assignNewQuotationReference(){
- const input=$('quoteNo');if(!input)return;const service=window.KeySuiteQuotationReferences,signedIn=!!window.KeySuiteAuth?.getSession?.();quotationReferenceAllocated=false;
- if(!signedIn||!service?.allocateNext){input.value=nextQuoteNo();input.placeholder='Quotation No.';return}
- const request=++quotationReferenceRequest;input.value='';input.placeholder='Allocating quotation number…';
- service.allocateNext().then(reference=>{if(request!==quotationReferenceRequest||editingQuoteId||quotationStatus!=='new')return;input.value=reference;input.placeholder='Quotation No.';quotationReferenceAllocated=true}).catch(error=>{if(request!==quotationReferenceRequest)return;input.value='';input.placeholder='Set prefix in Settings';console.warn(error)});
+ const input=$('quoteNo');if(!input)return;const service=window.KeySuiteQuotationReferences,signedIn=!!window.KeySuiteAuth?.getSession?.();quotationReferenceAllocated=false;lockedQuotePrefix=assignedQuotationPrefix();quoteNumberSuffix='';
+ if(!signedIn||!service?.allocateNext){setQuoteNoValue(nextQuoteNo());return}
+ const request=++quotationReferenceRequest;setQuoteNoValue('');if($('quotePrefixPart'))$('quotePrefixPart').value=lockedQuotePrefix;
+ service.allocateNext().then(reference=>{if(request!==quotationReferenceRequest||editingQuoteId||quotationStatus!=='new')return;setQuoteNoValue(reference);quotationReferenceAllocated=true}).catch(error=>{if(request!==quotationReferenceRequest)return;setQuoteNoValue('');if($('quotePrefixPart'))$('quotePrefixPart').value=assignedQuotationPrefix();console.warn(error)});
 }
 function refreshNewQuotationReference(){if(editingQuoteId||quotationStatus!=='new'||quoteHasItems()||quotationReferenceAllocated)return;assignNewQuotationReference()}
 function calcTotal(){
@@ -600,7 +627,7 @@ function applyQuotationTemplateDefaults(snapshot,force=false){
 function saveQuote(options={}){
  if(isQuotationSealed()){if(!options.silent)alert('This quotation is Sealed and cannot be saved.');return false}
  if(!ensureQuotationPricingContext('save this quotation'))return false;
- if(!$('quoteNo').value.trim()){if(!options.silent)alert('Set your unique quotation prefix in Settings, then create a new quotation number.');return false}
+ let quotationNo='';try{quotationNo=validateQuoteNoForSave(options)}catch(error){if(!options.silent)alert(error.message||error);return false}
  const items=getQuoteItems();if(!items.length){if(!options.silent)alert('At least one item is required.');return false}
  const invalid=items.find(x=>!x.model||Number(x.qty)<=0);if(invalid){if(!options.silent)alert('Every quotation item requires a Model / Item and valid Quantity. Unit Price may remain blank while the quotation is a draft.');return false}
  const pricingCustomer=selectedQuotationCustomer(),existing=currentQuote();
@@ -608,7 +635,7 @@ function saveQuote(options={}){
  const lockedPricingCustomerId=isRevisionCopy()?(existing?.pricingCustomerId||existing?.customerId||quotationPricingCustomerId):(quotationPricingCustomerId||pricingCustomer?.id||$('qCustomer').value);
  const lockedSnapshot=isRevisionCopy()?(existing?.pricingCustomerSnapshot||quotationPricingCustomerSnapshot):customerSnapshot(pricingCustomer);
  const q={
-  ...(existing||{}),id:editingQuoteId||newUuid(),no:$('quoteNo').value,date:isRevisionCopy()?(existing?.date||$('qDate').value):$('qDate').value,revisionDate:$('qRevisionDate').value,showRevision:$('showRevision').checked,documentType:$('qDocumentType').value,
+  ...(existing||{}),id:editingQuoteId||newUuid(),no:quotationNo,date:isRevisionCopy()?(existing?.date||$('qDate').value):$('qDate').value,revisionDate:$('qRevisionDate').value,showRevision:$('showRevision').checked,documentType:$('qDocumentType').value,
   customerId:lockedCustomerId,contactIndex:$('qContact').value,printedCompany:isRevisionCopy()?(existing?.printedCompany||$('qPrintedCompany')?.value.trim()||''):($('qPrintedCompany')?.value.trim()||''),printedContact:$('qPrintedContact')?.value.trim()||'',
   pricingCustomerId:lockedPricingCustomerId,pricingCustomerSnapshot:customerSnapshot(lockedSnapshot),status:quotationStatus==='new'?'saved':quotationStatus,
   revisionOf:quotationRevisionOf||existing?.revisionOf||'',revisionRootId:quotationRevisionRootId||existing?.revisionRootId||'',revisionNumber:Number(quotationRevisionNumber||existing?.revisionNumber||0),audit:quotationAudit||existing?.audit||[],
@@ -616,13 +643,13 @@ function saveQuote(options={}){
   assemblySessionId:quotationSessionId,preparedBy:$('preparedBy').value,preparedByDesignation:$('preparedByDesignation').value,signatoryName:window.ksSignatoryName||currentProfile().signatory_name||'',signatureImage:window.ksSignatureImage||currentProfile().signature_image||'',items,
   project:$('project').value,project2:$('project2').value,customerReference:$('customerReference').value,delivery:$('delivery').value,delivery2:$('delivery2').value,validity:$('validity').value,priceBasis:$('priceBasis').value,payment:$('payment').value,remarks:$('remarks').value,total:calcTotal()
  };
- let arr=quotes(),i=arr.findIndex(x=>x.id===q.id);if(i>=0)arr[i]=q;else arr.unshift(q);store.set('ks_quotes',arr);editingQuoteId=q.id;quotationStatus=q.status||'saved';quotationPricingCustomerId=q.pricingCustomerId;quotationPricingCustomerSnapshot=customerSnapshot(q.pricingCustomerSnapshot);$('quoteNo').value=q.no;refreshAll();updateQuotationStateUi();if(!options.silent)alert(`${q.documentType} saved.`);return true
+ let arr=quotes(),i=arr.findIndex(x=>x.id===q.id);if(i>=0)arr[i]=q;else arr.unshift(q);store.set('ks_quotes',arr);editingQuoteId=q.id;quotationStatus=q.status||'saved';quotationPricingCustomerId=q.pricingCustomerId;quotationPricingCustomerSnapshot=customerSnapshot(q.pricingCustomerSnapshot);setQuoteNoValue(q.no);refreshAll();updateQuotationStateUi();if(!options.silent)alert(`${q.documentType} saved.`);return true
 }
 function loadQuote(id){
  const q=quotes().find(x=>x.id===id);if(!q)return;quotationSessionId=q.assemblySessionId||`quote:${id}`;window.KeySuiteAssembly?.resetForNewQuotation?.();editingQuoteId=id;quotationStatus=q.status||'saved';quotationRevisionOf=q.revisionOf||'';quotationRevisionRootId=q.revisionRootId||'';quotationRevisionNumber=Number(q.revisionNumber||0);quotationAudit=Array.isArray(q.audit)?q.audit:[];
  quotationPricingCustomerId=q.pricingCustomerId||q.customerId||'';
  quotationPricingCustomerSnapshot=customerSnapshot(q.pricingCustomerSnapshot||customers().find(x=>x.id===quotationPricingCustomerId)||null);
- $('quoteNo').value=q.no||'';$('qDate').value=q.date||'';$('qRevisionDate').value=q.revisionDate||'';$('showRevision').checked=!!q.showRevision;$('qDocumentType').value=q.documentType||'Quotation';
+ setQuoteNoValue(q.no||'');$('qDate').value=q.date||'';$('qRevisionDate').value=q.revisionDate||'';$('showRevision').checked=!!q.showRevision;$('qDocumentType').value=q.documentType||'Quotation';
  $('qCustomer').value=q.customerId||quotationPricingCustomerId||'';refreshQuotationContacts();$('qContact').value=q.contactIndex!=null?String(q.contactIndex):'';updateQuotationContactInfo();
  const displayCustomer=customers().find(x=>x.id===$('qCustomer').value)||quotationPricingCustomerSnapshot||{};
  const displayContact=(displayCustomer.contacts||[])[Number($('qContact').value)]||{};
@@ -638,7 +665,7 @@ function newQuote(){
  quotationSessionId=newUuid();window.KeySuiteAssembly?.resetForNewQuotation?.();window.KeySuiteTemplates?.resetSelection?.();
  editingQuoteId=null;quotationStatus='new';quotationRevisionOf='';quotationRevisionRootId='';quotationRevisionNumber=0;quotationAudit=[];quotationPricingCustomerId='';quotationPricingCustomerSnapshot=null;
  $('preparedBy').value=currentProfile().display_name||currentAccess().display_name||'';$('preparedByDesignation').value=currentProfile().designation||'';window.ksSignatoryName=currentProfile().signatory_name||currentProfile().display_name||'';window.ksSignatureImage=currentProfile().signature_image||'';
- quotationReferenceAllocated=false;$('quoteNo').value='';$('qDate').value=new Date().toISOString().slice(0,10);assignNewQuotationReference();$('qRevisionDate').value='';$('showRevision').checked=false;$('qDocumentType').value='Quotation';$('project').value='';$('project2').value='';$('customerReference').value='';$('delivery').value='Ex - Stock subject to prior sales. Otherwise 2-3 months upon confirmation order.';$('delivery2').value='';$('validity').value='14 days';$('priceBasis').value='Ex - K.L. only, nett in Ringgit Malaysia.';$('remarks').value='';
+ quotationReferenceAllocated=false;lockedQuotePrefix=assignedQuotationPrefix();quoteNumberSuffix='';setQuoteNoValue('');$('qDate').value=new Date().toISOString().slice(0,10);assignNewQuotationReference();$('qRevisionDate').value='';$('showRevision').checked=false;$('qDocumentType').value='Quotation';$('project').value='';$('project2').value='';$('customerReference').value='';$('delivery').value='Ex - Stock subject to prior sales. Otherwise 2-3 months upon confirmation order.';$('delivery2').value='';$('validity').value='14 days';$('priceBasis').value='Ex - K.L. only, nett in Ringgit Malaysia.';$('remarks').value='';
  setQuoteItems([{}]);$('qCustomer').value='';$('qContact').innerHTML='<option value="">Select contact person</option>';$('qContactInfo').textContent='-';$('payment').value='Cash before delivery';if($('qPrintedCompany'))$('qPrintedCompany').value='';if($('qPrintedContact'))$('qPrintedContact').value='';
  calcTotal();updateCustomerSummary();setQuoteCustomerCollapsed(true);window.KeySuitePricing?.selectCustomer?.('',false);syncStartCustomer('');applyQuotationTemplateDefaults(window.KeySuiteTemplates?.getSelectedSnapshot?.(),true);updateQuotationStateUi();
 }
@@ -969,7 +996,7 @@ function loadPrintSample(){
  let arr=customers();let c=arr.find(x=>x.company==='Sample Engineering Sdn. Bhd.');
  if(!c){c={id:newUuid(),company:'Sample Engineering Sdn. Bhd.',companyPhone:'+60 (3) 1234 5678',address:'No. 10, Jalan Perindustrian, 48000 Rawang, Selangor',terms:'30 days',contacts:[{prefix:'Ms.',name:'Amanda Lee',phone:'+60 (12) 3456 7890',email:'amanda@example.com'}]};arr.push(c);store.set('ks_customers',arr)}
  refreshAll();$('qCustomer').value=c.id;quotationPricingCustomerId=c.id;quotationPricingCustomerSnapshot=customerSnapshot(c);refreshQuotationContacts();$('qContact').value='0';updateQuotationContactInfo();syncStartCustomer(c.id);
- $('project').value='Rawang Booster Pump Replacement';$('customerReference').value='RFQ-2026-071';$('quoteNo').value='R-2607-0180';$('preparedBy').value=currentProfile().display_name||currentAccess().display_name||'';$('preparedByDesignation').value=currentProfile().designation||'';window.ksSignatoryName=currentProfile().signatory_name||currentProfile().display_name||'';window.ksSignatureImage=currentProfile().signature_image||'';$('qRevisionDate').value='';$('showRevision').checked=false;$('qDate').value=new Date().toISOString().slice(0,10);$('delivery').value='Ex - Stock subject to prior sales. Otherwise 2-3 months upon confirmation order.';$('delivery2').value='';$('validity').value='14 days';$('priceBasis').value='Ex - K.L. only, nett in Ringgit Malaysia.';$('payment').value='30 days';
+ $('project').value='Rawang Booster Pump Replacement';$('customerReference').value='RFQ-2026-071';setQuoteNoValue(`${assignedQuotationPrefix()||'R'}-2607-0180`);$('preparedBy').value=currentProfile().display_name||currentAccess().display_name||'';$('preparedByDesignation').value=currentProfile().designation||'';window.ksSignatoryName=currentProfile().signatory_name||currentProfile().display_name||'';window.ksSignatureImage=currentProfile().signature_image||'';$('qRevisionDate').value='';$('showRevision').checked=false;$('qDate').value=new Date().toISOString().slice(0,10);$('delivery').value='Ex - Stock subject to prior sales. Otherwise 2-3 months upon confirmation order.';$('delivery2').value='';$('validity').value='14 days';$('priceBasis').value='Ex - K.L. only, nett in Ringgit Malaysia.';$('payment').value='30 days';
  setQuoteItems([{model:'CHCS 15-50',qty:1,unitPrice:4580,discount:0,description:'Duty: 15.0 m³/h @ 33.0 m\n\nB.G.Reich Vertical Multistage Pump\nModel: CHCS 15-50\n\nc/w 4HP 2Pole IE3 Motor\n(415V / 3Ph / 50Hz)\n\nSuction & Discharge:\nDN50 x DN50\n\nMaterial:\nStainless Steel 304 / Mech Seal'}]);calcTotal();alert('Print sample loaded. Press Export Complete Quotation PDF.');
 }
 
@@ -1037,7 +1064,7 @@ window.KeySuiteApp={
  isQuotationSealed,
  showPage,
  refreshNewQuotationReference,
- applyProfile(profile){window.KEYSUITE_PROFILE=profile||window.KEYSUITE_PROFILE;syncOwnerKeyVisibility();if(!editingQuoteId){$('preparedBy').value=currentProfile().display_name||'';$('preparedByDesignation').value=currentProfile().designation||'';window.ksSignatoryName=currentProfile().signatory_name||currentProfile().display_name||'';window.ksSignatureImage=currentProfile().signature_image||''}configureCustomerOwner($('customerOwner')?.value||currentEmail());refreshAll()},
+ applyProfile(profile){window.KEYSUITE_PROFILE=profile||window.KEYSUITE_PROFILE;syncOwnerKeyVisibility();if(!editingQuoteId){lockedQuotePrefix=assignedQuotationPrefix();if($('quotePrefixPart'))$('quotePrefixPart').value=lockedQuotePrefix;syncQuoteNoFromParts();$('preparedBy').value=currentProfile().display_name||'';$('preparedByDesignation').value=currentProfile().designation||'';window.ksSignatoryName=currentProfile().signatory_name||currentProfile().display_name||'';window.ksSignatureImage=currentProfile().signature_image||''}configureCustomerOwner($('customerOwner')?.value||currentEmail());refreshAll()},
  showBusinessWorkspace(){showPage(hasPermission('key_dashboard')?'keyDashboard':'dashboard')},
  applyPermissions(){syncOwnerKeyVisibility();refreshAll()} 
 };

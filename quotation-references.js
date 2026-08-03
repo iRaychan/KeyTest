@@ -17,14 +17,11 @@
     const {data,error}=await supabase.rpc('keysuite_get_quotation_prefix_v223');if(error)throw error;
     state.prefix=normalizePrefix(row(data).quotation_prefix||row(data).quotationPrefix);return state.prefix;
   }
-  async function savePrefix(value){
-    const prefix=validatePrefix(value),supabase=client();if(!supabase)throw new Error('Supabase is not connected.');
-    const {data,error}=await supabase.rpc('keysuite_save_quotation_prefix_v223',{p_prefix:prefix});if(error)throw error;
-    state.prefix=normalizePrefix(row(data).quotation_prefix||prefix);return state.prefix;
-  }
+  async function savePrefix(){throw new Error('Quotation prefixes are assigned by the Owner under Key → Role.')}
+
   async function allocateNext(){
     const supabase=client();if(!supabase)throw new Error('Supabase is not connected.');
-    const prefix=state.prefix||await getPrefix();if(!prefix)throw new Error('Set your quotation prefix in Settings before creating a quotation.');
+    const prefix=state.prefix||await getPrefix();if(!prefix)throw new Error('No quotation prefix has been assigned. Please contact the Owner.');
     const floor=scanRunningFloor(prefix),{data,error}=await supabase.rpc('keysuite_next_quotation_reference_v223',{p_minimum_last_number:floor});if(error)throw error;
     const reference=String(row(data).quotation_reference||row(data).quotationReference||'');if(!reference)throw new Error('Quotation reference could not be allocated.');return reference;
   }

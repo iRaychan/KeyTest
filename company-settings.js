@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  let access=null,bound=false,selectedCustomerId='',filterMode='all';
+  let access=null,bound=false,selectedCustomerId='',filterMode='all',pricingEditing=false,pricingHoldTimer=null,pricingHoldTick=null,pricingHoldStarted=0;
   const $=id=>document.getElementById(id);
   const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const isOwner=()=>String(access?.role||window.KEYSUITE_ACCESS?.role||'').toLowerCase()==='owner';
@@ -48,8 +48,22 @@
     if($('companyCommissionInput'))$('companyCommissionInput').value=pct(data.commission);
     if($('companySetDiscountInput'))$('companySetDiscountInput').value=pct(data.setDiscount);
     if($('companyFinalDiscountInput'))$('companyFinalDiscountInput').value=pct(data.finalDiscount);
-    const disabled=!isOwner()||!selectedCustomerId;
-    ['companyCommissionInput','companySetDiscountInput','companyFinalDiscountInput','saveCompanyPricing'].forEach(id=>{if($(id))$(id).disabled=disabled});
+    const unavailable=!isOwner()||!selectedCustomerId;
+    ['companyCommissionInput','companySetDiscountInput','companyFinalDiscountInput'].forEach(id=>{const input=$(id);if(input){input.disabled=unavailable;input.readOnly=!pricingEditing||unavailable;input.setAttribute('aria-readonly',String(input.readOnly));}});
+    if($('saveCompanyPricing'))$('saveCompanyPricing').disabled=unavailable||!pricingEditing;
+    const editor=$('companyPricingEditor');editor?.classList.toggle('company-pricing-locked',!pricingEditing);
+    const unlock=$('unlockCompanyPricing');if(unlock){unlock.disabled=unavailable;unlock.textContent=pricingEditing?'Editing Enabled':'Hold 3s to Edit';unlock.classList.toggle('green',pricingEditing)}
+  }
+  function stopPricingHold(reset=true){
+    if(pricingHoldTimer)clearTimeout(pricingHoldTimer);if(pricingHoldTick)clearInterval(pricingHoldTick);pricingHoldTimer=pricingHoldTick=null;
+    const button=$('unlockCompanyPricing');if(button){button.classList.remove('counting');if(reset&&!pricingEditing)button.textContent='Hold 3s to Edit'}
+  }
+  function lockPricingEditor(){stopPricingHold();pricingEditing=false;renderFields()}
+  function startPricingHold(event){
+    if(!isOwner()||pricingEditing||!selectedCustomerId)return;if(event.pointerType==='mouse'&&event.button!==0)return;
+    event.preventDefault();stopPricingHold(false);pricingHoldStarted=Date.now();const button=$('unlockCompanyPricing');button?.classList.add('counting');
+    const update=()=>{const left=Math.max(0,3000-(Date.now()-pricingHoldStarted));if(button)button.textContent=`Edit in ${(left/1000).toFixed(1)}s`};update();pricingHoldTick=setInterval(update,100);
+    pricingHoldTimer=setTimeout(()=>{stopPricingHold(false);pricingEditing=true;message('Editing enabled. Save the customer rates when finished.','info');renderFields()},3000);
   }
   function renderAll(){renderCount();renderSelect();renderCustomer();renderFields()}
   function percentInput(id,label){
@@ -78,15 +92,15 @@
       const {data,error}=await client.rpc('keysuite_save_customer_pricing_v222',{p_customer_id:selectedCustomerId,p_commission:commission,p_set_discount:setDiscount,p_final_discount:finalDiscount});if(error)throw error;
       const row=Array.isArray(data)?data[0]:data;const normalized=upsertLocal(row||{customer_id:selectedCustomerId,customer_name:selectedCustomer()?.company,commission,set_discount:setDiscount,final_discount:finalDiscount});
       window.dispatchEvent(new CustomEvent('keysuite-customer-pricing-changed',{detail:{customerId:normalized.customerId,settings:normalized}}));
-      renderAll();window.KeySuitePricing?.render?.();window.KeySuiteCategories?.render?.();window.KeySuiteAssembly?.refreshPricing?.();message(`Customer rates saved for ${targetName}.`,'info');
+      pricingEditing=false;renderAll();window.KeySuitePricing?.render?.();window.KeySuiteCategories?.render?.();window.KeySuiteAssembly?.refreshPricing?.();message(`Customer rates saved for ${targetName}. Editing is locked again.`,'info');
     }catch(error){console.error(error);message(missingMigration(error)?'Customer pricing storage is not installed. Run V222_SUPABASE_MIGRATION.sql first.':(error.message||String(error)),'error')}
-    finally{if(button){button.disabled=false;button.textContent=original}}
+    finally{if(button){button.textContent=original;button.disabled=!pricingEditing||!isOwner()||!selectedCustomerId}}
   }
   function bind(){
     if(bound)return;bound=true;
-    $('companySettingsCompanySelect')?.addEventListener('change',event=>{selectedCustomerId=String(event.target.value||'');renderCustomer();renderFields();message('')});
+    $('companySettingsCompanySelect')?.addEventListener('change',event=>{selectedCustomerId=String(event.target.value||'');pricingEditing=false;renderCustomer();renderFields();message('')});
     $('companySetupFilter')?.addEventListener('change',event=>{filterMode=event.target.value==='not-set'?'not-set':'all';renderAll();message('')});
-    $('saveCompanyPricing')?.addEventListener('click',save);
+    $('saveCompanyPricing')?.addEventListener('click',save);$('unlockCompanyPricing')?.addEventListener('pointerdown',startPricingHold);['pointerup','pointerleave','pointercancel'].forEach(name=>$('unlockCompanyPricing')?.addEventListener(name,()=>stopPricingHold()));$('unlockCompanyPricing')?.addEventListener('contextmenu',event=>event.preventDefault());
     window.addEventListener('keysuite-customers-changed',()=>{if(!selectedCustomerId)selectedCustomerId=activeCustomerId()||String(customers()[0]?.id||'');renderAll()});
   }
   function render(){
@@ -108,7 +122,7 @@
   }
   function normalizeRows(rows=[],fallback=[]){return (Array.isArray(rows)?rows:rows?[rows]:[]).map((row,index)=>normalizeRow(row,Array.isArray(fallback)?fallback[index]||{}:fallback))}
   function init(data,userAccess){access=userAccess||access;bind();if(!selectedCustomerId)selectedCustomerId=activeCustomerId()||String(customers()[0]?.id||'');render()}
-  function pageShown(id){if(id==='companySettings')render()}
+  function pageShown(id){if(id==='companySettings')render();else if(pricingEditing)lockPricingEditor()}
   const api={init,pageShown,render,normalizeRow,normalizeRows};
   window.KeySuiteCompanySettings=api;
   window.KeySuiteCustomerSettings=api;

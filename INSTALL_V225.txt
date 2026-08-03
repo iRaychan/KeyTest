@@ -1,0 +1,10 @@
+KeySuite V2.25 Update
+
+Update from V2.24 only.
+
+1. Back up the current V2.24 source and Supabase database.
+2. Run V225_SUPABASE_MIGRATION.sql in Supabase SQL Editor.
+3. Replace the files supplied in the V2.25 update patch.
+4. Keep the existing working config.js.
+5. After deployment, press Ctrl+F5.
+6. The Owner opens Key > Role and assigns a unique quotation prefix to each user.
