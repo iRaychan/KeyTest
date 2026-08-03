@@ -1,0 +1,26 @@
+KeySuite V2.23 Installation
+===========================
+Release date: 2026-08-03
+Base version: KeySuite V2.22
+
+Existing V2.22 source folder
+----------------------------
+1. Back up the website files and Supabase database.
+2. Extract this V2.23 patch package.
+3. Run:
+
+   python apply_v223.py C:\path\to\KeySuite_V2.22
+
+   The patcher updates app.js, index.html, auth.js, sw.js and VERSION.txt.
+   It creates one-time backups using the suffix .v222.bak.
+4. In Supabase > SQL Editor, run the complete V223_SUPABASE_MIGRATION.sql file.
+5. Deploy the patched website folder while keeping the existing working config.js.
+6. Hard-refresh with Ctrl + Shift + R. If required, unregister the old service worker and reload.
+
+Important
+---------
+- Run the SQL migration before testing Motor pricing or quotation-prefix saving.
+- The Motor source workbook contains placeholders/zero values. Enter source prices in the Motor Price List before expecting calculated quotation prices.
+- Existing quotation references are not changed.
+- New quotation references use [User Prefix]-[YYMM]-[Running Number].
+- The running number resets only when the calendar year changes.

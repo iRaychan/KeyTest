@@ -1,28 +1,24 @@
-# KeySuite V2.22
+# KeySuite V2.23 Upgrade Patch
 
-KeySuite V2.22 changes the Owner pricing setup from company-based records to customer-based records.
+This package upgrades an existing **KeySuite V2.22** source folder to V2.23.
 
-## Main changes
+## Included amendments
 
-- **Key > Company** is renamed to **Key > Customer**.
-- The Owner can select every active customer, including Keylargo and Apex.
-- Commission, Set Discount and Final Discount are saved separately for each customer.
-- The Not Set count and filter now use the customer list.
-- Category factor Use controls remain unchanged.
-- Assembly pricing excludes Set Discount; Quote pricing uses it when enabled.
-- The V2.21 `company_id is ambiguous` save error is removed by the new customer RPC and named conflict constraint.
+- Unique per-user quotation prefixes.
+- Reference format `[Prefix]-[YYMM]-[Running Number]`.
+- Annual sequence reset only.
+- Motor Product and Price List for IE1 through IE5.
+- Prefixes `BM`, `2BM`, `3BM`, `4BM`, and `5BM`.
+- Motor Assembly route fixed to `Pumpset > Motor`.
+- 680 seeded motor catalogue combinations.
+- Custom model decoding, including `3BM50-5`.
 
-## Upgrade from V2.21
+## Apply
 
-1. Back up the deployment and Supabase database.
-2. Run `V222_SUPABASE_MIGRATION.sql` in Supabase SQL Editor.
-3. Apply `KeySuite_V2.22_Changed_Files_Patch.zip` over V2.21.
-4. Preserve the existing working `config.js`.
-5. Deploy and hard-refresh the browser.
+```text
+python apply_v223.py C:\path\to\KeySuite_V2.22
+```
 
-## Data migration
+Then run `V223_SUPABASE_MIGRATION.sql` in Supabase, deploy, and hard-refresh.
 
-- Active customers receive a customer-pricing row.
-- A customer whose name matches the existing company master inherits the old company percentages when its customer percentages are still zero.
-- Other customers remain Not Set until the Owner enters their rates.
-- Existing company pricing tables and sealed quotations are not deleted or recalculated.
+The patcher creates `.v222.bak` backups of amended files. Keep the existing deployment `config.js`.

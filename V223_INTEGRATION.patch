@@ -1,0 +1,47 @@
+diff --git a/app.js b/app.js
+--- a/app.js
++++ b/app.js
+@@
+-function newQuote(){
++async function newQuote(){
++ let v223Reference='';
++ try{v223Reference=await window.KeySuiteV223.nextQuotationReference()}
++ catch(error){alert(error?.message||String(error));return}
+@@
+- $('quoteNo').value=nextQuoteNo();
++ $('quoteNo').value=v223Reference;
+
+diff --git a/index.html b/index.html
+--- a/index.html
++++ b/index.html
+@@
+-  <title>KeySuite V2.22</title>
++  <title>KeySuite V2.23</title>
+@@
+-</body>
++  <script src="v223-runtime.js?v=223"></script>
++</body>
+
+diff --git a/auth.js b/auth.js
+--- a/auth.js
++++ b/auth.js
+@@
+-      version:'2.22',release_date:'2026-08-02',
++      version:'2.23',release_date:'2026-08-03',
+
+diff --git a/sw.js b/sw.js
+--- a/sw.js
++++ b/sw.js
+@@
+-const CACHE='keysuite-v222';
++const CACHE='keysuite-v223';
+@@
+-const SHELL=[
++const SHELL=['./v223-runtime.js',
+
+diff --git a/VERSION.txt b/VERSION.txt
+--- a/VERSION.txt
++++ b/VERSION.txt
+@@
+-2.22
++2.23

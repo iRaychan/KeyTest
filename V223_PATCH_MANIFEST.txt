@@ -1,0 +1,41 @@
+KeySuite V2.23 Patch Manifest
+=============================
+
+New files copied into the V2.22 source folder
+- v223-runtime.js
+- V223_SUPABASE_MIGRATION.sql
+- setup/V223_SUPABASE_MIGRATION.sql
+- INSTALL_V223.txt
+- V223_CHANGES.txt
+- V223_QA_REPORT.txt
+
+Files amended by apply_v223.py
+- app.js
+  * newQuote becomes asynchronous.
+  * New quotation numbers are allocated by keysuite_next_quotation_reference_v223.
+- index.html
+  * Visible version changes to V2.23.
+  * Loads v223-runtime.js.
+- auth.js
+  * Secure-data release identification changes to V2.23 / 2026-08-03.
+- sw.js
+  * Cache changes to keysuite-v223.
+  * v223-runtime.js is included in the application shell.
+- VERSION.txt
+  * Changes to 2.23.
+- README.md
+  * Adds the V2.23 feature summary when present.
+
+Database objects
+- ks_user_profiles.quotation_prefix
+- ks_quotation_sequences
+- ks_products_motor
+- ks_app_settings.motor_usd_multiplier
+- ks_app_settings.motor_rmb_multiplier
+- keysuite_get_quotation_prefix_v223
+- keysuite_save_quotation_prefix_v223
+- keysuite_next_quotation_reference_v223
+- keysuite_decode_motor_model_v223
+- keysuite_save_motor_price_v223
+- keysuite_save_motor_multiplier_v223
+- keysuite_save_motor_category_rule_v223

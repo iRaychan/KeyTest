@@ -1,0 +1,72 @@
+KeySuite V2.23 QA Report
+========================
+Build date: 2026-08-03
+Base version: KeySuite V2.22
+Delivery type: automated V2.22 upgrade patch
+
+1. Motor catalogue
+------------------
+PASS - 680 unique motor catalogue rows generated.
+PASS - IE1, IE2, IE3, IE4 and IE5 each contain 136 rows.
+PASS - Prefix mapping is BM / 2BM / 3BM / 4BM / 5BM.
+PASS - 34 HP ratings and 2/4/6/8-pole combinations are present for every efficiency class.
+PASS - IDs and model codes are unique.
+
+2. Motor model decoding
+-----------------------
+PASS - BM20-2 decodes to 20HP 2Pole IE1 Motor.
+PASS - 2BM20-4 decodes to IE2.
+PASS - 3BM50-5 decodes to 50HP 5Pole IE3 Motor.
+PASS - 4BM0.75-8 preserves decimal HP formatting.
+PASS - 5BM600-6 decodes to IE5.
+PASS - Unknown prefixes are rejected.
+
+3. Assembly routing
+-------------------
+PASS - Motor Assembly uses explicit route "pumpset".
+PASS - Assembly level is PUMPSET_COMPONENT.
+PASS - Assembly section is motor.
+PASS - No Motor Assembly action routes to System.
+
+4. Quotation references
+-----------------------
+PASS - Prefix storage is per user.
+PASS - Prefix uniqueness is enforced case-insensitively by a unique index and save RPC.
+PASS - Duplicate-prefix errors ask the user to choose another prefix.
+PASS - Reference format is [Prefix]-[YYMM]-[Running Number].
+PASS - Sequence key is user email plus calendar year.
+PASS - Month changes do not reset the running number.
+PASS - Calendar-year changes create a new sequence.
+
+5. Database migration
+---------------------
+PASS - Root and setup migration files are byte-identical.
+PASS - Migration contains exactly 680 Motor seed rows.
+PASS - Motor source prices, rarity, multipliers and Category Rule save RPCs are present.
+PASS - Custom Motor model decoder accepts non-catalog pole counts.
+NOTE - Migration was reviewed and tested statically; it was not executed against the user's live Supabase project.
+
+6. Upgrade patcher
+------------------
+PASS - Synthetic V2.22 fixture upgraded to V2.23.
+PASS - app.js quotation allocation integration applied.
+PASS - index.html loads v223-runtime.js.
+PASS - auth.js, sw.js and VERSION.txt are updated.
+PASS - .v222.bak backups are created.
+PASS - Python syntax validation completed.
+
+7. Workbook
+-----------
+PASS - KeySuite Import sheet contains all 680 rows plus headers.
+PASS - Representative IE1, IE4 and IE5 ranges inspected successfully.
+PASS - No spreadsheet formula errors were detected.
+PASS - Price columns remain editable and zero placeholders are highlighted.
+
+8. JavaScript
+-------------
+PASS - node --check completed for v223-runtime.js.
+PASS - Executable Node tests passed for parsing, model building and Assembly routing.
+
+Packaging note
+--------------
+The full V2.22 source archive was not available in the active workspace. Therefore this delivery is an automated upgrade patch, not a complete reconstructed GitHub source ZIP. Apply it to the actual V2.22 source folder with apply_v223.py.

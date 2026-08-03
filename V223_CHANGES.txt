@@ -1,0 +1,44 @@
+KeySuite V2.23 Changes
+======================
+Release date: 2026-08-03
+Base version: V2.22
+
+1. User quotation prefixes
+- Each user can save a unique 1-to-8-character quotation prefix.
+- Duplicate prefixes are blocked case-insensitively.
+- The duplicate notice asks the user to choose another prefix.
+
+2. Quotation reference sequence
+- Format: [User Prefix]-[YYMM]-[Running Number].
+- Sequence ownership is per user.
+- Running numbers continue across months in the same calendar year.
+- Running numbers reset only when the calendar year changes.
+- Example: B-2612-0128 followed by B-2701-0001.
+
+3. Motor model rules
+- IE1 prefix: BM.
+- IE2 prefix: 2BM.
+- IE3 prefix: 3BM.
+- IE4 prefix: 4BM.
+- IE5 prefix: 5BM.
+- Example decoding: BM20-2 = 20HP 2Pole IE1 Motor.
+- Example decoding: 3BM50-5 = 50HP 5Pole IE3 Motor.
+
+4. Motor catalogue and price list
+- Added IE1 through IE5.
+- Added 34 HP ratings and 2/4/6/8-pole catalogue combinations for every efficiency class.
+- Total seeded catalogue: 680 motor combinations.
+- Added independent USD, RMB and MYR source prices.
+- Added model rarity: Common, Many or Rare.
+- Added Motor USD and RMB currency rates.
+- Added Motor Category Pricing Rule.
+
+5. Motor routing
+- Motor Assembly actions route to Assembly > Pumpset > Motor.
+- Motor items never route to Assembly > System.
+- Motor Quote actions continue to add a quotation item when a valid calculated price is available.
+- Custom model input supports non-catalog poles with a manual price.
+
+6. Source workbook
+- Added a KeySuite Import sheet covering all IE1-to-IE5 motor combinations.
+- Source placeholders and zero cells remain editable rather than being treated as valid selling prices.
