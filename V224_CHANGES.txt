@@ -1,0 +1,22 @@
+KeySuite V2.24 Changes
+======================
+
+Product > Motor Model
+- HP selection list.
+- Pole selection list: 2, 4, 6 and 8 Pole.
+- Efficiency selection list: IE1 to IE5, default IE3.
+- Generated Model, Description and Assembly Price summary.
+- Assembly remains routed to Pumpset → Motor.
+
+Motor Price List
+- Currency & Multipliers follows the CHC/ES collapsible panel method.
+- Currency panel starts collapsed.
+- Efficiency and Pole are outside the currency panel.
+- No search field.
+- Efficiency defaults to IE3.
+- Table displays HP rows for the selected Efficiency and Pole.
+- Price input displays the selected USD, RMB or MYR currency.
+
+Database
+- No new V2.24 migration is required.
+- V223_SUPABASE_MIGRATION.sql remains required for the Motor module.

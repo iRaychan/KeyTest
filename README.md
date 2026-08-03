@@ -1,50 +1,50 @@
-# KeySuite V2.23
+# KeySuite V2.24
 
-KeySuite V2.23 is a complete source build based on V2.22.
+KeySuite V2.24 is a complete source build based on V2.23.
 
-## V2.23 additions
+## V2.24 additions
 
-### Motor IE1–IE5
+### Product > Motor Model
 
-- Product > Motor page.
-- Key > Price List > Motor page.
-- Category Pricing Rule support for `MOTOR`.
-- Quotation and Assembly pricing integration.
-- Model prefixes:
-  - IE1 = `BM`
-  - IE2 = `2BM`
-  - IE3 = `3BM`
-  - IE4 = `4BM`
-  - IE5 = `5BM`
-- Model decoding follows `[Efficiency Prefix][HP]-[Pole]`.
-  - `BM20-2` = `20HP 2Pole IE1 Motor`
-  - `3BM50-5` = `50HP 5Pole IE3 Motor`
-- The supplied catalogue contains 680 standard entries: 34 HP ratings × 4 standard poles × 5 efficiency classes.
-- Prices in the supplied Motor workbook are placeholders/zero values and remain editable in KeySuite.
+- Replaces the large standard-model table with direct selection fields.
+- Selection order: **HP / Pole / Efficiency**.
+- Pole options: 2 Pole, 4 Pole, 6 Pole and 8 Pole.
+- Efficiency options: IE1, IE2, IE3, IE4 and IE5.
+- Efficiency defaults to **IE3**.
+- The model and description are generated from the selection.
+- Standard Motor Assembly actions continue to route only to `Assembly → Pumpset → Motor`.
+- Custom Motor models remain available, including non-standard poles such as `3BM50-5`.
 
-### Motor Assembly routing
+### Motor Price List
 
-Motor **Assembly** actions route only to:
+- Currency selection now follows the CHC/ES price-list method.
+- The **Currency & Multipliers** panel is collapsible and starts collapsed.
+- The panel contains only Currency Selection, USD → MYR and RMB → MYR.
+- USD/RMB multipliers use the same 3-second hold-to-edit pattern as CHC/ES.
+- Efficiency and Pole are outside the currency panel.
+- Efficiency defaults to **IE3**.
+- Pole options are 2 Pole, 4 Pole, 6 Pole and 8 Pole.
+- No Search field is shown on the Motor Price List.
+- The price table displays one row per HP for the selected Efficiency and Pole.
+- The price input label and prefix change with USD, RMB or MYR selection.
 
-`Assembly → Pumpset → Motor`
+## Existing V2.23 Motor rules retained
 
-They do not route to System.
+- IE1 = `BM`
+- IE2 = `2BM`
+- IE3 = `3BM`
+- IE4 = `4BM`
+- IE5 = `5BM`
+- Motor Assembly routing: `Assembly → Pumpset → Motor`
+- Per-user quotation references remain unchanged.
 
-### Per-user quotation references
+## Upgrade from V2.23
 
-- Format: `[Prefix]-[YYMM]-[Running Number]`.
-- Each user saves a unique 1–8 character alphanumeric prefix in Settings.
-- Duplicate prefixes are blocked case-insensitively.
-- The running number continues across months and resets only when the calendar year changes.
-
-## Upgrade from V2.22
-
-1. Back up the current V2.22 deployment and Supabase database.
-2. Run `V223_SUPABASE_MIGRATION.sql` in Supabase SQL Editor.
-3. Upload this complete V2.23 source to GitHub.
+1. Back up the current V2.23 deployment.
+2. No new V2.24 Supabase migration is required.
+3. Upload this complete V2.24 source to GitHub.
 4. Preserve the existing working `config.js`; do not replace it with `setup/config.example.js`.
 5. Wait for deployment, then hard-refresh the browser with `Ctrl+F5`.
-6. Each user opens Settings and saves a unique quotation prefix.
-7. Enter Motor source prices and test Product, Price List, Category Pricing, Quote and Pumpset routing.
+6. Test Product > Motor and Key > Price List > Motor.
 
-The migration is included in the root folder and `setup/`. It is not run automatically by the source package.
+A database with V223_SUPABASE_MIGRATION.sql already applied is required for the Motor module.

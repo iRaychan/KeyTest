@@ -1,0 +1,3 @@
+KeySuite V2.24 does not change the Supabase schema or RPC functions.
+
+Do not run a new SQL migration for V2.24. The existing V223_SUPABASE_MIGRATION.sql must already be installed.

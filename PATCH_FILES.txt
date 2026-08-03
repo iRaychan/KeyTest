@@ -1,0 +1,17 @@
+KeySuite V2.24 Update Patch
+Upgrade path: V2.23 -> V2.24
+
+Replace these application files:
+- README.md
+- VERSION.txt
+- index.html
+- manifest.json
+- motor.js
+- sw.js
+
+Reference files included:
+- V224_CHANGES.txt
+- INSTALL_V224.txt
+- V224_NO_DATABASE_MIGRATION.txt
+
+No Supabase migration is required for V2.24.

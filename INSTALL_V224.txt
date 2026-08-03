@@ -1,0 +1,9 @@
+KeySuite V2.24 Installation
+===========================
+
+1. Back up the current V2.23 deployment.
+2. No new V2.24 Supabase migration is required.
+3. Confirm V223_SUPABASE_MIGRATION.sql was already applied.
+4. Upload the complete V2.24 source to GitHub, keeping the existing working config.js.
+5. Wait for deployment and hard refresh with Ctrl+F5.
+6. Test Product > Motor and Key > Price List > Motor.
