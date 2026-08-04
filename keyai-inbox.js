@@ -1,13 +1,16 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.5.0";
+  const VERSION = "0.5.1";
   const BUTTON_ID = "keyaiDraftInboxButton";
   const DIALOG_ID = "keyaiDraftInboxDialog";
   const QUOTES_KEY = "ks_quotes";
   const PENDING_KEY = "ks_keyai_pending_imports_v050";
   let drafts = [];
   let busy = false;
+  let currentView = "active";
+  let selectedDraftIds = new Set();
+  let inboxCounts = { active_count: 0, archived_count: 0, trash_count: 0 };
 
   const esc = (value) => String(value ?? "")
     .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
@@ -60,23 +63,24 @@
   }
 
   async function loadDrafts() {
-    const data = await rpc("keyai_list_review_drafts_v05");
+    const [data, countRows] = await Promise.all([
+      rpc("keyai_list_review_drafts_v051", { p_view: currentView }),
+      rpc("keyai_draft_inbox_counts_v051")
+    ]);
     drafts = Array.isArray(data) ? data : [];
+    const countRow = Array.isArray(countRows) ? countRows[0] : countRows;
+    inboxCounts = countRow || { active_count: 0, archived_count: 0, trash_count: 0 };
+    selectedDraftIds = new Set([...selectedDraftIds].filter((id) => drafts.some((draft) => String(draft.draft_id) === String(id))));
     updateButton();
     return drafts;
-  }
-
-  function actionable(draft) {
-    return !["rejected", "imported"].includes(draft.review_status) &&
-      !["cancelled", "imported"].includes(draft.draft_status);
   }
 
   function updateButton() {
     const button = document.getElementById(BUTTON_ID);
     if (!button) return;
-    const count = drafts.filter(actionable).length;
+    const count = Number(inboxCounts.active_count || 0);
     button.textContent = count ? `KeyAI Drafts (${count})` : "KeyAI Drafts";
-    button.title = count ? `${count} KeyAI draft${count === 1 ? "" : "s"} requiring attention` : "Open KeyAI Draft Review";
+    button.title = count ? `${count} active KeyAI draft${count === 1 ? "" : "s"}` : "Open KeyAI Draft Review";
   }
 
   function installStyles() {
@@ -90,7 +94,8 @@
       .kai-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:#111827;color:#fff}.kai-head h2{margin:0;font-size:20px}.kai-head button{border:0;background:transparent;color:#fff;font-size:25px;cursor:pointer}
       .kai-body{padding:18px;background:#f8fafc;overflow:auto;max-height:calc(92vh - 68px)}
       .kai-note{padding:12px 14px;border-radius:10px;background:#fff7d6;border:1px solid #ead98d;margin-bottom:14px;line-height:1.45}
-      .kai-card{background:#fff;border:1px solid #dbe2ea;border-radius:13px;padding:16px;margin:0 0 16px;box-shadow:0 3px 10px rgba(15,23,42,.05)}.kai-card.closed{opacity:.78}
+      .kai-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 12px;margin-bottom:14px;background:#fff;border:1px solid #dbe2ea;border-radius:11px}.kai-toolbar button{border:0;border-radius:8px;padding:8px 11px;font-weight:800;cursor:pointer}.kai-toolbar button:disabled{opacity:.45;cursor:not-allowed}.kai-tab{background:#e2e8f0;color:#334155}.kai-tab.active{background:#111827;color:#fff}.kai-toolbar .kai-spacer{flex:1}.kai-selectbox{display:flex;align-items:center;gap:7px;font-size:13px;color:#475569}.kai-selectbox input{width:16px;height:16px}
+      .kai-card{background:#fff;border:1px solid #dbe2ea;border-radius:13px;padding:16px;margin:0 0 16px;box-shadow:0 3px 10px rgba(15,23,42,.05)}.kai-card.closed{opacity:.78}.kai-card.selected{outline:3px solid rgba(22,128,60,.22)}
       .kai-card-top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}.kai-card h3{margin:0 0 4px;font-size:17px}.kai-muted{color:#64748b;font-size:13px}
       .kai-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}.kai-span2{grid-column:span 2}.kai-span4{grid-column:1/-1}
       .kai-field{display:flex;flex-direction:column;gap:5px}.kai-field label{color:#64748b;font-size:11px;text-transform:uppercase;font-weight:800}.kai-field input,.kai-field select,.kai-field textarea{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:8px;padding:9px 10px;background:#fff;color:#0f172a}.kai-field textarea{min-height:86px;resize:vertical}.kai-field input:disabled,.kai-field select:disabled,.kai-field textarea:disabled{background:#f1f5f9;color:#64748b}
@@ -122,9 +127,10 @@
 
   function badge(value) {
     const key = String(value || "unknown");
-    const cls = ["approved", "ready_for_approval", "exact", "manual", "imported"].includes(key) ? "kai-good" :
-      ["rejected", "error", "cancelled"].includes(key) ? "kai-bad" :
-      key === "more_information_required" ? "kai-warn" : "kai-info";
+    const cls = ["approved", "ready_for_approval", "exact", "manual", "imported", "active"].includes(key) ? "kai-good" :
+      ["rejected", "error", "cancelled", "trash"].includes(key) ? "kai-bad" :
+      key === "more_information_required" ? "kai-warn" :
+      key === "archived" ? "kai-grey" : "kai-info";
     return `<span class="kai-badge ${cls}">${esc(key.replaceAll("_", " "))}</span>`;
   }
 
@@ -143,27 +149,66 @@
     return review[key] ?? fallback;
   }
 
+  function toolbarHtml() {
+    const selectedCount = selectedDraftIds.size;
+    const selectedDisabled = selectedCount ? "" : "disabled";
+    const lifecycleActions = currentView === "active"
+      ? `<button class="kai-secondary" data-kai-bulk-state="archived" ${selectedDisabled}>Archive selected</button><button class="kai-danger" data-kai-bulk-state="trash" ${selectedDisabled}>Delete selected</button><button class="kai-secondary" data-kai-cleanup>Trash old unimported</button>`
+      : `<button class="kai-secondary" data-kai-bulk-state="active" ${selectedDisabled}>Restore selected</button>`;
+    return `<div class="kai-toolbar">
+      <button class="kai-tab ${currentView === "active" ? "active" : ""}" data-kai-view="active">Active (${esc(inboxCounts.active_count || 0)})</button>
+      <button class="kai-tab ${currentView === "archived" ? "active" : ""}" data-kai-view="archived">Archived (${esc(inboxCounts.archived_count || 0)})</button>
+      <button class="kai-tab ${currentView === "trash" ? "active" : ""}" data-kai-view="trash">Trash (${esc(inboxCounts.trash_count || 0)})</button>
+      <span class="kai-spacer"></span>
+      <label class="kai-selectbox"><input type="checkbox" data-kai-select-all ${drafts.length && drafts.every((draft) => selectedDraftIds.has(String(draft.draft_id))) ? "checked" : ""}> Select all</label>
+      <span class="kai-muted">${selectedCount} selected</span>
+      ${lifecycleActions}
+    </div>`;
+  }
+
+  function lifecycleButtons(draft) {
+    const state = draft.inbox_state || currentView;
+    if (state === "active") {
+      const protectedDraft = ["approved", "imported"].includes(draft.review_status) ||
+        ["imported"].includes(draft.draft_status) || !!draft.quotation_reference;
+      return protectedDraft
+        ? `<button class="kai-secondary" data-kai-state="archived">Archive</button>`
+        : `<button class="kai-secondary" data-kai-state="archived">Archive</button><button class="kai-danger" data-kai-state="trash">Delete</button>`;
+    }
+    if (draft.review_status === "imported" || draft.draft_status === "imported" || draft.quotation_reference) {
+      return `<span class="kai-muted">Protected quotation history</span>`;
+    }
+    return `<button class="kai-secondary" data-kai-state="active">Restore to Active</button>`;
+  }
+
   function render(errorMessage = "") {
     const body = document.querySelector(`#${DIALOG_ID} [data-kai-body]`);
     if (!body) return;
-    const note = `Review and approve every KeyAI draft before import. Imports remain <b>unpriced</b>; KeySuite allocates the official quotation number and applies its existing pricing rules. Nothing is sent to the customer automatically.`;
+    const note = `Review and approve every KeyAI draft before import. Imports remain <b>unpriced</b>; KeySuite allocates the official quotation number and applies its existing pricing rules. Delete moves an unimported draft to Trash, where it can be restored. Imported quotation history is protected and archived automatically. Nothing is sent to the customer automatically.`;
+    const header = `${errorMessage ? `<div class="kai-error">${esc(errorMessage)}</div>` : ""}<div class="kai-note">${note}</div>${toolbarHtml()}`;
     if (!drafts.length) {
-      body.innerHTML = `${errorMessage ? `<div class="kai-error">${esc(errorMessage)}</div>` : ""}<div class="kai-note">${note}</div><div class="kai-empty">No KeyAI drafts are waiting for this KeySuite user.</div>`;
+      const message = currentView === "active" ? "No active KeyAI drafts are waiting for this KeySuite user." :
+        currentView === "archived" ? "No archived KeyAI drafts." : "Trash is empty.";
+      body.innerHTML = `${header}<div class="kai-empty">${message}</div>`;
+      bindToolbar(body);
       return;
     }
 
-    body.innerHTML = `${errorMessage ? `<div class="kai-error">${esc(errorMessage)}</div>` : ""}<div class="kai-note">${note}</div>` + drafts.map((draft) => {
+    body.innerHTML = header + drafts.map((draft) => {
       const r = draft.review_payload || {};
-      const closed = ["rejected", "imported"].includes(draft.review_status) || ["cancelled", "imported"].includes(draft.draft_status);
+      const lifecycleState = draft.inbox_state || currentView;
+      const closed = lifecycleState !== "active" || ["rejected", "imported"].includes(draft.review_status) || ["cancelled", "imported"].includes(draft.draft_status);
       const candidate = r.customer_company || draft.customer_candidate?.company_name || draft.draft_payload?.customer?.company_name || "";
       const approved = draft.review_status === "approved";
       const ready = draft.review_status === "ready_for_approval";
-      const canEdit = !closed;
+      const canEdit = lifecycleState === "active" && !closed;
+      const checked = selectedDraftIds.has(String(draft.draft_id));
       return `
-        <section class="kai-card ${closed ? "closed" : ""}" data-draft-card="${esc(draft.draft_id)}">
-          <div class="kai-card-top"><div><h3>${esc(draft.draft_no)}</h3><div class="kai-muted">Enquiry ${esc(draft.enquiry_no)} · Updated ${esc(new Date(draft.updated_at || draft.created_at).toLocaleString())}</div></div><div>${badge(draft.review_status)} ${badge(draft.product_match_status)}</div></div>
+        <section class="kai-card ${closed ? "closed" : ""} ${checked ? "selected" : ""}" data-draft-card="${esc(draft.draft_id)}">
+          <div class="kai-card-top"><div style="display:flex;gap:10px;align-items:flex-start"><input type="checkbox" data-kai-select-draft style="margin-top:4px;width:17px;height:17px" ${checked ? "checked" : ""}><div><h3>${esc(draft.draft_no)}</h3><div class="kai-muted">Enquiry ${esc(draft.enquiry_no)} · Updated ${esc(new Date(draft.updated_at || draft.created_at).toLocaleString())}</div></div></div><div>${badge(draft.review_status)} ${badge(draft.product_match_status)} ${badge(lifecycleState)}</div></div>
           ${draft.information_question && draft.review_status === "more_information_required" ? `<div class="kai-note"><b>Waiting for customer:</b> ${esc(draft.information_question)}</div>` : ""}
           ${draft.rejection_reason ? `<div class="kai-error"><b>Rejected:</b> ${esc(draft.rejection_reason)}</div>` : ""}
+          ${draft.trash_reason && lifecycleState === "trash" ? `<div class="kai-note"><b>Trash note:</b> ${esc(draft.trash_reason)}</div>` : ""}
 
           <div class="kai-customer">
             <b>Customer confirmation</b>
@@ -193,13 +238,18 @@
 
           ${canEdit ? `<div class="kai-actions"><button class="kai-primary" data-kai-save>Save changes</button><button class="kai-approve" data-kai-approve ${ready ? "" : "disabled"}>Approve draft</button></div>
           <div class="kai-review-actions"><div class="kai-actions"><textarea data-kai-question placeholder="Question to send to the Telegram customer"></textarea><button class="kai-request" data-kai-request>Request information</button></div><div class="kai-actions"><input data-kai-reason placeholder="Rejection reason"><button class="kai-danger" data-kai-reject>Reject draft</button></div></div>` : ""}
-          <div class="kai-actions"><button class="kai-primary" data-kai-import ${approved ? "" : "disabled"}>Import approved draft into KeySuite</button><button class="kai-secondary" data-kai-messages>Show Telegram messages</button><button class="kai-secondary" data-kai-audit>Show audit history</button></div>
+          <div class="kai-actions">${lifecycleState === "active" ? `<button class="kai-primary" data-kai-import ${approved ? "" : "disabled"}>Import approved draft into KeySuite</button>` : ""}<button class="kai-secondary" data-kai-messages>Show Telegram messages</button><button class="kai-secondary" data-kai-audit>Show audit history</button>${lifecycleButtons(draft)}</div>
           <div data-kai-message-box></div><div data-kai-audit-box></div>
         </section>`;
     }).join("");
 
+    bindToolbar(body);
     body.querySelectorAll("[data-draft-card]").forEach((card) => {
       const id = card.dataset.draftCard;
+      card.querySelector("[data-kai-select-draft]")?.addEventListener("change", (event) => {
+        if (event.target.checked) selectedDraftIds.add(String(id)); else selectedDraftIds.delete(String(id));
+        render();
+      });
       card.querySelector("[data-kai-assign]")?.addEventListener("click", () => assignCustomer(id, card));
       card.querySelector("[data-kai-create]")?.addEventListener("click", () => createCustomer(id, card));
       card.querySelector("[data-kai-save]")?.addEventListener("click", () => saveReview(id, card));
@@ -209,6 +259,7 @@
       card.querySelector("[data-kai-import]")?.addEventListener("click", () => importDraft(id));
       card.querySelector("[data-kai-messages]")?.addEventListener("click", () => showMessages(id, card));
       card.querySelector("[data-kai-audit]")?.addEventListener("click", () => showAudit(id, card));
+      card.querySelectorAll("[data-kai-state]").forEach((button) => button.addEventListener("click", (event) => moveDraftState(id, event.currentTarget.dataset.kaiState)));
       card.querySelector("[data-kai-product-search]")?.addEventListener("click", () => searchProducts(card));
       card.querySelector("[data-kai-product-results]")?.addEventListener("change", (event) => {
         const option = event.target.selectedOptions?.[0]; if (!option?.value) return;
@@ -218,12 +269,75 @@
     });
   }
 
+  function bindToolbar(body) {
+    body.querySelectorAll("[data-kai-view]").forEach((button) => button.addEventListener("click", async () => {
+      currentView = button.dataset.kaiView;
+      selectedDraftIds.clear();
+      try { await loadDrafts(); render(); } catch (error) { render(error.message || String(error)); }
+    }));
+    body.querySelector("[data-kai-select-all]")?.addEventListener("change", (event) => {
+      selectedDraftIds = event.target.checked ? new Set(drafts.map((draft) => String(draft.draft_id))) : new Set();
+      render();
+    });
+    body.querySelectorAll("[data-kai-bulk-state]").forEach((button) => button.addEventListener("click", () => bulkMoveState(button.dataset.kaiBulkState)));
+    body.querySelector("[data-kai-cleanup]")?.addEventListener("click", cleanupOldDrafts);
+  }
+
   async function openInbox() {
     if (busy) return; busy = true;
     const dialog = document.getElementById(DIALOG_ID); dialog.showModal(); render();
     try { if (!customers().length) await refreshCustomers(); await loadDrafts(); render(); }
     catch (error) { console.error(error); render(error.message || String(error)); }
     finally { busy = false; }
+  }
+
+  async function moveDraftState(draftId, state) {
+    const labels = { active: "restore this draft to Active", archived: "archive this draft", trash: "move this draft to Trash" };
+    if (!confirm(`Are you sure you want to ${labels[state] || "change this draft"}?`)) return;
+    const reason = state === "trash" ? "Deleted from KeyAI Draft Review." : null;
+    try {
+      await rpc("keyai_set_draft_inbox_state_v051", { p_draft_id: draftId, p_state: state, p_reason: reason });
+      selectedDraftIds.delete(String(draftId));
+      await loadDrafts();
+      render();
+    } catch (error) { alert(error.message || error); }
+  }
+
+  async function bulkMoveState(state) {
+    const ids = [...selectedDraftIds];
+    if (!ids.length) return alert("Select at least one draft.");
+    const labels = { active: "restore", archived: "archive", trash: "move to Trash" };
+    if (!confirm(`${labels[state] || "Update"} ${ids.length} selected draft${ids.length === 1 ? "" : "s"}?`)) return;
+    try {
+      const rows = await rpc("keyai_bulk_set_draft_inbox_state_v051", {
+        p_draft_ids: ids,
+        p_state: state,
+        p_reason: state === "trash" ? "Bulk deleted from KeyAI Draft Review." : null
+      });
+      const result = Array.isArray(rows) ? rows[0] : rows;
+      selectedDraftIds.clear();
+      await loadDrafts();
+      render();
+      if (Number(result?.skipped_count || 0) > 0) {
+        alert(`${result.updated_count || 0} draft(s) updated. ${result.skipped_count} protected draft(s) were skipped.`);
+      }
+    } catch (error) { alert(error.message || error); }
+  }
+
+  async function cleanupOldDrafts() {
+    const raw = prompt("Move active, unimported and unapproved drafts older than how many days to Trash?\n\nEnter 0 to include all matching drafts.", "7");
+    if (raw === null) return;
+    const days = Number(raw);
+    if (!Number.isFinite(days) || days < 0) return alert("Enter a valid number of days, 0 or greater.");
+    if (!confirm(`Move matching drafts older than ${days} day${days === 1 ? "" : "s"} to Trash?\n\nApproved and imported drafts are protected.`)) return;
+    try {
+      const rows = await rpc("keyai_cleanup_unimported_drafts_v051", { p_older_than_days: Math.floor(days) });
+      const result = Array.isArray(rows) ? rows[0] : rows;
+      selectedDraftIds.clear();
+      await loadDrafts();
+      render();
+      alert(`${result?.updated_count || 0} old unimported draft(s) moved to Trash.`);
+    } catch (error) { alert(error.message || error); }
   }
 
   async function assignCustomer(draftId, card) {
@@ -327,7 +441,7 @@
       id: item.id || uuid(), model: String(index === 0 ? (review.model || item.model || "KEYAI - SELECT MODEL") : item.model || ""),
       description: String(index === 0 ? (review.description || item.description || "") : item.description || ""),
       qty: Math.max(0.01, Number(index === 0 ? (review.quantity || item.qty || 1) : item.qty || 1)), unit: String(item.unit || "unit").toLowerCase() === "set" ? "set" : "unit",
-      unitPrice: 0, pricingSource: { ...(item.pricingSource || {}), source: "keyai-v0.5", product_id: review.product_id || item.product_id || null, note: "Apply existing KeySuite pricing during review." },
+      unitPrice: 0, pricingSource: { ...(item.pricingSource || {}), source: "keyai-v0.5.1", product_id: review.product_id || item.product_id || null, note: "Apply existing KeySuite pricing during review." },
       pumpData: item.pumpData || null, remark: "Imported from approved KeyAI draft; review pricing before sealing.",
     }));
     if (!items.length) throw new Error("The KeyAI draft contains no quotation items.");
