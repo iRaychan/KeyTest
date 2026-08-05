@@ -1,0 +1,14 @@
+KeySuite V2.36 — Flexible Coupling State + Secure Quotation History
+
+Base: V2.35
+
+- Separates Coupling Selected Type from the resolved Pin & Bush/Tyre result.
+- Flexible remains selected while the higher-priced suitable coupling supplies the model and price.
+- Keeps Selected Type and Delete interactive when Flexible resolves to Tyre.
+- Prevents bush information from overlapping the Coupling controls.
+- Persists Motor, Coupling and nested Pumpset data in Supabase Assembly records.
+- Carries the resolved Coupling snapshot when a Pumpset is transferred to System.
+- Adds Quotation History filters for Year, Month and Customer.
+- Adds a User filter for roles with all/full quotation-history access.
+- Enforces own-quotation access for non-management users in Supabase RPCs.
+- Adds secure quotation save, list and delete storage with local-data import.

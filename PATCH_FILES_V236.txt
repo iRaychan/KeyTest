@@ -1,0 +1,18 @@
+KeySuite V2.35 -> V2.36 changed/new files
+
+INSTALL_V236.txt
+PATCH_FILES_V236.txt
+README.md
+SHA256SUMS_V236.txt
+SHA256SUMS_V236_FULL.txt
+V236_CHANGES.txt
+V236_QA_REPORT.txt
+V236_SUPABASE_MIGRATION.sql
+VERSION.txt
+app.js
+assembly.js
+auth.js
+coupling.js
+index.html
+manifest.json
+sw.js

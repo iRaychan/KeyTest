@@ -151,7 +151,7 @@
     }else config=recommendForContext(selectionMode,c);
     const manualRequested=selectionMode!=='flexible'&&(!!values.model||!!current.manualModel&&!modeChanged);
     if(!config||reasons.length&&!manualRequested){return {error:reasons[0]||'No suitable Coupling model is available. See the Reason column for details.',reasons,config:null,item}}
-    config={...config,selectionMode,resolvedType:config.type,contextKey:key,autoSelected:manualRequested?false:current.autoSelected!==false,manualModel:manualRequested||!!config.manualModel,validationReasons:reasons};
+    const resolvedType=normalizeType(config.resolvedType||config.type);config={...config,type:resolvedType,selectionMode,resolvedType,contextKey:key,autoSelected:manualRequested?false:current.autoSelected!==false,manualModel:manualRequested||!!config.manualModel,validationReasons:reasons};
     item.model=config.model;item.bomDescription=config.model;item.description=assemblyDescription(selectionMode);item.couplingData=config;item.qty=Math.max(1,number(c.couplingQty||item.qty||1));
     const found=findConfiguredPrice(config,{pricingMode:'assembly'});if(found){item.unitPrice=number(found.calc.finalPrice);item.pricingSource=snapshot(found)}else{item.unitPrice=0;item.pricingSource={product_family:'COUPLING',configuration:{...config},pricing_mode:'assembly'}}
     return {config,found,item};

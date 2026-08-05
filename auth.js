@@ -159,6 +159,8 @@
       window.KeySuitePricing?.init(data,access);window.KeySuiteCategories?.init(data,access);window.KeySuiteCompanySettings?.init(data,access);window.KeySuitePriceList?.init(data,access);window.KeySuiteManifold?.init(data,access);window.KeySuiteMotor?.init(data,access);window.KeySuiteCoupling?.init(data,access);window.KeySuiteRoles?.init(access);await window.KeySuiteTemplates?.init?.(access);await window.KeySuiteQuotationReferences?.init?.(profile);window.KeySuiteApp?.refreshNewQuotationReference?.();unlockSelector();
       showLoading('Loading your customer access…');
       try{await window.KeySuiteCustomerStore?.load?.()}catch(error){console.warn('Customer load warning',error)}
+      showLoading('Loading secure quotation history…');
+      try{await window.KeySuiteQuotationStore?.load?.()}catch(error){console.warn('Quotation history load warning',error)}
       refreshAll();setView('app');
       if(inviteFlowPending)setTimeout(openInvitePassword,250);
     }catch(error){console.error(error);try{await client.auth.signOut({scope:'local'})}catch(_){ }showLogin(`Secure data could not be loaded: ${error.message}`)}

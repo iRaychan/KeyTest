@@ -1,0 +1,31 @@
+KeySuite V2.36 QA Report
+Date: 2026-08-06
+Base: KeySuite V2.35
+Delivery: Full GitHub source and V2.35 -> V2.36 update patch
+
+FEATURES VERIFIED
+- Flexible remains the user's Selected Type when the higher-priced resolved coupling is Tyre.
+- Flexible can be changed to Pin & Bush or Tyre after Pump and Motor are selected.
+- Explicit Pin & Bush and Tyre model controls remain enabled.
+- Coupling Delete remains available; Restore Coupling recreates the coupling.
+- Flexible-resolved coupling model, price and typed data transfer into the System Pumpset BOM.
+- Bush detail text no longer overlays or intercepts Coupling input controls.
+- Quotation History supports Year, Month and Customer filters.
+- Owner/management access shows and applies the User filter.
+- Dealer/user access hides the User filter and displays only that user's quotation records.
+- Secure quotation save/list/delete RPC definitions and full Pumpset component persistence are included in the migration.
+
+AUTOMATED CHECKS
+PASS - JavaScript syntax check for every root JavaScript file.
+PASS - Browser interaction: Flexible -> Pin & Bush -> Tyre, model editability, Delete and Restore.
+PASS - Browser transfer: Flexible selected / Tyre resolved snapshot retained in Pumpset -> System transfer.
+PASS - Browser history: management filters and own-user visibility rules.
+PASS - V2.35 fresh-overlay comparison against the V2.36 working source.
+PASS - ZIP integrity and SHA-256 checksum validation.
+
+DATABASE NOTE
+- V236_SUPABASE_MIGRATION.sql was statically reviewed and packaged.
+- The migration was not executed against the user's live Supabase project in this environment.
+
+KEYAI NOTE
+- The paused KeyAI merge is not included. This build follows the user's instruction to continue from V2.35 only.

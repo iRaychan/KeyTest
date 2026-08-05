@@ -255,7 +255,7 @@
 
     /* V2.30 capacity rows, suggestion lists and aligned Assembly BOM controls */
     .quote-capacity-row,.assembly-capacity-row{display:grid;grid-template-columns:minmax(150px,.65fr) minmax(230px,1fr) 24px minmax(230px,1fr);gap:10px;align-items:end;margin-top:12px;padding:10px 12px;border:1px solid #dbe3ec;border-radius:9px;background:#f8fafc}.quote-capacity-toggle,.assembly-capacity-toggle{display:flex;align-items:center;gap:8px;min-height:42px;margin:0;font-weight:800}.quote-capacity-toggle input,.assembly-capacity-toggle input{width:auto}.capacity-input-pair{display:grid;grid-template-columns:minmax(90px,1fr) minmax(86px,.65fr);gap:7px}.capacity-input-pair input,.capacity-input-pair select{width:100%;height:42px}.capacity-at{height:42px;display:flex;align-items:center;justify-content:center;font-weight:900}.capacity-disabled{opacity:.68}.quote-capacity-row.capacity-disabled input:not([type=checkbox]),.quote-capacity-row.capacity-disabled select,.assembly-capacity-row.capacity-disabled input:not([type=checkbox]),.assembly-capacity-row.capacity-disabled select{background:#e2e8f0}
-    .assembly-capacity-row{margin:0 0 14px}.assembly-item{grid-template-columns:minmax(430px,1.45fr) 92px 132px 132px auto;align-items:start}.assembly-component-main>b{display:inline-block;min-height:20px}.assembly-item>div:nth-child(2),.assembly-item>div:nth-child(3),.assembly-item>div:nth-child(4){display:grid;grid-template-rows:18px 42px;gap:4px}.assembly-item>div:nth-child(2)>label,.assembly-item>div:nth-child(3)>label,.assembly-item>div:nth-child(4)>label{margin:0;line-height:18px;white-space:nowrap}.assembly-item>div:nth-child(2)>input,.assembly-item>div:nth-child(3)>input{height:42px;width:100%}.assembly-line-total{height:42px;display:flex;align-items:center;white-space:nowrap}.assembly-delete{margin-top:22px}.assembly-component-options,.assembly-keyplc-options,.assembly-motor-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin-top:8px}.assembly-component-options .assembly-item-option,.assembly-keyplc-options .assembly-item-option,.assembly-motor-options .assembly-item-option{display:grid;grid-template-rows:18px 38px;gap:4px;margin:0;min-width:0}.assembly-component-options .assembly-item-option label,.assembly-keyplc-options .assembly-item-option label,.assembly-motor-options .assembly-item-option label{margin:0;line-height:18px;white-space:nowrap;font-size:11px}.assembly-component-options .assembly-item-option select,.assembly-keyplc-options .assembly-item-option select,.assembly-motor-options .assembly-item-option select{width:100%;min-width:0;height:38px;padding:6px 8px}.assembly-coupling-bush-summary{grid-column:1/-1}.assembly-description-preview mark{padding:0 2px;border-radius:3px}
+    .assembly-capacity-row{margin:0 0 14px}.assembly-item{grid-template-columns:minmax(430px,1.45fr) 92px 132px 132px auto;align-items:start}.assembly-component-main>b{display:inline-block;min-height:20px}.assembly-item>div:nth-child(2),.assembly-item>div:nth-child(3),.assembly-item>div:nth-child(4){display:grid;grid-template-rows:18px 42px;gap:4px}.assembly-item>div:nth-child(2)>label,.assembly-item>div:nth-child(3)>label,.assembly-item>div:nth-child(4)>label{margin:0;line-height:18px;white-space:nowrap}.assembly-item>div:nth-child(2)>input,.assembly-item>div:nth-child(3)>input{height:42px;width:100%}.assembly-line-total{height:42px;display:flex;align-items:center;white-space:nowrap}.assembly-delete{margin-top:22px}.assembly-component-options,.assembly-keyplc-options,.assembly-motor-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin-top:8px}.assembly-component-options .assembly-item-option,.assembly-keyplc-options .assembly-item-option,.assembly-motor-options .assembly-item-option{display:grid;grid-template-rows:18px 38px;gap:4px;margin:0;min-width:0}.assembly-component-options .assembly-item-option label,.assembly-keyplc-options .assembly-item-option label,.assembly-motor-options .assembly-item-option label{margin:0;line-height:18px;white-space:nowrap;font-size:11px}.assembly-component-options .assembly-item-option select,.assembly-keyplc-options .assembly-item-option select,.assembly-motor-options .assembly-item-option select{width:100%;min-width:0;height:38px;padding:6px 8px}.assembly-coupling-bush-summary{grid-column:1/-1;position:relative;z-index:1;pointer-events:none;clear:both;padding-top:6px}.assembly-coupling-options{position:relative;z-index:2}.assembly-coupling-options select{position:relative;z-index:3;pointer-events:auto}.assembly-coupling-resolved-model,.assembly-coupling-resolved-arrangement{width:100%;min-width:0;height:42px!important;background:rgba(255,255,255,.72);font-weight:700}.assembly-coupling-resolved-note{margin:7px 0 0;padding:7px 9px;border-radius:7px;background:rgba(255,255,255,.55);font-size:11px;color:#31412a}.assembly-description-preview mark{padding:0 2px;border-radius:3px}
     @media(max-width:1100px){.assembly-item{grid-template-columns:minmax(300px,1fr) 80px 110px 110px auto}.quote-capacity-row,.assembly-capacity-row{grid-template-columns:1fr 1fr}.capacity-at{display:none}}
     @media(max-width:720px){.quote-capacity-row,.assembly-capacity-row{grid-template-columns:1fr}.assembly-item{grid-template-columns:1fr}.assembly-item>div:nth-child(2),.assembly-item>div:nth-child(3),.assembly-item>div:nth-child(4){grid-template-columns:110px 1fr;grid-template-rows:42px;align-items:center}.assembly-delete{margin-top:0}.capacity-at{display:none}}
 
@@ -271,7 +271,7 @@
     .quote-shaft-row>div input,.quote-shaft-row>div select{height:42px;width:100%}.quote-shaft-row .item-display-shaft{width:13px!important;height:13px!important;min-width:13px!important;flex:0 0 13px;padding:0!important;margin:0!important}
     .assembly-item.assembly-item-pump,.assembly-item.assembly-item-pump.auto-generated{background:#E2EFDA!important}.assembly-item.assembly-item-motor,.assembly-item.assembly-item-motor.auto-generated{background:#C6E0B4!important}.assembly-item.assembly-item-coupling,.assembly-item.assembly-item-coupling.auto-generated{background:#A9D08E!important}.assembly-item.assembly-item-baseplate,.assembly-item.assembly-item-baseplate.auto-generated{background:#76B54B!important}
     .assembly-section-pump>.assembly-section-head{background:#E2EFDA}.assembly-section-motor>.assembly-section-head{background:#C6E0B4}.assembly-section-coupling>.assembly-section-head{background:#A9D08E}.assembly-section-baseplate>.assembly-section-head{background:#76B54B}.assembly-section-pump>.assembly-section-head,.assembly-section-motor>.assembly-section-head,.assembly-section-coupling>.assembly-section-head,.assembly-section-baseplate>.assembly-section-head{border-radius:9px 9px 0 0;padding:9px 12px}
-    .assembly-component-detail-row .assembly-component-options .assembly-item-option,.assembly-component-detail-row .assembly-keyplc-options .assembly-item-option,.assembly-component-detail-row .assembly-motor-options .assembly-item-option{grid-template-rows:18px 42px}.assembly-component-detail-row select,.assembly-component-detail-row input{height:42px!important;box-sizing:border-box}.assembly-bom-main-row input,.assembly-bom-main-row .assembly-line-total,.assembly-bom-main-row .assembly-delete{height:42px;box-sizing:border-box}
+    .assembly-component-detail-row .assembly-component-options .assembly-item-option,.assembly-component-detail-row .assembly-keyplc-options .assembly-item-option,.assembly-component-detail-row .assembly-motor-options .assembly-item-option{grid-template-rows:18px 42px}.assembly-component-detail-row select,.assembly-component-detail-row input{height:42px!important;box-sizing:border-box}.assembly-bom-main-row input,.assembly-bom-main-row .assembly-line-total,.assembly-bom-main-row .assembly-delete{height:42px;box-sizing:border-box}.quotation-history-filter-card{margin-bottom:14px}.quotation-history-filters{display:grid;grid-template-columns:150px 170px minmax(240px,1fr) minmax(220px,1fr);gap:12px;align-items:end}.quotation-history-filters>div{display:grid;gap:5px}.quotation-history-filters label{margin:0;font-size:12px;font-weight:800}.quotation-history-filters input,.quotation-history-filters select{height:42px}.history-customer-filter{min-width:220px}@media(max-width:900px){.quotation-history-filters{grid-template-columns:repeat(2,minmax(160px,1fr))}}@media(max-width:560px){.quotation-history-filters{grid-template-columns:1fr}}
     .coupling-top-action-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}.coupling-top-action-row .coupling-method-row{display:flex;gap:8px;margin:0}.coupling-top-model{font-size:18px;font-weight:900;color:var(--navy);min-width:100px;padding:7px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;text-align:center}.coupling-top-action-row .actions{margin:0 0 0 auto}.coupling-selection-badge{display:none!important}
     @media(max-width:720px){.coupling-top-action-row .actions{margin-left:0;width:100%;justify-content:flex-start}.coupling-top-model{order:2}.coupling-top-action-row .actions{order:3}}
 
@@ -1097,8 +1097,15 @@
     </section>
 
     <section id="history" class="page">
-      <h1>Quotation History</h1>
-      <div class="card"><div class="table-wrap"><table><thead><tr><th>No.</th><th>Date</th><th>Type</th><th>Customer</th><th>Items</th><th>Total</th><th></th></tr></thead><tbody id="quoteRows"></tbody></table></div></div>
+      <div class="page-title-row"><div><h1>Quotation History</h1><div class="muted">Filter secure quotation records by date, customer and—where authorised—creator.</div></div><button id="clearHistoryFilters" class="btn secondary" type="button">Clear Filters</button></div>
+      <div id="quotationHistoryNotice" class="auth-message"></div>
+      <div class="card quotation-history-filter-card"><div class="quotation-history-filters">
+        <div><label>Year</label><select id="historyYear"><option value="">All Years</option></select></div>
+        <div><label>Month</label><select id="historyMonth"><option value="">All Months</option><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select></div>
+        <div class="history-customer-filter"><label>Customer Name</label><input id="historyCustomer" type="search" placeholder="Search customer name"></div>
+        <div id="historyUserWrap"><label>User</label><select id="historyUser"><option value="">All Users</option></select></div>
+      </div></div>
+      <div class="card"><div class="table-wrap"><table><thead><tr><th>No.</th><th>Date</th><th>Type</th><th>Customer</th><th id="historyUserHead">User</th><th>Items</th><th>Total</th><th></th></tr></thead><tbody id="quoteRows"></tbody></table></div></div>
     </section>
   </main>
 </div>
@@ -1253,19 +1260,19 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=216"></script>
-<script src="applications.js?v=235"></script>
-<script src="app.js?v=235"></script>
-<script src="pricing.js?v=235"></script>
-<script src="quotation-references.js?v=235"></script>
-<script src="categories.js?v=235"></script>
-<script src="pricelist.js?v=235"></script>
-<script src="product.js?v=235"></script>
-<script src="manifold.js?v=235"></script>
-<script src="roles.js?v=235"></script>
-<script src="assembly.js?v=235"></script>
-<script src="motor.js?v=235"></script>
-<script src="coupling.js?v=235"></script>
-<script src="quotation-templates.js?v=235"></script>
+<script src="applications.js?v=234"></script>
+<script src="app.js?v=236"></script>
+<script src="pricing.js?v=234"></script>
+<script src="quotation-references.js?v=234"></script>
+<script src="categories.js?v=234"></script>
+<script src="pricelist.js?v=234"></script>
+<script src="product.js?v=234"></script>
+<script src="manifold.js?v=234"></script>
+<script src="roles.js?v=234"></script>
+<script src="assembly.js?v=236"></script>
+<script src="motor.js?v=234"></script>
+<script src="coupling.js?v=236"></script>
+<script src="quotation-templates.js?v=234"></script>
 
 <dialog id="quotationTemplateDialog" class="ks-dialog template-dialog">
   <div class="dialog-body">
@@ -1317,7 +1324,7 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="company-settings.js?v=235"></script>
-<script src="auth.js?v=235"></script>
+<script src="company-settings.js?v=234"></script>
+<script src="auth.js?v=236"></script>
 </body>
 </html>

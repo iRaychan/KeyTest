@@ -1,0 +1,8 @@
+KeySuite V2.36 installation
+
+1. Back up the live KeySuite source and Supabase database.
+2. Run V236_SUPABASE_MIGRATION.sql in Supabase SQL Editor.
+3. Replace the files in the V2.36 update patch.
+4. Preserve the existing config.js.
+5. Deploy and press Ctrl+F5.
+6. Sign out and sign in again so secure quotation history loads.

@@ -20,6 +20,7 @@ let quotationStatus='new',quotationRevisionOf='',quotationRevisionRootId='',quot
 let lockedQuotePrefix='',quoteNumberSuffix='';
 let quotationSessionId=newUuid();
 let secureCustomers=[],customerSyncMode='local',customerSyncError='';
+let secureQuotes=null,quotationSyncMode='local',quotationSyncError='',quotationHistoryLoading=false;
 
 document.querySelectorAll('nav button[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
 document.querySelectorAll('[data-nav-toggle]').forEach(button=>button.addEventListener('click',()=>{const group=document.querySelector(`[data-nav-group="${button.dataset.navToggle}"]`);group?.classList.toggle('open')}));
@@ -69,7 +70,7 @@ function showPage(id){
 }
 
 function customers(){return customerSyncMode==='supabase'?secureCustomers:store.get('ks_customers',[])}
-function quotes(){return store.get('ks_quotes',[])}
+function quotes(){return Array.isArray(secureQuotes)?secureQuotes:store.get('ks_quotes',[])}
 function activeCustomerId(){return localStorage.getItem('ks_active_customer')||''}
 function activeCustomer(){return customers().find(c=>c.id===activeCustomerId())}
 function customerName(id){return customers().find(c=>c.id===id)?.company||''}
@@ -126,6 +127,50 @@ function currentEmail(){return String(currentProfile().email||currentAccess().em
 function currentRole(){return String(currentAccess().role||'user').toLowerCase()}
 function isCustomerAdmin(){return ['all','full'].includes(permissionLevel('edit_customers'))||hasPermission('customer_assignment')}
 function customerOwnerName(email){const e=String(email||'').toLowerCase();const user=(window.KEYSUITE_SECURE_DATA?.users||[]).find(x=>String(x.email||'').toLowerCase()===e);return user?.name||((e===currentEmail())?currentProfile().display_name:'')||email||'-'}
+function canManageQuotationHistory(){return ['all','full'].includes(permissionLevel('view_quotations'))}
+function quoteCreatorEmail(q={}){return String(q.createdByEmail||q.created_by_email||q.createdBy||q.preparedByEmail||'').trim().toLowerCase()}
+function quoteCreatorName(q={}){return String(q.createdByName||q.created_by_name||customerOwnerName(quoteCreatorEmail(q))||quoteCreatorEmail(q)||'-')}
+function normalizeRemoteQuote(row={}){
+ let payload=row.quote_data||row.quoteData||{};if(typeof payload==='string'){try{payload=JSON.parse(payload)}catch(_){payload={}}}
+ return {...payload,id:row.id||payload.id,no:row.quotation_no||payload.no||'',date:row.quotation_date||payload.date||'',documentType:row.document_type||payload.documentType||'Quotation',customerId:row.customer_id||payload.customerId||'',printedCompany:payload.printedCompany||row.customer_name||'',total:Number(row.total??payload.total??0),status:row.status||payload.status||'saved',createdByEmail:String(row.created_by_email||payload.createdByEmail||'').toLowerCase(),createdByName:row.created_by_name||payload.createdByName||'',updatedByEmail:String(row.updated_by_email||payload.updatedByEmail||'').toLowerCase(),createdAt:row.created_at||payload.createdAt||'',updatedAt:row.updated_at||payload.updatedAt||''}
+}
+function quotationClient(){return window.KeySuiteAuth?.getClient?.()||null}
+function remoteQuotePayload(q={}){
+ const creator=quoteCreatorEmail(q)||currentEmail(),creatorName=q.createdByName||customerOwnerName(creator)||currentProfile().display_name||creator;
+ return {...q,createdByEmail:creator,createdByName:creatorName,updatedByEmail:currentEmail(),updatedAt:new Date().toISOString()}
+}
+function cacheSecureQuotes(rows){secureQuotes=(rows||[]).map(row=>normalizeRemoteQuote(row)).sort((a,b)=>String(b.updatedAt||b.date||'').localeCompare(String(a.updatedAt||a.date||'')));store.set('ks_quotes_backup_v236',secureQuotes);return secureQuotes}
+async function saveQuoteRemote(q,{quiet=false}={}){
+ const client=quotationClient();if(!client||quotationSyncMode!=='supabase')return q;
+ const payload=remoteQuotePayload(q),result=await client.rpc('keysuite_save_quotation_v236',{p_quotation:payload});if(result.error)throw result.error;
+ const saved=normalizeRemoteQuote(Array.isArray(result.data)?result.data[0]:result.data||payload),rows=quotes().slice(),index=rows.findIndex(item=>String(item.id)===String(saved.id));if(index>=0)rows[index]=saved;else rows.unshift(saved);cacheSecureQuotes(rows);refreshQuotes();return saved
+}
+async function deleteQuoteRemote(id){
+ const client=quotationClient();if(!client||quotationSyncMode!=='supabase')return;
+ const result=await client.rpc('keysuite_delete_quotation_v236',{p_id:id});if(result.error)throw result.error;cacheSecureQuotes(quotes().filter(q=>String(q.id)!==String(id)))
+}
+async function importLocalQuotes(client,remoteRows){
+ const local=store.get('ks_quotes',[]),known=new Set((remoteRows||[]).map(row=>String(row.id)));for(const quote of local){if(!quote?.id||known.has(String(quote.id)))continue;const payload=remoteQuotePayload({...quote,createdByEmail:quoteCreatorEmail(quote)||currentEmail(),createdByName:quote.createdByName||currentProfile().display_name||currentEmail()});const result=await client.rpc('keysuite_save_quotation_v236',{p_quotation:payload});if(result.error){console.warn('Local quotation could not be imported',quote.no,result.error);continue}known.add(String(quote.id))}
+}
+async function loadSecureQuotes(){
+ const client=quotationClient();quotationHistoryLoading=true;renderQuotationHistoryNotice();
+ if(!client){quotationSyncMode='local';quotationSyncError='Secure quotation connection is unavailable.';secureQuotes=[];quotationHistoryLoading=false;renderQuotationHistoryNotice();refreshQuotes();return secureQuotes}
+ try{
+  const result=await client.rpc('keysuite_list_quotations_v236',{p_year:null,p_month:null,p_customer:null,p_user_email:null});if(result.error)throw result.error;
+  await importLocalQuotes(client,result.data||[]);const refreshed=await client.rpc('keysuite_list_quotations_v236',{p_year:null,p_month:null,p_customer:null,p_user_email:null});if(refreshed.error)throw refreshed.error;
+  quotationSyncMode='supabase';quotationSyncError='';cacheSecureQuotes(refreshed.data||[]);quotationHistoryLoading=false;renderQuotationHistoryNotice();refreshQuotes();return secureQuotes
+ }catch(error){console.error('Secure quotations unavailable',error);quotationSyncMode='error';quotationSyncError=String(error?.message||error);secureQuotes=[];quotationHistoryLoading=false;renderQuotationHistoryNotice();refreshQuotes();return secureQuotes}
+}
+function renderQuotationHistoryNotice(){const node=$('quotationHistoryNotice');if(!node)return;if(quotationHistoryLoading){node.textContent='Loading secure quotation history…';node.className='auth-message show info';return}if(quotationSyncError){node.textContent=`Quotation history could not be loaded securely: ${quotationSyncError}`;node.className='auth-message show';return}node.textContent='';node.className='auth-message'}
+function quotationHistoryFilters(){return {year:$('historyYear')?.value||'',month:$('historyMonth')?.value||'',customer:String($('historyCustomer')?.value||'').trim().toLowerCase(),user:canManageQuotationHistory()?String($('historyUser')?.value||'').trim().toLowerCase():currentEmail()}}
+function filteredQuotes(rows=quotes()){
+ const filter=quotationHistoryFilters();return rows.filter(q=>{const date=String(q.date||''),year=date.slice(0,4),month=date.slice(5,7),customer=quoteDisplayCustomerName(q).toLowerCase(),creator=quoteCreatorEmail(q);return (!filter.year||year===filter.year)&&(!filter.month||month===filter.month)&&(!filter.customer||customer.includes(filter.customer))&&(!filter.user||creator===filter.user)})
+}
+function populateQuotationHistoryFilters(rows=quotes()){
+ const year=$('historyYear'),month=$('historyMonth'),user=$('historyUser'),userWrap=$('historyUserWrap');if(!year||!month)return;
+ const selectedYear=year.value,years=[...new Set(rows.map(q=>String(q.date||'').slice(0,4)).filter(v=>/^\d{4}$/.test(v)))].sort((a,b)=>b.localeCompare(a));year.innerHTML='<option value="">All Years</option>'+years.map(value=>`<option value="${esc(value)}">${esc(value)}</option>`).join('');year.value=years.includes(selectedYear)?selectedYear:'';
+ if(userWrap)userWrap.style.display=canManageQuotationHistory()?'grid':'none';if(user&&canManageQuotationHistory()){const selected=user.value,directory=new Map((window.KEYSUITE_SECURE_DATA?.users||[]).map(row=>[String(row.email||'').toLowerCase(),row.name||row.email]));rows.forEach(q=>{const email=quoteCreatorEmail(q);if(email&&!directory.has(email))directory.set(email,quoteCreatorName(q))});user.innerHTML='<option value="">All Users</option>'+[...directory.entries()].sort((a,b)=>String(a[1]).localeCompare(String(b[1]))).map(([email,name])=>`<option value="${esc(email)}">${esc(name)}${name!==email?` · ${esc(email)}`:''}</option>`).join('');user.value=directory.has(selected)?selected:''}
+}
 function normalizeCustomerRecord(row){
  let contacts=row.contacts||[];if(typeof contacts==='string'){try{contacts=JSON.parse(contacts)}catch(_){contacts=[]}}
  return {id:row.id,companyId:row.company_id,company:row.company_name||'',classification:row.classification||'Other',pricingCategoryId:row.pricing_category_id||'',defaultQuotationTemplateId:row.default_quotation_template_id||'',assignedUserEmail:row.assigned_user_email||'',createdByEmail:row.created_by_email||'',distanceKm:Number(row.distance_km||0),companyPhone:row.company_phone||'',address:row.address||'',terms:row.payment_terms||'',tinNumber:row.tin_number||'',brnNumber:row.business_registration_no||'',sstNumber:row.sst_number||'',msicCode:row.msic_code||'',businessActivity:row.business_activity||'',notes:row.notes||'',contacts:Array.isArray(contacts)?contacts:[],status:row.status||'active',createdAt:row.created_at||'',updatedAt:row.updated_at||''}
@@ -342,7 +387,7 @@ function quoteAudit(action,extra={}){return [...(quotationAudit||[]),{action,at:
 function ensureSealedForPdf(){if(!isQuotationSealed()){alert('PDF output is available only after the quotation is Sealed.');return false}return true}
 function persistQuoteStatus(status,action){
  const arr=quotes(),i=arr.findIndex(q=>q.id===editingQuoteId);if(i<0)return false;
- quotationStatus=status;quotationAudit=quoteAudit(action,{from:arr[i].status||'saved',to:status});arr[i]={...arr[i],status,audit:quotationAudit,sealedAt:status==='sealed'?new Date().toISOString():'',sealedBy:status==='sealed'?currentEmail():''};store.set('ks_quotes',arr);refreshAll();updateQuotationStateUi();return true;
+ quotationStatus=status;quotationAudit=quoteAudit(action,{from:arr[i].status||'saved',to:status});arr[i]={...arr[i],status,audit:quotationAudit,sealedAt:status==='sealed'?new Date().toISOString():'',sealedBy:status==='sealed'?currentEmail():'',updatedByEmail:currentEmail(),updatedAt:new Date().toISOString()};if(Array.isArray(secureQuotes))cacheSecureQuotes(arr);else store.set('ks_quotes',arr);saveQuoteRemote(arr[i],{quiet:true}).catch(error=>console.error('Quotation status sync failed',error));refreshAll();updateQuotationStateUi();return true;
 }
 function sealQuotation(){
  if(!editingQuoteId){alert('Save the quotation before sealing it.');return}
@@ -364,7 +409,7 @@ function reviseQuotation(){
  const original=currentQuote();if(!original||!isQuotationSealed())return;
  const rootId=original.revisionRootId||original.revisionOf||original.id,number=nextRevisionNumber(rootId),baseNo=String(original.no||'').replace(/-v\d+$/i,'');
  const copy={...JSON.parse(JSON.stringify(original)),id:newUuid(),no:`${baseNo}-v${String(number).padStart(2,'0')}`,status:'saved',revisionOf:original.id,revisionRootId:rootId,revisionNumber:number,revisionDate:new Date().toISOString().slice(0,10),showRevision:true,sealedAt:'',sealedBy:'',audit:[{action:'revision_created',at:new Date().toISOString(),by:currentEmail(),fromQuotation:original.no}]};
- const arr=quotes();arr.unshift(copy);store.set('ks_quotes',arr);loadQuote(copy.id);alert(`Revision v${String(number).padStart(2,'0')} created. Customer and original Date are locked; Revision Date may be changed.`);
+ copy.createdByEmail=currentEmail();copy.createdByName=currentProfile().display_name||currentEmail();copy.updatedByEmail=currentEmail();copy.createdAt=new Date().toISOString();copy.updatedAt=copy.createdAt;const arr=quotes().slice();arr.unshift(copy);if(Array.isArray(secureQuotes))cacheSecureQuotes(arr);else store.set('ks_quotes',arr);saveQuoteRemote(copy).catch(error=>console.error('Revision sync failed',error));loadQuote(copy.id);alert(`Revision v${String(number).padStart(2,'0')} created. Customer and original Date are locked; Revision Date may be changed.`);
 }
 function formatPhoneInputs(){
  document.querySelectorAll('.contact-phone,#companyPhone').forEach(input=>{
@@ -700,9 +745,10 @@ function saveQuote(options={}){
   revisionOf:quotationRevisionOf||existing?.revisionOf||'',revisionRootId:quotationRevisionRootId||existing?.revisionRootId||'',revisionNumber:Number(quotationRevisionNumber||existing?.revisionNumber||0),audit:quotationAudit||existing?.audit||[],
   quotationTemplateId:window.KeySuiteTemplates?.getSelectedId?.()||existing?.quotationTemplateId||'',quotationTemplateSnapshot:window.KeySuiteTemplates?.getSelectedSnapshot?.()||existing?.quotationTemplateSnapshot||null,
   assemblySessionId:quotationSessionId,preparedBy:$('preparedBy').value,preparedByDesignation:$('preparedByDesignation').value,signatoryName:window.ksSignatoryName||currentProfile().signatory_name||'',signatureImage:window.ksSignatureImage||currentProfile().signature_image||'',items,
-  project:$('project').value,project2:$('project2').value,customerReference:$('customerReference').value,delivery:$('delivery').value,delivery2:$('delivery2').value,validity:$('validity').value,priceBasis:$('priceBasis').value,payment:$('payment').value,remarks:$('remarks').value,total:calcTotal()
+  project:$('project').value,project2:$('project2').value,customerReference:$('customerReference').value,delivery:$('delivery').value,delivery2:$('delivery2').value,validity:$('validity').value,priceBasis:$('priceBasis').value,payment:$('payment').value,remarks:$('remarks').value,total:calcTotal(),
+  createdByEmail:existing?.createdByEmail||currentEmail(),createdByName:existing?.createdByName||currentProfile().display_name||currentEmail(),updatedByEmail:currentEmail(),createdAt:existing?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()
  };
- let arr=quotes(),i=arr.findIndex(x=>x.id===q.id);if(i>=0)arr[i]=q;else arr.unshift(q);store.set('ks_quotes',arr);window.KeySuiteQuotationReferences?.registerUsed?.(quotationNo).catch(error=>console.warn('Quotation running number could not be synchronized.',error));editingQuoteId=q.id;quotationStatus=q.status||'saved';quotationPricingCustomerId=q.pricingCustomerId;quotationPricingCustomerSnapshot=customerSnapshot(q.pricingCustomerSnapshot);setQuoteNoValue(q.no);refreshAll();updateQuotationStateUi();if(!options.silent)alert(`${q.documentType} saved.`);return true
+ let arr=quotes().slice(),i=arr.findIndex(x=>x.id===q.id);if(i>=0)arr[i]=q;else arr.unshift(q);if(Array.isArray(secureQuotes))cacheSecureQuotes(arr);else store.set('ks_quotes',arr);saveQuoteRemote(q).catch(error=>{console.error(error);quotationSyncError=String(error?.message||error);renderQuotationHistoryNotice();if(!options.silent)alert(`Quotation was saved on this device, but secure history sync failed: ${error.message||error}`)});window.KeySuiteQuotationReferences?.registerUsed?.(quotationNo).catch(error=>console.warn('Quotation running number could not be synchronized.',error));editingQuoteId=q.id;quotationStatus=q.status||'saved';quotationPricingCustomerId=q.pricingCustomerId;quotationPricingCustomerSnapshot=customerSnapshot(q.pricingCustomerSnapshot);setQuoteNoValue(q.no);refreshAll();updateQuotationStateUi();if(!options.silent)alert(`${q.documentType} saved.`);return true
 }
 function loadQuote(id){
  const q=quotes().find(x=>x.id===id);if(!q)return;quotationSessionId=q.assemblySessionId||`quote:${id}`;window.KeySuiteAssembly?.resetForNewQuotation?.();editingQuoteId=id;quotationStatus=q.status||'saved';quotationRevisionOf=q.revisionOf||'';quotationRevisionRootId=q.revisionRootId||'';quotationRevisionNumber=Number(q.revisionNumber||0);quotationAudit=Array.isArray(q.audit)?q.audit:[];
@@ -719,7 +765,7 @@ function loadQuote(id){
  window.KeySuiteTemplates?.loadSelection?.(q.quotationTemplateId||'',q.quotationTemplateSnapshot||null,(q.status||'')==='sealed');
  const items=q.items?.length?q.items:[{model:q.model||'',qty:q.qty||1,unitPrice:q.unitPrice||0,description:q.description||''}];setQuoteItems(items);showPage('quotation');setQuoteCustomerCollapsed(true);window.KeySuitePricing?.selectCustomer?.(quotationPricingCustomerId,false);syncStartCustomer(quotationPricingCustomerId);updateQuotationStateUi()
 }
-function deleteQuote(id){if(confirm('Delete this quotation?')){store.set('ks_quotes',quotes().filter(x=>x.id!==id));refreshAll()}}
+function deleteQuote(id){if(!confirm('Delete this quotation?'))return;const next=quotes().filter(x=>String(x.id)!==String(id));if(Array.isArray(secureQuotes))cacheSecureQuotes(next);else store.set('ks_quotes',next);deleteQuoteRemote(id).catch(error=>{console.error(error);alert(`Quotation could not be deleted from secure history: ${error.message||error}`);loadSecureQuotes()});refreshAll()}
 function newQuote(){
  quotationSessionId=newUuid();window.KeySuiteAssembly?.resetForNewQuotation?.();window.KeySuiteTemplates?.resetSelection?.();
  editingQuoteId=null;quotationStatus='new';quotationRevisionOf='';quotationRevisionRootId='';quotationRevisionNumber=0;quotationAudit=[];quotationPricingCustomerId='';quotationPricingCustomerSnapshot=null;
@@ -730,11 +776,11 @@ function newQuote(){
 }
 function quoteDisplayCustomerName(q){return q.printedCompany||customerName(q.customerId)||q.pricingCustomerSnapshot?.company||customerName(q.pricingCustomerId)||''}
 function refreshQuotes(){
- const arr=quotes();
- $('quoteRows').innerHTML=arr.map(q=>{const itemCount=q.items?.length||1;return `<tr><td>${esc(q.no)}</td><td>${esc(q.date)}</td><td>${esc(q.documentType||'Quotation')}</td><td>${esc(quoteDisplayCustomerName(q))}</td><td>${itemCount}</td><td>${money(q.total)}</td><td><button class="btn secondary" data-open-q="${q.id}">Open</button> <button class="btn danger" data-del-q="${q.id}">Delete</button></td></tr>`}).join('')||'<tr><td colspan="7" class="muted">No quotations yet.</td></tr>';
+ const all=quotes();populateQuotationHistoryFilters(all);const arr=filteredQuotes(all),showUser=canManageQuotationHistory(),userHead=$('historyUserHead');if(userHead)userHead.style.display=showUser?'table-cell':'none';
+ $('quoteRows').innerHTML=arr.map(q=>{const itemCount=q.items?.length||1,userCell=showUser?`<td>${esc(quoteCreatorName(q))}</td>`:'';return `<tr><td>${esc(q.no)}</td><td>${esc(q.date)}</td><td>${esc(q.documentType||'Quotation')}</td><td>${esc(quoteDisplayCustomerName(q))}</td>${userCell}<td>${itemCount}</td><td>${money(q.total)}</td><td><button class="btn secondary" data-open-q="${q.id}">Open</button> <button class="btn danger" data-del-q="${q.id}">Delete</button></td></tr>`}).join('')||`<tr><td colspan="${showUser?8:7}" class="muted">No quotations match the selected filters.</td></tr>`;
  document.querySelectorAll('[data-open-q]').forEach(b=>b.onclick=()=>loadQuote(b.dataset.openQ));document.querySelectorAll('[data-del-q]').forEach(b=>b.onclick=()=>deleteQuote(b.dataset.delQ));
- $('recentQuotes').innerHTML=arr.slice(0,5).map(q=>{const first=q.items?.[0]?.model||q.model||'';return `<tr><td>${esc(q.no)}</td><td>${esc(quoteDisplayCustomerName(q))}</td><td>${esc(first)}</td><td>${money(q.total)}</td><td>${esc(q.documentType||'Quotation')}</td></tr>`}).join('')||'<tr><td colspan="5" class="muted">No quotations yet.</td></tr>';
- $('mCustomers').textContent=customers().length;$('mQuotes').textContent=arr.length;$('mValue').textContent=money(arr.reduce((sum,q)=>sum+q.total,0));$('mPending').textContent=arr.length;
+ $('recentQuotes').innerHTML=all.slice(0,5).map(q=>{const first=q.items?.[0]?.model||q.model||'';return `<tr><td>${esc(q.no)}</td><td>${esc(quoteDisplayCustomerName(q))}</td><td>${esc(first)}</td><td>${money(q.total)}</td><td>${esc(q.documentType||'Quotation')}</td></tr>`}).join('')||'<tr><td colspan="5" class="muted">No quotations yet.</td></tr>';
+ $('mCustomers').textContent=customers().length;$('mQuotes').textContent=all.length;$('mValue').textContent=money(all.reduce((sum,q)=>sum+q.total,0));$('mPending').textContent=all.length;renderQuotationHistoryNotice();
 }
 
 function updateConnectionAvailabilityFromSelection(selection){
@@ -1066,6 +1112,8 @@ $('cancelCustomerEdit').onclick=cancelCustomerEdit;
 $('deleteCustomerBtn').onclick=()=>deleteCustomer($('customerId').value);
 $('editDetailCustomer').onclick=()=>editCustomer(viewedCustomerId);
 $('customerSearch').addEventListener('input',refreshCustomerList);
+['historyYear','historyMonth','historyCustomer','historyUser'].forEach(id=>$(id)?.addEventListener(id==='historyCustomer'?'input':'change',refreshQuotes));
+$('clearHistoryFilters')?.addEventListener('click',()=>{['historyYear','historyMonth','historyCustomer','historyUser'].forEach(id=>{const node=$(id);if(node)node.value=''});refreshQuotes()});
 $('qCustomer').addEventListener('change',()=>{
  if(!canEditQuotation(true)){syncStartCustomer(quotationPricingCustomerId||'');return}
  if(quoteHasItems()){alert('Remove all quotation items before changing the customer.');$('qCustomer').value=quotationPricingCustomerId||'';syncStartCustomer(quotationPricingCustomerId||'');return}
@@ -1103,6 +1151,7 @@ $('saveNotes').onclick=()=>{localStorage.setItem('ks_notes',$('testingNotes').va
 $('testingNotes').value=localStorage.getItem('ks_notes')||'';
 
 window.KeySuiteCustomerStore={load:loadSecureCustomers,getMode:()=>customerSyncMode,getError:()=>customerSyncError};
+window.KeySuiteQuotationStore={load:loadSecureQuotes,getMode:()=>quotationSyncMode,getError:()=>quotationSyncError,save:saveQuoteRemote,remove:deleteQuoteRemote};
 window.KeySuiteApp={
  getSelectedCustomer(){return customers().find(x=>x.id===$('qCustomer')?.value)||null},
  getPricingCustomer(){return selectedQuotationCustomer()},
