@@ -1,0 +1,18 @@
+KeySuite V2.32 -> V2.33 changed files
+
+README.md
+VERSION.txt
+app.js
+assembly.js
+coupling.js
+index.html
+manifest.json
+pricelist.js
+pricing.js
+sw.js
+INSTALL_V233.txt
+V233_CHANGES.txt
+V233_NO_DATABASE_MIGRATION.txt
+V233_QA_REPORT.txt
+PATCH_FILES_V233.txt
+SHA256SUMS_V233.txt

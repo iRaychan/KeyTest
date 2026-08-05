@@ -6,6 +6,7 @@
   let bound=false;
   const unlockedMultipliers=new Set();
   const originalMultiplierValues=new Map();
+  const esMaterialSelections=new Map();
 
   const el=id=>document.getElementById(id);
   const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -20,7 +21,7 @@
   const validRarity=value=>['common','many','rare'].includes(String(value||'').toLowerCase())?String(value).toLowerCase():'common';
   const currentCurrency=prefix=>validCurrency(el(`${prefix}PriceCurrency`)?.value||localStorage.getItem(`ks_${prefix}_price_currency`)||'USD');
   const familyCode=prefix=>{const family=String(prefix||'chc').toUpperCase();return ['CHC','ES','GWS','KEYPLC'].includes(family)?family:'CHC'};
-  const ES_MATERIALS=['CI / SS / SS / MS','CI / CI / SS / MS','CI / SS / SS / GP','CI / CI / SS / GP','SS304','SS316'];
+  const ES_MATERIALS=['CI / SS / SS / MS','CI / SS / SS / GP','CI / CI / SS / MS','CI / CI / SS / GP','SS304','SS316'];
   const esPriceField=currency=>({USD:'priceUsd',RMB:'priceRmb',MYR:'priceMyr'})[validCurrency(currency)];
   const keyplcPriceField=esPriceField;
   const normMaterial=value=>String(value||'').toUpperCase().replace(/[^A-Z0-9]+/g,'');
@@ -169,16 +170,13 @@
     const currency=currentCurrency('es'),field=esPriceField(currency);
     const rows=esProducts().filter(x=>!q||String(x.model||'').toLowerCase().includes(q));
     body.innerHTML=rows.map(product=>{
-      const variants=product.variants||[];
-      const cells=ES_MATERIALS.map(material=>{
-        const variant=variants.find(v=>normMaterial(v.material)===normMaterial(material));
-        const value=variant?.[field];
-        return `<td><div class="currency-price-input"><span>${esc(currency)}</span><input type="number" min="0" step="0.01" value="${esc(value===null||value===''||!Number.isFinite(Number(value))?'':Number(value).toFixed(2))}" data-es-price="${esc(product.id)}" data-es-material="${esc(material)}" aria-label="${esc(product.model)} ${esc(material)} ${esc(currency)} price"></div></td>`;
-      }).join('');
-      return `<tr data-es-pricelist-row="${esc(product.id)}"><td><b>${esc(product.model)}</b></td><td><select data-es-rarity aria-label="${esc(product.model)} rarity">${rarityOptions(validRarity(product.rarity))}</select></td>${cells}<td class="pricelist-row-actions"><button class="btn icon-save-button" type="button" data-save-es-row="${esc(product.id)}" title="Save ${esc(product.model)}" aria-label="Save ${esc(product.model)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h12l2 2v14H5z"></path><path d="M8 4v6h8V4"></path><path d="M8 20v-6h8v6"></path></svg></button></td></tr>`;
-    }).join('')||'<tr><td colspan="9" class="muted">No matching ES models.</td></tr>';
+      const variants=product.variants||[],selected=esMaterialSelections.get(String(product.id))||ES_MATERIALS[0],variant=variants.find(v=>normMaterial(v.material)===normMaterial(selected)),value=variant?.[field];
+      const materialOptions=ES_MATERIALS.map(material=>`<option value="${esc(material)}" ${material===selected?'selected':''}>${esc(material)}</option>`).join('');
+      return `<tr data-es-pricelist-row="${esc(product.id)}"><td><b>${esc(product.model)}</b></td><td><select data-es-rarity aria-label="${esc(product.model)} rarity">${rarityOptions(validRarity(product.rarity))}</select></td><td><select class="es-material-select ${selected!==ES_MATERIALS[0]?'non-default-selection':''}" data-es-material-select aria-label="${esc(product.model)} material">${materialOptions}</select></td><td><div class="currency-price-input"><span>${esc(currency)}</span><input type="number" min="0" step="0.01" value="${esc(value===null||value===''||!Number.isFinite(Number(value))?'':Number(value).toFixed(2))}" data-es-price="${esc(product.id)}" data-es-material="${esc(selected)}" aria-label="${esc(product.model)} ${esc(selected)} ${esc(currency)} price"></div></td><td class="pricelist-row-actions"><button class="btn icon-save-button" type="button" data-save-es-row="${esc(product.id)}" title="Save ${esc(product.model)}" aria-label="Save ${esc(product.model)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h12l2 2v14H5z"></path><path d="M8 4v6h8V4"></path><path d="M8 20v-6h8v6"></path></svg></button></td></tr>`;
+    }).join('')||'<tr><td colspan="5" class="muted">No matching ES models.</td></tr>';
     setCountLabel('es',`Showing ${rows.length.toLocaleString('en-MY')} of ${esProducts().length.toLocaleString('en-MY')} ES models · Editing ${currency}`);
     bindCompletionInputs('es',body);
+    body.querySelectorAll('[data-es-material-select]').forEach(select=>select.addEventListener('change',()=>{const row=select.closest('[data-es-pricelist-row]'),product=esProducts().find(item=>String(item.id)===String(row?.dataset.esPricelistRow)),material=select.value,variant=(product?.variants||[]).find(item=>normMaterial(item.material)===normMaterial(material)),input=row?.querySelector('[data-es-price]'),value=variant?.[field];esMaterialSelections.set(String(product?.id||''),material);select.classList.toggle('non-default-selection',material!==ES_MATERIALS[0]);if(input){input.dataset.esMaterial=material;input.value=value===null||value===''||!Number.isFinite(Number(value))?'':Number(value).toFixed(2);input.setAttribute('aria-label',`${product?.model||''} ${material} ${currency} price`)}updateCompletionLabel('es')}));
     body.querySelectorAll('[data-save-es-row]').forEach(button=>button.addEventListener('click',()=>saveEsRow(button.dataset.saveEsRow,button)));
     requestAnimationFrame(syncEsScrollWidth);
   }
@@ -341,10 +339,8 @@
   async function saveEsRow(productId,button){
     if(!isOwner()){message('es','Your role is not allowed to maintain ES prices.','error');return}
     const row=document.querySelector(`[data-es-pricelist-row="${CSS.escape(productId)}"]`);if(!row)return;
-    const currency=currentCurrency('es'),field=esPriceField(currency),prices={};
-    try{
-      ES_MATERIALS.forEach(material=>{const input=row.querySelector(`[data-es-material="${CSS.escape(material)}"]`);prices[material]=nullablePrice(input?.value,`${material} Price`)});
-    }catch(error){message('es',error.message,'error');return}
+    const currency=currentCurrency('es'),field=esPriceField(currency),prices={},material=row.querySelector('[data-es-material-select]')?.value||ES_MATERIALS[0];
+    try{prices[material]=nullablePrice(row.querySelector('[data-es-price]')?.value,`${material} Price`)}catch(error){message('es',error.message,'error');return}
     const rarity=validRarity(row.querySelector('[data-es-rarity]')?.value||'common');
     const client=window.KeySuiteAuth?.getClient?.();if(!client){message('es','Supabase is not connected.','error');return}
     const original=button.innerHTML;button.disabled=true;button.textContent='…';message('es','');
@@ -353,8 +349,7 @@
       if(error)throw error;
       const product=esProducts().find(item=>item.id===productId);
       if(product){
-        product.rarity=rarity;product.variants=product.variants||[];
-        ES_MATERIALS.forEach(material=>{let variant=product.variants.find(v=>normMaterial(v.material)===normMaterial(material));if(!variant){variant={material,priceUsd:null,priceRmb:null,priceMyr:null};product.variants.push(variant)}variant[field]=prices[material]});
+        product.rarity=rarity;product.variants=product.variants||[];let variant=product.variants.find(v=>normMaterial(v.material)===normMaterial(material));if(!variant){variant={material,priceUsd:null,priceRmb:null,priceMyr:null};product.variants.push(variant)}variant[field]=prices[material];
       }
       window.KeySuitePricing?.syncPriceListSettings?.({esProducts:secureData.esProducts});
       message('es',`${product?.model||'ES model'} ${currency} prices and rarity saved.`,'info');

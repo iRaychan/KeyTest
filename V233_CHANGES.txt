@@ -1,0 +1,27 @@
+KeySuite V2.33 Changes
+
+1. Pumpset Coupling BOM
+   - Tyre, Pin & Bush and Flexible remain editable.
+   - Tyre model and F/H arrangement can be changed and persist through automatic refresh.
+   - Unsuitable manual selections remain visible with a reason instead of being silently reset.
+
+2. Quotation Coupling Shaft Validation
+   - Pump Shaft and Motor Shaft remain editable.
+   - Inputs use the non-default warning colour when a shaft exceeds the selected FCL or bush maximum.
+
+3. Margin Protection
+   - Blank or 0% Category Margin blocks additions to Pumpset, System and Quotation.
+   - Existing BOMs remain visible, but transfer is blocked until the rule is corrected.
+
+4. End Suction Price List
+   - Model | Rarity | Material Selection | Selected Currency Price.
+   - Material selection loads and saves the exact material/currency price.
+
+5. Quotation Item Behaviour
+   - Existing items collapse when a new item is added.
+   - Only the newly added item expands and scrolls into view.
+   - Motor, Control Panel, Tank and Manifold do not show Capacity controls.
+
+6. Capacity Defaults
+   - Flow defaults to m³/hr.
+   - Head defaults to Mtr.

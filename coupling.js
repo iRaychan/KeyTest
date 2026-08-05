@@ -118,6 +118,8 @@
   }
   function snapshot(found){return window.KeySuitePricing?.sourceSnapshot?.(found)||{product_family:'COUPLING',product_id:found.product.id,configuration:found.product.configuration,pricing_mode:found.calc.pricingMode,calculated_price:found.calc.finalPrice}}
 
+  function shaftLimits(config={}){const type=normalizeType(config.type||config.resolvedType||(/^FCL\b/i.test(String(config.model||''))?'pin_bush':'tyre'));if(type==='tyre'){return {pumpMax:number(config.pumpBushMax||bushMax(config.pumpBush)),motorMax:number(config.motorBushMax||bushMax(config.motorBush)),pumpBush:config.pumpBush||'',motorBush:config.motorBush||''}}const product=findComponent('pin_bush',config.model),max=number(product?.maxShaftMm||product?.max_shaft_mm);return {pumpMax:max,motorMax:max}}
+
   function contextFromItems(items=[]){
     const pumps=(items||[]).filter(item=>item?.section==='pump'||String(item?.model||'').toUpperCase().startsWith('ES ')).map(item=>{const model=normalizePumpModel(item?.pumpData?.model||item?.pumpData?.quotation_model||item?.model||'');return {item,model,shaft:pumpShaft(model),qty:Math.max(0,number(item?.qty||1))}});
     const motors=(items||[]).filter(item=>item?.section==='motor'||item?.motorData).map(item=>{const parsed=window.KeySuiteMotor?.parseMotorModel?.(item?.motorData?.model||item?.model||'')||{},hp=number(item?.motorData?.hp??parsed.hp),pole=number(item?.motorData?.pole??parsed.pole??2),frame=frameFor(hp,pole);return {item,hp,pole,frame:frame?.frame||'',shaft:number(frame?.shaftSize),torque:torqueForMotor(hp,pole),rpm:speedForPole(pole),qty:Math.max(0,number(item?.qty||1))}});
@@ -147,8 +149,9 @@
     }else if(current.manualModel&&selectionMode!=='flexible'&&!modeChanged){
       const checked=validateManualConfig(selectionMode,current.model,c,current.arrangement||'');config=checked.config;reasons=checked.reasons;if(config)config.manualModel=true;
     }else config=recommendForContext(selectionMode,c);
-    if(!config||reasons.length){return {error:reasons[0]||'No suitable Coupling model is available. See the Reason column for details.',reasons,config:null,item}}
-    config={...config,selectionMode,resolvedType:config.type,contextKey:key,autoSelected:values.model?false:current.autoSelected!==false,manualModel:!!config.manualModel};
+    const manualRequested=selectionMode!=='flexible'&&(!!values.model||!!current.manualModel&&!modeChanged);
+    if(!config||reasons.length&&!manualRequested){return {error:reasons[0]||'No suitable Coupling model is available. See the Reason column for details.',reasons,config:null,item}}
+    config={...config,selectionMode,resolvedType:config.type,contextKey:key,autoSelected:manualRequested?false:current.autoSelected!==false,manualModel:manualRequested||!!config.manualModel,validationReasons:reasons};
     item.model=config.model;item.bomDescription=config.model;item.description=assemblyDescription(selectionMode);item.couplingData=config;item.qty=Math.max(1,number(c.couplingQty||item.qty||1));
     const found=findConfiguredPrice(config,{pricingMode:'assembly'});if(found){item.unitPrice=number(found.calc.finalPrice);item.pricingSource=snapshot(found)}else{item.unitPrice=0;item.pricingSource={product_family:'COUPLING',configuration:{...config},pricing_mode:'assembly'}}
     return {config,found,item};
@@ -238,5 +241,5 @@
   }
   function init(data,userAccess){secureData={...secureData,...(data||{})};access=userAccess||access;const fcl224=products().find(row=>String(row.model).toUpperCase()==='FCL 224');if(fcl224)fcl224.maxSpeedRpm=3000;initialize();bind();renderProduct();renderPriceList()}
   function pageShown(id){if(id==='productCoupling'){initialize();renderProduct()}if(id==='couplingPriceList')renderPriceList()}
-  window.KeySuiteCoupling={init,pageShown,recommend,recommendForContext,findConfiguredPrice,configureAssemblyItem,buildAssemblyItem,contextFromItems,normalizePumpModel,typeLabel,modeLabel,speedForPole,productRows:componentRows,pinEvaluation,tyreEvaluation,validateManualConfig,assemblyDescription};
+  window.KeySuiteCoupling={init,pageShown,recommend,recommendForContext,findConfiguredPrice,configureAssemblyItem,buildAssemblyItem,contextFromItems,normalizePumpModel,typeLabel,modeLabel,speedForPole,productRows:componentRows,pinEvaluation,tyreEvaluation,validateManualConfig,assemblyDescription,shaftLimits};
 })();

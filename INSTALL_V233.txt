@@ -1,0 +1,8 @@
+KeySuite V2.33 Installation
+
+Upgrade from V2.32:
+1. Back up the current deployment.
+2. Replace the files listed in PATCH_FILES_V233.txt.
+3. Keep the existing working config.js.
+4. No Supabase migration is required.
+5. Deploy, press Ctrl+F5, then sign out and log in again if cached files remain.

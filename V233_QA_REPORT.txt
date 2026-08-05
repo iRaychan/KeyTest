@@ -1,0 +1,25 @@
+KeySuite V2.33 QA Report
+
+Build base: KeySuite V2.32 full source
+Delivery: full source and V2.32 -> V2.33 update patch
+Database migration: not required
+Live deployment: not performed
+
+Passed checks
+- JavaScript syntax: all root JavaScript files
+- Tyre BOM: Flexible -> Tyre switching remains selected
+- Tyre BOM: model and F/H arrangement remain editable
+- Tyre BOM: unsuitable manual model remains visible with reason
+- Assembly draft persistence: Pump, Motor and Coupling survive render and autosave state
+- Coupling shaft validation: oversize Pump/Motor fields receive warning colour
+- Quotation item behaviour: previous items collapse and newest item expands
+- Quotation capacity exclusions: Motor, Control Panel, Tank and Manifold
+- Capacity defaults: m³/hr and Mtr
+- End Suction pricelist: one model row, rarity, material selector and currency price
+- End Suction material change: exact material price loads and non-default colour applies
+- Margin protection: blank/0% margin is rejected, positive margin is accepted
+- Package checks: checksums, ZIP integrity and fresh-overlay comparison
+
+Important
+- Keep the existing config.js during upgrade.
+- No Supabase SQL is required for V2.33.
