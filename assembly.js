@@ -6,16 +6,18 @@ let type='system',drafts=[],current=null,loaded=false,autoSaveTimer=null,saveQue
 const dirtyDraftIds=new Set(),autoSaveRetries=new Map();
 const sections={system:['pumpset','control_panel','manifold','tank'],pumpset:['pump','motor','coupling','baseplate']};
 const labels={pumpset:'Pumpset',control_panel:'Control Panel',manifold:'Manifold',tank:'Tank',pump:'Pump',motor:'Motor',coupling:'Coupling',baseplate:'Baseplate'};
+const CAPACITY_UNITS=['L/s','m³/h','L/min','GPM'],HEAD_UNITS=['Mtr','ft','bar'];
+const ES_DEFAULT_SEAL='Carbon Ceramic (Ca Ce)',ES_DEFAULT_ELASTOMER='Viton',ES_SEALS=[ES_DEFAULT_SEAL,'Silicon Carbide','Tungsten'],ES_ELASTOMERS=[ES_DEFAULT_ELASTOMER,'EPDM','NBR'];
 const key=()=>`ks_v201_assembly_${window.KEYSUITE_PROFILE?.company_id||'company'}`;
 const uid=()=>crypto.randomUUID?.()||`asm-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 const customers=()=>window.KeySuiteApp?.getCustomers?.()||[];
 const keyplcProducts=()=>window.KEYSUITE_SECURE_DATA?.keyplcProducts||[];
 function quoteCustomerId(){return window.KeySuiteApp?.getPricingCustomerId?.()||''}
 function quoteSessionId(){return window.KeySuiteApp?.getQuotationSessionId?.()||'quotation-session'}
-function blank(t=type){return {id:uid(),assembly_type:t,model_item:'',description:'',description_manual:false,name:t==='system'?'New System':'New Pumpset',customer_id:quoteCustomerId(),quote_session_id:quoteSessionId(),status:'draft',quote_qty:1,quote_unit_price:null,quote_price_manual:false,coupling_mode:'flexible',coupling_error:'',auto_suppressed:{manifold:false,tank:false},items:[],created_at:new Date().toISOString(),updated_at:new Date().toISOString()}}
+function blank(t=type){return {id:uid(),assembly_type:t,model_item:'',description:'',description_manual:false,name:t==='system'?'New System':'New Pumpset',customer_id:quoteCustomerId(),quote_session_id:quoteSessionId(),status:'draft',quote_qty:1,quote_unit_price:null,quote_price_manual:false,display_capacity:false,capacity_value:'',capacity_unit:'L/s',head_value:'',head_unit:'Mtr',coupling_mode:'flexible',coupling_error:'',auto_suppressed:{manifold:false,tank:false},items:[],created_at:new Date().toISOString(),updated_at:new Date().toISOString()}}
 function sourceObject(item){const raw=item?.pricingSource;if(!raw)return {};if(typeof raw==='object')return raw;try{return JSON.parse(raw)}catch(_){return {}}}
 function quoteMetaFromItems(items=[]){for(const item of items||[]){const meta=sourceObject(item).assembly_quote;if(meta&&typeof meta==='object')return meta}return null}
-function quoteMeta(d){return {qty:Math.max(.01,Number(d?.quote_qty||1)),unitPrice:Number.isFinite(Number(d?.quote_unit_price))?Math.max(0,Number(d.quote_unit_price)):null,manual:!!d?.quote_price_manual,descriptionManual:!!d?.description_manual,autoSuppressed:{manifold:!!d?.auto_suppressed?.manifold,tank:!!d?.auto_suppressed?.tank}}}
+function quoteMeta(d){return {qty:Math.max(.01,Number(d?.quote_qty||1)),unitPrice:Number.isFinite(Number(d?.quote_unit_price))?Math.max(0,Number(d.quote_unit_price)):null,manual:!!d?.quote_price_manual,descriptionManual:!!d?.description_manual,displayCapacity:!!d?.display_capacity,capacityValue:String(d?.capacity_value||''),capacityUnit:String(d?.capacity_unit||'L/s'),headValue:String(d?.head_value||''),headUnit:String(d?.head_unit||'Mtr'),autoSuppressed:{manifold:!!d?.auto_suppressed?.manifold,tank:!!d?.auto_suppressed?.tank}}}
 function defaultSection(t,item){if(t==='pumpset')return item?.section||'pump';return item?.section||'unsupported'}
 function normalizePanelType(value){return /^shelter/i.test(String(value||''))?'sheltered':'indoor'}
 function panelTypeLabel(value){return normalizePanelType(value)==='sheltered'?'Sheltered':'Indoor Type'}
@@ -47,7 +49,7 @@ function normalize(input){
  const allowed=sections[assemblyType]||[],items=(original.items||[]).map(x=>normalizeItem(x,assemblyType)).filter(item=>allowed.includes(item.section));
  const meta=quoteMetaFromItems(items),d={...blank(assemblyType),...original,items,description_manual:original.description_manual==null?!!meta?.descriptionManual:!!original.description_manual,auto_suppressed:{manifold:false,tank:false,...(meta?.autoSuppressed||{}),...(original.auto_suppressed||{})}};
  d.quote_qty=Math.max(.01,Number(original.quote_qty??meta?.qty??1)||1);d.quote_price_manual=original.quote_price_manual==null?!!meta?.manual:!!original.quote_price_manual;d.coupling_mode=String(original.coupling_mode||(items.find(item=>item.section==='coupling')?.couplingData?.selectionMode)||'flexible');d.coupling_error=String(original.coupling_error||'');
- const storedPrice=original.quote_unit_price??meta?.unitPrice;d.quote_unit_price=storedPrice==null?null:Math.max(0,Number(storedPrice)||0);d.quote_session_id=original.quote_session_id||`legacy:${d.id}`;return d
+ const storedPrice=original.quote_unit_price??meta?.unitPrice;d.quote_unit_price=storedPrice==null?null:Math.max(0,Number(storedPrice)||0);const parsedCapacity=parseCapacityDescription(original.description||'');d.display_capacity=!!(original.display_capacity??meta?.displayCapacity??parsedCapacity?.display_capacity??false);d.capacity_value=String(original.capacity_value??meta?.capacityValue??parsedCapacity?.capacity_value??'');d.capacity_unit=normalizeCapacityUnit(original.capacity_unit??meta?.capacityUnit??parsedCapacity?.capacity_unit);d.head_value=String(original.head_value??meta?.headValue??parsedCapacity?.head_value??'');d.head_unit=normalizeHeadUnit(original.head_unit??meta?.headUnit??parsedCapacity?.head_unit);d.quote_session_id=original.quote_session_id||`legacy:${d.id}`;return d
 }
 function localLoad(){try{return (JSON.parse(localStorage.getItem(key())||'[]')||[]).map(normalize)}catch(_){return []}}
 function localSave(){localStorage.setItem(key(),JSON.stringify(drafts))}
@@ -55,6 +57,15 @@ function total(d=current){return (d?.items||[]).reduce((n,x)=>n+Number(x.qty||0)
 function quoteUnitPrice(d=current){const value=Number(d?.quote_unit_price);return d?.quote_price_manual&&Number.isFinite(value)?Math.max(0,value):total(d)}
 function syncQuoteUnitPrice(d=current){if(!d)return;if(!d.quote_price_manual)d.quote_unit_price=total(d)}
 function money(n){return `RM ${Number(n||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})}`}
+function normalizeCapacityUnit(value){const raw=String(value||'L/s').trim();if(/^m3\/h$/i.test(raw))return 'm³/h';return CAPACITY_UNITS.find(unit=>unit.toLowerCase()===raw.toLowerCase())||'L/s'}
+function normalizeHeadUnit(value){const raw=String(value||'Mtr').trim();return HEAD_UNITS.find(unit=>unit.toLowerCase()===raw.toLowerCase())||'Mtr'}
+function capacityOptions(values,selected){return values.map(value=>`<option value="${esc(value)}" ${String(selected)===value?'selected':''}>${esc(value)}</option>`).join('')}
+function parseCapacityDescription(value){const line=String(value||'').replace(/\r\n?/g,'\n').split('\n').find(row=>/^Capacity:/i.test(row.trim()));if(!line)return null;const match=line.trim().match(/^Capacity:\s*([0-9]+(?:\.[0-9]+)?)\s*(L\/s|m³\/h|m3\/h|L\/min|GPM)\s*@\s*([0-9]+(?:\.[0-9]+)?)\s*(Mtr|ft|bar)\s*$/i);return match?{display_capacity:true,capacity_value:match[1],capacity_unit:normalizeCapacityUnit(match[2]),head_value:match[3],head_unit:normalizeHeadUnit(match[4])}:null}
+function stripCapacityDescription(value){return String(value||'').replace(/\r\n?/g,'\n').split('\n').filter(row=>!/^Capacity:/i.test(row.trim())).join('\n').replace(/^\n+|\n+$/g,'')}
+function assemblyCapacityLine(d=current){const capacity=String(d?.capacity_value||'').trim(),head=String(d?.head_value||'').trim();return d?.display_capacity&&capacity&&head?`Capacity: ${capacity} ${normalizeCapacityUnit(d.capacity_unit)} @ ${head} ${normalizeHeadUnit(d.head_unit)}`:''}
+function applyAssemblyCapacity(value,d=current){return [assemblyCapacityLine(d),stripCapacityDescription(value)].filter(Boolean).join('\n')}
+function copyCapacity(target,source={}){if(!target)return;target.display_capacity=!!(source.display_capacity??source.displayCapacity);target.capacity_value=String(source.capacity_value??source.capacityValue??'');target.capacity_unit=normalizeCapacityUnit(source.capacity_unit??source.capacityUnit);target.head_value=String(source.head_value??source.headValue??'');target.head_unit=normalizeHeadUnit(source.head_unit??source.headUnit)}
+
 function tankDescription(item,qty=item?.qty){
  const litres=Number(item?.tankData?.sizeLitres||0),pressure=Number(item?.tankData?.pressureBar||0),quantity=Math.max(0,Number(qty)||0);
  if(!(litres>0)||!(pressure>0))return item?.description||'';
@@ -99,25 +110,31 @@ function completedPumpsetDescription(d=current){
  if(!pumps.length||!motor||!coupling)return '';
  const motorLine=normalizeDescriptionIndentation(String(motor.description||'')).split('\n').find(line=>/^c\/w(?:\t+| +)/i.test(line))||String(motor.description||'').trim();
  const couplingLine=window.KeySuiteCoupling?.assemblyDescription?.(coupling.couplingData?.selectionMode||d.coupling_mode||'flexible')||String(coupling.description||'').trim();
- return pumps.map((pump,index)=>{const part=pumpDescriptionParts(pump),lines=[part.capacity,part.model];if(index===0)lines.push(motorLine,couplingLine);lines.push(part.suction,part.material,...part.extras);return lines.filter(Boolean).join('\n')}).join('\n');
+ return pumps.map((pump,index)=>{const part=pumpDescriptionParts(pump),lines=[part.model];if(index===0)lines.push(motorLine,couplingLine);lines.push(part.suction,part.material,...part.extras);return lines.filter(Boolean).join('\n')}).join('\n');
 }
 function rebuildDescription(d=current){
  if(!d)return '';
  (d.items||[]).forEach(item=>{item.description=normalizeDescriptionIndentation(item.description)});
  const completed=completedPumpsetDescription(d);
- d.description=completed||orderedItems(d).map(item=>String(item.description||'').trimEnd()).filter(Boolean).join('\n');
+ const body=completed||orderedItems(d).map(item=>stripCapacityDescription(String(item.description||'').trimEnd())).filter(Boolean).join('\n');
+ d.description=applyAssemblyCapacity(body,d);
  d.description=normalizeDescriptionIndentation(d.description);
  return d.description;
 }
 function highlightDescription(text){
- let html=esc(String(text||''));
- const patterns=[
-  /(Model:\s*)([^\n]+)/gi,/(\b\d+(?:\.\d+)?\s*(?:HP|kW|Pole|Hz|V|Ph|bar|litres?|Lot|nos?|units?|Pumps?|Sets?)\b)/gi,
-  /(DN\s*\d+(?:\s*x\s*DN\s*\d+)?)/gi,/(\d+(?:\.\d+)?&quot;\s+(?:inlet|outlet)(?:\s*&amp;\s*\d+(?:\.\d+)?&quot;\s+(?:inlet|outlet))?)/gi,
-  /(Indoor Type|Sheltered|SS304 \(Cast Iron Connection\)|SS316|Mech Seal|Gland Packing|Viton|EPDM|NBR|Carbon Ceramic \(Ca Ce\)|Silicon Carbide \(Sic Sic\)|Tungsten \(Tuc Tuc\))/gi
+ let html=esc(String(text||'')),marks=[];const mark=value=>{const token=`@@KS_MARK_${marks.length}@@`;marks.push(String(value));return token};
+ const replacements=[
+  {pattern:/((?:Pump )?Material:\s*)([^\n]+)/gi,replace:(match,prefix,value)=>`${prefix}${mark(value)}`},
+  {pattern:/(c\/w\s+Baseplate with\s+)(Flexible Coupling|Pin &amp; Bush Coupling|Tyre Coupling)/gi,replace:(match,prefix,value)=>`${prefix}${mark(value)}`},
+  {pattern:/(\b(?:SS|GI))(?=\s+Manifold\b)/gi,replace:match=>mark(match)},
+  {pattern:/(Model:\s*)([^\n]+)/gi,replace:(match,prefix,value)=>`${prefix}${mark(value)}`},
+  {pattern:/(\bIE[1-5]\b)/gi,replace:match=>mark(match)},
+  {pattern:/(\b\d+(?:\.\d+)?\s*(?:HP|kW|Pole|Hz|V|Ph|bar|litres?|Lot|nos?|units?|Pumps?|Sets?)\b)/gi,replace:match=>mark(match)},
+  {pattern:/(DN\s*\d+(?:\s*x\s*DN\s*\d+)?)/gi,replace:match=>mark(match)},
+  {pattern:/(\d+(?:\.\d+)?&quot;\s+(?:inlet|outlet)(?:\s*&amp;\s*\d+(?:\.\d+)?&quot;\s+(?:inlet|outlet))?)/gi,replace:match=>mark(match)},
+  {pattern:/(Indoor Type|Sheltered|SS304 \(Cast Iron Connection\)|SS316|Mech Seal|Gland Packing|Viton|EPDM|NBR|Carbon Ceramic \(Ca Ce\)|Silicon Carbide|Tungsten|Silicon Carbide \(Sic Sic\)|Tungsten \(Tuc Tuc\))/gi,replace:match=>mark(match)}
  ];
- patterns.forEach((pattern,index)=>{html=html.replace(pattern,(match,prefix,value)=>index===0?`${prefix}<mark>${value}</mark>`:`<mark>${match}</mark>`)});
- return html.replace(/\n/g,'<br>');
+ replacements.forEach(item=>{html=html.replace(item.pattern,item.replace)});marks.forEach((value,index)=>{html=html.replace(`@@KS_MARK_${index}@@`,`<mark>${value}</mark>`)});return html.replace(/\n/g,'<br>');
 }
 function renderDescriptionPreview(){const preview=$('assemblyDescriptionPreview'),input=$('assemblyDescription'),text=normalizeDescriptionIndentation(input?.value||current?.description||'');if(input&&input.value!==text)input.value=text;if(current)current.description=text;if(preview)preview.innerHTML=highlightDescription(text)}
 function pumpMotorKw(item){return Number(item?.pumpData?.motor_kw??item?.pumpData?.motorKw??item?.motor_kw??item?.motorKw??0)}
@@ -149,15 +166,10 @@ function systemModelPumpQty(d=current){
  return quantities.some(qty=>qty>1)?Math.max(...quantities):quantities.reduce((sum,qty)=>sum+qty,0);
 }
 function updateModelSuggestions(){
- const list=$('assemblyModelItemOptions');if(!list)return;
- if(type!=='system'){list.innerHTML='';return}
- const count=Math.max(1,systemModelPumpQty(current)||1),suffix=`${count}Pump${count===1?'':'s'} System`;
- list.innerHTML=[`KeyPLC VSD Booster System (${suffix})`,`KeyPLC VSD Transfer System (${suffix})`].map(value=>`<option value="${esc(value)}"></option>`).join('');
- const input=$('assemblyModelItem'),value=String(input?.value||current?.model_item||'');
- if(/^(KeyPLC VSD (?:Booster|Transfer) System) \(\d+Pumps? System\)$/i.test(value)){
-   const base=value.match(/^(KeyPLC VSD (?:Booster|Transfer) System)/i)?.[1]||'';
-   const next=`${base} (${suffix})`;if(input)input.value=next;if(current)current.model_item=next;
- }
+ const list=$('assemblyModelItemOptions');if(!list)return;const applications=window.KeySuiteApplications?.values||[],help=$('assemblyModelItemHelp');let suggestions=[];
+ if(type==='pumpset'){suggestions=applications;if(help)help.textContent='Select an application suggestion or type a custom Pumpset Model / Item.'}
+ else{const count=Math.max(1,systemModelPumpQty(current)||1),suffix=`${count}Pump${count===1?'':'s'} System`;suggestions=[`KeyPLC VSD Booster System (${suffix})`,`KeyPLC VSD Transfer System (${suffix})`];if(help)help.textContent='System suggestions follow the pump quantity in the BOM; custom text is allowed.';const input=$('assemblyModelItem'),value=String(input?.value||current?.model_item||'');if(/^(KeyPLC VSD (?:Booster|Transfer) System) \(\d+Pumps? System\)$/i.test(value)){const base=value.match(/^(KeyPLC VSD (?:Booster|Transfer) System)/i)?.[1]||'';const next=`${base} (${suffix})`;if(input)input.value=next;if(current)current.model_item=next}}
+ list.innerHTML=(window.KeySuiteApplications?.unique?.(suggestions)||suggestions).map(value=>`<option value="${esc(value)}"></option>`).join('');
 }
 function appendCompactDescription(d,description){const existing=String(d.description||'').replace(/\s+$/,'');d.description=existing?`${existing}\n${description}`:description}
 function removeAutoPanel(d){
@@ -267,7 +279,7 @@ async function load(){
          return {...item,bomDescription:localItem.bomDescription??item.bomDescription,tankData:localItem.tankData??item.tankData,keyplcData:localItem.keyplcData??item.keyplcData,manifoldData:localItem.manifoldData??item.manifoldData,motorData:localItem.motorData??item.motorData,couplingData:localItem.couplingData??item.couplingData,pumpsetData:localItem.pumpsetData??item.pumpsetData};
        });
        const meta=quoteMetaFromItems(items);
-       return normalize({...remote,quote_session_id:local.quote_session_id||remote.quote_session_id||`legacy:${remote.id}`,quote_qty:local.quote_qty??meta?.qty,quote_unit_price:local.quote_unit_price??meta?.unitPrice,quote_price_manual:local.quote_price_manual??meta?.manual,auto_suppressed:local.auto_suppressed||remote.auto_suppressed,items});
+       return normalize({...remote,quote_session_id:local.quote_session_id||remote.quote_session_id||`legacy:${remote.id}`,quote_qty:local.quote_qty??meta?.qty,quote_unit_price:local.quote_unit_price??meta?.unitPrice,quote_price_manual:local.quote_price_manual??meta?.manual,display_capacity:local.display_capacity??meta?.displayCapacity,capacity_value:local.capacity_value??meta?.capacityValue,capacity_unit:local.capacity_unit??meta?.capacityUnit,head_value:local.head_value??meta?.headValue,head_unit:local.head_unit??meta?.headUnit,auto_suppressed:local.auto_suppressed||remote.auto_suppressed,items});
      });
      loaded=true;refreshPricing();localSave();return;
    }catch(e){console.warn('Assembly V2.01 Supabase fallback',e)}
@@ -289,7 +301,7 @@ function flushAutoSave(preferredId){
 }
 async function remove(){if(!current||!confirm(`Delete ${current.name}?`))return;const client=window.KeySuiteAuth?.getClient?.();if(client){const {error}=await client.rpc('keysuite_delete_assembly_v200',{p_assembly_id:current.id});if(error)throw error}drafts=drafts.filter(x=>x.id!==current.id);localSave();current=currentSessionDrafts(type)[0]||blank(type);render()}
 function read(){
- if(!current)return;current.model_item=$('assemblyModelItem')?.value.trim()||'';current.description=$('assemblyDescription')?.value||'';current.quote_qty=Math.max(.01,Number($('assemblyQuoteQty')?.value)||1);
+ if(!current)return;current.model_item=$('assemblyModelItem')?.value.trim()||'';current.description=$('assemblyDescription')?.value||'';current.quote_qty=Math.max(.01,Number($('assemblyQuoteQty')?.value)||1);current.display_capacity=!!$('assemblyDisplayCapacity')?.checked;current.capacity_value=String($('assemblyCapacityValue')?.value||'');current.capacity_unit=normalizeCapacityUnit($('assemblyCapacityUnit')?.value);current.head_value=String($('assemblyHeadValue')?.value||'');current.head_unit=normalizeHeadUnit($('assemblyHeadUnit')?.value);
  const priceInput=$('assemblyQuoteUnitPrice');if(priceInput){if(priceInput.value===''){current.quote_price_manual=false;current.quote_unit_price=total(current)}else{current.quote_unit_price=Math.max(0,Number(priceInput.value)||0)}}
  current.name=current.model_item||current.name||(`New ${type==='system'?'System':'Pumpset'}`);current.customer_id=quoteCustomerId()||current.customer_id||'';current.status=$('assemblyStatus')?.value||current.status||'draft';
  document.querySelectorAll('[data-assembly-item]').forEach(row=>{const item=current.items.find(x=>x.id===row.dataset.assemblyItem);if(item){const previousDescription=item.description||'',autoPanel=!!(item.keyplcData?.autoSized||sourceObject(item).auto_sized_panel),autoLocked=autoPanel||autoComponent(item,'manifold')||autoComponent(item,'tank');if(!autoLocked){item.qty=Math.max(0,Number(row.querySelector('.assembly-qty').value)||0);item.unitPrice=Math.max(0,Number(row.querySelector('.assembly-price').value)||0)}if(item.keyplcData&&!autoPanel){const currentSurcharge=normalizePanelType(item.keyplcData.enclosure)==='sheltered'?Number(item.keyplcData.shelteredSurcharge||1000):0;item.keyplcData.indoorUnitPrice=Math.max(0,item.unitPrice-currentSurcharge)}if(item.tankData&&!item.tankData.autoSelected){item.description=tankDescription(item,item.qty);current.description=replaceDescriptionBlock(current.description,previousDescription,item.description)}}});
@@ -297,6 +309,15 @@ function read(){
 }
 function currentSessionDrafts(t=type){const session=quoteSessionId();return drafts.filter(x=>x.assembly_type===t&&x.quote_session_id===session&&((x.items||[]).length||String(x.model_item||'').trim()||String(x.description||'').trim()))}
 function renderList(){const list=$('assemblyDraftList');if(!list)return;const rows=currentSessionDrafts(type);list.innerHTML=rows.map(d=>`<button type="button" class="${d.id===current?.id?'active':''}" data-draft="${esc(d.id)}"><b>${esc(d.model_item||d.name)}</b><br><small>${esc(d.status)} · ${money(quoteUnitPrice(d))}</small></button>`).join('')||'<div class="muted">No saved drafts.</div>';list.querySelectorAll('[data-draft]').forEach(b=>b.onclick=()=>{current=drafts.find(x=>x.id===b.dataset.draft);currentPinned=true;render()})}
+function pumpOptions(item){
+ const source=sourceObject(item),isEs=String(source.product_family||'').toUpperCase()==='ES'||/^ES\s/i.test(String(item?.model||''));if(!isEs)return '';
+ const gland=/Gland Packing|\bGP\b/i.test(String(item.description||'')+' '+String(source.material||'')),seal=String(source.seal_material||ES_DEFAULT_SEAL),elastomer=String(source.elastomer||ES_DEFAULT_ELASTOMER);
+ const sealOptions=ES_SEALS.map(value=>`<option value="${esc(value)}" ${seal===value?'selected':''}>${esc(value)}</option>`).join(''),elastomerOptions=ES_ELASTOMERS.map(value=>`<option value="${esc(value)}" ${elastomer===value?'selected':''}>${esc(value)}</option>`).join('');
+ return `<div class="assembly-component-options assembly-pump-options"><div class="assembly-item-option"><label>Mechanical Seal</label><select class="assembly-pump-seal ${seal!==ES_DEFAULT_SEAL?'non-default-selection':''}" ${gland?'disabled title="Not applicable to Gland Packing"':''}>${sealOptions}</select></div><div class="assembly-item-option"><label>Elastomer</label><select class="assembly-pump-elastomer ${elastomer!==ES_DEFAULT_ELASTOMER?'non-default-selection':''}">${elastomerOptions}</select></div></div>`;
+}
+function updatePumpDescription(item,seal,elastomer){
+ const lines=String(item.description||'').replace(/\r\n?/g,'\n').split('\n').filter(line=>!/^Mech Seal Material:/i.test(line.trim())&&!/^Elastomer:/i.test(line.trim())),gland=lines.some(line=>/Gland Packing/i.test(line));if(gland)seal=ES_DEFAULT_SEAL;const additions=[];if(!gland&&seal!==ES_DEFAULT_SEAL)additions.push(`Mech Seal Material: ${seal}`);if(elastomer!==ES_DEFAULT_ELASTOMER)additions.push(`Elastomer: ${elastomer}`);const bare=lines.findIndex(line=>/Bare shaft pump only/i.test(line));if(bare>=0)lines.splice(bare,0,...additions);else lines.push(...additions);item.description=normalizeDescriptionIndentation(lines.join('\n'));const source=sourceObject(item);source.seal_material=seal;source.elastomer=elastomer;item.pricingSource=source;if(item.pumpData){item.pumpData.keysuite_seal=seal;item.pumpData.keysuite_elastomer=elastomer}}
+function updatePumpItemFromRow(row){const item=current?.items?.find(entry=>entry.id===row?.dataset.assemblyItem);if(!item)return;updatePumpDescription(item,row.querySelector('.assembly-pump-seal')?.value||ES_DEFAULT_SEAL,row.querySelector('.assembly-pump-elastomer')?.value||ES_DEFAULT_ELASTOMER);current.description_manual=false;rebuildDescription(current);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';renderDescriptionPreview();localSave();renderItems();renderQuoteFields();scheduleAutoSave(100)}
 function motorHpOptions(selected){
  const values=[...new Set((window.KEYSUITE_SECURE_DATA?.motorProducts||[]).map(row=>Number(row.hp)).filter(value=>value>0))].sort((a,b)=>a-b);
  return values.map(value=>`<option value="${value}" ${Number(selected)===value?'selected':''}>${Number.isInteger(value)?value:String(value).replace(/0+$/,'').replace(/\.$/,'')} HP</option>`).join('');
@@ -346,14 +367,15 @@ function itemHtml(x){
  const autoPanel=!!(x.keyplcData?.autoSized||sourceObject(x).auto_sized_panel),autoCoupling=!!(x.couplingData?.autoSelected),autoGenerated=autoPanel||autoCoupling||autoComponent(x,'manifold')||autoComponent(x,'tank'),autoLocked=autoGenerated;
  const locked=autoLocked?' readonly aria-readonly="true" class="assembly-qty assembly-auto-locked"':' class="assembly-qty"',priceLocked=autoLocked?' readonly aria-readonly="true" class="assembly-price assembly-auto-locked"':' class="assembly-price"';
  const panel=x.keyplcData?`<div class="assembly-keyplc-options">${autoPanel?`<div class="assembly-item-option"><label>Motor Rating</label><select class="assembly-keyplc-model">${keyplcModelOptions(x.keyplcData.productId)}</select></div>`:''}<div class="assembly-item-option"><label>Panel Type</label><select class="assembly-keyplc-type"><option value="indoor" ${normalizePanelType(x.keyplcData.enclosure)==='indoor'?'selected':''}>Indoor</option><option value="sheltered" ${normalizePanelType(x.keyplcData.enclosure)==='sheltered'?'selected':''}>Sheltered (+ RM 1,000.00)</option></select></div></div>`:'';
- const motor=motorOptions(x),coupling=couplingOptions(x),badge=autoGenerated?'<span class="assembly-auto-badge">Auto</span>':'';
- return `<div class="assembly-item assembly-item-${esc(x.section||'pumpset')} ${autoGenerated?'auto-generated':''}" data-assembly-item="${esc(x.id)}"><div><b>${esc(x.bomDescription||x.model)}</b>${badge}${panel}${motor}${coupling}</div><div><label>Qty</label><input${locked} type="number" min="0" step="1" value="${Number(x.qty||1)}"></div><div><label>Unit Price</label><input${priceLocked} type="number" min="0" step="0.01" value="${Number(x.unitPrice||0).toFixed(2)}"></div><div><label>Total Price</label><div class="assembly-line-total">${money(Number(x.qty||0)*Number(x.unitPrice||0))}</div></div><button class="btn danger assembly-delete" type="button">Delete</button></div>`
+ const pump=pumpOptions(x),motor=motorOptions(x),coupling=couplingOptions(x),badge=autoGenerated?'<span class="assembly-auto-badge">Auto</span>':'';
+ return `<div class="assembly-item assembly-item-${esc(x.section||'pumpset')} ${autoGenerated?'auto-generated':''}" data-assembly-item="${esc(x.id)}"><div class="assembly-component-main"><b>${esc(x.bomDescription||x.model)}</b>${badge}${panel}${pump}${motor}${coupling}</div><div><label>Qty</label><input${locked} type="number" min="0" step="1" value="${Number(x.qty||1)}"></div><div><label>Unit Price</label><input${priceLocked} type="number" min="0" step="0.01" value="${Number(x.unitPrice||0).toFixed(2)}"></div><div><label>Total Price</label><div class="assembly-line-total">${money(Number(x.qty||0)*Number(x.unitPrice||0))}</div></div><button class="btn danger assembly-delete" type="button">Delete</button></div>`
 }
 function renderItems(){
  const box=$('assemblyItems');if(!box)return;box.innerHTML=sections[type].map(section=>{const rows=(current?.items||[]).filter(x=>x.section===section),controls=section==='coupling'?couplingModeControls():'';return `<section class="assembly-section assembly-section-${esc(section)}"><div class="assembly-section-head"><h2>${labels[section]}</h2><span>${rows.length} item${rows.length===1?'':'s'}</span></div>${controls}<div class="assembly-section-body">${rows.map(itemHtml).join('')||'<p class="muted assembly-empty">Empty</p>'}</div></section>`}).join('');
  box.querySelectorAll('input').forEach(i=>i.oninput=()=>{if(i.classList.contains('assembly-qty'))current.description_manual=false;read();renderItems();renderQuoteFields();scheduleAutoSave()});
  box.querySelectorAll('.assembly-keyplc-type').forEach(select=>select.onchange=()=>{current.description_manual=false;read();const row=select.closest('[data-assembly-item]'),item=current.items.find(x=>x.id===row?.dataset.assemblyItem);updateKeyplcItem(item,select.value);if(!current.description_manual)rebuildDescription(current);current.description=normalizeDescriptionIndentation(current.description);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';renderDescriptionPreview();localSave();renderItems();renderQuoteFields();scheduleAutoSave(100)});
  box.querySelectorAll('.assembly-keyplc-model').forEach(select=>select.onchange=()=>{current.description_manual=false;read();const row=select.closest('[data-assembly-item]'),item=current.items.find(x=>x.id===row?.dataset.assemblyItem);updateKeyplcItem(item,item?.keyplcData?.enclosure||'indoor',select.value);if(!current.description_manual)rebuildDescription(current);current.description=normalizeDescriptionIndentation(current.description);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';renderDescriptionPreview();localSave();renderItems();renderQuoteFields();scheduleAutoSave(100)});
+ box.querySelectorAll('.assembly-pump-seal,.assembly-pump-elastomer').forEach(select=>select.onchange=()=>updatePumpItemFromRow(select.closest('[data-assembly-item]')));
  box.querySelectorAll('.assembly-motor-hp,.assembly-motor-pole,.assembly-motor-efficiency').forEach(select=>select.onchange=()=>updateMotorItemFromRow(select.closest('[data-assembly-item]')));
  box.querySelectorAll('.assembly-coupling-model,.assembly-coupling-arrangement').forEach(select=>select.onchange=()=>updateCouplingItemFromRow(select.closest('[data-assembly-item]'),select.className));
  box.querySelectorAll('[data-coupling-mode]').forEach(button=>button.onclick=()=>setCouplingMode(button.dataset.couplingMode));
@@ -361,7 +383,7 @@ function renderItems(){
  $('assemblyTotal').textContent=money(total())
 }
 function renderQuoteFields(){
- updateModelSuggestions();if($('assemblyModelItem'))$('assemblyModelItem').value=current.model_item||'';if($('assemblyQuoteQty'))$('assemblyQuoteQty').value=Number(current.quote_qty||1);if($('assemblyQuoteUnitPrice'))$('assemblyQuoteUnitPrice').value=Number(quoteUnitPrice(current)).toFixed(2)
+ updateModelSuggestions();if($('assemblyModelItem'))$('assemblyModelItem').value=current.model_item||'';if($('assemblyQuoteQty'))$('assemblyQuoteQty').value=Number(current.quote_qty||1);if($('assemblyQuoteUnitPrice'))$('assemblyQuoteUnitPrice').value=Number(quoteUnitPrice(current)).toFixed(2);if($('assemblyDisplayCapacity'))$('assemblyDisplayCapacity').checked=!!current.display_capacity;if($('assemblyCapacityValue'))$('assemblyCapacityValue').value=current.capacity_value||'';if($('assemblyCapacityUnit'))$('assemblyCapacityUnit').value=normalizeCapacityUnit(current.capacity_unit);if($('assemblyHeadValue'))$('assemblyHeadValue').value=current.head_value||'';if($('assemblyHeadUnit'))$('assemblyHeadUnit').value=normalizeHeadUnit(current.head_unit);const enabled=!!current.display_capacity;document.querySelectorAll('#assemblyCapacityValue,#assemblyCapacityUnit,#assemblyHeadValue,#assemblyHeadUnit').forEach(control=>control.disabled=!enabled);$('assemblyCapacityRow')?.classList.toggle('capacity-disabled',!enabled)
 }
 function render(){
  if(!current||current.assembly_type!==type||current.quote_session_id!==quoteSessionId())current=currentSessionDrafts(type)[0]||blank(type);current=normalize(current);const qCustomer=quoteCustomerId();if(qCustomer)current.customer_id=qCustomer;syncAutomaticComponents(current);if(!current.description_manual)rebuildDescription(current);current.description=normalizeDescriptionIndentation(current.description);
@@ -379,13 +401,13 @@ async function addItem(item,explicitRoute){
  }
  if(!drafts.some(x=>x.id===target.id))drafts.unshift(target);target.customer_id=customerId;target.quote_session_id=session;if(type==='system'&&route.section==='pumpset')target.auto_suppressed={manifold:false,tank:false};
  const rawDescription=item.keyplcData?keyplcDescription(item):String(item.description||'').trim(),description=String(rawDescription||'').trimEnd();if(type==='pumpset'&&route.section==='pump'&&!target.model_item)target.model_item=item.model||'';
- if(type==='pumpset'&&route.section==='coupling'&&item.couplingData?.selectionMode)target.coupling_mode=String(item.couplingData.selectionMode);target.items.push(normalizeItem({id:uid(),section:route.section,model:item.model||'Product',bomDescription:item.bomDescription||item.model||'Product',description,qty:Number(item.qty||1),unitPrice:Number(item.unitPrice||0),pricingSource:item.pricingSource||null,pumpData:item.pumpData||null,tankData:item.tankData||null,keyplcData:item.keyplcData||null,manifoldData:item.manifoldData||null,motorData:item.motorData||null,couplingData:item.couplingData||null,pumpsetData:item.pumpsetData||null},type));
+ if(type==='pumpset'&&route.section==='coupling'&&item.couplingData?.selectionMode)target.coupling_mode=String(item.couplingData.selectionMode);target.items.push(normalizeItem({id:uid(),section:route.section,model:item.model||'Product',bomDescription:item.bomDescription||item.model||'Product',description,qty:Number(item.qty||1),unitPrice:Number(item.unitPrice||0),pricingSource:item.pricingSource||null,pumpData:item.pumpData||null,tankData:item.tankData||null,keyplcData:item.keyplcData||null,manifoldData:item.manifoldData||null,motorData:item.motorData||null,couplingData:item.couplingData||null,pumpsetData:item.pumpsetData||null},type));const incomingCapacity=item.pumpsetData?.capacity||parseCapacityDescription(description);if(incomingCapacity&&!target.capacity_value)copyCapacity(target,incomingCapacity);
  current=target;current.description_manual=false;syncAutomaticComponents(current);rebuildDescription(current);localSave();window.KeySuiteApp?.showPage?.('assemblyBuilder');render();scheduleAutoSave(100);$('assemblyNotice').textContent=`${item.model||'Product'} routed to ${type==='system'?'System':'Pumpset'} → ${labels[route.section]}. Saving automatically…`;
 }
 async function toSystem(){
  read();if(type!=='pumpset')return;if(!current?.items?.length){alert('Add at least one component first.');return}if(!current.customer_id){alert('Select a customer for this Pumpset.');return}
  const sourceDraft=current,description=normalizeDescriptionIndentation(String(sourceDraft.description||'')).trim(),unitPrice=quoteUnitPrice(sourceDraft),qty=Math.max(.01,Number(sourceDraft.quote_qty||1));
- const grouped={model:sourceDraft.model_item||sourceDraft.name||'Pumpset',bomDescription:sourceDraft.model_item||sourceDraft.name||'Pumpset',description,qty,unitPrice,assemblyLevel:'COMPLETE_PUMPSET',assemblySection:'pumpset',section:'pumpset',productFamily:'ASSEMBLY',pricingSource:{product_family:'MANUAL',source_kind:'PUMPSET_TO_SYSTEM',pricing_mode:'assembly',calculated_price:unitPrice,assembly_items:JSON.parse(JSON.stringify(sourceDraft.items||[]))},pumpsetData:{sourceAssemblyId:sourceDraft.id,modelItem:sourceDraft.model_item||'',qty,unitPrice,bom:JSON.parse(JSON.stringify(sourceDraft.items||[]))}};
+ const grouped={model:sourceDraft.model_item||sourceDraft.name||'Pumpset',bomDescription:sourceDraft.model_item||sourceDraft.name||'Pumpset',description,qty,unitPrice,assemblyLevel:'COMPLETE_PUMPSET',assemblySection:'pumpset',section:'pumpset',productFamily:'ASSEMBLY',pricingSource:{product_family:'MANUAL',source_kind:'PUMPSET_TO_SYSTEM',pricing_mode:'assembly',calculated_price:unitPrice,assembly_items:JSON.parse(JSON.stringify(sourceDraft.items||[]))},pumpsetData:{sourceAssemblyId:sourceDraft.id,modelItem:sourceDraft.model_item||'',qty,unitPrice,bom:JSON.parse(JSON.stringify(sourceDraft.items||[])),capacity:{displayCapacity:!!sourceDraft.display_capacity,capacityValue:sourceDraft.capacity_value||'',capacityUnit:sourceDraft.capacity_unit||'L/s',headValue:sourceDraft.head_value||'',headUnit:sourceDraft.head_unit||'Mtr'}}};
  sourceDraft.status='system';try{await persist(sourceDraft)}catch(error){console.warn('Pumpset source status could not be saved.',error)}
  await addItem(grouped,{type:'system',section:'pumpset'});if($('assemblyNotice'))$('assemblyNotice').textContent='Pumpset transferred to System with an automatically selected KeyPLC panel based on Motor HP and quantity.';
 }
@@ -399,7 +421,7 @@ async function toQuotation(){
    const repriced=window.KeySuitePricing?.priceAssemblyForQuotation?.(current.items)||{error:'Quotation pricing is not available.'};if(repriced.error){alert(repriced.error);return}unitPrice=Number(repriced.total||0);pricingSource=repriced.source;
  }
  current.quote_unit_price=Number(unitPrice||0);window.KeySuiteApp?.showPage?.('quotation');
- const row=window.KeySuiteApp?.addExternalQuoteItem?.({model:current.model_item||current.name||'',qty:Number(current.quote_qty||1),unitPrice:Number(unitPrice||0),description,unit:'set',sourceType:type,pricingSource});if(!row){alert('Unable to add the assembly to Quotation.');return}
+ const row=window.KeySuiteApp?.addExternalQuoteItem?.({model:current.model_item||current.name||'',qty:Number(current.quote_qty||1),unitPrice:Number(unitPrice||0),description,unit:'set',sourceType:type,pricingSource,displayCapacity:!!current.display_capacity,capacityValue:current.capacity_value||'',capacityUnit:current.capacity_unit||'L/s',headValue:current.head_value||'',headUnit:current.head_unit||'Mtr'});if(!row){alert('Unable to add the assembly to Quotation.');return}
  current.status='quoted';dirtyDraftIds.delete(current.id);try{await persist(current)}catch(e){alert(`Assembly quotation was created, but the assembly status could not be saved: ${e.message||e}`)}
  const missing=pricingSource?.missing_bom_prices||[];if(missing.length)alert(`Pumpset added to Quotation. ${missing.length} BOM component price${missing.length===1?' is':'s are'} missing; complete the quotation Unit Price before sealing.`)
 }
@@ -426,6 +448,9 @@ document.addEventListener('DOMContentLoaded',()=>{
  $('assemblyModelItem')?.addEventListener('input',()=>{current.model_item=$('assemblyModelItem').value.trim();current.name=current.model_item||current.name;scheduleAutoSave()});
  $('assemblyQuoteQty')?.addEventListener('input',()=>{current.quote_qty=Math.max(.01,Number($('assemblyQuoteQty').value)||1);scheduleAutoSave()});
  $('assemblyQuoteUnitPrice')?.addEventListener('input',()=>{const value=$('assemblyQuoteUnitPrice').value;if(value===''){current.quote_price_manual=false;syncQuoteUnitPrice(current);$('assemblyQuoteUnitPrice').value=Number(quoteUnitPrice(current)).toFixed(2)}else{current.quote_price_manual=true;current.quote_unit_price=Math.max(0,Number(value)||0)}scheduleAutoSave()});
+ const capacityChanged=()=>{if(!current)return;current.display_capacity=!!$('assemblyDisplayCapacity')?.checked;current.capacity_value=String($('assemblyCapacityValue')?.value||'');current.capacity_unit=normalizeCapacityUnit($('assemblyCapacityUnit')?.value);current.head_value=String($('assemblyHeadValue')?.value||'');current.head_unit=normalizeHeadUnit($('assemblyHeadUnit')?.value);current.description=applyAssemblyCapacity(current.description,current);if(!current.description_manual)rebuildDescription(current);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';renderDescriptionPreview();renderQuoteFields();scheduleAutoSave(100)};
+ $('assemblyDisplayCapacity')?.addEventListener('change',capacityChanged);['assemblyCapacityValue','assemblyCapacityUnit','assemblyHeadValue','assemblyHeadUnit'].forEach(id=>$(id)?.addEventListener(id.includes('Unit')?'change':'input',capacityChanged));
+
  const main=$('assemblyDescription'),preview=$('assemblyDescriptionPreview'),dlg=$('assemblyDescriptionDialog'),popup=$('assemblyDescriptionPopup');
  const openDescriptionEditor=()=>{if(!dlg||!popup||!main)return;popup.value=main.value;dlg.showModal();setTimeout(()=>popup.focus(),0)};
  preview?.addEventListener('dblclick',openDescriptionEditor);preview?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openDescriptionEditor()}});

@@ -252,7 +252,14 @@
 .motor-selector-grid{display:grid;grid-template-columns:repeat(3,minmax(170px,1fr));gap:12px;align-items:end}.motor-selected-card{display:grid;grid-template-columns:minmax(180px,.75fr) minmax(280px,1.5fr) minmax(150px,.6fr) auto;gap:16px;align-items:center}.motor-selected-value{padding:12px 14px;border:1px solid #dbe3ec;border-radius:9px;background:#f8fafc;min-height:72px}.motor-selected-value small{display:block;color:var(--muted);font-weight:700;margin-bottom:5px}.motor-selected-value strong{display:block;color:var(--navy);font-size:17px}.motor-price-selector-grid{display:grid;grid-template-columns:repeat(2,minmax(180px,280px));gap:12px;align-items:end}.motor-custom-grid{display:grid;grid-template-columns:minmax(220px,1fr) minmax(180px,.7fr) auto;gap:12px;align-items:end;margin-top:14px}.motor-table-wrap{max-height:650px;overflow:auto}.motor-table-wrap thead{position:sticky;top:0;z-index:2}.motor-table-wrap input,.motor-table-wrap select{min-width:100px}.motor-table-wrap td:last-child{white-space:nowrap}@media(max-width:1050px){.motor-selected-card{grid-template-columns:repeat(2,minmax(180px,1fr))}}@media(max-width:700px){.motor-selector-grid,.motor-selected-card,.motor-price-selector-grid,.motor-custom-grid{grid-template-columns:1fr}}
 
 .coupling-method-row,.assembly-coupling-mode-buttons{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.coupling-method-row .btn.active,.assembly-coupling-mode-buttons .btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}.coupling-selection-badge{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}.coupling-selection-badge.auto{background:#dbeafe;color:#1d4ed8}.coupling-selection-badge.manual{background:#fef3c7;color:#92400e}.coupling-status{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}.coupling-status.suitable{background:#dcfce7;color:#166534}.coupling-status.unsuitable{background:#fee2e2;color:#991b1b}.coupling-suitability-table td:last-child{min-width:320px;white-space:normal}.coupling-bush-info-table td,.coupling-bush-info-table th{white-space:nowrap}.assembly-coupling-mode-controls{margin-top:8px;padding:10px;border:1px solid #dbe3ec;border-radius:9px;background:#f8fafc}.assembly-coupling-summary{font-size:11px;color:var(--muted);margin-top:6px}.assembly-coupling-bush-summary{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.45}
-</style>
+
+    /* V2.30 capacity rows, suggestion lists and aligned Assembly BOM controls */
+    .quote-capacity-row,.assembly-capacity-row{display:grid;grid-template-columns:minmax(150px,.65fr) minmax(230px,1fr) 24px minmax(230px,1fr);gap:10px;align-items:end;margin-top:12px;padding:10px 12px;border:1px solid #dbe3ec;border-radius:9px;background:#f8fafc}.quote-capacity-toggle,.assembly-capacity-toggle{display:flex;align-items:center;gap:8px;min-height:42px;margin:0;font-weight:800}.quote-capacity-toggle input,.assembly-capacity-toggle input{width:auto}.capacity-input-pair{display:grid;grid-template-columns:minmax(90px,1fr) minmax(86px,.65fr);gap:7px}.capacity-input-pair input,.capacity-input-pair select{width:100%;height:42px}.capacity-at{height:42px;display:flex;align-items:center;justify-content:center;font-weight:900}.capacity-disabled{opacity:.68}.quote-capacity-row.capacity-disabled input:not([type=checkbox]),.quote-capacity-row.capacity-disabled select,.assembly-capacity-row.capacity-disabled input:not([type=checkbox]),.assembly-capacity-row.capacity-disabled select{background:#e2e8f0}
+    .assembly-capacity-row{margin:0 0 14px}.assembly-item{grid-template-columns:minmax(430px,1.45fr) 92px 132px 132px auto;align-items:start}.assembly-component-main>b{display:inline-block;min-height:20px}.assembly-item>div:nth-child(2),.assembly-item>div:nth-child(3),.assembly-item>div:nth-child(4){display:grid;grid-template-rows:18px 42px;gap:4px}.assembly-item>div:nth-child(2)>label,.assembly-item>div:nth-child(3)>label,.assembly-item>div:nth-child(4)>label{margin:0;line-height:18px;white-space:nowrap}.assembly-item>div:nth-child(2)>input,.assembly-item>div:nth-child(3)>input{height:42px;width:100%}.assembly-line-total{height:42px;display:flex;align-items:center;white-space:nowrap}.assembly-delete{margin-top:22px}.assembly-component-options,.assembly-keyplc-options,.assembly-motor-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin-top:8px}.assembly-component-options .assembly-item-option,.assembly-keyplc-options .assembly-item-option,.assembly-motor-options .assembly-item-option{display:grid;grid-template-rows:18px 38px;gap:4px;margin:0;min-width:0}.assembly-component-options .assembly-item-option label,.assembly-keyplc-options .assembly-item-option label,.assembly-motor-options .assembly-item-option label{margin:0;line-height:18px;white-space:nowrap;font-size:11px}.assembly-component-options .assembly-item-option select,.assembly-keyplc-options .assembly-item-option select,.assembly-motor-options .assembly-item-option select{width:100%;min-width:0;height:38px;padding:6px 8px}.assembly-coupling-bush-summary{grid-column:1/-1}.assembly-description-preview mark{padding:0 2px;border-radius:3px}
+    @media(max-width:1100px){.assembly-item{grid-template-columns:minmax(300px,1fr) 80px 110px 110px auto}.quote-capacity-row,.assembly-capacity-row{grid-template-columns:1fr 1fr}.capacity-at{display:none}}
+    @media(max-width:720px){.quote-capacity-row,.assembly-capacity-row{grid-template-columns:1fr}.assembly-item{grid-template-columns:1fr}.assembly-item>div:nth-child(2),.assembly-item>div:nth-child(3),.assembly-item>div:nth-child(4){grid-template-columns:110px 1fr;grid-template-rows:42px;align-items:center}.assembly-delete{margin-top:0}.capacity-at{display:none}}
+
+  </style>
 </head>
 <body>
 <div id="loginView" class="auth-shell">
@@ -295,7 +302,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.29 · Coupling Auto Sizing & Pumpset Description</div>
+    <div class="suite-version">KeySuite V2.30 · Capacity, Applications & BOM Refinement</div>
   </aside>
 
   <main>
@@ -494,9 +501,15 @@
           <input id="assemblyStatus" type="hidden" value="draft">
           <div class="actions assembly-top-actions"><button class="btn action-assembly" id="assemblyToSystem" type="button">System</button><button class="btn action-quote" id="assemblyToQuotation" type="button">Quote</button><button class="btn danger" id="deleteAssemblyDraft" type="button">Delete</button></div>
           <div class="assembly-quote-fields">
-            <div><label for="assemblyModelItem">Model / Item</label><input id="assemblyModelItem" list="assemblyModelItemOptions" placeholder="Select a suggested model or type a custom item"><datalist id="assemblyModelItemOptions"></datalist><div class="assembly-quote-help">System suggestions follow the pump quantity in the BOM; custom text is allowed.</div></div>
+            <div><label for="assemblyModelItem">Model / Item</label><input id="assemblyModelItem" list="assemblyModelItemOptions" placeholder="Select a suggested model or type a custom item"><datalist id="assemblyModelItemOptions"></datalist><div class="assembly-quote-help" id="assemblyModelItemHelp">System suggestions follow the pump quantity in the BOM; custom text is allowed.</div></div>
             <div><label for="assemblyQuoteQty">Qty</label><input id="assemblyQuoteQty" type="number" min="0.01" step="0.01" value="1"><div class="assembly-quote-help" aria-hidden="true">&nbsp;</div></div>
             <div><label for="assemblyQuoteUnitPrice">Unit Price</label><input id="assemblyQuoteUnitPrice" type="number" min="0" step="0.01"><div class="assembly-quote-help">Defaults to the BOM total; edit to override.</div></div>
+          </div>
+          <div id="assemblyCapacityRow" class="assembly-capacity-row no-print">
+            <label class="assembly-capacity-toggle"><input id="assemblyDisplayCapacity" type="checkbox"> Display Capacity</label>
+            <div><label for="assemblyCapacityValue">Capacity</label><div class="capacity-input-pair"><input id="assemblyCapacityValue" type="number" min="0" step="any"><select id="assemblyCapacityUnit"><option>L/s</option><option>m³/h</option><option>L/min</option><option>GPM</option></select></div></div>
+            <span class="capacity-at">@</span>
+            <div><label for="assemblyHeadValue">Head</label><div class="capacity-input-pair"><input id="assemblyHeadValue" type="number" min="0" step="any"><select id="assemblyHeadUnit"><option>Mtr</option><option>ft</option><option>bar</option></select></div></div>
           </div>
           <div class="form-grid">
             <div class="span-3"><label id="assemblyDescriptionLabel">System Description</label><div id="assemblyDescriptionPreview" class="assembly-description-preview" role="button" tabindex="0" title="Double-click to edit System Description" aria-label="Highlighted System Description. Double-click to edit."></div><textarea id="assemblyDescription" class="assembly-description-source" hidden aria-hidden="true"></textarea></div>
@@ -612,7 +625,7 @@
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><h2>Items <span id="itemCount" class="muted"></span></h2><div class="status-summary"><span class="status-pill" title="Complete"><i class="status-dot green"></i><b id="completeCount">0</b></span><span class="status-pill" title="Warning"><i class="status-dot yellow"></i><b id="warningCount">0</b></span><span class="status-pill" title="Error"><i class="status-dot red"></i><b id="errorCount">0</b></span></div></div>
           <div class="items-toolbar-actions no-print"><button class="btn secondary" type="button" id="expandAllItems">Expand All</button><button class="btn secondary" type="button" id="collapseAllItems">Collapse All</button><button class="btn secondary" type="button" id="addQuoteItem">+ Add Item</button></div>
         </div>
-        <div id="quoteItems"></div>
+        <div id="quoteItems"></div><datalist id="quotationModelItemOptions"></datalist>
         <div class="quote-total" style="margin-top:20px">Total: <span id="quoteTotal">RM 0.00</span></div>
         <div class="card no-print export-center-hidden" id="quotationExportCenter" style="margin-top:16px"><h2>Export Center</h2><div class="actions"><button class="btn action-pdf" id="printQuote">PDF</button><button class="btn secondary" id="loadPrintSample">Load Print Sample</button></div><div id="itemExportButtons" class="actions"></div><p class="muted" style="margin-bottom:0">Item buttons export the selected item PDF.</p></div>
       </div>
@@ -1222,18 +1235,19 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=216"></script>
-<script src="app.js?v=229"></script>
-<script src="pricing.js?v=229"></script>
-<script src="quotation-references.js?v=229"></script>
-<script src="categories.js?v=229"></script>
-<script src="pricelist.js?v=229"></script>
-<script src="product.js?v=229"></script>
-<script src="manifold.js?v=229"></script>
-<script src="roles.js?v=229"></script>
-<script src="assembly.js?v=229"></script>
-<script src="motor.js?v=229"></script>
-<script src="coupling.js?v=229"></script>
-<script src="quotation-templates.js?v=229"></script>
+<script src="applications.js?v=230"></script>
+<script src="app.js?v=230"></script>
+<script src="pricing.js?v=230"></script>
+<script src="quotation-references.js?v=230"></script>
+<script src="categories.js?v=230"></script>
+<script src="pricelist.js?v=230"></script>
+<script src="product.js?v=230"></script>
+<script src="manifold.js?v=230"></script>
+<script src="roles.js?v=230"></script>
+<script src="assembly.js?v=230"></script>
+<script src="motor.js?v=230"></script>
+<script src="coupling.js?v=230"></script>
+<script src="quotation-templates.js?v=230"></script>
 
 <dialog id="quotationTemplateDialog" class="ks-dialog template-dialog">
   <div class="dialog-body">

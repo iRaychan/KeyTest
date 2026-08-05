@@ -1,0 +1,7 @@
+KeySuite V2.30 Update
+
+1. Start from KeySuite V2.29.
+2. Replace all files supplied in the V2.30 update patch.
+3. Keep the existing config.js.
+4. No Supabase migration is required.
+5. Deploy, press Ctrl+F5, then reopen KeySuite.

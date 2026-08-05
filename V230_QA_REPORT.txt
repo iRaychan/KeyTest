@@ -1,0 +1,30 @@
+KeySuite V2.30 QA Report
+
+Base version: V2.29
+Delivery type: Update-only patch
+Database migration: Not required
+
+Passed checks:
+- JavaScript syntax: all 17 root application JavaScript files
+- Quotation Capacity row position: below Model / Item and above Description
+- Per-item Capacity values and units persist in quotation item data
+- Display Capacity untick removes the description line while retaining entered values
+- Capacity line format: Capacity: 4 L/s @ 20 Mtr
+- Pumpset/System Capacity values stored in existing assembly JSON metadata
+- Pumpset Capacity transfer to System and Quotation
+- Application suggestions: 33 unique entries from the supplied workbook
+- Pumpset Model / Item application suggestions
+- Quotation Model / Item application suggestions on every item
+- ES Pump BOM Mechanical Seal selection
+- ES Pump BOM Elastomer selection
+- Non-default seal/elastomer colour class
+- Pumpset description highlighting: IE class, Coupling type and Pump material
+- System description highlighting: SS/GI Manifold material
+- Assembly BOM input and title alignment CSS
+- Service worker cache updated to keysuite-v230 and includes applications.js
+- Manifest version updated to V2.30
+- Update ZIP integrity and clean extraction
+
+Notes:
+- On-screen highlighting is not included in quotation/PDF output.
+- Capacity control rows are screen-only; only the formatted Capacity line is printed.

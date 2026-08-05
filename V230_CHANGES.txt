@@ -1,0 +1,9 @@
+KeySuite V2.30 Changes
+
+- Added searchable Application suggestions from the supplied workbook to Pumpset and every Quotation Model / Item field.
+- Added per-item Display Capacity controls to Quotation, below Model / Item and above Description.
+- Added Display Capacity controls to System and Pumpset Assembly with editable Capacity and Head units.
+- Capacity values transfer from Pumpset to System and Quotation and remain independently editable.
+- Highlighted Motor efficiency, Coupling type, Pump material and System Manifold SS/GI variables in on-screen descriptions.
+- Added Mechanical Seal and Elastomer controls to ES Pump BOM items, including non-default colour indication.
+- Standardized Assembly BOM label, input and column alignment across Pump, Motor, Coupling, Panel, Manifold, Tank, Pumpset and Baseplate.
