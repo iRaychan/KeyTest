@@ -1,0 +1,14 @@
+KeySuite V2.34 Changes
+
+Tyre Coupling BOM stability fix
+- Prevents repeated Coupling recalculate/render/autosave loops when Tyre is selected.
+- Keeps the Coupling BOM item ID stable when changing Flexible, Pin & Bush, and Tyre.
+- Recalculates Tyre model and F/H Bush arrangement once per actual Pump/Motor context change.
+- Preserves the selected Coupling type and manual Tyre model/arrangement during render and autosave.
+- Keeps Selected Type, Model, F/H Arrangement, and Delete controls available after Tyre selection.
+- Retains Tyre mode with a validation reason when no suitable model is available.
+
+Coupling delete and restore
+- Deleting the Coupling no longer causes it to be recreated immediately.
+- A Restore Coupling button is displayed after intentional deletion.
+- Changing or adding a Pump/Motor re-enables automatic Coupling sizing.

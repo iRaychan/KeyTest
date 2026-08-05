@@ -1,0 +1,20 @@
+KeySuite V2.34 QA Report
+
+Base: KeySuite V2.33 full source
+Delivery: V2.33 → V2.34 update patch and V2.34 full source
+
+Passed checks
+- JavaScript syntax check for all application JavaScript files.
+- Browser interaction: Flexible → Pin & Bush → Tyre.
+- Tyre Selected Type remains editable and selected after re-render.
+- Tyre Model remains editable after selection.
+- F/H Arrangement remains available for Tyre.
+- Coupling BOM item ID remains stable across type changes.
+- Tyre → Pin & Bush change remains responsive.
+- Coupling Delete does not immediately recreate the item.
+- Restore Coupling recreates the selected Tyre configuration.
+- No browser page errors during the targeted workflow.
+- No Supabase migration required.
+
+Not performed
+- The package was not deployed to the user’s live GitHub or Supabase environment.

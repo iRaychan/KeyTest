@@ -1,0 +1,14 @@
+KeySuite V2.33 -> V2.34 changed files
+
+assembly.js
+index.html
+sw.js
+manifest.json
+VERSION.txt
+README.md
+V234_CHANGES.txt
+INSTALL_V234.txt
+V234_NO_DATABASE_MIGRATION.txt
+V234_QA_REPORT.txt
+PATCH_FILES_V234.txt
+SHA256SUMS_V234.txt

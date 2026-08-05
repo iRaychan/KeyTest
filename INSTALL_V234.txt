@@ -1,0 +1,10 @@
+KeySuite V2.34 Installation
+
+Upgrade from V2.33
+1. Back up the current V2.33 deployment.
+2. Replace the files supplied in the V2.34 update patch.
+3. Keep the existing working config.js.
+4. No Supabase migration is required.
+5. Deploy and press Ctrl+F5.
+
+The service-worker cache name and script query versions are updated to V2.34.

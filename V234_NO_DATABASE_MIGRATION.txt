@@ -1,0 +1,1 @@
+KeySuite V2.34 does not require a Supabase database migration.
