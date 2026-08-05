@@ -1,0 +1,18 @@
+V2.31 -> V2.32 application files to replace:
+
+VERSION.txt
+app.js
+assembly.js
+coupling.js
+index.html
+manifest.json
+sw.js
+README.md
+
+Supporting documentation included in the patch:
+INSTALL_V232.txt
+V232_CHANGES.txt
+V232_NO_DATABASE_MIGRATION.txt
+V232_QA_REPORT.txt
+PATCH_FILES_V232.txt
+SHA256SUMS_V232.txt

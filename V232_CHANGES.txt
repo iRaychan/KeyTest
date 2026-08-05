@@ -1,0 +1,32 @@
+KeySuite V2.32 Changes
+
+1. Pumpset BOM colour correction
+   - Pump #E2EFDA
+   - Motor #C6E0B4
+   - Coupling #A9D08E
+   - Baseplate #76B54B
+   - Includes auto-generated Coupling and Baseplate items.
+
+2. Pumpset Coupling control
+   - Selected Type remains editable.
+   - Flexible, Pin & Bush, and Tyre reconfigure the current Coupling safely.
+
+3. Quotation Coupling formatting
+   - Pin & Bush Coupling Model: FCL 100
+   - Tyre Coupling Model: F60
+   - Removes the extra standalone coupling-type description line.
+
+4. Quotation Motor formatting
+   - Description starts with B.G.Reich.
+   - Capacity and Head controls are hidden for Motor items.
+
+5. Quotation UI and print
+   - Coupling shaft checkbox matches the Capacity checkbox size.
+   - Print Description font reduced to 10 pt.
+
+6. Product Coupling layout
+   - Auto Size | Manual Selection | selected model | Assembly | Quote
+   - Selected model is bold.
+
+7. BOM alignment
+   - Component detail inputs and standard BOM row controls use a consistent 42 px height.

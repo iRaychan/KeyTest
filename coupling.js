@@ -128,7 +128,7 @@
 
   function assemblyDescription(mode){return `c/w\tBaseplate with ${modeLabel(mode)}`}
   function makeItem(found,config,route='quotation'){
-    const label=typeLabel(config.type),quoteModel=normalizeType(config.type)==='tyre'?`Tyre Coupling Model: ${config.model}`:`Coupling Model: ${config.model}`,mode=normalizeMode(config.selectionMode||config.type);
+    const label=typeLabel(config.type),quoteModel=normalizeType(config.type)==='tyre'?`Tyre Coupling Model: ${config.model}`:`Pin & Bush Coupling Model: ${config.model}`,mode=normalizeMode(config.selectionMode||config.type);
     const description=route==='assembly'?assemblyDescription(mode):label;
     const shaftInfo={displayShaftInfo:true,pumpShaft:number(config.pumpShaft||0),motorShaft:number(config.motorShaft||0),motorPole:number(config.motorPole||2),motorSpeed:number(config.motorRpm||speedForPole(config.motorPole))};
     return {model:route==='quotation'?quoteModel:config.model,bomDescription:config.model,description,qty:number(config.couplingQty||1),unitPrice:number(found.calc.finalPrice),pricingSource:snapshot(found),productFamily:'COUPLING',isCoupling:true,shaftInfo,assemblyLevel:'PUMPSET_COMPONENT',assemblySection:'coupling',section:'coupling',couplingData:{...config,selectionMode:mode,autoSelected:route==='assembly'?false:config.autoSelected,manualModel:!!config.manualModel}};

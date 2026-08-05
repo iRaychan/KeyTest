@@ -351,7 +351,11 @@ function couplingModeControls(){
  if(type!=='pumpset')return '';const context=window.KeySuiteCoupling?.contextFromItems?.(current?.items||[])||{};if(!(Number(context.pumpCount)>0&&Number(context.motorCount)>0))return `<div class="assembly-coupling-mode-controls"><div class="muted">Select both Pump and Motor to size the coupling.</div></div>`;return '';
 }
 function setCouplingMode(mode){
- if(!current)return;current.coupling_mode=String(mode||'flexible');(current.items||[]).filter(item=>item.section==='coupling'&&item.couplingData).forEach(item=>{item.couplingData.autoSelected=true;item.couplingData.manualModel=false});current.description_manual=false;syncAutomaticComponents(current);syncQuoteUnitPrice(current);rebuildDescription(current);current.description=normalizeDescriptionIndentation(current.description);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';renderDescriptionPreview();localSave();renderItems();renderQuoteFields();scheduleAutoSave(100);
+ if(!current)return;read();const next=String(mode||'flexible'),previous=String(current.coupling_mode||'flexible'),context=window.KeySuiteCoupling?.contextFromItems?.(current.items||[])||{};let item=(current.items||[]).find(entry=>entry.section==='coupling'&&entry.couplingData)||null;
+ if(!item){const built=window.KeySuiteCoupling?.buildAssemblyItem?.(next,context);if(built){item=normalizeItem({...built,id:uid(),section:'coupling'},'pumpset');current.items.push(item)}}
+ if(!item){alert('No suitable Coupling model is available for the selected Pump and Motor.');current.coupling_mode=previous;renderItems();return}
+ item.couplingData.autoSelected=true;item.couplingData.manualModel=false;const result=window.KeySuiteCoupling?.configureAssemblyItem?.(item,{selectionMode:next},context);if(result?.error){alert(result.error);current.coupling_mode=previous;renderItems();return}
+ current.coupling_mode=next;current.description_manual=false;syncQuoteUnitPrice(current);rebuildDescription(current);current.description=normalizeDescriptionIndentation(current.description);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';renderDescriptionPreview();localSave();renderItems();renderQuoteFields();scheduleAutoSave(100);
 }
 function updateCouplingItemFromRow(row,changedClass=''){
  const item=current?.items?.find(entry=>entry.id===row?.dataset.assemblyItem);if(!item?.couplingData)return;

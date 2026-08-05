@@ -1,0 +1,27 @@
+KeySuite V2.32 QA Report
+
+Build basis
+- Reconstructed full V2.31 source from V2.24 full source plus official V2.25-V2.31 update patches.
+- Applied V2.32 changes directly to that clean source.
+
+Completed checks
+- All JavaScript files passed Node.js syntax checking.
+- 41 static source and HTML integrity checks passed.
+- Coupling functional test passed:
+  * 65-32G + 125HP 2 Pole selects FCL 224.
+  * 2 Pole uses 2,900 rpm and 4 Pole uses 1,450 rpm.
+  * Multiple Pump/Motor items use the largest Pump shaft and Motor shaft/torque context.
+  * Tyre Coupling configuration builds successfully.
+- Quotation helper tests passed:
+  * Pin & Bush and Tyre Model/Item normalization.
+  * Extra standalone Coupling type line removal.
+  * B.G.Reich Motor quotation description.
+  * Motor Capacity-row suppression.
+- Coupling and Baseplate colour rules include auto-generated BOM items.
+- Product Coupling top-row action IDs are unique and in the requested order.
+- Referenced local JavaScript files exist.
+
+Not performed
+- No live GitHub deployment.
+- No live Supabase changes.
+- No production customer-data test.

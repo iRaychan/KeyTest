@@ -112,7 +112,7 @@
   .print-items-table th:nth-child(3),.print-items-table td:nth-child(3){width:22mm;text-align:center;white-space:nowrap}
   .print-items-table th:nth-child(4),.print-items-table td:nth-child(4){width:27mm;text-align:right}
   .print-items-table th:nth-child(5),.print-items-table td:nth-child(5){width:27mm;text-align:right}
-  .print-item-model{font-weight:700;margin-bottom:1.5mm}.print-item-desc{white-space:pre-wrap;line-height:1.35;tab-size:4;overflow-wrap:normal;word-break:normal}
+  .print-item-model{font-weight:700;margin-bottom:1.5mm}.print-item-desc{font-size:10pt;white-space:pre-wrap;line-height:1.35;tab-size:4;overflow-wrap:normal;word-break:normal}
   .print-system-item-head td{padding-bottom:0}.print-system-item-head .print-item-model{margin-bottom:0}.print-system-item-desc-row td{padding-top:1.5mm}.print-system-item-desc-row .print-system-desc-cell{width:auto!important;text-align:left!important;white-space:normal!important}.print-system-item-desc-row .print-system-price-spacer,.print-system-item-desc-row .print-system-total-spacer{width:27mm!important}.print-system-item-desc-row .print-item-desc{width:100%}
   .print-summary-spacer td{height:5mm;padding:0!important}
   .print-summary-line td{height:0;padding:0!important;border:0!important}
@@ -267,13 +267,20 @@
     /* V2.31 Coupling shaft-information row */
     .quote-shaft-row{grid-template-columns:minmax(180px,.8fr) minmax(170px,1fr) minmax(170px,1fr) minmax(210px,1.1fr)}.quote-shaft-row>div{display:grid;grid-template-rows:18px 42px;gap:4px}.quote-shaft-row input,.quote-shaft-row select{height:42px;width:100%}
     @media(max-width:850px){.quote-shaft-row{grid-template-columns:1fr 1fr}}@media(max-width:600px){.quote-shaft-row{grid-template-columns:1fr}}
+    /* V2.32 Coupling, BOM colour and quotation typography corrections */
+    .quote-shaft-row>div input,.quote-shaft-row>div select{height:42px;width:100%}.quote-shaft-row .item-display-shaft{width:13px!important;height:13px!important;min-width:13px!important;flex:0 0 13px;padding:0!important;margin:0!important}
+    .assembly-item.assembly-item-pump,.assembly-item.assembly-item-pump.auto-generated{background:#E2EFDA!important}.assembly-item.assembly-item-motor,.assembly-item.assembly-item-motor.auto-generated{background:#C6E0B4!important}.assembly-item.assembly-item-coupling,.assembly-item.assembly-item-coupling.auto-generated{background:#A9D08E!important}.assembly-item.assembly-item-baseplate,.assembly-item.assembly-item-baseplate.auto-generated{background:#76B54B!important}
+    .assembly-section-pump>.assembly-section-head{background:#E2EFDA}.assembly-section-motor>.assembly-section-head{background:#C6E0B4}.assembly-section-coupling>.assembly-section-head{background:#A9D08E}.assembly-section-baseplate>.assembly-section-head{background:#76B54B}.assembly-section-pump>.assembly-section-head,.assembly-section-motor>.assembly-section-head,.assembly-section-coupling>.assembly-section-head,.assembly-section-baseplate>.assembly-section-head{border-radius:9px 9px 0 0;padding:9px 12px}
+    .assembly-component-detail-row .assembly-component-options .assembly-item-option,.assembly-component-detail-row .assembly-keyplc-options .assembly-item-option,.assembly-component-detail-row .assembly-motor-options .assembly-item-option{grid-template-rows:18px 42px}.assembly-component-detail-row select,.assembly-component-detail-row input{height:42px!important;box-sizing:border-box}.assembly-bom-main-row input,.assembly-bom-main-row .assembly-line-total,.assembly-bom-main-row .assembly-delete{height:42px;box-sizing:border-box}
+    .coupling-top-action-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}.coupling-top-action-row .coupling-method-row{display:flex;gap:8px;margin:0}.coupling-top-model{font-size:18px;font-weight:900;color:var(--navy);min-width:100px;padding:7px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;text-align:center}.coupling-top-action-row .actions{margin:0 0 0 auto}.coupling-selection-badge{display:none!important}
+    @media(max-width:720px){.coupling-top-action-row .actions{margin-left:0;width:100%;justify-content:flex-start}.coupling-top-model{order:2}.coupling-top-action-row .actions{order:3}}
 
   </style>
 </head>
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.31 BOM, Coupling & Customer Templates</small></div>
+    <div class="auth-brand">KeySuite<small>V2.32 Coupling & Quotation Corrections</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -288,7 +295,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.31</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.32</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -311,7 +318,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.31 · BOM, Coupling & Customer Templates</div>
+    <div class="suite-version">KeySuite V2.32 · Coupling & Quotation Corrections</div>
   </aside>
 
   <main>
@@ -559,9 +566,10 @@
       <div id="couplingProductMessage" class="auth-message"></div>
       <div class="card">
         <div class="page-title-row" style="margin-bottom:14px"><div><h2 style="margin:0">Coupling Selection</h2></div><span id="couplingSelectionBadge" class="coupling-selection-badge auto">Auto Selected</span></div>
-        <div class="coupling-method-row" style="margin-bottom:14px">
-          <button class="btn secondary active" type="button" data-coupling-selection-method="auto">Auto Size</button>
-          <button class="btn secondary" type="button" data-coupling-selection-method="manual">Manual Selection</button>
+        <div class="coupling-top-action-row">
+          <div class="coupling-method-row"><button class="btn secondary active" type="button" data-coupling-selection-method="auto">Auto Size</button><button class="btn secondary" type="button" data-coupling-selection-method="manual">Manual Selection</button></div>
+          <strong id="couplingSelectedModel" class="coupling-top-model">—</strong>
+          <div class="actions"><button class="btn action-assembly" id="couplingSelectedAssembly" type="button">Assembly</button><button class="btn green" id="couplingSelectedQuote" type="button">Quote</button></div>
         </div>
         <div class="coupling-product-grid">
           <div><label for="couplingProductType">Coupling Type</label><select id="couplingProductType"><option value="pin_bush" selected>Pin &amp; Bush</option><option value="tyre">Tyre Coupling</option></select></div>
@@ -582,9 +590,7 @@
         <div class="motor-selected-value"><small>Motor Shaft</small><strong id="couplingSelectedMotorShaft">—</strong></div>
         <div class="motor-selected-value"><small>Required Torque</small><strong id="couplingSelectedTorque">—</strong></div>
         <div class="motor-selected-value"><small>Required Speed</small><strong id="couplingSelectedSpeed">—</strong></div>
-        <div class="motor-selected-value"><small>Coupling Model</small><strong id="couplingSelectedModel">—</strong></div>
         <div class="motor-selected-value"><small>Description</small><strong id="couplingSelectedDescription">—</strong></div>
-        <div class="actions" style="margin:0;justify-content:flex-end"><button class="btn action-assembly" id="couplingSelectedAssembly" type="button">Assembly</button><button class="btn green" id="couplingSelectedQuote" type="button">Quote</button></div>
       </div>
       <div class="card" style="margin-top:16px">
         <div class="page-title-row" style="margin-bottom:12px"><div><h2 style="margin:0">Suitability Check</h2><div class="muted">Every model shows why it is suitable or unsuitable for the selected Pump and Motor.</div></div></div>

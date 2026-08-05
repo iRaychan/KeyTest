@@ -1,0 +1,14 @@
+KeySuite V2.32 Installation
+
+FULL SOURCE
+1. Back up the current GitHub source and database.
+2. Upload the V2.32 full-source contents.
+3. Preserve your existing config.js; this package intentionally does not include it.
+4. No Supabase migration is required.
+5. Deploy, press Ctrl+F5, and test before production use.
+
+UPDATE PATCH (V2.31 -> V2.32)
+1. Replace only the files listed in PATCH_FILES_V232.txt.
+2. Preserve config.js.
+3. No Supabase migration is required.
+4. Deploy and press Ctrl+F5.

@@ -1,0 +1,3 @@
+KeySuite V2.32 does not require a new Supabase migration.
+
+The V2.31 database migration must already be installed when upgrading from V2.30 or earlier.
