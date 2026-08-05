@@ -1,9 +1,7 @@
-# KeySuite V2.34
+# KeySuite V2.35
 
-Full GitHub source built from V2.33. `config.js` is intentionally not included; preserve the existing deployment configuration.
+Full source based on V2.34 with the Pumpset BOM Tyre Coupling editor corrected.
 
-## Upgrade
+The coupling row remains editable and deletable after Tyre is selected, including when no suitable Tyre model, bush arrangement, price, or pricing calculation is available.
 
-Use the V2.33 → V2.34 update patch or replace the complete source. No Supabase migration is required.
-
-See `V234_CHANGES.txt` and `INSTALL_V234.txt`.
+No Supabase migration is required. Preserve the existing `config.js` when deploying.

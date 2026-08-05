@@ -1,0 +1,14 @@
+KeySuite V2.34 -> V2.35 changed files
+
+assembly.js
+index.html
+manifest.json
+sw.js
+VERSION.txt
+README.md
+V235_CHANGES.txt
+V235_QA_REPORT.txt
+V235_NO_DATABASE_MIGRATION.txt
+INSTALL_V235.txt
+SHA256SUMS_V235.txt
+PATCH_FILES_V235.txt

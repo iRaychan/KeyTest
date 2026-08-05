@@ -1,0 +1,8 @@
+KeySuite V2.35 update instructions
+
+1. Back up the current V2.34 deployment.
+2. Replace the files in the V2.35 update patch.
+3. Keep the existing config.js.
+4. No Supabase migration is required.
+5. Deploy, then press Ctrl+F5.
+6. If an older service worker remains, clear site data once and reopen KeySuite.

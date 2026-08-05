@@ -1,0 +1,23 @@
+KeySuite V2.35 QA Report
+
+Base: KeySuite V2.34 full source
+Delivery: V2.34 -> V2.35 update patch and V2.35 full source
+
+Passed checks
+- JavaScript syntax check for every root application JavaScript file.
+- Browser workflow: Flexible -> Tyre -> Pin & Bush -> Tyre remains responsive.
+- Coupling BOM item ID remains stable across type changes.
+- Tyre Model remains editable after Tyre is selected.
+- F/H Arrangement remains editable when available.
+- Coupling Delete removes the row and does not recreate it automatically.
+- Restore Coupling remains available after deletion.
+- Error-safe workflow with an injected pricing exception: controls and Delete remain usable.
+- Error-safe workflow with no Tyre product data: controls and Delete remain usable.
+- Standard small-shaft and large-shaft Pump/Motor scenarios passed.
+- Coupling mode and suppression metadata are included in Assembly save metadata.
+- Service-worker cache and script query versions updated to V2.35.
+- Fresh V2.35 overlay on V2.34 contains only the expected application changes.
+- ZIP integrity and SHA-256 checks passed.
+
+No Supabase migration is required.
+Not deployed to the user's live GitHub or Supabase environment.

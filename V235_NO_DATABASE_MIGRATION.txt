@@ -1,0 +1,1 @@
+KeySuite V2.35 does not require a Supabase migration.

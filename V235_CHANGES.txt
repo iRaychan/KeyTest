@@ -1,0 +1,11 @@
+KeySuite V2.35 — Tyre Coupling BOM Editor Fix
+
+Base: V2.34
+
+- Replaced the Tyre coupling editor mutation flow with an error-safe, deferred render flow.
+- Keeps the same Coupling BOM item ID when changing Flexible, Pin & Bush, and Tyre.
+- Prevents automatic coupling refresh from taking control during a user edit.
+- Keeps Selected Type, Model, F/H Arrangement, and Delete usable even when sizing or pricing fails.
+- Persists Coupling mode and error state through local/remote Assembly saves.
+- Deleting Coupling suppresses automatic recreation until Restore Coupling is used.
+- Adds safe handling for missing Tyre data, unavailable suitable models, and pricing exceptions.
