@@ -38,7 +38,7 @@
   const permissionLevel=key=>window.KeySuitePermissions?.level?.(key,role())||(role()==='owner'?'full':'none');
   const canEditPrices=()=>permissionLevel('manage_price_list')==='full';
   const validCurrency=value=>CURRENCIES.includes(String(value||'').toUpperCase())?String(value).toUpperCase():'RMB';
-  const speedForPole=pole=>Math.round(6000/Math.max(1,number(pole)||2));
+  const speedForPole=pole=>({2:2900,4:1450,6:960,8:720}[number(pole)]||2900);
   const torqueForMotor=(hp,pole)=>{const rpm=speedForPole(pole);return hp>0?number(hp)*.746*9550/rpm:0};
 
   function frameFor(hp,pole){
@@ -128,9 +128,10 @@
 
   function assemblyDescription(mode){return `c/w\tBaseplate with ${modeLabel(mode)}`}
   function makeItem(found,config,route='quotation'){
-    const label=typeLabel(config.type),quoteModel=normalizeType(config.type)==='tyre'?`B.G.Reich Tyre Coupling Model: ${config.model}`:`B.G.Reich Coupling Model: ${config.model}`,mode=normalizeMode(config.selectionMode||config.type);
+    const label=typeLabel(config.type),quoteModel=normalizeType(config.type)==='tyre'?`Tyre Coupling Model: ${config.model}`:`Coupling Model: ${config.model}`,mode=normalizeMode(config.selectionMode||config.type);
     const description=route==='assembly'?assemblyDescription(mode):label;
-    return {model:route==='quotation'?quoteModel:config.model,bomDescription:config.model,description,qty:number(config.couplingQty||1),unitPrice:number(found.calc.finalPrice),pricingSource:snapshot(found),productFamily:'COUPLING',assemblyLevel:'PUMPSET_COMPONENT',assemblySection:'coupling',section:'coupling',couplingData:{...config,selectionMode:mode,autoSelected:route==='assembly'?false:config.autoSelected,manualModel:!!config.manualModel}};
+    const shaftInfo={displayShaftInfo:true,pumpShaft:number(config.pumpShaft||0),motorShaft:number(config.motorShaft||0),motorPole:number(config.motorPole||2),motorSpeed:number(config.motorRpm||speedForPole(config.motorPole))};
+    return {model:route==='quotation'?quoteModel:config.model,bomDescription:config.model,description,qty:number(config.couplingQty||1),unitPrice:number(found.calc.finalPrice),pricingSource:snapshot(found),productFamily:'COUPLING',isCoupling:true,shaftInfo,assemblyLevel:'PUMPSET_COMPONENT',assemblySection:'coupling',section:'coupling',couplingData:{...config,selectionMode:mode,autoSelected:route==='assembly'?false:config.autoSelected,manualModel:!!config.manualModel}};
   }
   function validateManualConfig(type,model,context,arrangement=''){
     const product=findComponent(type==='tyre'?'tyre':'pin_bush',model);if(!product)return {suitable:false,reasons:['Coupling model was not found'],config:null};
@@ -204,8 +205,9 @@
   function storedPrice(product,currency){return componentRaw(product,currency)}
   function rarityOptions(selected){return RARITIES.map(value=>`<option value="${value}" ${value===selected?'selected':''}>${value[0].toUpperCase()+value.slice(1)}</option>`).join('')}
   function renderPriceList(){
-    const body=byId('couplingPriceRows');if(!body)return;const currency=currentPriceCurrency(),type=selectedPriceType(),editable=canEditPrices(),rows=sortedComponents(type);if(byId('couplingPriceValueHeading'))byId('couplingPriceValueHeading').textContent=`${currency} Price`;
-    body.innerHTML=rows.map(row=>`<tr data-coupling-price-row="${esc(row.id)}"><td><b>${esc(row.model)}</b></td><td>${row.torqueNm?number(row.torqueNm).toLocaleString('en-MY'):'—'}</td><td>${row.maxSpeedRpm?effectiveMaxSpeed(row).toLocaleString('en-MY'):'—'}</td><td>${row.maxShaftMm?`${number(row.maxShaftMm)} mm`:'—'}</td><td><select class="coupling-row-rarity" ${editable?'':'disabled'}>${rarityOptions(String(row.rarity||'common'))}</select></td><td><div class="currency-price-input"><span>${currency}</span><input class="coupling-row-price" type="number" min="0" step="0.01" value="${storedPrice(row,currency)>0?storedPrice(row,currency).toFixed(2):''}" ${editable?'':'readonly'}></div></td><td class="pricelist-row-actions"><button class="btn icon-save-button coupling-row-save" type="button" ${editable?'':'disabled'}>Save</button></td></tr>`).join('');
+    const body=byId('couplingPriceRows');if(!body)return;const currency=currentPriceCurrency(),type=selectedPriceType(),editable=canEditPrices(),rows=sortedComponents(type),isBush=type==='bush';
+    const head=byId('couplingPriceHead');if(head)head.innerHTML=isBush?`<tr><th>Model</th><th>Maximum Shaft</th><th>Rarity</th><th id="couplingPriceValueHeading">${currency} Price</th><th></th></tr>`:`<tr><th>Model</th><th>Torque (N·m)</th><th>Max Speed (rpm)</th><th>Max Shaft</th><th>Rarity</th><th id="couplingPriceValueHeading">${currency} Price</th><th></th></tr>`;
+    body.innerHTML=rows.map(row=>{const price=`<td><div class="currency-price-input"><span>${currency}</span><input class="coupling-row-price" type="number" min="0" step="0.01" value="${storedPrice(row,currency)>0?storedPrice(row,currency).toFixed(2):''}" ${editable?'':'readonly'}></div></td><td class="pricelist-row-actions"><button class="btn icon-save-button coupling-row-save" type="button" ${editable?'':'disabled'}>Save</button></td>`;return isBush?`<tr data-coupling-price-row="${esc(row.id)}"><td><b>${esc(row.model)}</b></td><td>${row.maxShaftMm?`${number(row.maxShaftMm)} mm`:'—'}</td><td><select class="coupling-row-rarity" ${editable?'':'disabled'}>${rarityOptions(String(row.rarity||'common'))}</select></td>${price}</tr>`:`<tr data-coupling-price-row="${esc(row.id)}"><td><b>${esc(row.model)}</b></td><td>${row.torqueNm?number(row.torqueNm).toLocaleString('en-MY'):'—'}</td><td>${row.maxSpeedRpm?effectiveMaxSpeed(row).toLocaleString('en-MY'):'—'}</td><td>${row.maxShaftMm?`${number(row.maxShaftMm)} mm`:'—'}</td><td><select class="coupling-row-rarity" ${editable?'':'disabled'}>${rarityOptions(String(row.rarity||'common'))}</select></td>${price}</tr>`}).join('');
     body.querySelectorAll('[data-coupling-price-row]').forEach(row=>row.querySelector('.coupling-row-save')?.addEventListener('click',()=>savePrice(row.dataset.couplingPriceRow,row)));const filled=rows.filter(row=>storedPrice(row,currency)>0).length;if(byId('couplingPriceCount'))byId('couplingPriceCount').textContent=`${rows.length} items · ${filled} priced in ${currency}`;renderRateInputs();
   }
   async function savePrice(id,row){
@@ -236,5 +238,5 @@
   }
   function init(data,userAccess){secureData={...secureData,...(data||{})};access=userAccess||access;const fcl224=products().find(row=>String(row.model).toUpperCase()==='FCL 224');if(fcl224)fcl224.maxSpeedRpm=3000;initialize();bind();renderProduct();renderPriceList()}
   function pageShown(id){if(id==='productCoupling'){initialize();renderProduct()}if(id==='couplingPriceList')renderPriceList()}
-  window.KeySuiteCoupling={init,pageShown,recommend,recommendForContext,findConfiguredPrice,configureAssemblyItem,buildAssemblyItem,contextFromItems,normalizePumpModel,typeLabel,modeLabel,productRows:componentRows,pinEvaluation,tyreEvaluation,validateManualConfig,assemblyDescription};
+  window.KeySuiteCoupling={init,pageShown,recommend,recommendForContext,findConfiguredPrice,configureAssemblyItem,buildAssemblyItem,contextFromItems,normalizePumpModel,typeLabel,modeLabel,speedForPole,productRows:componentRows,pinEvaluation,tyreEvaluation,validateManualConfig,assemblyDescription};
 })();

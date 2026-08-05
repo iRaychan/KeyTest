@@ -1,0 +1,26 @@
+KeySuite V2.31 QA Report
+========================
+Build type: Update-only patch from V2.30
+
+PASS - JavaScript syntax checks for every root JavaScript file
+PASS - HTML duplicate-ID check
+PASS - Required V2.31 UI controls found
+PASS - V2.31 Supabase migration static validation
+PASS - Coupling functional test: ES 65-32G + 125HP 2 Pole selects FCL 224
+PASS - Motor speed mapping: 2P=2900, 4P=1450, 6P=960, 8P=720 rpm
+PASS - Multiple Pump/Motor context uses largest pump shaft, motor shaft, torque and speed
+PASS - Coupling quotation shaft lines generated and retained independently
+PASS - B.G.Reich removed from quotation model/description output
+PASS - Bush pricelist has a separate heading layout without Torque or Maximum Speed
+PASS - Motor IE3/non-default colour logic present in Product and Pumpset BOM
+PASS - Coupling BOM buttons removed and Selected Type dropdown present
+PASS - Standard BOM first row: Model/Item, Qty, Unit Price, Total Price
+PASS - Pump, Motor, Coupling and Baseplate colour codes present
+PASS - Customer default template field, save/load path and new-quotation application path present
+PASS - Existing saved quotation template loadSelection path remains unchanged
+PASS - Service-worker cache and script cache-busters updated to V2.31
+
+Not performed:
+- Live Supabase migration
+- Live GitHub deployment
+- End-to-end testing with the user's production data and authentication session

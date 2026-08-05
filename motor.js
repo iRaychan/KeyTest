@@ -156,6 +156,8 @@
   }
 
   function renderProduct(){
+    const efficiencySelect=byId('motorProductEfficiency');
+    if(efficiencySelect)efficiencySelect.classList.toggle('non-default-selection',String(efficiencySelect.value||'IE3')!=='IE3');
     const customer=pricingCustomer();
     const category=categoryFor(customer);
     const notice=byId('motorProductNotice');
