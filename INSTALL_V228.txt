@@ -1,0 +1,12 @@
+KeySuite V2.28 Installation — Update from V2.27
+
+1. Back up the current V2.27 application and Supabase database.
+2. In Supabase SQL Editor, run V228_SUPABASE_MIGRATION.sql in full.
+3. Replace the application files supplied in the V2.28 update patch.
+4. Keep the existing working config.js. The patch does not include config.js.
+5. Deploy the GitHub changes.
+6. Press Ctrl+F5, then sign out and log in again.
+7. Under Key > Category, configure the COUPLING pricing rule where required.
+8. Under Price List > Coupling, check the RMB prices and enter any blank source prices.
+
+The source workbook contains blank prices for some models. Those records are intentionally imported as zero and remain editable. A zero source price cannot produce a final Coupling price.

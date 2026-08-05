@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V2.26</title>
+  <title>KeySuite V2.28</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -201,7 +201,7 @@
     .start-customer-row{display:grid;grid-template-columns:minmax(240px,1fr) minmax(180px,.75fr);gap:12px;align-items:end;margin:12px 0 14px}.start-customer-status{min-height:42px;display:flex;align-items:center;padding:9px 12px;border:1px solid #dbe3ec;border-radius:8px;background:#f8fafc;color:var(--muted);font-size:12px}.start-action-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.start-action-grid .btn{width:100%;min-height:42px}.assembly-quote-fields{display:grid;grid-template-columns:minmax(280px,1.6fr) minmax(90px,.45fr) minmax(150px,.7fr);gap:12px;align-items:end;margin-bottom:14px}.assembly-quote-fields input{width:100%}.assembly-quote-help{margin-top:5px;font-size:11px;color:var(--muted)}@media(max-width:760px){.start-customer-row,.assembly-quote-fields{grid-template-columns:1fr}.start-action-grid{grid-template-columns:1fr 1fr}}@media(max-width:460px){.start-action-grid{grid-template-columns:1fr}}
     .quotation-title-line{display:flex;align-items:end;gap:22px;flex:1}.quotation-title-line h1{margin:0}.quotation-title-line .quote-number-field{min-width:260px}.quote-head{align-items:end}.quote-top-controls{margin-left:auto}.es-matrix-table{min-width:1450px}.es-matrix-table input{min-width:105px}
 
-    .pricelist-currency-panel{padding:0!important;overflow:hidden}.pricelist-currency-panel>summary{cursor:pointer;list-style:none;padding:14px 18px;font-weight:800;color:var(--navy);display:flex;align-items:center;justify-content:space-between;background:#f8fafc}.pricelist-currency-panel>summary::-webkit-details-marker{display:none}.pricelist-currency-panel>summary:after{content:"▾";font-size:16px;transition:transform .2s}.pricelist-currency-panel[open]>summary:after{transform:rotate(180deg)}.pricelist-currency-panel-body{padding:0 18px 18px}.keyplc-product-toolbar{display:grid;grid-template-columns:minmax(220px,420px);gap:14px}.keyplc-table th,.keyplc-table td{white-space:nowrap}.keyplc-table select{min-width:112px}.keyplc-route-actions{justify-content:flex-start;flex-wrap:nowrap}.keyplc-route-actions .btn{min-width:72px}.keyplc-surcharge-note{font-size:11px;color:var(--muted);margin-top:5px}.assembly-item-option{display:flex;align-items:center;gap:8px;margin-top:7px}.assembly-item-option label{margin:0;font-size:11px}.assembly-item-option select{min-width:190px;padding:6px 8px}.assembly-motor-options{display:grid;grid-template-columns:repeat(3,minmax(90px,1fr));gap:7px;margin-top:7px}.assembly-motor-options .assembly-item-option{display:grid;gap:3px;margin:0}.assembly-motor-options .assembly-item-option select{min-width:0;width:100%}
+    .pricelist-currency-panel{padding:0!important;overflow:hidden}.pricelist-currency-panel>summary{cursor:pointer;list-style:none;padding:14px 18px;font-weight:800;color:var(--navy);display:flex;align-items:center;justify-content:space-between;background:#f8fafc}.pricelist-currency-panel>summary::-webkit-details-marker{display:none}.pricelist-currency-panel>summary:after{content:"▾";font-size:16px;transition:transform .2s}.pricelist-currency-panel[open]>summary:after{transform:rotate(180deg)}.pricelist-currency-panel-body{padding:0 18px 18px}.keyplc-product-toolbar{display:grid;grid-template-columns:minmax(220px,420px);gap:14px}.keyplc-table th,.keyplc-table td{white-space:nowrap}.keyplc-table select{min-width:112px}.keyplc-route-actions{justify-content:flex-start;flex-wrap:nowrap}.keyplc-route-actions .btn{min-width:72px}.keyplc-surcharge-note{font-size:11px;color:var(--muted);margin-top:5px}.assembly-item-option{display:flex;align-items:center;gap:8px;margin-top:7px}.assembly-item-option label{margin:0;font-size:11px}.assembly-item-option select{min-width:190px;padding:6px 8px}.assembly-keyplc-options{display:grid;grid-template-columns:repeat(2,minmax(140px,1fr));gap:7px;margin-top:7px}.assembly-keyplc-options .assembly-item-option{display:grid;gap:3px;margin:0}.assembly-keyplc-options .assembly-item-option select{min-width:0;width:100%}.assembly-motor-options{display:grid;grid-template-columns:repeat(3,minmax(90px,1fr));gap:7px;margin-top:7px}.assembly-motor-options .assembly-item-option{display:grid;gap:3px;margin:0}.assembly-motor-options .assembly-item-option select{min-width:0;width:100%}
     .product-model-actions [data-product-assembly],.route-actions [data-es-assembly],.route-actions [data-gws-assembly],.route-actions [data-keyplc-assembly]{background:#f59e0b!important;border-color:#d97706!important;color:#fff!important}
     .product-model-actions [data-product-add],.route-actions [data-es-quote],.route-actions [data-gws-quote],.route-actions [data-keyplc-quote]{background:#16a34a!important;border-color:#15803d!important;color:#fff!important}
 
@@ -255,7 +255,7 @@
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.26 quotation numbering and Motor display</small></div>
+    <div class="auth-brand">KeySuite<small>V2.28 Coupling Product & Price List</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -270,7 +270,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.26</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.28</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -280,7 +280,7 @@
       </div>
       <div class="nav-group" data-nav-group="productMenu">
         <button type="button" class="nav-toggle" data-nav-toggle="productMenu"><span>Product</span><span class="nav-chevron">⌄</span></button>
-        <div class="nav-submenu"><button data-page="productChc">CHC</button><button data-page="productEs">End Suction</button><button data-page="productGws">GWS Tank</button><button data-page="productKeyplc">KeyPLC Panel</button><button data-page="productManifold">Manifold</button><button data-page="productMotor">Motor</button></div>
+        <div class="nav-submenu"><button data-page="productChc">CHC</button><button data-page="productEs">End Suction</button><button data-page="productGws">GWS Tank</button><button data-page="productKeyplc">KeyPLC Panel</button><button data-page="productManifold">Manifold</button><button data-page="productMotor">Motor</button><button data-page="productCoupling">Coupling</button></div>
       </div>
       <button data-page="quotation">Quotation</button>
       <button data-page="history">Quote History</button>
@@ -293,7 +293,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.26 · Quotation numbering and Motor display</div>
+    <div class="suite-version">KeySuite V2.28 · Coupling Product & Price List</div>
   </aside>
 
   <main>
@@ -526,6 +526,35 @@
       
     </section>
 
+
+    <section id="productCoupling" class="page">
+      <div class="page-title-row"><div><h1>Product · Coupling</h1><div class="muted">Select Pump and Motor details to recommend a suitable Pin &amp; Bush or Tyre Coupling. Assembly routes to Pumpset → Coupling.</div></div></div>
+      <div id="couplingProductNotice" class="notice active-customer">Select a quotation customer with a Pricing Category before pricing a coupling.</div>
+      <div id="couplingProductMessage" class="auth-message"></div>
+      <div class="card">
+        <h2 style="margin-top:0">Coupling Selection</h2>
+        <div class="motor-selector-grid">
+          <div><label for="couplingProductType">Coupling Type</label><select id="couplingProductType"><option value="pin_bush" selected>Pin &amp; Bush</option><option value="tyre">Tyre Coupling</option></select></div>
+          <div><label for="couplingProductPump">Pump Model</label><select id="couplingProductPump"></select></div>
+          <div><label for="couplingProductMotorHp">Motor HP</label><select id="couplingProductMotorHp"></select></div>
+          <div><label for="couplingProductMotorPole">Motor Pole</label><select id="couplingProductMotorPole"><option value="2" selected>2 Pole</option><option value="4">4 Pole</option><option value="6">6 Pole</option><option value="8">8 Pole</option></select></div>
+          <div><label for="couplingProductModel">Coupling Model</label><select id="couplingProductModel"></select></div>
+        </div>
+        <div id="couplingTyreBushFields" class="motor-selector-grid hidden" style="margin-top:14px">
+          <div><label for="couplingProductPumpBush">Pump Bush</label><select id="couplingProductPumpBush"></select></div>
+          <div><label for="couplingProductMotorBush">Motor Bush</label><select id="couplingProductMotorBush"></select></div>
+        </div>
+      </div>
+      <div class="card motor-selected-card" style="margin-top:16px">
+        <div class="motor-selected-value"><small>Pump Shaft</small><strong id="couplingSelectedPumpShaft">—</strong></div>
+        <div class="motor-selected-value"><small>Motor Frame</small><strong id="couplingSelectedMotorFrame">—</strong></div>
+        <div class="motor-selected-value"><small>Motor Shaft</small><strong id="couplingSelectedMotorShaft">—</strong></div>
+        <div class="motor-selected-value"><small>Coupling Model</small><strong id="couplingSelectedModel">—</strong></div>
+        <div class="motor-selected-value"><small>Description</small><strong id="couplingSelectedDescription">—</strong></div>
+        <div class="actions" style="margin:0;justify-content:flex-end"><button class="btn action-assembly" id="couplingSelectedAssembly" type="button">Assembly</button><button class="btn green" id="couplingSelectedQuote" type="button">Quote</button></div>
+      </div>
+    </section>
+
     <section id="quotation" class="page">
       <div class="quote-head">
         <h1>Quotation</h1>
@@ -675,7 +704,7 @@
                   <button class="category-product-button" type="button" data-category-product="GWS">GWS</button>
                   <button class="category-product-button" type="button" data-category-product="KEYPLC">KeyPLC</button>
                   <button class="category-product-button" type="button" data-category-product="MANIFOLD">Manifold</button>
-                  <button class="category-product-button" type="button" data-category-product="MOTOR">Motor</button>
+                  <button class="category-product-button" type="button" data-category-product="MOTOR">Motor</button><button class="category-product-button" type="button" data-category-product="COUPLING">Coupling</button>
                 </div>
                 <div class="category-rule-editor">
                   <h3 id="categoryProductHeading">CHC Pricing Rule</h3>
@@ -766,6 +795,9 @@
         <button type="button" class="key-module-card" data-go="motorPriceList">
           <span class="module-icon">MTR</span><h2>Motor</h2><p>Maintain IE1, IE2, IE3, IE4 and IE5 source prices by HP and pole.</p><span class="module-order">OPEN PRICE LIST</span>
         </button>
+        <button type="button" class="key-module-card" data-go="couplingPriceList">
+          <span class="module-icon">CPL</span><h2>Coupling</h2><p>Maintain Pin &amp; Bush, Tyre and taper-lock Bush source prices.</p><span class="module-order">OPEN PRICE LIST</span>
+        </button>
       </div>
     </section>
 
@@ -792,6 +824,32 @@
         </div>
       </div>
       <div class="card" style="margin-top:16px"><div class="page-title-row" style="margin-bottom:12px"><div><h2 style="margin:0">Motor HP Prices</h2><div id="motorPriceCount" class="muted"></div></div></div><div class="table-wrap motor-table-wrap"><table class="pricelist-table"><thead><tr><th>HP</th><th>Model</th><th>Rarity</th><th id="motorPriceValueHeading">USD Price</th><th></th></tr></thead><tbody id="motorPriceRows"></tbody></table></div></div>
+    </section>
+
+
+    <section id="couplingPriceList" class="page">
+      <div class="key-back-row"><button class="btn secondary" type="button" data-go="priceListDashboard">← Price List</button></div>
+      <div class="page-title-row"><div><h1>Coupling Price List</h1><div class="muted">Maintain Pin &amp; Bush, Tyre and taper-lock Bush source prices from the uploaded Coupling workbook.</div></div></div>
+      <div id="couplingPriceMessage" class="auth-message"></div>
+      <details class="card pricelist-currency-panel">
+        <summary>Currency &amp; Multipliers</summary>
+        <div class="pricelist-currency-panel-body">
+          <div class="pricelist-settings">
+            <div class="pricelist-currency-setting"><label>Currency Selection</label><select id="couplingPriceCurrency"><option value="USD">USD</option><option value="RMB" selected>RMB</option><option value="MYR">MYR</option></select><div class="multiplier-hold-feedback">&nbsp;</div></div>
+            <div class="pricelist-multiplier-lock locked" id="couplingMultiplierLock_USD"><label>USD → MYR</label><input id="couplingUsdMultiplier" class="multiplier-hold-input" type="number" min="0.0001" step="0.0001" readonly><div class="multiplier-hold-feedback">Hold input 3s to edit</div><div class="multiplier-actions"><button class="btn" type="button" data-coupling-rate-save>Save</button><button class="btn secondary" type="button" data-coupling-rate-cancel>Cancel</button></div></div>
+            <div class="pricelist-multiplier-lock locked" id="couplingMultiplierLock_RMB"><label>RMB → MYR</label><input id="couplingRmbMultiplier" class="multiplier-hold-input" type="number" min="0.0001" step="0.0001" readonly><div class="multiplier-hold-feedback">Hold input 3s to edit</div><div class="multiplier-actions"><button class="btn" type="button" data-coupling-rate-save>Save</button><button class="btn secondary" type="button" data-coupling-rate-cancel>Cancel</button></div></div>
+          </div>
+          <div class="pricelist-note" style="margin-top:12px">The uploaded workbook prices are seeded as RMB. USD and MYR remain independently editable.</div>
+        </div>
+      </details>
+      <div class="card" style="margin-top:16px">
+        <div class="manifold-pricelist-tabs" role="tablist">
+          <button class="btn secondary active" type="button" data-coupling-price-type="pin_bush">Pin &amp; Bush</button>
+          <button class="btn secondary" type="button" data-coupling-price-type="tyre">Tyre</button>
+          <button class="btn secondary" type="button" data-coupling-price-type="bush">Bush</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px"><div class="page-title-row" style="margin-bottom:12px"><div><h2 style="margin:0">Coupling Source Prices</h2><div id="couplingPriceCount" class="muted"></div></div></div><div class="table-wrap motor-table-wrap"><table class="pricelist-table"><thead><tr><th>Model</th><th>Torque (N·m)</th><th>Max Speed (rpm)</th><th>Max Shaft</th><th>Rarity</th><th id="couplingPriceValueHeading">RMB Price</th><th></th></tr></thead><tbody id="couplingPriceRows"></tbody></table></div></div>
     </section>
 
     <section id="chcPriceList" class="page">
@@ -1152,18 +1210,18 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=216"></script>
-<script src="app.js?v=226"></script><
-<script src="keyai-inbox.js?v=051"></script>
-<script src="pricing.js?v=226"></script>
-<script src="quotation-references.js?v=226"></script>
-<script src="categories.js?v=226"></script>
-<script src="pricelist.js?v=226"></script>
-<script src="product.js?v=226"></script>
-<script src="manifold.js?v=226"></script>
-<script src="roles.js?v=226"></script>
-<script src="assembly.js?v=226"></script>
-<script src="motor.js?v=226"></script>
-<script src="quotation-templates.js?v=226"></script>
+<script src="app.js?v=228"></script>
+<script src="pricing.js?v=228"></script>
+<script src="quotation-references.js?v=228"></script>
+<script src="categories.js?v=228"></script>
+<script src="pricelist.js?v=228"></script>
+<script src="product.js?v=228"></script>
+<script src="manifold.js?v=228"></script>
+<script src="roles.js?v=228"></script>
+<script src="assembly.js?v=228"></script>
+<script src="motor.js?v=228"></script>
+<script src="coupling.js?v=228"></script>
+<script src="quotation-templates.js?v=228"></script>
 
 <dialog id="quotationTemplateDialog" class="ks-dialog template-dialog">
   <div class="dialog-body">
@@ -1215,7 +1273,7 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="company-settings.js?v=226"></script>
-<script src="auth.js?v=226"></script>
+<script src="company-settings.js?v=228"></script>
+<script src="auth.js?v=228"></script>
 </body>
 </html>

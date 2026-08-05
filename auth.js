@@ -28,7 +28,7 @@
     return data?.[0]?.active?data[0]:null;
   }
   async function loadData(userAccess=null){
-    const [companies,users,categories,products,esProducts,gwsProducts,keyplcProducts,manifoldProducts,motorProducts,settings]=await Promise.all([
+    const [companies,users,categories,products,esProducts,gwsProducts,keyplcProducts,manifoldProducts,motorProducts,couplingProducts,settings]=await Promise.all([
       client.from('ks_companies').select('*').order('company_name'),
       client.from('ks_company_users').select('*').order('full_name'),
       client.from('ks_pricing_categories').select('*').order('category_name'),
@@ -38,9 +38,10 @@
       client.from('ks_products_keyplc').select('*').eq('status','active').order('source_row'),
       client.from('ks_products_manifold').select('*').eq('status','active').order('section').order('source_row'),
       client.from('ks_products_motor').select('*').eq('active',true).order('efficiency_class').order('hp').order('pole'),
+      client.from('ks_products_coupling').select('*').eq('active',true).order('component_type').order('source_row'),
       client.from('ks_app_settings').select('*').eq('id','default').limit(1)
     ]);
-    const failed=[companies,users,categories,products,esProducts,gwsProducts,keyplcProducts,manifoldProducts,motorProducts,settings].find(x=>x.error);if(failed?.error)throw new Error(failed.error.message);
+    const failed=[companies,users,categories,products,esProducts,gwsProducts,keyplcProducts,manifoldProducts,motorProducts,couplingProducts,settings].find(x=>x.error);if(failed?.error)throw new Error(failed.error.message);
     let customerPricingRows=[];
     try{const result=await client.rpc('keysuite_get_customer_pricing_v222');if(result.error)throw result.error;customerPricingRows=Array.isArray(result.data)?result.data:(result.data?[result.data]:[])}catch(error){
       console.warn('V2.22 Customer pricing is not available yet. Customer-specific percentages will remain zero until the migration is run.',error);
@@ -58,20 +59,22 @@
     const manifoldRmbMultiplier=Number(setting.manifold_rmb_multiplier??setting.rmb_multiplier??.65);
     const motorUsdMultiplier=Number(setting.motor_usd_multiplier??setting.usd_multiplier??5.8);
     const motorRmbMultiplier=Number(setting.motor_rmb_multiplier??setting.rmb_multiplier??.65);
+    const couplingUsdMultiplier=Number(setting.coupling_usd_multiplier??setting.usd_multiplier??5.8);
+    const couplingRmbMultiplier=Number(setting.coupling_rmb_multiplier??setting.rmb_multiplier??.65);
     const parseRules=value=>{if(!value)return{};if(typeof value==='object')return value;try{return JSON.parse(value)}catch(_){return{}}};
     const bool=(value,fallback=true)=>value===undefined||value===null?fallback:!!value;
     const normalizeRule=(raw={},fallback={})=>({margin:Number(raw.margin??fallback.margin??.38),transport:Number(raw.transport??fallback.transport??30),normal:Number(raw.normal??fallback.normal??0),rare:Number(raw.rare??fallback.rare??0),useCommission:bool(raw.useCommission??raw.use_commission??raw.includeCommission??raw.include_commission,fallback.useCommission??true),useSetDiscount:bool(raw.useSetDiscount??raw.use_set_discount??raw.includeSetDiscount??raw.include_set_discount,fallback.useSetDiscount??true),useFinalDiscount:bool(raw.useFinalDiscount??raw.use_final_discount??raw.includeFinalDiscount??raw.include_final_discount,fallback.useFinalDiscount??true),useFuelCharge:bool(raw.useFuelCharge??raw.use_fuel_charge??raw.includeFuelCharge??raw.include_fuel_charge,fallback.useFuelCharge??true)});
     const normalizedCustomerRows=window.KeySuiteCustomerSettings?.normalizeRows?.(customerPricingRows)||window.KeySuiteCompanySettings?.normalizeRows?.(customerPricingRows)||customerPricingRows.map(row=>window.KeySuiteCompanySettings?.normalizeRow?.(row)||row);
     return {
-      version:'2.25',release_date:'2026-08-03',currency:setting.currency||'MYR',
+      version:'2.28',release_date:'2026-08-05',currency:setting.currency||'MYR',
       usd_multiplier:chcUsdMultiplier,rmb_multiplier:chcRmbMultiplier,myr_multiplier:1,
-      productMultipliers:{CHC:{USD:chcUsdMultiplier,RMB:chcRmbMultiplier,MYR:1},ES:{USD:esUsdMultiplier,RMB:esRmbMultiplier,MYR:1},GWS:{USD:gwsUsdMultiplier,RMB:gwsRmbMultiplier,MYR:1},KEYPLC:{USD:keyplcUsdMultiplier,RMB:keyplcRmbMultiplier,MYR:1},MANIFOLD:{USD:manifoldUsdMultiplier,RMB:manifoldRmbMultiplier,MYR:1},MOTOR:{USD:motorUsdMultiplier,RMB:motorRmbMultiplier,MYR:1}},
+      productMultipliers:{CHC:{USD:chcUsdMultiplier,RMB:chcRmbMultiplier,MYR:1},ES:{USD:esUsdMultiplier,RMB:esRmbMultiplier,MYR:1},GWS:{USD:gwsUsdMultiplier,RMB:gwsRmbMultiplier,MYR:1},KEYPLC:{USD:keyplcUsdMultiplier,RMB:keyplcRmbMultiplier,MYR:1},MANIFOLD:{USD:manifoldUsdMultiplier,RMB:manifoldRmbMultiplier,MYR:1},MOTOR:{USD:motorUsdMultiplier,RMB:motorRmbMultiplier,MYR:1},COUPLING:{USD:couplingUsdMultiplier,RMB:couplingRmbMultiplier,MYR:1}},
       fuel_price:Number(setting.fuel_price??2),fuel_base_price:Number(setting.fuel_base_price??2),customerPricing:null,customerPricingRows:normalizedCustomerRows,
       companies:(companies.data||[]).map(c=>({id:c.id,name:c.company_name,category:c.pricing_category,delivery_distance:Number(c.delivery_distance||0),phone:c.company_phone,term_days:c.term_days,address:c.address,tin:c.tin_number,business_registration_no:c.business_registration_no,sst_no:c.sst_no,msic_code:c.msic_code,business_activities:c.business_activities})),
       users:(users.data||[]).map(u=>({id:u.id,company_id:u.company_id,source_company_id:u.source_company_id,prefix:u.prefix,name:u.full_name,phone:u.phone,email:u.email})),
       categories:(categories.data||[]).map(c=>{
         const rules=parseRules(c.product_rules),chcFallback={margin:Number(c.chc_margin??c.chc_factor??.38),normal:0,rare:0,transport:Number(c.transport??30),useCommission:true,useSetDiscount:true,useFinalDiscount:true,useFuelCharge:true},otherFallback={margin:0,normal:0,rare:0,transport:0,useCommission:true,useSetDiscount:true,useFinalDiscount:true,useFuelCharge:true};
-        return {id:c.id,name:c.category_name,productRules:{CHC:normalizeRule(rules.CHC,chcFallback),ES:normalizeRule(rules.ES,otherFallback),GWS:normalizeRule(rules.GWS,otherFallback),KEYPLC:normalizeRule(rules.KEYPLC,otherFallback),MANIFOLD:normalizeRule(rules.MANIFOLD,otherFallback),MOTOR:normalizeRule(rules.MOTOR,otherFallback)},margins:{CHC:chcFallback.margin},factors:{CHC:chcFallback.margin},transport:chcFallback.transport};
+        return {id:c.id,name:c.category_name,productRules:{CHC:normalizeRule(rules.CHC,chcFallback),ES:normalizeRule(rules.ES,otherFallback),GWS:normalizeRule(rules.GWS,otherFallback),KEYPLC:normalizeRule(rules.KEYPLC,otherFallback),MANIFOLD:normalizeRule(rules.MANIFOLD,otherFallback),MOTOR:normalizeRule(rules.MOTOR,otherFallback),COUPLING:normalizeRule(rules.COUPLING,otherFallback)},margins:{CHC:chcFallback.margin},factors:{CHC:chcFallback.margin},transport:chcFallback.transport};
       }),
       products:(products.data||[]).map(p=>({
         id:p.id,category:p.product_category,model:p.model,source_row:p.source_row,
@@ -95,7 +98,8 @@
       })),
       keyplcProducts:(keyplcProducts.data||[]).map(p=>({id:p.id,model:p.model,motorKw:Number(p.motor_kw||String(p.model||'').replace(/[^0-9.]/g,'')||0),source_row:p.source_row,rarity:String(p.rarity||'common').toLowerCase(),variants:Array.isArray(p.variants)?p.variants:(typeof p.variants==='object'?p.variants:[])})),
       manifoldProducts:(manifoldProducts.data||[]).map(p=>({id:p.id,section:p.section,model:p.model,source_row:p.source_row,rarity:String(p.rarity||'common').toLowerCase(),variants:Array.isArray(p.variants)?p.variants:(typeof p.variants==='object'?p.variants:[])})),
-      motorProducts:(motorProducts.data||[]).map(p=>({id:p.id,model:p.model,efficiencyClass:p.efficiency_class,modelPrefix:p.model_prefix,hp:Number(p.hp),pole:Number(p.pole),description:p.description,sourceSheet:p.source_sheet,sourceRow:p.source_row,priceUsd:Number(p.price_usd||0),priceRmb:Number(p.price_rmb||0),priceMyr:Number(p.price_myr||0),rarity:String(p.rarity||'common').toLowerCase(),active:p.active!==false,pricesByCurrency:{USD:{MOTOR:Number(p.price_usd||0)},RMB:{MOTOR:Number(p.price_rmb||0)},MYR:{MOTOR:Number(p.price_myr||0)}},rarityByCurrency:{USD:{MOTOR:String(p.rarity||'common').toLowerCase()},RMB:{MOTOR:String(p.rarity||'common').toLowerCase()},MYR:{MOTOR:String(p.rarity||'common').toLowerCase()}}}))
+      motorProducts:(motorProducts.data||[]).map(p=>({id:p.id,model:p.model,efficiencyClass:p.efficiency_class,modelPrefix:p.model_prefix,hp:Number(p.hp),pole:Number(p.pole),description:p.description,sourceSheet:p.source_sheet,sourceRow:p.source_row,priceUsd:Number(p.price_usd||0),priceRmb:Number(p.price_rmb||0),priceMyr:Number(p.price_myr||0),rarity:String(p.rarity||'common').toLowerCase(),active:p.active!==false,pricesByCurrency:{USD:{MOTOR:Number(p.price_usd||0)},RMB:{MOTOR:Number(p.price_rmb||0)},MYR:{MOTOR:Number(p.price_myr||0)}},rarityByCurrency:{USD:{MOTOR:String(p.rarity||'common').toLowerCase()},RMB:{MOTOR:String(p.rarity||'common').toLowerCase()},MYR:{MOTOR:String(p.rarity||'common').toLowerCase()}}})),
+      couplingProducts:(couplingProducts.data||[]).map(p=>({id:p.id,componentType:p.component_type,model:p.model,torqueNm:Number(p.torque_nm||0),maxSpeedRpm:Number(p.max_speed_rpm||0),maxShaftMm:Number(p.max_shaft_mm||0),pumpBush:p.pump_bush||'',motorBush:p.motor_bush||'',sourceSheet:p.source_sheet,sourceRow:p.source_row,priceUsd:Number(p.price_usd||0),priceRmb:Number(p.price_rmb||0),priceMyr:Number(p.price_myr||0),rarity:String(p.rarity||'common').toLowerCase(),active:p.active!==false,pricesByCurrency:{USD:{COUPLING:Number(p.price_usd||0)},RMB:{COUPLING:Number(p.price_rmb||0)},MYR:{COUPLING:Number(p.price_myr||0)}},rarityByCurrency:{USD:{COUPLING:String(p.rarity||'common').toLowerCase()},RMB:{COUPLING:String(p.rarity||'common').toLowerCase()},MYR:{COUPLING:String(p.rarity||'common').toLowerCase()}}}))
     };
   }
 
@@ -152,7 +156,7 @@
       const data=await loadData(userAccess);if(!data.companies.length)throw new Error('No company data was returned. Check the database and RLS policies.');
       session=s;access=userAccess;window.KEYSUITE_ACCESS=access;await loadRolePermissions();const savedProfile=await loadUserProfile(s?.user?.email||'');profile=buildProfile(s,access,data,savedProfile);
       window.KEYSUITE_SECURE_DATA=data;applyProfile(profile);
-      window.KeySuitePricing?.init(data,access);window.KeySuiteCategories?.init(data,access);window.KeySuiteCompanySettings?.init(data,access);window.KeySuitePriceList?.init(data,access);window.KeySuiteManifold?.init(data,access);window.KeySuiteMotor?.init(data,access);window.KeySuiteRoles?.init(access);await window.KeySuiteTemplates?.init?.(access);await window.KeySuiteQuotationReferences?.init?.(profile);window.KeySuiteApp?.refreshNewQuotationReference?.();unlockSelector();
+      window.KeySuitePricing?.init(data,access);window.KeySuiteCategories?.init(data,access);window.KeySuiteCompanySettings?.init(data,access);window.KeySuitePriceList?.init(data,access);window.KeySuiteManifold?.init(data,access);window.KeySuiteMotor?.init(data,access);window.KeySuiteCoupling?.init(data,access);window.KeySuiteRoles?.init(access);await window.KeySuiteTemplates?.init?.(access);await window.KeySuiteQuotationReferences?.init?.(profile);window.KeySuiteApp?.refreshNewQuotationReference?.();unlockSelector();
       showLoading('Loading your customer access…');
       try{await window.KeySuiteCustomerStore?.load?.()}catch(error){console.warn('Customer load warning',error)}
       refreshAll();setView('app');

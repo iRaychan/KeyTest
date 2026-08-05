@@ -1,0 +1,51 @@
+KeySuite V2.28 QA Report
+Build date: 2026-08-05
+Upgrade path: V2.27 -> V2.28
+
+AUTOMATED CHECKS: PASS
+
+1. JavaScript syntax
+- app.js: PASS
+- assembly.js: PASS
+- auth.js: PASS
+- categories.js: PASS
+- coupling.js: PASS
+- pricing.js: PASS
+
+2. Workbook/database mapping
+- Pin & Bush models: 17
+- Tyre models: 15
+- Bush sizes: 10
+- Total Coupling price records: 42
+- Unique seeded IDs: PASS
+- ES pump shaft mappings: 56
+- Motor HP/frame mappings: 33
+- COUPLING pricing category family: PASS
+- Secure price and multiplier RPC definitions: PASS
+
+3. Automatic selection
+- ES 40-32 + 1HP + 2Pole Pin & Bush -> FCL 112: PASS
+- Pump shaft 32 mm and Motor shaft 19 mm: PASS
+- ES 40-32 + 1HP + 2Pole Tyre -> F50: PASS
+- Pump Bush 1210 and Motor Bush 1210: PASS
+- Tyre source total 133.72 + 12.84 + 12.84 = RMB 159.40: PASS
+
+4. Assembly
+- Route is Pumpset -> Coupling: PASS
+- BOM Coupling Type/Model/Bush controls present: PASS
+- Exact Pin & Bush description `c/w<TAB>Pin & Bush Coupling`: PASS
+- Pump/Motor context recalculation hook: PASS
+
+5. UI structure
+- Product > Coupling page: PASS
+- Coupling Assembly and Quote buttons: PASS
+- Coupling Pricelist page: PASS
+- Currency panel starts collapsed: PASS
+- USD/RMB/MYR selector: PASS
+- Pin & Bush/Tyre/Bush tabs: PASS
+
+6. Deployment status
+- ZIP integrity: PASS
+- SHA-256 checksum verification: PASS
+- Supabase migration has not been run on the user's live database.
+- GitHub deployment has not been performed.

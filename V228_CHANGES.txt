@@ -1,0 +1,30 @@
+KeySuite V2.28 Changes
+
+COUPLING PRODUCT
+- Added Product > Coupling.
+- Selection fields: Coupling Type, ES Pump Model, Motor HP, Motor Pole, Coupling Model, Pump Bush and Motor Bush.
+- Automatically reads the ES pump shaft and Motor frame/shaft mapping from the supplied workbook.
+- Automatically recommends the smallest suitable coupling by shaft capacity, torque and maximum speed.
+- Supports Pin & Bush and Tyre Coupling.
+- Direct Quote action uses the Coupling Category Pricing Rule.
+
+COUPLING PRICELIST
+- Added Price List > Coupling.
+- Collapsible Currency panel following the existing CHC/ES method.
+- USD, RMB and MYR price input.
+- Separate Pin & Bush, Tyre and Bush tabs.
+- RMB source prices seeded from the supplied Coupling workbook.
+- Blank workbook prices remain zero and editable.
+- Tyre Coupling source price combines Tyre + Pump Bush + Motor Bush before applying the pricing rule once.
+
+ASSEMBLY
+- Coupling Assembly action routes only to Assembly > Pumpset > Coupling.
+- Pumpset BOM allows Coupling Type, Model, Pump Bush and Motor Bush selection.
+- Changing the Pump or Motor context recalculates the recommended coupling and its price.
+- Pin & Bush Assembly description is exactly: c/w<TAB>Pin & Bush Coupling
+- Coupling model remains visible in the BOM but is not included in that Assembly description.
+
+PRICING & DATABASE
+- Added COUPLING to Category Pricing Rule.
+- Added ks_products_coupling and secure save RPCs.
+- Added separate Coupling USD and RMB multipliers.

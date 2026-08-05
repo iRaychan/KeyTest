@@ -61,6 +61,7 @@ function showPage(id){
  window.KeySuiteProduct?.pageShown?.(id);
  window.KeySuiteManifold?.pageShown?.(id);
  window.KeySuiteMotor?.pageShown?.(id);
+ window.KeySuiteCoupling?.pageShown?.(id);
  window.KeySuiteCompanySettings?.pageShown?.(id);
  if(id==='quotation'){setQuoteCustomerCollapsed(true);updateQuotationStateUi?.()}
  window.KeySuiteAssembly?.pageShown?.(id);
