@@ -1,0 +1,1 @@
+KeySuite V2.30 does not require a Supabase migration. Capacity settings are stored within existing quotation and assembly JSON data.

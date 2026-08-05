@@ -1,0 +1,17 @@
+KeySuite V2.30 update-only patch files
+
+Replace / add:
+- VERSION.txt
+- app.js
+- applications.js (new)
+- assembly.js
+- index.html
+- manifest.json
+- sw.js
+- README.md
+- INSTALL_V230.txt
+- V230_CHANGES.txt
+- V230_NO_DATABASE_MIGRATION.txt
+
+Reference only:
+- source_lists/004 - Application 260805 - V1.0.xlsx
