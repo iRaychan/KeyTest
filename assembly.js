@@ -12,7 +12,7 @@ const customers=()=>window.KeySuiteApp?.getCustomers?.()||[];
 const keyplcProducts=()=>window.KEYSUITE_SECURE_DATA?.keyplcProducts||[];
 function quoteCustomerId(){return window.KeySuiteApp?.getPricingCustomerId?.()||''}
 function quoteSessionId(){return window.KeySuiteApp?.getQuotationSessionId?.()||'quotation-session'}
-function blank(t=type){return {id:uid(),assembly_type:t,model_item:'',description:'',description_manual:false,name:t==='system'?'New System':'New Pumpset',customer_id:quoteCustomerId(),quote_session_id:quoteSessionId(),status:'draft',quote_qty:1,quote_unit_price:null,quote_price_manual:false,auto_suppressed:{manifold:false,tank:false},items:[],created_at:new Date().toISOString(),updated_at:new Date().toISOString()}}
+function blank(t=type){return {id:uid(),assembly_type:t,model_item:'',description:'',description_manual:false,name:t==='system'?'New System':'New Pumpset',customer_id:quoteCustomerId(),quote_session_id:quoteSessionId(),status:'draft',quote_qty:1,quote_unit_price:null,quote_price_manual:false,coupling_mode:'flexible',coupling_error:'',auto_suppressed:{manifold:false,tank:false},items:[],created_at:new Date().toISOString(),updated_at:new Date().toISOString()}}
 function sourceObject(item){const raw=item?.pricingSource;if(!raw)return {};if(typeof raw==='object')return raw;try{return JSON.parse(raw)}catch(_){return {}}}
 function quoteMetaFromItems(items=[]){for(const item of items||[]){const meta=sourceObject(item).assembly_quote;if(meta&&typeof meta==='object')return meta}return null}
 function quoteMeta(d){return {qty:Math.max(.01,Number(d?.quote_qty||1)),unitPrice:Number.isFinite(Number(d?.quote_unit_price))?Math.max(0,Number(d.quote_unit_price)):null,manual:!!d?.quote_price_manual,descriptionManual:!!d?.description_manual,autoSuppressed:{manifold:!!d?.auto_suppressed?.manifold,tank:!!d?.auto_suppressed?.tank}}}
@@ -46,7 +46,7 @@ function normalize(input){
  const original=input||{},assemblyType=original.assembly_type||type;
  const allowed=sections[assemblyType]||[],items=(original.items||[]).map(x=>normalizeItem(x,assemblyType)).filter(item=>allowed.includes(item.section));
  const meta=quoteMetaFromItems(items),d={...blank(assemblyType),...original,items,description_manual:original.description_manual==null?!!meta?.descriptionManual:!!original.description_manual,auto_suppressed:{manifold:false,tank:false,...(meta?.autoSuppressed||{}),...(original.auto_suppressed||{})}};
- d.quote_qty=Math.max(.01,Number(original.quote_qty??meta?.qty??1)||1);d.quote_price_manual=original.quote_price_manual==null?!!meta?.manual:!!original.quote_price_manual;
+ d.quote_qty=Math.max(.01,Number(original.quote_qty??meta?.qty??1)||1);d.quote_price_manual=original.quote_price_manual==null?!!meta?.manual:!!original.quote_price_manual;d.coupling_mode=String(original.coupling_mode||(items.find(item=>item.section==='coupling')?.couplingData?.selectionMode)||'flexible');d.coupling_error=String(original.coupling_error||'');
  const storedPrice=original.quote_unit_price??meta?.unitPrice;d.quote_unit_price=storedPrice==null?null:Math.max(0,Number(storedPrice)||0);d.quote_session_id=original.quote_session_id||`legacy:${d.id}`;return d
 }
 function localLoad(){try{return (JSON.parse(localStorage.getItem(key())||'[]')||[]).map(normalize)}catch(_){return []}}
@@ -83,10 +83,29 @@ ${indent}Wiring for pumps & pressure transmitter within pump skid @ 1 Lot`;
 function orderedItems(d=current){
  const order=sections[d?.assembly_type||type]||[];return order.flatMap(section=>(d?.items||[]).filter(item=>item.section===section));
 }
+function pumpDescriptionParts(item){
+ const lines=String(item?.description||'').replace(/\r\n?/g,'\n').split('\n').map(line=>line.trimEnd()).filter(Boolean),modelFromItem=String(item?.pumpData?.quotation_model||item?.pumpData?.model||item?.model||'').replace(/^ES\s*/i,'').trim();
+ const duty=String(item?.pumpData?.quotation_duty||'').trim(),capacity=lines.find(line=>/^Capacity:/i.test(line))||(duty?`Capacity: ${duty}`:'');
+ let modelLine=lines.find(line=>/^B\.G\.Reich End Suction Pump Model:/i.test(line))||`B.G.Reich End Suction Pump Model: ${modelFromItem}`;
+ modelLine=modelLine.replace(/(Model:\s*)(?:ES\s*)?/i,'$1ES ');
+ const suction=lines.find(line=>/^Suction\s*x\s*Discharge:/i.test(line))||'';
+ const material=lines.find(line=>/^Pump Material:/i.test(line))||'';
+ const extras=lines.filter(line=>line!==capacity&&line!==suction&&line!==material&&!/^B\.G\.Reich End Suction Pump Model:/i.test(line)&&!/Bare shaft pump only/i.test(line));
+ return {capacity,model:modelLine,suction,material,extras};
+}
+function completedPumpsetDescription(d=current){
+ if(!d||d.assembly_type!=='pumpset')return '';
+ const pumps=(d.items||[]).filter(item=>item.section==='pump'),motor=(d.items||[]).find(item=>item.section==='motor'),coupling=(d.items||[]).find(item=>item.section==='coupling'&&item.couplingData?.model);
+ if(!pumps.length||!motor||!coupling)return '';
+ const motorLine=normalizeDescriptionIndentation(String(motor.description||'')).split('\n').find(line=>/^c\/w(?:\t+| +)/i.test(line))||String(motor.description||'').trim();
+ const couplingLine=window.KeySuiteCoupling?.assemblyDescription?.(coupling.couplingData?.selectionMode||d.coupling_mode||'flexible')||String(coupling.description||'').trim();
+ return pumps.map((pump,index)=>{const part=pumpDescriptionParts(pump),lines=[part.capacity,part.model];if(index===0)lines.push(motorLine,couplingLine);lines.push(part.suction,part.material,...part.extras);return lines.filter(Boolean).join('\n')}).join('\n');
+}
 function rebuildDescription(d=current){
  if(!d)return '';
  (d.items||[]).forEach(item=>{item.description=normalizeDescriptionIndentation(item.description)});
- d.description=orderedItems(d).map(item=>String(item.description||'').trimEnd()).filter(Boolean).join('\n');
+ const completed=completedPumpsetDescription(d);
+ d.description=completed||orderedItems(d).map(item=>String(item.description||'').trimEnd()).filter(Boolean).join('\n');
  d.description=normalizeDescriptionIndentation(d.description);
  return d.description;
 }
@@ -212,10 +231,18 @@ function syncAutomaticTank(d=current){
  placeAutomaticDescription(d,previous,item.description);const duplicates=(d.items||[]).filter(x=>x!==item&&autoComponent(x,'tank'));duplicates.forEach(x=>{d.description=removeDescriptionBlock(d.description,x.description)});d.items=d.items.filter(x=>!duplicates.includes(x))
 }
 function bomDescriptionState(d=current){return JSON.stringify((d?.items||[]).map(item=>[item.id,item.section,item.model,Number(item.qty||0),normalizeDescriptionIndentation(item.description)]))}
+function couplingMode(d=current){return String(d?.coupling_mode||(d?.items||[]).find(item=>item.section==='coupling')?.couplingData?.selectionMode||'flexible')}
 function syncCouplingItems(d=current){
  if(!d||d.assembly_type!=='pumpset'||!window.KeySuiteCoupling?.configureAssemblyItem)return;
- const context=window.KeySuiteCoupling.contextFromItems?.(d.items||[])||{};if(!context.pumpModel||!(Number(context.motorHp)>0))return;
- (d.items||[]).filter(item=>item.section==='coupling'&&item.couplingData).forEach(item=>{const previous=item.description||'';const result=window.KeySuiteCoupling.configureAssemblyItem(item,{},context);if(!result?.error&&previous&&previous!==item.description)d.description=replaceDescriptionBlock(d.description,previous,item.description)});
+ const context=window.KeySuiteCoupling.contextFromItems?.(d.items||[])||{},hasPump=Number(context.pumpCount)>0,hasMotor=Number(context.motorCount)>0,automatic=(d.items||[]).filter(item=>item.section==='coupling'&&item.couplingData?.autoSelected!==false);
+ if(!hasPump||!hasMotor){automatic.forEach(item=>{d.description=removeDescriptionBlock(d.description,item.description)});d.items=(d.items||[]).filter(item=>!automatic.includes(item));d.coupling_error=hasPump||hasMotor?'Select both Pump and Motor to size the coupling':'';return}
+ d.coupling_mode=couplingMode(d);let item=(d.items||[]).find(entry=>entry.section==='coupling'&&entry.couplingData)||null;
+ if(!item){const built=window.KeySuiteCoupling.buildAssemblyItem?.(d.coupling_mode,context);if(built){item=normalizeItem({...built,id:uid(),section:'coupling'},'pumpset');d.items.push(item)}}
+ if(!item){d.coupling_error='No suitable coupling is available. See Product > Coupling for the Reason column.';return}
+ const previous=item.description||'',result=window.KeySuiteCoupling.configureAssemblyItem(item,{selectionMode:d.coupling_mode},context);
+ if(result?.error){d.coupling_error=result.error;if(item.couplingData?.autoSelected!==false&&!item.couplingData?.manualModel){d.description=removeDescriptionBlock(d.description,previous);d.items=(d.items||[]).filter(entry=>entry!==item)}return}
+ d.coupling_error='';if(previous&&previous!==item.description)d.description=replaceDescriptionBlock(d.description,previous,item.description);
+ const duplicates=(d.items||[]).filter(entry=>entry!==item&&entry.section==='coupling');duplicates.forEach(entry=>{d.description=removeDescriptionBlock(d.description,entry.description)});d.items=(d.items||[]).filter(entry=>!duplicates.includes(entry));
 }
 function syncAutomaticComponents(d=current){const before=bomDescriptionState(d);syncCouplingItems(d);syncAutomaticControlPanel(d);syncAutomaticManifold(d);syncAutomaticTank(d);syncQuoteUnitPrice(d);const changed=before!==bomDescriptionState(d);if(changed&&d)d.description_manual=false;return changed}
 function updateKeyplcItem(item,enclosure,productId=null){
@@ -237,7 +264,7 @@ async function load(){
        const local=localById.get(remote.id)||{};
        const items=(remote.items||[]).map(item=>{
          const localItem=(local.items||[]).find(x=>x.id===item.id)||{};
-         return {...item,bomDescription:localItem.bomDescription??item.bomDescription,tankData:localItem.tankData??item.tankData,keyplcData:localItem.keyplcData??item.keyplcData,manifoldData:localItem.manifoldData??item.manifoldData,motorData:localItem.motorData??item.motorData,pumpsetData:localItem.pumpsetData??item.pumpsetData};
+         return {...item,bomDescription:localItem.bomDescription??item.bomDescription,tankData:localItem.tankData??item.tankData,keyplcData:localItem.keyplcData??item.keyplcData,manifoldData:localItem.manifoldData??item.manifoldData,motorData:localItem.motorData??item.motorData,couplingData:localItem.couplingData??item.couplingData,pumpsetData:localItem.pumpsetData??item.pumpsetData};
        });
        const meta=quoteMetaFromItems(items);
        return normalize({...remote,quote_session_id:local.quote_session_id||remote.quote_session_id||`legacy:${remote.id}`,quote_qty:local.quote_qty??meta?.qty,quote_unit_price:local.quote_unit_price??meta?.unitPrice,quote_price_manual:local.quote_price_manual??meta?.manual,auto_suppressed:local.auto_suppressed||remote.auto_suppressed,items});
@@ -283,43 +310,53 @@ function updateMotorItemFromRow(row){
  const item=current?.items?.find(entry=>entry.id===row?.dataset.assemblyItem);if(!item?.motorData)return;
  const result=window.KeySuiteMotor?.configureAssemblyItem?.(item,{hp:Number(row.querySelector('.assembly-motor-hp')?.value),pole:Number(row.querySelector('.assembly-motor-pole')?.value),efficiencyClass:row.querySelector('.assembly-motor-efficiency')?.value||'IE3'});
  if(result?.error){alert(result.error);return}
- current.description_manual=false;syncCouplingItems(current);syncQuoteUnitPrice(current);rebuildDescription(current);current.description=normalizeDescriptionIndentation(current.description);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';renderDescriptionPreview();localSave();renderItems();renderQuoteFields();scheduleAutoSave(100);
+ current.description_manual=false;syncAutomaticComponents(current);syncQuoteUnitPrice(current);rebuildDescription(current);current.description=normalizeDescriptionIndentation(current.description);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';renderDescriptionPreview();localSave();renderItems();renderQuoteFields();scheduleAutoSave(100);
 }
 function couplingModelOptions(type,selected){
  const componentType=String(type||'pin_bush')==='tyre'?'tyre':'pin_bush';
- return (window.KeySuiteCoupling?.productRows?.(componentType)||[]).map(product=>`<option value="${esc(product.model)}" ${String(product.model)===String(selected)?'selected':''}>${esc(product.model)}</option>`).join('');
+ return (window.KeySuiteCoupling?.productRows?.(componentType)||[]).sort((a,b)=>Number(String(a.model).match(/\d+/)?.[0]||0)-Number(String(b.model).match(/\d+/)?.[0]||0)).map(product=>`<option value="${esc(product.model)}" ${String(product.model)===String(selected)?'selected':''}>${esc(product.model)}</option>`).join('');
 }
-function couplingBushOptions(selected){return (window.KeySuiteCoupling?.productRows?.('bush')||[]).map(product=>`<option value="${esc(product.model)}" ${String(product.model)===String(selected)?'selected':''}>${esc(product.model)}</option>`).join('')}
+function couplingArrangementOptions(data,context){
+ const options=Number(context?.pumpShaft)>24?[['pump_h_motor_f','Pump H / Motor F'],['pump_f_motor_h','Pump F / Motor H']]:[['pump_f_motor_h','Pump F / Motor H']];
+ return options.map(([value,label])=>`<option value="${value}" ${String(data.arrangement)===value?'selected':''}>${label}</option>`).join('');
+}
 function couplingOptions(item){
  if(!item?.couplingData)return '';
- const data=item.couplingData,type=String(data.type||'pin_bush')==='tyre'?'tyre':'pin_bush';
- return `<div class="assembly-motor-options assembly-coupling-options"><div class="assembly-item-option"><label>Type</label><select class="assembly-coupling-type"><option value="pin_bush" ${type==='pin_bush'?'selected':''}>Pin &amp; Bush</option><option value="tyre" ${type==='tyre'?'selected':''}>Tyre</option></select></div><div class="assembly-item-option"><label>Model</label><select class="assembly-coupling-model">${couplingModelOptions(type,data.model)}</select></div>${type==='tyre'?`<div class="assembly-item-option"><label>Pump Bush</label><select class="assembly-coupling-pump-bush">${couplingBushOptions(data.pumpBush)}</select></div><div class="assembly-item-option"><label>Motor Bush</label><select class="assembly-coupling-motor-bush">${couplingBushOptions(data.motorBush)}</select></div>`:''}</div>`;
+ const data=item.couplingData,type=String(data.type||'pin_bush')==='tyre'?'tyre':'pin_bush',mode=String(data.selectionMode||current?.coupling_mode||'flexible'),context=window.KeySuiteCoupling?.contextFromItems?.(current?.items||[])||{},modelDisabled=mode==='flexible'?' disabled':'';
+ const bushSummary=type==='tyre'?`<div class="assembly-coupling-bush-summary">Pump: ${esc(data.pumpBushType||'')} Bush ${esc(data.pumpBush||'—')} · ${Number(context.pumpShaft||0)} / ${Number(data.pumpBushMax||0)} mm<br>Motor: ${esc(data.motorBushType||'')} Bush ${esc(data.motorBush||'—')} · ${Number(context.motorShaft||0)} / ${Number(data.motorBushMax||0)} mm</div>`:'';
+ return `<div class="assembly-motor-options assembly-coupling-options"><div class="assembly-item-option"><label>Selected Type</label><select disabled><option>${esc(window.KeySuiteCoupling?.typeLabel?.(type)||type)}</option></select></div><div class="assembly-item-option"><label>Model</label><select class="assembly-coupling-model"${modelDisabled}>${couplingModelOptions(type,data.model)}</select></div>${type==='tyre'?`<div class="assembly-item-option"><label>F/H Arrangement</label><select class="assembly-coupling-arrangement"${modelDisabled}>${couplingArrangementOptions(data,context)}</select></div>`:''}</div>${bushSummary}`;
+}
+function couplingModeControls(){
+ if(type!=='pumpset')return '';const context=window.KeySuiteCoupling?.contextFromItems?.(current?.items||[])||{};if(!(Number(context.pumpCount)>0&&Number(context.motorCount)>0))return `<div class="assembly-coupling-mode-controls"><div class="muted">Select both Pump and Motor to size the coupling.</div></div>`;
+ const mode=String(current?.coupling_mode||'flexible'),item=(current?.items||[]).find(entry=>entry.section==='coupling'),summary=current?.coupling_error||`${item?.model||'Sizing…'} · Qty ${Number(item?.qty||context.couplingQty||1)}`;
+ return `<div class="assembly-coupling-mode-controls"><div class="assembly-coupling-mode-buttons"><button class="btn secondary ${mode==='flexible'?'active':''}" type="button" data-coupling-mode="flexible">Flexible</button><button class="btn secondary ${mode==='pin_bush'?'active':''}" type="button" data-coupling-mode="pin_bush">Pin &amp; Bush</button><button class="btn secondary ${mode==='tyre'?'active':''}" type="button" data-coupling-mode="tyre">Tyre</button></div><div class="assembly-coupling-summary">${esc(summary)}</div></div>`;
+}
+function setCouplingMode(mode){
+ if(!current)return;current.coupling_mode=String(mode||'flexible');(current.items||[]).filter(item=>item.section==='coupling'&&item.couplingData).forEach(item=>{item.couplingData.autoSelected=true;item.couplingData.manualModel=false});current.description_manual=false;syncAutomaticComponents(current);syncQuoteUnitPrice(current);rebuildDescription(current);current.description=normalizeDescriptionIndentation(current.description);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';renderDescriptionPreview();localSave();renderItems();renderQuoteFields();scheduleAutoSave(100);
 }
 function updateCouplingItemFromRow(row,changedClass=''){
  const item=current?.items?.find(entry=>entry.id===row?.dataset.assemblyItem);if(!item?.couplingData)return;
- const context=window.KeySuiteCoupling?.contextFromItems?.(current.items||[])||{};
- const values={type:row.querySelector('.assembly-coupling-type')?.value||'pin_bush'};
- if(changedClass.includes('model'))values.model=row.querySelector('.assembly-coupling-model')?.value;
- if(changedClass.includes('pump-bush')){values.model=row.querySelector('.assembly-coupling-model')?.value;values.pumpBush=row.querySelector('.assembly-coupling-pump-bush')?.value}
- if(changedClass.includes('motor-bush')){values.model=row.querySelector('.assembly-coupling-model')?.value;values.motorBush=row.querySelector('.assembly-coupling-motor-bush')?.value}
- const result=window.KeySuiteCoupling?.configureAssemblyItem?.(item,values,context);if(result?.error){alert(result.error);return}
+ const context=window.KeySuiteCoupling?.contextFromItems?.(current.items||[])||{},values={selectionMode:current.coupling_mode||item.couplingData.selectionMode||'flexible'};
+ if(changedClass.includes('model'))values.model=row.querySelector('.assembly-coupling-model')?.value;if(changedClass.includes('arrangement')){values.model=row.querySelector('.assembly-coupling-model')?.value;values.arrangement=row.querySelector('.assembly-coupling-arrangement')?.value}
+ const result=window.KeySuiteCoupling?.configureAssemblyItem?.(item,values,context);if(result?.error){alert(result.error);renderItems();return}
  current.description_manual=false;syncQuoteUnitPrice(current);rebuildDescription(current);current.description=normalizeDescriptionIndentation(current.description);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';renderDescriptionPreview();localSave();renderItems();renderQuoteFields();scheduleAutoSave(100);
 }
 function keyplcModelOptions(selectedId){return [...keyplcProducts()].sort((a,b)=>Number(a.motorKw||0)-Number(b.motorKw||0)).map(product=>`<option value="${esc(product.id)}" ${String(product.id)===String(selectedId)?'selected':''}>${esc(product.model)}</option>`).join('')}
 function itemHtml(x){
- const autoPanel=!!(x.keyplcData?.autoSized||sourceObject(x).auto_sized_panel),autoGenerated=autoPanel||autoComponent(x,'manifold')||autoComponent(x,'tank'),autoLocked=autoGenerated;
+ const autoPanel=!!(x.keyplcData?.autoSized||sourceObject(x).auto_sized_panel),autoCoupling=!!(x.couplingData?.autoSelected),autoGenerated=autoPanel||autoCoupling||autoComponent(x,'manifold')||autoComponent(x,'tank'),autoLocked=autoGenerated;
  const locked=autoLocked?' readonly aria-readonly="true" class="assembly-qty assembly-auto-locked"':' class="assembly-qty"',priceLocked=autoLocked?' readonly aria-readonly="true" class="assembly-price assembly-auto-locked"':' class="assembly-price"';
  const panel=x.keyplcData?`<div class="assembly-keyplc-options">${autoPanel?`<div class="assembly-item-option"><label>Motor Rating</label><select class="assembly-keyplc-model">${keyplcModelOptions(x.keyplcData.productId)}</select></div>`:''}<div class="assembly-item-option"><label>Panel Type</label><select class="assembly-keyplc-type"><option value="indoor" ${normalizePanelType(x.keyplcData.enclosure)==='indoor'?'selected':''}>Indoor</option><option value="sheltered" ${normalizePanelType(x.keyplcData.enclosure)==='sheltered'?'selected':''}>Sheltered (+ RM 1,000.00)</option></select></div></div>`:'';
  const motor=motorOptions(x),coupling=couplingOptions(x),badge=autoGenerated?'<span class="assembly-auto-badge">Auto</span>':'';
  return `<div class="assembly-item assembly-item-${esc(x.section||'pumpset')} ${autoGenerated?'auto-generated':''}" data-assembly-item="${esc(x.id)}"><div><b>${esc(x.bomDescription||x.model)}</b>${badge}${panel}${motor}${coupling}</div><div><label>Qty</label><input${locked} type="number" min="0" step="1" value="${Number(x.qty||1)}"></div><div><label>Unit Price</label><input${priceLocked} type="number" min="0" step="0.01" value="${Number(x.unitPrice||0).toFixed(2)}"></div><div><label>Total Price</label><div class="assembly-line-total">${money(Number(x.qty||0)*Number(x.unitPrice||0))}</div></div><button class="btn danger assembly-delete" type="button">Delete</button></div>`
 }
 function renderItems(){
- const box=$('assemblyItems');if(!box)return;box.innerHTML=sections[type].map(section=>{const rows=(current?.items||[]).filter(x=>x.section===section);return `<section class="assembly-section assembly-section-${esc(section)}"><div class="assembly-section-head"><h2>${labels[section]}</h2><span>${rows.length} item${rows.length===1?'':'s'}</span></div><div class="assembly-section-body">${rows.map(itemHtml).join('')||'<p class="muted assembly-empty">Empty</p>'}</div></section>`}).join('');
+ const box=$('assemblyItems');if(!box)return;box.innerHTML=sections[type].map(section=>{const rows=(current?.items||[]).filter(x=>x.section===section),controls=section==='coupling'?couplingModeControls():'';return `<section class="assembly-section assembly-section-${esc(section)}"><div class="assembly-section-head"><h2>${labels[section]}</h2><span>${rows.length} item${rows.length===1?'':'s'}</span></div>${controls}<div class="assembly-section-body">${rows.map(itemHtml).join('')||'<p class="muted assembly-empty">Empty</p>'}</div></section>`}).join('');
  box.querySelectorAll('input').forEach(i=>i.oninput=()=>{if(i.classList.contains('assembly-qty'))current.description_manual=false;read();renderItems();renderQuoteFields();scheduleAutoSave()});
  box.querySelectorAll('.assembly-keyplc-type').forEach(select=>select.onchange=()=>{current.description_manual=false;read();const row=select.closest('[data-assembly-item]'),item=current.items.find(x=>x.id===row?.dataset.assemblyItem);updateKeyplcItem(item,select.value);if(!current.description_manual)rebuildDescription(current);current.description=normalizeDescriptionIndentation(current.description);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';renderDescriptionPreview();localSave();renderItems();renderQuoteFields();scheduleAutoSave(100)});
  box.querySelectorAll('.assembly-keyplc-model').forEach(select=>select.onchange=()=>{current.description_manual=false;read();const row=select.closest('[data-assembly-item]'),item=current.items.find(x=>x.id===row?.dataset.assemblyItem);updateKeyplcItem(item,item?.keyplcData?.enclosure||'indoor',select.value);if(!current.description_manual)rebuildDescription(current);current.description=normalizeDescriptionIndentation(current.description);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';renderDescriptionPreview();localSave();renderItems();renderQuoteFields();scheduleAutoSave(100)});
  box.querySelectorAll('.assembly-motor-hp,.assembly-motor-pole,.assembly-motor-efficiency').forEach(select=>select.onchange=()=>updateMotorItemFromRow(select.closest('[data-assembly-item]')));
- box.querySelectorAll('.assembly-coupling-type,.assembly-coupling-model,.assembly-coupling-pump-bush,.assembly-coupling-motor-bush').forEach(select=>select.onchange=()=>updateCouplingItemFromRow(select.closest('[data-assembly-item]'),select.className));
+ box.querySelectorAll('.assembly-coupling-model,.assembly-coupling-arrangement').forEach(select=>select.onchange=()=>updateCouplingItemFromRow(select.closest('[data-assembly-item]'),select.className));
+ box.querySelectorAll('[data-coupling-mode]').forEach(button=>button.onclick=()=>setCouplingMode(button.dataset.couplingMode));
  box.querySelectorAll('.assembly-delete').forEach(b=>b.onclick=()=>{read();const row=b.closest('[data-assembly-item]'),item=current.items.find(x=>x.id===row?.dataset.assemblyItem);if(item){current.description_manual=false;current.description=removeDescriptionBlock(current.description,item.description);if(autoComponent(item,'manifold'))current.auto_suppressed={...(current.auto_suppressed||{}),manifold:true};if(autoComponent(item,'tank'))current.auto_suppressed={...(current.auto_suppressed||{}),tank:true}}current.items=current.items.filter(x=>x.id!==row.dataset.assemblyItem);syncAutomaticComponents(current);rebuildDescription(current);if($('assemblyDescription'))$('assemblyDescription').value=current.description||'';renderDescriptionPreview();localSave();renderItems();renderQuoteFields();scheduleAutoSave(100)});
  $('assemblyTotal').textContent=money(total())
 }
@@ -328,7 +365,7 @@ function renderQuoteFields(){
 }
 function render(){
  if(!current||current.assembly_type!==type||current.quote_session_id!==quoteSessionId())current=currentSessionDrafts(type)[0]||blank(type);current=normalize(current);const qCustomer=quoteCustomerId();if(qCustomer)current.customer_id=qCustomer;syncAutomaticComponents(current);if(!current.description_manual)rebuildDescription(current);current.description=normalizeDescriptionIndentation(current.description);
- $('assemblyBuilderTitle').textContent=type==='system'?'System':'Pumpset';if($('newAssemblyDraft'))$('newAssemblyDraft').style.display=type==='system'?'none':'inline-flex';if($('assemblyToSystem'))$('assemblyToSystem').style.display=type==='pumpset'?'inline-flex':'none';$('assemblyDescription').value=current.description||'';$('assemblyDescriptionLabel').textContent=type==='system'?'System Description':'Pumpset Description';$('assemblyCustomer').innerHTML='<option value="">No quotation customer selected</option>'+customers().map(c=>`<option value="${esc(c.id)}">${esc(c.company)}</option>`).join('');$('assemblyCustomer').value=current.customer_id||'';$('assemblyCustomer').disabled=true;if($('assemblyStatus'))$('assemblyStatus').value=current.status||'draft';$('assemblyNotice').textContent=qCustomer?'Customer is locked to the active Quotation selection. The KeyPLC panel, Manifold and Tank are selected automatically from the pump BOM, connection data and shut-off head.':'Select a customer in Dashboard or Quotation first. Assembly customer cannot be entered manually.';renderQuoteFields();renderList();renderItems();renderDescriptionPreview()
+ $('assemblyBuilderTitle').textContent=type==='system'?'System':'Pumpset';if($('newAssemblyDraft'))$('newAssemblyDraft').style.display=type==='system'?'none':'inline-flex';if($('assemblyToSystem'))$('assemblyToSystem').style.display=type==='pumpset'?'inline-flex':'none';$('assemblyDescription').value=current.description||'';$('assemblyDescriptionLabel').textContent=type==='system'?'System Description':'Pumpset Description';$('assemblyCustomer').innerHTML='<option value="">No quotation customer selected</option>'+customers().map(c=>`<option value="${esc(c.id)}">${esc(c.company)}</option>`).join('');$('assemblyCustomer').value=current.customer_id||'';$('assemblyCustomer').disabled=true;if($('assemblyStatus'))$('assemblyStatus').value=current.status||'draft';$('assemblyNotice').textContent=qCustomer?'Customer is locked to the active Quotation selection. The Coupling, KeyPLC panel, Manifold and Tank are selected automatically from the Pump and Motor BOM, connection data and shut-off head.':'Select a customer in Dashboard or Quotation first. Assembly customer cannot be entered manually.';renderQuoteFields();renderList();renderItems();renderDescriptionPreview()
 }
 async function open(t){type=t;currentPinned=false;window.KeySuiteApp?.showPage?.('assemblyBuilder');if(!loaded)await load();if(!current||current.assembly_type!==type||current.quote_session_id!==quoteSessionId())current=currentSessionDrafts(type).find(x=>x.status==='draft')||currentSessionDrafts(type)[0]||blank(type);render()}
 function routeItem(item={}){const level=String(item.assemblyLevel||item.assembly_level||'').toUpperCase();const section=String(item.assemblySection||item.assembly_section||'').toLowerCase();if(level==='COMPLETE_PUMPSET'||section==='pumpset')return {type:'system',section:'pumpset'};if(['pump','motor','coupling','baseplate'].includes(section))return {type:'pumpset',section};if(['control_panel','manifold','tank'].includes(section))return {type:'system',section};const model=String(item.model||'');if(/^CHC\b/i.test(model))return {type:'system',section:'pumpset'};if(/^ES\b/i.test(model))return {type:'pumpset',section:'pump'};if(/tank|gws/i.test(model+' '+(item.description||'')))return {type:'system',section:'tank'};return null}
@@ -342,7 +379,7 @@ async function addItem(item,explicitRoute){
  }
  if(!drafts.some(x=>x.id===target.id))drafts.unshift(target);target.customer_id=customerId;target.quote_session_id=session;if(type==='system'&&route.section==='pumpset')target.auto_suppressed={manifold:false,tank:false};
  const rawDescription=item.keyplcData?keyplcDescription(item):String(item.description||'').trim(),description=String(rawDescription||'').trimEnd();if(type==='pumpset'&&route.section==='pump'&&!target.model_item)target.model_item=item.model||'';
- target.items.push(normalizeItem({id:uid(),section:route.section,model:item.model||'Product',bomDescription:item.bomDescription||item.model||'Product',description,qty:Number(item.qty||1),unitPrice:Number(item.unitPrice||0),pricingSource:item.pricingSource||null,pumpData:item.pumpData||null,tankData:item.tankData||null,keyplcData:item.keyplcData||null,manifoldData:item.manifoldData||null,motorData:item.motorData||null,couplingData:item.couplingData||null,pumpsetData:item.pumpsetData||null},type));
+ if(type==='pumpset'&&route.section==='coupling'&&item.couplingData?.selectionMode)target.coupling_mode=String(item.couplingData.selectionMode);target.items.push(normalizeItem({id:uid(),section:route.section,model:item.model||'Product',bomDescription:item.bomDescription||item.model||'Product',description,qty:Number(item.qty||1),unitPrice:Number(item.unitPrice||0),pricingSource:item.pricingSource||null,pumpData:item.pumpData||null,tankData:item.tankData||null,keyplcData:item.keyplcData||null,manifoldData:item.manifoldData||null,motorData:item.motorData||null,couplingData:item.couplingData||null,pumpsetData:item.pumpsetData||null},type));
  current=target;current.description_manual=false;syncAutomaticComponents(current);rebuildDescription(current);localSave();window.KeySuiteApp?.showPage?.('assemblyBuilder');render();scheduleAutoSave(100);$('assemblyNotice').textContent=`${item.model||'Product'} routed to ${type==='system'?'System':'Pumpset'} → ${labels[route.section]}. Saving automatically…`;
 }
 async function toSystem(){
@@ -394,5 +431,5 @@ document.addEventListener('DOMContentLoaded',()=>{
  preview?.addEventListener('dblclick',openDescriptionEditor);preview?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openDescriptionEditor()}});
  $('saveAssemblyDescriptionPopup')?.addEventListener('click',()=>{current.description_manual=true;current.description=normalizeDescriptionIndentation(popup.value);main.value=current.description;renderDescriptionPreview();scheduleAutoSave(100)})
 });
-window.KeySuiteAssembly={open,addItem,routeItem,toSystem,toQuotation,pageShown,resetForNewQuotation,refreshPricing,getCurrentPumpsetContext:()=>type==='pumpset'&&current?window.KeySuiteCoupling?.contextFromItems?.(current.items||[])||{}:{},refreshAutomaticPanel:()=>{if(current){syncAutomaticComponents(current);render();scheduleAutoSave(100)}}};
+window.KeySuiteAssembly={open,addItem,routeItem,toSystem,toQuotation,pageShown,resetForNewQuotation,refreshPricing,getCurrentPumpsetContext:()=>type==='pumpset'&&current?window.KeySuiteCoupling?.contextFromItems?.(current.items||[])||{}:{},formatPumpsetDescription:completedPumpsetDescription,refreshAutomaticPanel:()=>{if(current){syncAutomaticComponents(current);render();scheduleAutoSave(100)}}};
 })();

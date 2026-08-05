@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V2.28</title>
+  <title>KeySuite V2.27</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -250,12 +250,14 @@
   .company-factor-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.company-factor-tab{border:1px solid #94a3b8;background:#f8fafc;color:#334155;border-radius:10px;padding:9px 18px;font-weight:800;cursor:pointer}.company-factor-tab.active{background:#17365d;color:#fff;border-color:#17365d}.company-settings-layout{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(420px,1.2fr);gap:16px;margin-top:16px}.company-factor-grid{display:grid;gap:10px}.company-factor-row{display:grid;grid-template-columns:minmax(150px,1fr) minmax(130px,180px);gap:10px;align-items:center;padding:10px 12px;border:1px solid #dbe4ee;border-radius:10px;background:#f8fafc}.company-factor-row input[type=number]{width:100%}.company-factor-formula{white-space:normal;line-height:1.55}.company-sensitive-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#fee2e2;color:#991b1b;padding:5px 10px;font-weight:800;font-size:12px}.company-settings-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) minmax(180px,240px);gap:12px;align-items:end;margin:12px 0}.company-setup-count{display:inline-flex;align-items:center;border-radius:999px;background:#fff7ed;color:#9a3412;padding:5px 10px;font-weight:800;font-size:12px}.category-company-factor-list{display:grid;gap:8px;margin-top:12px}.category-company-factor{display:grid;grid-template-columns:minmax(160px,1fr) minmax(130px,180px) 92px;gap:10px;align-items:center;padding:10px 12px;border:1px solid #dbe4ee;border-radius:10px;background:#f8fafc}.category-company-factor input[readonly]{background:#e5e7eb;color:#334155}.category-factor-use{display:flex;align-items:center;gap:6px;font-weight:700;margin:0}.pricing-factor-mode-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pricing-factor-mode-tab{border:1px solid #94a3b8;background:#f8fafc;color:#334155;border-radius:10px;padding:8px 16px;font-weight:800;cursor:pointer}.pricing-factor-mode-tab.active{background:#17365d;color:#fff;border-color:#17365d}@media(max-width:900px){.company-settings-layout{grid-template-columns:1fr}.company-factor-row,.category-company-factor{grid-template-columns:1fr}.company-settings-toolbar{grid-template-columns:1fr}}
 
 .motor-selector-grid{display:grid;grid-template-columns:repeat(3,minmax(170px,1fr));gap:12px;align-items:end}.motor-selected-card{display:grid;grid-template-columns:minmax(180px,.75fr) minmax(280px,1.5fr) minmax(150px,.6fr) auto;gap:16px;align-items:center}.motor-selected-value{padding:12px 14px;border:1px solid #dbe3ec;border-radius:9px;background:#f8fafc;min-height:72px}.motor-selected-value small{display:block;color:var(--muted);font-weight:700;margin-bottom:5px}.motor-selected-value strong{display:block;color:var(--navy);font-size:17px}.motor-price-selector-grid{display:grid;grid-template-columns:repeat(2,minmax(180px,280px));gap:12px;align-items:end}.motor-custom-grid{display:grid;grid-template-columns:minmax(220px,1fr) minmax(180px,.7fr) auto;gap:12px;align-items:end;margin-top:14px}.motor-table-wrap{max-height:650px;overflow:auto}.motor-table-wrap thead{position:sticky;top:0;z-index:2}.motor-table-wrap input,.motor-table-wrap select{min-width:100px}.motor-table-wrap td:last-child{white-space:nowrap}@media(max-width:1050px){.motor-selected-card{grid-template-columns:repeat(2,minmax(180px,1fr))}}@media(max-width:700px){.motor-selector-grid,.motor-selected-card,.motor-price-selector-grid,.motor-custom-grid{grid-template-columns:1fr}}
+
+.coupling-method-row,.assembly-coupling-mode-buttons{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.coupling-method-row .btn.active,.assembly-coupling-mode-buttons .btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}.coupling-selection-badge{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}.coupling-selection-badge.auto{background:#dbeafe;color:#1d4ed8}.coupling-selection-badge.manual{background:#fef3c7;color:#92400e}.coupling-status{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}.coupling-status.suitable{background:#dcfce7;color:#166534}.coupling-status.unsuitable{background:#fee2e2;color:#991b1b}.coupling-suitability-table td:last-child{min-width:320px;white-space:normal}.coupling-bush-info-table td,.coupling-bush-info-table th{white-space:nowrap}.assembly-coupling-mode-controls{margin-top:8px;padding:10px;border:1px solid #dbe3ec;border-radius:9px;background:#f8fafc}.assembly-coupling-summary{font-size:11px;color:var(--muted);margin-top:6px}.assembly-coupling-bush-summary{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.45}
 </style>
 </head>
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.28 Coupling Product & Price List</small></div>
+    <div class="auth-brand">KeySuite<small>V2.27 automatic Pumpset panel sizing</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -270,7 +272,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.28</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.29</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -293,7 +295,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.28 · Coupling Product & Price List</div>
+    <div class="suite-version">KeySuite V2.29 · Coupling Auto Sizing & Pumpset Description</div>
   </aside>
 
   <main>
@@ -528,30 +530,40 @@
 
 
     <section id="productCoupling" class="page">
-      <div class="page-title-row"><div><h1>Product · Coupling</h1><div class="muted">Select Pump and Motor details to recommend a suitable Pin &amp; Bush or Tyre Coupling. Assembly routes to Pumpset → Coupling.</div></div></div>
+      <div class="page-title-row"><div><h1>Product · Coupling</h1><div class="muted">Choose Auto Size when KeySuite should size from Pump and Motor information, or Manual Selection when you want to decide the model.</div></div></div>
       <div id="couplingProductNotice" class="notice active-customer">Select a quotation customer with a Pricing Category before pricing a coupling.</div>
       <div id="couplingProductMessage" class="auth-message"></div>
       <div class="card">
-        <h2 style="margin-top:0">Coupling Selection</h2>
+        <div class="page-title-row" style="margin-bottom:14px"><div><h2 style="margin:0">Coupling Selection</h2></div><span id="couplingSelectionBadge" class="coupling-selection-badge auto">Auto Selected</span></div>
+        <div class="coupling-method-row" style="margin-bottom:14px">
+          <button class="btn secondary active" type="button" data-coupling-selection-method="auto">Auto Size</button>
+          <button class="btn secondary" type="button" data-coupling-selection-method="manual">Manual Selection</button>
+        </div>
         <div class="motor-selector-grid">
           <div><label for="couplingProductType">Coupling Type</label><select id="couplingProductType"><option value="pin_bush" selected>Pin &amp; Bush</option><option value="tyre">Tyre Coupling</option></select></div>
           <div><label for="couplingProductPump">Pump Model</label><select id="couplingProductPump"></select></div>
           <div><label for="couplingProductMotorHp">Motor HP</label><select id="couplingProductMotorHp"></select></div>
           <div><label for="couplingProductMotorPole">Motor Pole</label><select id="couplingProductMotorPole"><option value="2" selected>2 Pole</option><option value="4">4 Pole</option><option value="6">6 Pole</option><option value="8">8 Pole</option></select></div>
-          <div><label for="couplingProductModel">Coupling Model</label><select id="couplingProductModel"></select></div>
+          <div><label for="couplingProductModel">Coupling Model</label><select id="couplingProductModel" disabled></select></div>
         </div>
-        <div id="couplingTyreBushFields" class="motor-selector-grid hidden" style="margin-top:14px">
-          <div><label for="couplingProductPumpBush">Pump Bush</label><select id="couplingProductPumpBush"></select></div>
-          <div><label for="couplingProductMotorBush">Motor Bush</label><select id="couplingProductMotorBush"></select></div>
+        <div id="couplingTyreBushFields" class="hidden" style="margin-top:16px">
+          <div class="motor-selector-grid" style="margin-bottom:12px"><div><label for="couplingProductArrangement">F/H Bush Arrangement</label><select id="couplingProductArrangement"></select></div></div>
+          <div class="table-wrap"><table class="pricelist-table coupling-bush-info-table"><thead><tr><th>Position</th><th>Bush Type</th><th>Bush Model</th><th>Actual Shaft</th><th>Maximum Shaft</th><th>Status</th></tr></thead><tbody id="couplingTyreBushInfoRows"></tbody></table></div>
         </div>
       </div>
       <div class="card motor-selected-card" style="margin-top:16px">
         <div class="motor-selected-value"><small>Pump Shaft</small><strong id="couplingSelectedPumpShaft">—</strong></div>
         <div class="motor-selected-value"><small>Motor Frame</small><strong id="couplingSelectedMotorFrame">—</strong></div>
         <div class="motor-selected-value"><small>Motor Shaft</small><strong id="couplingSelectedMotorShaft">—</strong></div>
+        <div class="motor-selected-value"><small>Required Torque</small><strong id="couplingSelectedTorque">—</strong></div>
+        <div class="motor-selected-value"><small>Required Speed</small><strong id="couplingSelectedSpeed">—</strong></div>
         <div class="motor-selected-value"><small>Coupling Model</small><strong id="couplingSelectedModel">—</strong></div>
         <div class="motor-selected-value"><small>Description</small><strong id="couplingSelectedDescription">—</strong></div>
         <div class="actions" style="margin:0;justify-content:flex-end"><button class="btn action-assembly" id="couplingSelectedAssembly" type="button">Assembly</button><button class="btn green" id="couplingSelectedQuote" type="button">Quote</button></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="page-title-row" style="margin-bottom:12px"><div><h2 style="margin:0">Suitability Check</h2><div class="muted">Every model shows why it is suitable or unsuitable for the selected Pump and Motor.</div></div></div>
+        <div class="table-wrap"><table class="pricelist-table coupling-suitability-table"><thead><tr><th>Coupling Model</th><th>Shaft / Bush</th><th>Status</th><th>Reason</th></tr></thead><tbody id="couplingSuitabilityRows"></tbody></table></div>
       </div>
     </section>
 
@@ -1210,18 +1222,18 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="permissions.js?v=216"></script>
-<script src="app.js?v=228"></script>
-<script src="pricing.js?v=228"></script>
-<script src="quotation-references.js?v=228"></script>
-<script src="categories.js?v=228"></script>
-<script src="pricelist.js?v=228"></script>
-<script src="product.js?v=228"></script>
-<script src="manifold.js?v=228"></script>
-<script src="roles.js?v=228"></script>
-<script src="assembly.js?v=228"></script>
-<script src="motor.js?v=228"></script>
-<script src="coupling.js?v=228"></script>
-<script src="quotation-templates.js?v=228"></script>
+<script src="app.js?v=229"></script>
+<script src="pricing.js?v=229"></script>
+<script src="quotation-references.js?v=229"></script>
+<script src="categories.js?v=229"></script>
+<script src="pricelist.js?v=229"></script>
+<script src="product.js?v=229"></script>
+<script src="manifold.js?v=229"></script>
+<script src="roles.js?v=229"></script>
+<script src="assembly.js?v=229"></script>
+<script src="motor.js?v=229"></script>
+<script src="coupling.js?v=229"></script>
+<script src="quotation-templates.js?v=229"></script>
 
 <dialog id="quotationTemplateDialog" class="ks-dialog template-dialog">
   <div class="dialog-body">
@@ -1273,7 +1285,7 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="company-settings.js?v=228"></script>
-<script src="auth.js?v=228"></script>
+<script src="company-settings.js?v=229"></script>
+<script src="auth.js?v=229"></script>
 </body>
 </html>

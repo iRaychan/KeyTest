@@ -1,0 +1,19 @@
+KeySuite V2.29 QA Report
+
+Upgrade tested: V2.28 -> V2.29 update files
+
+PASS - All root JavaScript files pass Node syntax validation.
+PASS - FCL 224 resolves with 3,000 rpm maximum speed.
+PASS - ES 65-32G + 125HP 2Pole selects FCL 224.
+PASS - Tyre selector can choose F80 using Pump H / Motor F arrangement.
+PASS - Pump shaft at 24 mm forces Pump-side F Bush.
+PASS - Flexible mode chooses the higher-priced suitable coupling result.
+PASS - Multi-item sizing uses largest Pump shaft, largest Motor shaft, highest individual torque and highest speed.
+PASS - Coupling quantity follows the larger total Pump/Motor quantity.
+PASS - Manual unsuitable FCL selection returns the exact failure reason.
+PASS - Completed Pumpset description matches the required line order and c/w tab formatting.
+PASS - HTML contains no duplicate element IDs.
+PASS - Service-worker and manifest versions are V2.29.
+PASS - ZIP integrity and SHA-256 verification completed after packaging.
+
+Deployment to GitHub and execution against the live Supabase project were not performed.

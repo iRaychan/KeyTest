@@ -1,0 +1,11 @@
+KeySuite V2.29 Changes
+
+- FCL 224 speed: 3000 rpm.
+- Auto Size / Manual Selection distinction.
+- Coupling model suitability and Reason column.
+- Tyre F/H bush information and orientation optimization.
+- Flexible / Pin & Bush / Tyre buttons in Pumpset BOM.
+- Flexible defaults to the higher-priced suitable coupling option.
+- Largest-shaft / highest-torque / highest-speed sizing for multiple Pump/Motor items.
+- Automatic coupling refresh after Pump/Motor edit or deletion.
+- Completed Pumpset description format with optional duty point.

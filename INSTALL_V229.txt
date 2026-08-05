@@ -1,0 +1,8 @@
+KeySuite V2.29 Update Installation
+Upgrade path: V2.28 -> V2.29
+
+1. Back up V2.28 and Supabase.
+2. Run V229_SUPABASE_MIGRATION.sql in Supabase SQL Editor.
+3. Replace index.html, assembly.js, coupling.js, manifest.json, sw.js and VERSION.txt.
+4. Keep the existing config.js.
+5. Deploy, press Ctrl+F5, and sign in again.
