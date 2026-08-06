@@ -1,0 +1,8 @@
+KeySuite V2.37 Upgrade
+
+1. Back up the current V2.36 deployment.
+2. Replace the files from KeySuite_V2.37_Update_Patch.zip.
+3. Keep the existing config.js.
+4. No new Supabase migration is required. Confirm V236_SUPABASE_MIGRATION.sql was previously installed.
+5. Deploy and press Ctrl+F5.
+6. If needed, clear the previous service-worker/site cache once.

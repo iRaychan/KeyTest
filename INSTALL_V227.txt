@@ -1,0 +1,9 @@
+KeySuite V2.27 Update Patch
+
+Upgrade path: V2.26 -> V2.27
+
+1. Back up the current deployment.
+2. No Supabase migration is required.
+3. Replace the files in this patch, preserving their relative paths.
+4. Keep the existing working config.js.
+5. Deploy, then press Ctrl+F5 and sign in again.

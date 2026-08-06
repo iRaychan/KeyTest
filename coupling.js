@@ -10,12 +10,13 @@
   const CURRENCIES=['USD','RMB','MYR'];
   const RARITIES=['common','many','rare'];
   let secureData={couplingProducts:[],categories:[],productMultipliers:{COUPLING:{USD:1,RMB:1,MYR:1}}};
-  let access=null,bound=false,productSelectionMethod='auto',rateHoldState=new Map(),unlockedRates=new Set();
+  let access=null,bound=false,productSelectionMethod='auto',productResolvedConfig=null,productResolvedContext=null,rateHoldState=new Map(),unlockedRates=new Set();
   const productManualModels={pin_bush:'',tyre:''};
 
   const byId=id=>document.getElementById(id);
   const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const number=value=>Number(value||0);
+  const clone=value=>value==null?null:JSON.parse(JSON.stringify(value));
   const hpLabel=value=>Number.isInteger(number(value))?String(number(value)):String(number(value)).replace(/0+$/,'').replace(/\.$/,'');
   const normalizePumpModel=value=>String(value||'').toUpperCase().replace(/^B\.G\.REICH\s+END\s+SUCTION\s+PUMP\s+MODEL:\s*/i,'').replace(/^ES\s*/i,'').trim();
   const normalizeType=value=>String(value||'pin_bush').toLowerCase()==='tyre'?'tyre':'pin_bush';
@@ -160,9 +161,13 @@
 
   function requireContext(action){return window.KeySuiteApp?.ensureQuotationPricingContext?.(action)!==false}
   async function addConfigured(config,route){
-    if(!config||!requireContext(`add a Coupling to the ${route==='assembly'?'Assembly':'quotation'}`))return;
-    const found=findConfiguredPrice(config,{pricingMode:route==='assembly'?'assembly':'quotation'});if(!found){alert('No complete Coupling source price or Coupling Category Pricing Rule is available for this selection.');return}
-    const item=makeItem(found,config,route);if(route==='assembly'){await window.KeySuiteAssembly?.addItem?.(item,{type:'pumpset',section:'coupling'});return}if(!window.KeySuitePricing?.ensureQuoteableCalculation?.(found.calc,config.model))return;const row=window.KeySuiteApp?.addExternalQuoteItem?.(item);if(row)window.KeySuiteApp?.showPage?.('quotation');
+    const standalone=clone(config||productResolvedConfig);if(!standalone){alert('Select a suitable Coupling model first.');return false}
+    if(!requireContext(`add a Coupling to the ${route==='assembly'?'Assembly':'quotation'}`))return false;
+    const found=findConfiguredPrice(standalone,{pricingMode:route==='assembly'?'assembly':'quotation'});if(!found){alert('No complete Coupling source price or Coupling Category Pricing Rule is available for this selection.');return false}
+    const item=makeItem(found,standalone,route);
+    if(route==='assembly'){const added=await window.KeySuiteAssembly?.addItem?.(item,{type:'pumpset',section:'coupling'});return added!==false}
+    if(!window.KeySuitePricing?.ensureQuoteableCalculation?.(found.calc,standalone.model))return false;
+    const row=window.KeySuiteApp?.addExternalQuoteItem?.(item);if(row){window.KeySuiteApp?.showPage?.('quotation');return true}alert('Unable to add the Coupling to Quotation.');return false;
   }
 
   function message(id,text,type='info'){const box=byId(id);if(!box)return;box.textContent=text||'';box.className=text?`auth-message show ${type}`:'auth-message'}
@@ -177,7 +182,7 @@
     const type=productType(),context=productContext();if(productSelectionMethod==='auto'){const config=recommendForContext(type,context);return {config,suitable:!!config,reasons:config?[]:['No model satisfies all shaft, torque and speed requirements']}}
     const model=byId('couplingProductModel')?.value||productManualModels[type]||'',arrangement=byId('couplingProductArrangement')?.value||'';const checked=validateManualConfig(type,model,context,arrangement);return checked;
   }
-  function selectedProductConfig(){const result=selectedProductResult(),config=result.config;if(!config)return null;return {...config,selectionMode:config.type,autoSelected:false,manualModel:productSelectionMethod==='manual'}}
+  function selectedProductConfig(){const result=selectedProductResult(),config=result.config||productResolvedConfig;if(!config)return null;return {...clone(config),selectionMode:config.type,autoSelected:false,manualModel:productSelectionMethod==='manual',productSelection:true}}
   function renderBushInfo(config,context){
     const body=byId('couplingTyreBushInfoRows');if(!body)return;if(!config||config.type!=='tyre'){body.innerHTML='<tr><td colspan="6" class="muted">Select a Tyre Coupling model to view F/H Bush information.</td></tr>';return}
     const rows=[{position:'Pump',type:config.pumpBushType,model:config.pumpBush,actual:context.pumpShaft,max:bushMax(config.pumpBush)},{position:'Motor',type:config.motorBushType,model:config.motorBush,actual:context.motorShaft,max:bushMax(config.motorBush)}];
@@ -192,7 +197,7 @@
     if(modelSelect){const desired=productSelectionMethod==='auto'?autoConfig?.model:(selectedBefore||sortedComponents(type==='tyre'?'tyre':'pin_bush')[0]?.model);modelSelect.innerHTML=modelOptions(type,desired);if(desired&&[...modelSelect.options].some(option=>option.value===desired))modelSelect.value=desired;modelSelect.disabled=productSelectionMethod==='auto'}
     if(productSelectionMethod==='manual'&&modelSelect)productManualModels[type]=modelSelect.value;
     const arrangement=byId('couplingProductArrangement');if(arrangement){const options=context.pumpShaft>24?[['pump_h_motor_f','Pump H / Motor F'],['pump_f_motor_h','Pump F / Motor H']]:[['pump_f_motor_h','Pump F / Motor H (required for pump shaft ≤ 24 mm)']];const prior=arrangement.value;arrangement.innerHTML=options.map(([value,label])=>`<option value="${value}">${label}</option>`).join('');if(options.some(([value])=>value===prior))arrangement.value=prior;arrangement.disabled=productSelectionMethod==='auto'}
-    const result=selectedProductResult(),config=result.config,motor=frameFor(context.motorHp,context.motorPole),tyre=type==='tyre';byId('couplingTyreBushFields')?.classList.toggle('hidden',!tyre);
+    const result=selectedProductResult(),config=result.config,motor=frameFor(context.motorHp,context.motorPole),tyre=type==='tyre';productResolvedConfig=config&&result.suitable!==false?clone(config):null;productResolvedContext=clone(context);byId('couplingTyreBushFields')?.classList.toggle('hidden',!tyre);
     const badge=byId('couplingSelectionBadge');if(badge){badge.textContent=productSelectionMethod==='auto'?'Auto Selected':'Manually Selected';badge.className=`coupling-selection-badge ${productSelectionMethod}`}
     document.querySelectorAll('[data-coupling-selection-method]').forEach(button=>button.classList.toggle('active',button.dataset.couplingSelectionMethod===productSelectionMethod));
     const description=config?typeLabel(config.type):'No suitable coupling is available. See the Reason column for details.';
@@ -241,5 +246,5 @@
   }
   function init(data,userAccess){secureData={...secureData,...(data||{})};access=userAccess||access;const fcl224=products().find(row=>String(row.model).toUpperCase()==='FCL 224');if(fcl224)fcl224.maxSpeedRpm=3000;initialize();bind();renderProduct();renderPriceList()}
   function pageShown(id){if(id==='productCoupling'){initialize();renderProduct()}if(id==='couplingPriceList')renderPriceList()}
-  window.KeySuiteCoupling={init,pageShown,recommend,recommendForContext,findConfiguredPrice,configureAssemblyItem,buildAssemblyItem,contextFromItems,normalizePumpModel,typeLabel,modeLabel,speedForPole,productRows:componentRows,pinEvaluation,tyreEvaluation,validateManualConfig,assemblyDescription,shaftLimits};
+  window.KeySuiteCoupling={init,pageShown,recommend,recommendForContext,findConfiguredPrice,configureAssemblyItem,buildAssemblyItem,contextFromItems,normalizePumpModel,typeLabel,modeLabel,speedForPole,productRows:componentRows,pinEvaluation,tyreEvaluation,validateManualConfig,assemblyDescription,shaftLimits,getProductSelection:()=>clone(productResolvedConfig),getProductContext:()=>clone(productResolvedContext),addProductSelectionToQuote:()=>addConfigured(selectedProductConfig(),'quotation')};
 })();
