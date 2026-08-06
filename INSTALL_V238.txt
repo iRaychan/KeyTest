@@ -1,0 +1,11 @@
+KeySuite V2.38 Upgrade
+
+1. Back up the current V2.37 deployment.
+2. Preserve the existing config.js file.
+3. Replace the files from KeySuite_V2.38_Update_Patch.zip.
+4. No new Supabase migration is required. Confirm V236_SUPABASE_MIGRATION.sql was previously installed.
+5. Deploy the updated files.
+6. Press Ctrl+F5 after deployment.
+7. If V2.37 remains cached, clear the KeySuite site data/service-worker cache once and reopen KeySuite.
+
+The V2.38 migration was not run because no new database migration is required.

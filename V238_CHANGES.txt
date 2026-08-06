@@ -1,0 +1,15 @@
+KeySuite V2.38 Changes
+
+1. Pumpset BOM Couplings now distinguish Auto Coupling and Manual Coupling records by independent stable BOM item IDs.
+2. Deleting Auto Coupling suppresses only the automatic record and shows Restore Auto Coupling.
+3. Product > Coupling > Assembly adds a Manual Coupling even while Auto Coupling is suppressed.
+4. Auto and Manual Couplings may coexist; deleting either record leaves the other records unchanged.
+5. Restore Auto Coupling recreates only the automatic selection and preserves all Manual Couplings.
+6. Pumpset-to-System transfer preserves all Coupling BOM records and identifies the preferred resolved Coupling.
+7. Pump-related capacity display uses selected units first. Metric units display as, for example, 50 m³/hr @ 50 Mtr.
+8. Nonmetric capacity display includes metric conversion, for example, 600 L/m (36 m³/hr) @ 100 Ft (30.5 Mtr).
+9. Capacity parsing accepts the new bracketed metric format and the L/m, L/min, Ft, ft, Mtr and m aliases.
+10. Quotation History now filters exact year/month combinations. Each year has 12 month checkboxes plus Select All Months and Clear Months.
+11. Existing Customer Name, authorised User filtering, and database-enforced quotation ownership remain unchanged.
+
+KeyAI remains paused and is not included in this Version 2 build.

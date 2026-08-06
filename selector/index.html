@@ -155,9 +155,9 @@ header p{margin:5px 0 0;font-size:12px;color:#687b89;letter-spacing:.2px}
 <div class="duty-header"><h3>Required Duty</h3><button id="go" type="button">Select</button></div>
 
 <label>Flow</label>
-<div class="row"><input id="flow" type="number" value="" step="0.1" placeholder=""><select id="fu"><option value="m3h">m³/h</option><option value="m3min">m³/min</option><option value="lpm">L/min</option><option value="lps">L/s</option><option value="usgpm">US GPM</option><option value="igpm">IGPM</option></select></div>
+<div class="row"><input id="flow" type="number" value="" step="0.1" placeholder=""><select id="fu"><option value="m3h">m³/hr</option><option value="m3min">m³/min</option><option value="lpm">L/m</option><option value="lps">L/s</option><option value="usgpm">US GPM</option><option value="igpm">IGPM</option></select></div>
 <label>Head</label>
-<div class="row"><input id="head" type="number" value="" step="0.1" placeholder=""><select id="hu"><option value="m">m</option><option value="bar">bar</option><option value="ft">ft</option><option value="kpa">kPa</option><option value="psi">psi</option></select></div>
+<div class="row"><input id="head" type="number" value="" step="0.1" placeholder=""><select id="hu"><option value="m">Mtr</option><option value="bar">bar</option><option value="ft">Ft</option><option value="kpa">kPa</option><option value="psi">psi</option></select></div>
 <label>Operating Speed</label>
 <div class="row"><input id="speedInput" type="number" value="50" min="0" max="50" step="0.1"><select id="speedUnit"><option value="hz">Hz</option><option value="rpm">RPM</option></select></div>
 <div class="frequency-info">0 Hz = 0 RPM · 50 Hz = 2900 RPM (Max)</div>
@@ -331,7 +331,7 @@ function graph(fit,axis,ylabel,dq,dv,labelOrder,chartTitle,metricLabel='',chartH
  s+=`<text x="${labelX}" y="${labelY}" text-anchor="${labelAnchor}" font-family="Arial, sans-serif" font-size="11.5" font-weight="700" fill="#b22d2d">${valueText}</text>`;
  }
 
- s+=`<text x="${(p.l+W-p.r)/2}" y="${H-5}" text-anchor="middle" font-family="Arial, sans-serif" font-size="11.5" font-weight="700" fill="#546274">Flow (m³/h)</text>`;
+ s+=`<text x="${(p.l+W-p.r)/2}" y="${H-5}" text-anchor="middle" font-family="Arial, sans-serif" font-size="11.5" font-weight="700" fill="#546274">Flow (m³/hr)</text>`;
  s+=`<text transform="translate(23 ${(p.t+H-p.b)/2}) rotate(-90)" text-anchor="middle" font-family="Arial, sans-serif" font-size="11.5" font-weight="700" fill="#546274">${ylabel}</text>`;
  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${s}</svg>`;
 }
@@ -465,20 +465,20 @@ function headToM(value,unit){
 
 function reportFlowText(){
  const s=selectionState;
- if(s.flowUnit==="m3min")return `${formatNumber(s.rawFlow,2)} m³/min (${formatNumber(s.q,1)} m³/h)`;
- if(s.flowUnit==="lpm")return `${formatNumber(s.rawFlow,1)} L/min (${formatNumber(s.q,1)} m³/h)`;
- if(s.flowUnit==="lps")return `${formatNumber(s.rawFlow,1)} L/s (${formatNumber(s.q,1)} m³/h)`;
- if(s.flowUnit==="usgpm")return `${formatNumber(s.rawFlow,1)} US GPM (${formatNumber(s.q,1)} m³/h)`;
- if(s.flowUnit==="igpm")return `${formatNumber(s.rawFlow,1)} IGPM (${formatNumber(s.q,1)} m³/h)`;
- return `${formatNumber(s.q,1)} m³/h`;
+ if(s.flowUnit==="m3min")return `${formatNumber(s.rawFlow,2)} m³/min (${formatNumber(s.q,1)} m³/hr)`;
+ if(s.flowUnit==="lpm")return `${formatNumber(s.rawFlow,1)} L/m (${formatNumber(s.q,1)} m³/hr)`;
+ if(s.flowUnit==="lps")return `${formatNumber(s.rawFlow,1)} L/s (${formatNumber(s.q,1)} m³/hr)`;
+ if(s.flowUnit==="usgpm")return `${formatNumber(s.rawFlow,1)} US GPM (${formatNumber(s.q,1)} m³/hr)`;
+ if(s.flowUnit==="igpm")return `${formatNumber(s.rawFlow,1)} IGPM (${formatNumber(s.q,1)} m³/hr)`;
+ return `${formatNumber(s.q,1)} m³/hr`;
 }
 function reportHeadText(){
  const s=selectionState;
- if(s.headUnit==="bar")return `${formatNumber(s.rawHead,2)} bar (${formatNumber(s.h,1)} m)`;
- if(s.headUnit==="ft")return `${formatNumber(s.rawHead,1)} ft (${formatNumber(s.h,1)} m)`;
- if(s.headUnit==="kpa")return `${formatNumber(s.rawHead,1)} kPa (${formatNumber(s.h,1)} m)`;
- if(s.headUnit==="psi")return `${formatNumber(s.rawHead,1)} psi (${formatNumber(s.h,1)} m)`;
- return `${formatNumber(s.h,1)} m`;
+ if(s.headUnit==="bar")return `${formatNumber(s.rawHead,2)} bar (${formatNumber(s.h,1)} Mtr)`;
+ if(s.headUnit==="ft")return `${formatNumber(s.rawHead,1)} Ft (${formatNumber(s.h,1)} Mtr)`;
+ if(s.headUnit==="kpa")return `${formatNumber(s.rawHead,1)} kPa (${formatNumber(s.h,1)} Mtr)`;
+ if(s.headUnit==="psi")return `${formatNumber(s.rawHead,1)} psi (${formatNumber(s.h,1)} Mtr)`;
+ return `${formatNumber(s.h,1)} Mtr`;
 }
 
 
@@ -806,7 +806,7 @@ function renderSelected(){
  const requiredNpsh=Math.max(0,peval(best.npshFit.c,q));
  const maxH=Math.max(...best.headFit.pts.map(p=>p.y),h),maxP=Math.max(...best.powerFit.pts.map(p=>p.y),requiredPower),maxN=Math.max(...best.npshFit.pts.map(p=>p.y),requiredNpsh);
  const above=hz>50?'<div class="warning">Above 50 Hz: verify motor power, VFD voltage, maximum rpm, pressure rating and manufacturer approval.</div>':'';
- const kpis=productMode?`<div class="kpis"><div class="kpi"><span>Reference flow</span><b>${q.toFixed(2)} m³/h</b><span>near best efficiency</span></div><div class="kpi"><span>Reference head</span><b>${h.toFixed(2)} m</b><span>model curve</span></div><div class="kpi"><span>Efficiency</span><b>${requiredEff.toFixed(1)}%</b><span>reference point</span></div><div class="kpi"><span>Shaft power</span><b>${requiredPower.toFixed(2)} kW</b><span>${(requiredPower/0.746).toFixed(1)} HP</span></div><div class="kpi"><span>Motor size</span><b>${best.motor_kw.toFixed(2)} kW</b><span>${best.motor_hp.toFixed(2)} HP</span></div><div class="kpi"><span>NPSHr</span><b>${requiredNpsh.toFixed(2)} m</b><span>reference point</span></div><div class="kpi"><span>Speed</span><b>${best.rpm.toFixed(0)} rpm</b><span>${hz.toFixed(1)} Hz</span></div><div class="kpi"><span>Pressure limits</span><b>${best.max_pressure_bar.toFixed(0)} bar</b><span>inlet ${best.max_inlet_bar.toFixed(0)} bar</span></div></div>`:`<div class="kpis"><div class="kpi"><span>Required head</span><b>${h.toFixed(2)} m</b><span>at required flow</span></div><div class="kpi"><span>Efficiency</span><b>${requiredEff.toFixed(1)}%</b><span>at required flow</span></div><div class="kpi"><span>Shaft power</span><b>${requiredPower.toFixed(2)} kW</b><span>${(requiredPower/0.746).toFixed(1)} HP</span></div><div class="kpi"><span>Motor size</span><b>${best.motor_kw.toFixed(2)} kW</b><span>${best.motor_hp.toFixed(2)} HP</span></div><div class="kpi"><span>NPSHr</span><b>${requiredNpsh.toFixed(2)} m</b><span>at required flow</span></div><div class="kpi"><span>Adjusted speed</span><b>${best.rpm.toFixed(0)} rpm</b><span>base ${(Number(DB.curves[best.series].speed_rpm)||2900).toFixed(0)} rpm</span></div><div class="kpi"><span>Required duty</span><b>${q.toFixed(1)} m³/h</b><span>${h.toFixed(1)} m</span></div><div class="kpi"><span>Pressure limits</span><b>${best.max_pressure_bar.toFixed(0)} bar</b><span>inlet ${best.max_inlet_bar.toFixed(0)} bar</span></div></div>`;
+ const kpis=productMode?`<div class="kpis"><div class="kpi"><span>Reference flow</span><b>${q.toFixed(2)} m³/h</b><span>near best efficiency</span></div><div class="kpi"><span>Reference head</span><b>${h.toFixed(2)} m</b><span>model curve</span></div><div class="kpi"><span>Efficiency</span><b>${requiredEff.toFixed(1)}%</b><span>reference point</span></div><div class="kpi"><span>Shaft power</span><b>${requiredPower.toFixed(2)} kW</b><span>${(requiredPower/0.746).toFixed(1)} HP</span></div><div class="kpi"><span>Motor size</span><b>${best.motor_kw.toFixed(2)} kW</b><span>${best.motor_hp.toFixed(2)} HP</span></div><div class="kpi"><span>NPSHr</span><b>${requiredNpsh.toFixed(2)} m</b><span>reference point</span></div><div class="kpi"><span>Speed</span><b>${best.rpm.toFixed(0)} rpm</b><span>${hz.toFixed(1)} Hz</span></div><div class="kpi"><span>Pressure limits</span><b>${best.max_pressure_bar.toFixed(0)} bar</b><span>inlet ${best.max_inlet_bar.toFixed(0)} bar</span></div></div>`:`<div class="kpis"><div class="kpi"><span>Required head</span><b>${h.toFixed(2)} m</b><span>at required flow</span></div><div class="kpi"><span>Efficiency</span><b>${requiredEff.toFixed(1)}%</b><span>at required flow</span></div><div class="kpi"><span>Shaft power</span><b>${requiredPower.toFixed(2)} kW</b><span>${(requiredPower/0.746).toFixed(1)} HP</span></div><div class="kpi"><span>Motor size</span><b>${best.motor_kw.toFixed(2)} kW</b><span>${best.motor_hp.toFixed(2)} HP</span></div><div class="kpi"><span>NPSHr</span><b>${requiredNpsh.toFixed(2)} m</b><span>at required flow</span></div><div class="kpi"><span>Adjusted speed</span><b>${best.rpm.toFixed(0)} rpm</b><span>base ${(Number(DB.curves[best.series].speed_rpm)||2900).toFixed(0)} rpm</span></div><div class="kpi"><span>Required duty</span><b>${reportFlowText()}</b><span>${reportHeadText()}</span></div><div class="kpi"><span>Pressure limits</span><b>${best.max_pressure_bar.toFixed(0)} bar</b><span>inlet ${best.max_inlet_bar.toFixed(0)} bar</span></div></div>`;
  out.innerHTML=`<div class="heading"><div><h2 style="margin:0">${best.model}</h2><div>${best.series} · ${best.stages} stage${best.stages>1?'s':''} · ${best.connection}</div></div><div class="heading-actions"><button class="export-btn" onclick="exportPDF()">PDF</button><div class="badge">${hz.toFixed(1)} Hz</div></div></div>${above}${kpis}${graph(best.headFit,nice(maxH,5),"Head (m)",q,h,2,"Head Curve",'',270,true)}${graph(best.effFit,effAxis(Math.max(...best.effFit.pts.map(p=>p.y))),"Efficiency (%)",q,requiredEff,6,"Efficiency Curve",'',270,true)}${graph(best.powerFit,nice(maxP,5),"Power (kW)",q,requiredPower,6,"Shaft Power Curve",'',270,true)}${graph(best.npshFit,nice(maxN,5),"NPSHr (m)",q,requiredNpsh,3,"NPSHr Curve",'',270,true)}<p class="small"></p><div class="iso-note">ISO 9906:Grade 3B</div>`;
  if(window.parent&&window.parent!==window){window.parent.postMessage({type:'KEYSUITE_SELECTION_CHANGED',payload:{model:best.model,connection:best.connection}},'*')}
 }
@@ -873,7 +873,7 @@ function run(){
  let all=DB.models.map(m=>evaluateModel(m,q,h,hz)).filter(x=>x&&x.margin>=-0.01&&x.motor_kw+1e-9>=x.shaft);
  if(!all.length)all=DB.models.map(m=>evaluateModel(m,q,h,hz)).filter(x=>x&&x.margin>=-0.01);
  if(!all.length){
-   out.innerHTML=`<div class="warning">No CHC model in the workbook range can meet ${q.toFixed(1)} m³/h @ ${h.toFixed(1)} m at ${hz.toFixed(1)} Hz.</div>`;
+   out.innerHTML=`<div class="warning">No CHC model in the workbook range can meet ${reportFlowText()} @ ${reportHeadText()} at ${hz.toFixed(1)} Hz.</div>`;
    alternatives.innerHTML='';
    return;
  }

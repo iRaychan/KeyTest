@@ -1,0 +1,17 @@
+KeySuite V2.37 → V2.38 Update Patch Files
+
+VERSION.txt
+README.md
+README_V238.md
+V238_CHANGES.txt
+INSTALL_V238.txt
+V238_NO_DATABASE_MIGRATION.txt
+V238_QA_REPORT.txt
+PATCH_FILES_V238.txt
+SHA256SUMS_V238.txt
+app.js
+assembly.js
+index.html
+manifest.json
+sw.js
+selector/index.html

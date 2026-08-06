@@ -1,0 +1,65 @@
+KeySuite V2.38 QA Report
+=======================
+
+Build basis
+-----------
+- Source: KeySuite V2.37 full source
+- Target: KeySuite V2.38
+- KeyAI integration: paused and not included
+- New Supabase migration: none
+- Required existing migration: V236_SUPABASE_MIGRATION.sql
+
+Automated source checks
+-----------------------
+PASS - JavaScript syntax check for every root .js file.
+PASS - JavaScript syntax check for all inline scripts in selector/index.html.
+PASS - manifest.json validation.
+PASS - index.html parsed with 549 unique element IDs and no duplicate IDs.
+PASS - selector/index.html parsed with 23 unique element IDs and no duplicate IDs.
+PASS - Version markers are V2.38 and service-worker cache is keysuite-v238.
+PASS - No stale V2.37 Year/Month filter container references remain in app.js or index.html.
+
+Browser interaction checks
+--------------------------
+PASS - Pump plus Motor created exactly one Auto Coupling and no Manual Coupling.
+PASS - Deleting Auto Coupling removed only that item, set Auto Coupling suppression and displayed Restore Auto Coupling.
+PASS - A Manual Coupling was added while Auto Coupling remained suppressed.
+PASS - Restoring Auto Coupling recreated one Auto Coupling and preserved the Manual Coupling.
+PASS - Deleting Auto Coupling while Manual Coupling existed left the Manual Coupling visible and editable.
+PASS - Auto Coupling and multiple Manual Couplings coexisted with distinct BOM item IDs.
+PASS - Deleting one Manual Coupling left Auto Coupling and the other Manual Coupling unchanged.
+PASS - Coupling interaction test completed without browser exceptions or alert errors.
+
+Capacity checks
+---------------
+PASS - Metric capacity displayed exactly: 50 m³/hr @ 50 Mtr.
+PASS - Nonmetric capacity displayed selected units first with metric equivalents: 600 L/m (36 m³/hr) @ 100 Ft (30.5 Mtr).
+PASS - Bracketed capacity text parsed back to internal L/min and ft units.
+PASS - Quotation and Assembly capacity dropdowns display L/m and Ft while retaining compatible internal unit values.
+PASS - Selector report output and required-duty display use m³/hr, L/m, Mtr and Ft formats.
+PASS - Selector conversion test produced 600 L/m (36 m³/hr) @ 100 Ft (30.5 Mtr).
+NOTE - 100 ft converts to 30.48 metres and is displayed as 30.5 Mtr at one decimal place.
+
+Quotation History checks
+------------------------
+PASS - Quotation History rendered a separate 12-month checkbox group for each available year.
+PASS - Selecting October and December 2026 returned only October and December 2026 quotation records.
+PASS - November 2026 and October 2025 were excluded from that selection.
+PASS - Active filter summary displayed: 2026: October, December.
+PASS - Each year includes Select All Months and Clear Months controls.
+PASS - Customer Name and authorised User filters remain available.
+PASS - Existing V2.36 secure quotation RPC and ownership enforcement were not removed or weakened.
+
+Package checks
+--------------
+PASS - V2.38 update patch overlaid onto a pristine V2.37 source and matched every V2.38 target file.
+PASS - V2.38 full-source ZIP extraction matched the V2.38 target source.
+PASS - Update and full-source ZIP archives passed integrity testing.
+PASS - Patch and full-source SHA-256 verification passed.
+PASS - JavaScript syntax and HTML duplicate-ID checks passed again on extracted package files.
+
+Test scope
+----------
+- Coupling and filter behaviour was tested in isolated headless-browser DOM tests with mocked application data.
+- No live Supabase credentials or production database were used.
+- The V2.36 database ownership migration was verified as an unchanged source dependency, not executed against the live project.

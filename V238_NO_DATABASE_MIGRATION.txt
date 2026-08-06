@@ -1,0 +1,5 @@
+KeySuite V2.38 requires no new Supabase migration.
+
+V236_SUPABASE_MIGRATION.sql must already be installed for secure Quotation History ownership and authorised management filtering.
+
+V2.38 changes are frontend/state-management changes. No live Supabase operation was performed during packaging.
