@@ -1,0 +1,65 @@
+KeySuite V2.24 QA Report
+========================
+
+Build basis
+- Complete KeySuite V2.23 GitHub source.
+- Version advanced to V2.24.
+- No V2.23 source module was removed.
+
+Product > Motor Model
+PASS - Selection order is HP / Pole / Efficiency.
+PASS - Pole selections are 2, 4, 6 and 8 Pole.
+PASS - Efficiency selections are IE1 to IE5.
+PASS - IE3 is selected by default.
+PASS - HP options are populated numerically from the Motor catalogue.
+PASS - Selected Model, Description and Assembly Price are rendered.
+PASS - Custom model decoding remains available.
+PASS - 3BM50-5 decodes to 50HP 5Pole IE3 Motor.
+
+Motor Price List
+PASS - Currency & Multipliers uses the CHC/ES collapsible details-panel pattern.
+PASS - Currency panel starts collapsed.
+PASS - Currency panel contains Currency Selection, USD → MYR and RMB → MYR only.
+PASS - Efficiency is outside the currency panel.
+PASS - Pole is outside the currency panel.
+PASS - Search is not present on the Motor Price List.
+PASS - IE3 is selected by default.
+PASS - Price table displays HP rows for the selected Efficiency and Pole.
+PASS - Selected currency changes the price heading and input prefix.
+PASS - USD/RMB multipliers retain 3-second hold-to-edit behaviour.
+PASS - Existing V223 Motor price and multiplier RPCs are retained.
+
+Motor catalogue
+PASS - 680 standard Motor records remain in V223_SUPABASE_MIGRATION.sql.
+PASS - IE1: 136 records.
+PASS - IE2: 136 records.
+PASS - IE3: 136 records.
+PASS - IE4: 136 records.
+PASS - IE5: 136 records.
+PASS - 34 unique HP ratings and 2/4/6/8 Pole combinations.
+
+Assembly routing
+PASS - Runtime mock test captured route type = pumpset.
+PASS - Runtime mock test captured section = motor.
+PASS - Motor item assembly level remains PUMPSET_COMPONENT.
+PASS - Motor items do not route to System.
+
+Static validation
+PASS - All root JavaScript files pass node --check.
+PASS - index.html contains 500 unique element IDs with no duplicates.
+PASS - Required V2.24 Motor element IDs are present.
+PASS - Removed V2.23 Motor search/filter IDs have no remaining references.
+PASS - Active cache/version references use V2.24 / v=224 / keysuite-v224.
+
+Database
+PASS - No Supabase schema or RPC change is required for V2.24.
+NOTE - V223_SUPABASE_MIGRATION.sql must already be installed for the Motor module.
+
+Package
+PASS - Final ZIP integrity test completed successfully.
+PASS - Final ZIP was re-extracted and key files/version were verified.
+
+Deployment
+- Source build and package verification are complete.
+- The files have not been uploaded to GitHub or deployed to the live KeySuite site.
+- No SQL has been executed against the live Supabase database.

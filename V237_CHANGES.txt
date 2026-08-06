@@ -1,0 +1,11 @@
+KeySuite V2.37 Changes
+
+1. Pumpset Coupling deletion is permanent until Restore Coupling is pressed.
+2. Pump/Motor edits, additions, deletion, refresh and autosave no longer recreate a deliberately deleted Coupling.
+3. Product > Coupling > Quote uses an independent Product selection and works even when the Pumpset Coupling is deleted.
+4. Product > Coupling > Assembly explicitly restores/replaces the Pumpset Coupling.
+5. Customer Classification adds Owner. This is a customer classification, not a KeySuite user role.
+6. Quotation History Year and Month are checkbox multi-select filters, including Select All and Clear All.
+7. Existing V2.36 database-enforced quotation ownership remains unchanged.
+
+KeyAI remains paused and is not included in this V2 build.

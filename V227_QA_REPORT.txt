@@ -1,0 +1,32 @@
+KeySuite V2.27 QA Report
+Date: 2026-08-03
+Upgrade path: V2.26 -> V2.27
+
+PASS - JavaScript syntax
+- assembly.js
+- all root JavaScript files
+
+PASS - Nested Pumpset Motor detection
+- Motor HP and quantity read from Pumpset BOM after transfer to System
+- Pumpset set quantity multiplies nested Motor quantity
+- Motor model fallback supports BM / 2BM / 3BM / 4BM / 5BM codes
+
+PASS - Automatic KeyPLC panel selection
+- 2 x 3HP motors -> 3kW, 2-pump KeyPLC panel
+- 1 x 3HP plus 2 x 5HP motors -> 4kW, 3-pump KeyPLC panel
+- Exact panel rating used when available
+- Nearest larger panel rating used when no exact rating exists
+- Existing pump motor-kW sizing retained as fallback
+
+PASS - Panel editing
+- Auto-selected Motor Rating dropdown available in System BOM
+- Manual Motor Rating selection retained
+- Indoor / Sheltered Panel Type remains editable
+
+PASS - Version/cache
+- Version updated to 2.27
+- Service worker cache updated to keysuite-v227
+- Script cache-busting parameters updated to v=227
+
+Not performed
+- The patch was not uploaded to GitHub or deployed to the live application.

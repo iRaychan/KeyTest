@@ -1,0 +1,11 @@
+KeySuite V2.27 Changes
+
+1. Pumpset > System now reads Motor data from the nested Pumpset BOM.
+2. The KeyPLC panel pump count follows the total Motor quantity.
+3. The KeyPLC panel rating follows the highest Motor HP.
+4. Motor HP is converted to kW and matched to the exact or nearest larger KeyPLC panel rating.
+5. If Motor data is unavailable, the existing pump motor-kW sizing remains as the fallback.
+6. Pumpset set quantity multiplies the nested Motor quantity.
+7. The automatically selected panel Motor Rating remains editable in System BOM.
+8. Panel Type remains editable as Indoor or Sheltered.
+9. The grouped Pumpset remains one System BOM item with its nested BOM retained.

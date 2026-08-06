@@ -1,0 +1,1 @@
+KeySuite V2.37 requires no new Supabase migration. V236_SUPABASE_MIGRATION.sql must already be installed.

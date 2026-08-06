@@ -1,0 +1,42 @@
+KeySuite V2.37 QA Report
+=======================
+
+Build basis
+-----------
+- Source: KeySuite V2.36 full source
+- Target: KeySuite V2.37
+- KeyAI integration: paused and not included
+- New Supabase migration: none
+- Required existing migration: V236_SUPABASE_MIGRATION.sql
+
+Automated checks completed
+--------------------------
+PASS - JavaScript syntax check for every root .js file.
+PASS - manifest.json validation.
+PASS - index.html parsed successfully with 552 unique element IDs and no duplicate IDs.
+PASS - Customer Classification contains Owner.
+PASS - Quotation History contains checkbox multi-select containers for Year and Month.
+PASS - Quotation History multi-select logic returned May and August 2026 together and excluded other months/years.
+PASS - Existing V2.36 quotation RPC remains the secure source; user/dealer ownership enforcement is unchanged.
+PASS - Coupling Delete sets persistent auto_suppressed.coupling state.
+PASS - Pump/Motor edits, additions and deletions do not clear a deliberate Coupling suppression.
+PASS - Restore Coupling explicitly clears suppression.
+PASS - Product > Coupling > Assembly explicitly clears suppression and replaces the current Coupling.
+PASS - Product > Coupling > Quote used the Product selection while the active Pumpset Coupling was marked deleted.
+PASS - Product quote test produced Pin & Bush Coupling Model: FCL 100 and opened the Quotation path.
+
+Package checks
+--------------
+PASS - Update patch overlaid onto V2.36 and matched the V2.37 target for every changed file.
+PASS - Full-source ZIP extraction matched the V2.37 target.
+PASS - Both ZIP archives passed integrity testing.
+PASS - Patch and full-source SHA-256 verification passed.
+PASS - JavaScript syntax checks passed again on the extracted full source and patch overlay.
+
+Important behaviour
+-------------------
+- Deleting the automatic Pumpset Coupling leaves Restore Coupling visible and does not recreate the Coupling until Restore Coupling is pressed.
+- Product > Coupling > Quote is independent of the Pumpset Coupling deleted/restored state.
+- Product > Coupling > Assembly is an explicit action and may restore/replace the Pumpset Coupling.
+- Year and Month quotation-history filters support multiple checked values, such as May and August.
+- Owner customer classification is separate from the KeySuite Owner user role.

@@ -1,0 +1,3 @@
+KeySuite V2.27 does not require a Supabase database migration.
+
+Use the existing V2.26 database structure and functions.
