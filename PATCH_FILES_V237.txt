@@ -1,0 +1,17 @@
+KeySuite V2.36 -> V2.37 changed/new files
+
+INSTALL_V237.txt
+PATCH_FILES_V237.txt
+README.md
+README_V237.md
+SHA256SUMS_V237.txt
+V237_CHANGES.txt
+V237_NO_DATABASE_MIGRATION.txt
+V237_QA_REPORT.txt
+VERSION.txt
+app.js
+assembly.js
+coupling.js
+index.html
+manifest.json
+sw.js
