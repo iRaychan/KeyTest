@@ -1,18 +1,11 @@
-# KeySuite V2.38
+# KeySuite user invitation function
 
-Full GitHub source built from V2.37. `config.js` is intentionally not included; preserve the existing deployment configuration.
+Deploy this Edge Function to the same Supabase project used by KeySuite.
 
-## Upgrade
+Function name: `keysuite-invite-user`
 
-For V2.37 → V2.38:
+It verifies that the caller is an active KeySuite Owner, then uses Supabase Auth Admin to send an invitation email. The invitee sets their own password from the email link.
 
-1. Back up the current V2.37 deployment.
-2. Replace the files from the V2.38 update patch.
-3. Keep the existing `config.js`.
-4. No new Supabase migration is required. Confirm `V236_SUPABASE_MIGRATION.sql` was previously installed.
-5. Deploy and press `Ctrl+F5`.
-6. If the previous service worker remains, clear KeySuite site data once and reopen the app.
+The hosted Supabase function environment supplies `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`. Never place the service-role key in GitHub `config.js`.
 
-See `V238_CHANGES.txt`, `INSTALL_V238.txt`, `V238_NO_DATABASE_MIGRATION.txt`, and `V238_QA_REPORT.txt`.
-
-KeyAI integration remains paused and is not included in this Version 2 build.
+Before testing invitations, ensure the deployed KeySuite GitHub Pages URL is allowed as an Authentication redirect URL in the Supabase project. The browser sends the current KeySuite page as the invitation redirect destination.
