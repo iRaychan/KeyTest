@@ -1,0 +1,29 @@
+KeySuite V3.3 Changes
+
+1. Dashboard Customer / Customer Name correction
+- Dashboard Customer = company.
+- Dashboard Customer Name = employee/contact person under that selected company.
+- Company and contact person are synchronized both ways with Quotation Customer / Customer Name.
+- Changing company refreshes the Dashboard contact list for that company.
+
+2. Left Panel System / Pumpset style
+- Outline changed to #FFC000.
+- Text/icon remain the same white style, size and normal font weight as standard left-panel items such as Customer.
+- No solid yellow fill.
+
+3. KeyAI Telegram + OpenAI integration
+- Added Telegram webhook Edge Function to the combined KeySuite project.
+- Owner OpenAI OFF: no OpenAI call; Telegram enquiry is saved as AI Disabled – Manual Review.
+- Owner OpenAI ON: Telegram enquiry is sent server-side to keyai-openai, structured requirements are saved as AI Draft Ready.
+- Telegram always sends a fixed acknowledgement; no final quotation is sent automatically.
+- KeyAI does not select pumps or calculate pricing. KeyES and KeySuite remain authoritative for engineering and commercial logic.
+- Added Owner Telegram Inbox to KeyAI settings for testing and review.
+
+4. Security
+- OPENAI_API_KEY remains in Supabase Edge Function secrets only.
+- Telegram token and webhook secret remain in Supabase Edge Function secrets only.
+- Telegram webhook validates X-Telegram-Bot-Api-Secret-Token.
+- telegram-webhook has verify_jwt=false because Telegram cannot send a Supabase user JWT; the Telegram secret header is validated inside the function.
+
+5. Database
+- New V330_SUPABASE_MIGRATION.sql adds ks_keyai_enquiries and Owner-only inbox RPC.

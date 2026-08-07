@@ -1,0 +1,20 @@
+KeySuite V3.3 Static QA Report
+
+PASS - All top-level JavaScript files pass node --check.
+PASS - V3.3 version labels and service-worker cache are updated.
+PASS - System / Pumpset left-panel border is #FFC000 with standard white normal-weight text.
+PASS - Dashboard includes Customer (company) and Customer Name (company contact) controls.
+PASS - Dashboard company/contact synchronization hooks exist in both directions with Quotation.
+PASS - KeyAI Owner page includes Telegram Inbox refresh/list UI.
+PASS - V330 migration creates ks_keyai_enquiries and Owner-only list RPC.
+PASS - telegram-webhook checks Owner OpenAI setting before processing.
+PASS - OpenAI OFF path stores manual-review enquiry without calling keyai-openai.
+PASS - OpenAI ON path invokes keyai-openai server-side using KEYAI_INTERNAL_SECRET.
+PASS - Telegram webhook validates X-Telegram-Bot-Api-Secret-Token.
+PASS - supabase/config.toml sets verify_jwt=false for both V3.3 Edge Functions; each handler performs its own authentication checks.
+
+Live verification still required after deployment:
+- Supabase migration execution.
+- Edge Function deployment and secrets.
+- Telegram webhook registration.
+- OpenAI API account billing/permissions and model availability.

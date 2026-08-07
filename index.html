@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V3.2</title>
+  <title>KeySuite V3.3</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -281,8 +281,8 @@
     .nav-group.open .nav-submenu{padding:0 8px 2px}
     .nav-group.open .nav-submenu button{background:rgba(255,255,255,.10)}
     .nav-group.open .nav-submenu button:hover,.nav-group.open .nav-submenu button.active{background:rgba(255,255,255,.20)}
-    .nav-assembly-direct{background:transparent!important;color:#FFFF00!important;font-weight:900!important;border:2px solid #FFFF00!important}
-    .nav-assembly-direct:hover,.nav-assembly-direct.active{background:rgba(255,255,0,.12)!important;color:#FFFF00!important}
+    .nav-assembly-direct{background:transparent!important;color:white!important;font:inherit!important;font-weight:400!important;border:2px solid #FFC000!important}
+    .nav-assembly-direct:hover,.nav-assembly-direct.active{background:rgba(255,192,0,.12)!important;color:white!important}
     .dashboard-start-card{border:2px solid #3072C2!important;box-shadow:0 7px 24px rgba(48,114,194,.14)!important;padding:22px!important;position:relative;overflow:visible}
     .dashboard-start-heading{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:5px}
     .dashboard-start-heading h2{font-size:24px;margin:0;color:#17365d}
@@ -306,6 +306,7 @@
     .keyai-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 0;border-bottom:1px solid #e2e8f0}
     .keyai-switch{position:relative;width:54px;height:30px;flex:0 0 54px}.keyai-switch input{opacity:0;width:0;height:0}.keyai-slider{position:absolute;inset:0;border-radius:999px;background:#cbd5e1;transition:.2s;cursor:pointer}.keyai-slider:before{content:"";position:absolute;width:22px;height:22px;left:4px;top:4px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:.2s}.keyai-switch input:checked+.keyai-slider{background:#15803d}.keyai-switch input:checked+.keyai-slider:before{transform:translateX(24px)}
     .keyai-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.keyai-stat{padding:12px;border:1px solid #e2e8f0;border-radius:9px;background:#f8fafc}.keyai-stat b{display:block;font-size:20px;margin-top:5px}.keyai-status-line{display:flex;align-items:center;gap:8px;font-weight:800}.keyai-status-dot{width:10px;height:10px;border-radius:50%;background:#94a3b8}.keyai-status-dot.ok{background:#16a34a}.keyai-status-dot.off{background:#f59e0b}.keyai-status-dot.error{background:#dc2626}
+    .keyai-inbox-card{margin-top:16px}.keyai-inbox-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.keyai-inbox-list{display:grid;gap:10px;margin-top:12px}.keyai-enquiry{border:1px solid #e2e8f0;border-radius:10px;background:#fff;padding:12px}.keyai-enquiry-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.keyai-enquiry-status{display:inline-block;padding:4px 8px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:700}.keyai-enquiry-status.ready{background:#dcfce7;color:#166534}.keyai-enquiry-status.error{background:#fee2e2;color:#991b1b}.keyai-enquiry-message{margin-top:9px;white-space:pre-wrap;line-height:1.45}.keyai-enquiry-ai{margin-top:9px;padding:9px 10px;border-radius:8px;background:#f8fafc;font-size:12px;line-height:1.45;white-space:pre-wrap}.keyai-enquiry-meta{font-size:11px;color:#64748b;margin-top:4px}
     @media(max-width:760px){.start-customer-row-v31,.keyai-settings-grid{grid-template-columns:1fr}.keyai-stat-grid{grid-template-columns:1fr}}
 
   </style>
@@ -313,7 +314,7 @@
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V3.2</small></div>
+    <div class="auth-brand">KeySuite<small>V3.3</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -328,7 +329,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V3.2</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V3.3</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -351,7 +352,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V3.2</div>
+    <div class="suite-version">KeySuite V3.3</div>
   </aside>
 
   <main>
@@ -359,17 +360,18 @@
       <h1>Dashboard</h1>
       <div class="card dashboard-start-card">
         <div class="dashboard-start-heading"><span class="start-here-badge">START HERE</span><h2>Start</h2></div>
-        <p class="muted" style="margin:0">Select the customer you are working on. This customer is linked directly to the Quotation customer.</p>
+        <p class="muted" style="margin:0">Select the company and employee/contact person you are working with. Both fields are linked directly to Quotation.</p>
         <input id="startCustomer" type="hidden" value="">
         <div class="start-customer-row-v31">
           <div class="start-customer-picker" id="startCustomerPicker">
-            <label for="startCustomerSearch">Customer Name</label>
-            <div class="start-customer-input-wrap"><input id="startCustomerSearch" type="search" autocomplete="off" placeholder="Search customer name..."><button id="startCustomerClear" class="start-customer-clear" type="button" title="Clear customer">×</button></div>
+            <label for="startCustomerSearch">Customer</label>
+            <div class="start-customer-input-wrap"><input id="startCustomerSearch" type="search" autocomplete="off" placeholder="Search company name..."><button id="startCustomerClear" class="start-customer-clear" type="button" title="Clear customer">×</button></div>
             <div id="startCustomerMenu" class="start-customer-menu" hidden></div>
           </div>
           <div>
-            <label>Quotation Customer</label>
-            <div id="startCustomerStatus" class="start-customer-status">No customer selected</div>
+            <label for="startContact">Customer Name</label>
+            <select id="startContact"><option value="">Select contact person</option></select>
+            <div id="startCustomerStatus" class="muted" style="margin-top:6px">No customer selected</div>
           </div>
         </div>
       </div>
@@ -740,7 +742,7 @@
 
     <section id="keyAiSettings" class="page">
       <div class="key-back-row"><button class="btn secondary" type="button" data-go="keyDashboard">← Key Dashboard</button></div>
-      <div class="page-title-row"><div><h1>KeyAI · OpenAI</h1><div class="muted">Owner-only control of the KeyAI OpenAI engine.</div></div></div>
+      <div class="page-title-row"><div><h1>KeyAI · OpenAI</h1><div class="muted">Owner-only control of the KeyAI OpenAI engine and Telegram enquiry processing.</div></div></div>
       <div id="keyAiNotice" class="notice">Loading KeyAI settings…</div>
       <div class="keyai-settings-grid">
         <div class="card">
@@ -757,6 +759,10 @@
           <div class="keyai-stat-grid"><div class="keyai-stat"><span class="muted">Requests this month</span><b id="keyAiUsageRequests">0</b></div><div class="keyai-stat"><span class="muted">Input tokens</span><b id="keyAiUsageInputTokens">0</b></div><div class="keyai-stat"><span class="muted">Output tokens</span><b id="keyAiUsageOutputTokens">0</b></div></div>
           <div class="notice" style="margin-top:14px;margin-bottom:0">OpenAI handles language understanding only. Engineering selection remains with KeyES and quotation/pricing logic remains with KeySuite.</div>
         </div>
+      </div>
+      <div class="card keyai-inbox-card">
+        <div class="keyai-inbox-toolbar"><div><h2 style="margin-bottom:4px">Telegram Inbox</h2><div class="muted">Newest Telegram enquiries. OpenAI OFF enquiries stay here for manual review; OpenAI ON enquiries show the prepared AI summary.</div></div><button class="btn secondary" id="refreshKeyAiInbox" type="button">Refresh Inbox</button></div>
+        <div id="keyAiInbox" class="keyai-inbox-list"><div class="muted">Loading Telegram enquiries…</div></div>
       </div>
     </section>
 

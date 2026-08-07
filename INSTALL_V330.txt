@@ -1,0 +1,43 @@
+KeySuite V3.3 Upgrade (from V3.2)
+
+1. Run V330_SUPABASE_MIGRATION.sql in the SAME Supabase project used by the combined KeySuite application.
+2. Confirm V310_SUPABASE_MIGRATION.sql was already run. If not, run V310 first, then V330.
+3. Upload/replace the V3.3 GitHub files.
+4. In Supabase Edge Function Secrets, configure:
+   OPENAI_API_KEY
+   KEYAI_INTERNAL_SECRET
+   TELEGRAM_BOT_TOKEN
+   TELEGRAM_WEBHOOK_SECRET
+
+   Compatibility: telegram-webhook also accepts the older secret names:
+   KeySuiteBot_Token
+   KeySuiteBot_TELEGRAM_WEBHOOK_SECRET
+
+5. Deploy/update these Edge Functions:
+   - keyai-openai
+   - telegram-webhook
+6. Both Edge Functions use handler-level authentication, so Supabase platform JWT verification must be OFF. supabase/config.toml is included with:
+   [functions.telegram-webhook]
+   verify_jwt = false
+
+   [functions.keyai-openai]
+   verify_jwt = false
+
+   telegram-webhook verifies Telegram's secret-token header in code. keyai-openai verifies either the signed-in KeySuite user bearer token or KEYAI_INTERNAL_SECRET in code.
+7. Point Telegram setWebhook to:
+   https://YOUR_PROJECT_REF.supabase.co/functions/v1/telegram-webhook
+   and use the SAME value as TELEGRAM_WEBHOOK_SECRET for Telegram's secret_token.
+8. Ctrl+F5 / restart the installed PWA after GitHub Pages deployment.
+
+Recommended first test:
+- Owner > Key > KeyAI > OpenAI OFF > Save Settings.
+- Send a Telegram text enquiry.
+- Bot replies that AI is disabled and the enquiry is saved for manual review.
+- Key > KeyAI > Telegram Inbox shows AI Disabled – Manual Review.
+- Requests/token counters do not increase.
+
+Then OpenAI ON test:
+- Owner turns OpenAI ON and saves.
+- Test Connection must show Connected.
+- Send a new Telegram enquiry.
+- Telegram Inbox should show AI Draft Ready with the extracted summary.
