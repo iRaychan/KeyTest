@@ -1,57 +1,13 @@
-KeySuite V3.00 QA Report
-========================
-Build date: 2026-08-07
-Feature: Coupling detail layout correction
-Target basis: KeySuite V2.38 / V2.38R1
-
-Source review
--------------
-PASS - The current Coupling renderer already outputs separate sibling elements
-       for the controls, resolution note and bush summary.
-PASS - The overlap was traced to the Coupling control grid/height and z-index
-       rules in index.html, not to Coupling calculation or saved data.
-PASS - The V3.00 patch is limited to frontend presentation and cache/version
-       files: index.html, manifest.json and sw.js.
-
-Automated patcher tests
------------------------
-PASS - Patcher validates the expected Coupling source markers before editing.
-PASS - Timestamped backups are created for every changed deployment file.
-PASS - V3.00 CSS is inserted exactly once.
-PASS - Running the patcher twice remains idempotent; no duplicate CSS is added.
-PASS - Browser title, login version, sidebar version and footer version update
-       to V3.00 when the matching elements exist.
-PASS - Local application script cache keys update to v=300.
-PASS - External scripts remain unchanged.
-PASS - config.js remains unchanged and is excluded from the output ZIP.
-PASS - Service-worker cache updates to keysuite-v300.
-PASS - Manifest name updates to KeySuite V3.00.
-PASS - A changed-files ZIP is generated after successful patching.
-PASS - Invalid source without the expected Coupling markers stops safely.
-
-Unit-test result
-----------------
-PASS - 2 tests completed successfully.
-PASS - Python syntax compilation completed successfully.
-
-Browser layout tests
---------------------
-PASS - Desktop 1200 px: 3 Coupling control columns.
-PASS - Medium 800 px: 2 Coupling control columns.
-PASS - Narrow 560 px: 1 Coupling control column.
-PASS - At 1200 px, control row ended at y=251 and resolution note began at
-       y=261, providing a 10 px separation.
-PASS - At 1200 px, resolution note ended at y=295.84 and bush details began at
-       y=305.84, providing a 10 px separation.
-PASS - No control/message overlap occurred at 1200, 800 or 560 px.
-PASS - No message/bush-detail overlap occurred at 1200, 800 or 560 px.
-PASS - Preview screenshot rendered successfully.
-
-Database and deployment
------------------------
-PASS - No new Supabase migration is required.
-NOTE - The existing V2.36 migration remains a dependency of the earlier build.
-NOTE - The patch was not pushed to the user's live GitHub repository.
-NOTE - No live Supabase records or production data were changed.
-NOTE - Final production verification is required after GitHub Pages deployment
-       because the live repository was not modified from this environment.
+KeySuite V3.00 QA
+==================
+PASS - app.js JavaScript syntax.
+PASS - Coupling V3.00 runtime styles are installed once.
+PASS - Coupling cards use automatic height and dedicated resolution/bush spacing.
+PASS - Responsive coupling controls include desktop/tablet/mobile layouts.
+PASS - Quote History uses native year expand/collapse details/summary markup.
+PASS - Expanded years retain all 12 month checkboxes.
+PASS - Current year opens by default on first filter initialization.
+PASS - Existing Customer/User and month filtering code remains in the same populate function.
+PASS - Service-worker cache updated to keysuite-v300.
+PASS - config.js is not included in the update package.
+PASS - No Supabase migration required.

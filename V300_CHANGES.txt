@@ -1,21 +1,27 @@
-KeySuite V3.00 Changes
-======================
+KeySuite V3.00
+==============
 
-Coupling Detail Layout Correction
----------------------------------
-- Keeps Selected Type, Resolved Model and F/H Arrangement in an aligned desktop row.
-- Moves the resolution message into its own full-width row below the controls.
-- Places Pump and Motor bush information below the resolution message.
-- Removes the Coupling-specific z-index/position interaction that allowed fields
-  to cover the resolution message.
-- Makes Coupling input rows use the same 42 px control height as their grid row.
-- Allows long messages to wrap and lets the Coupling card expand with its content.
-- Uses two columns on medium screens and one column on narrow screens.
+Amendments
+----------
+1. Coupling Card Layout V2
+   - Auto-height coupling cards.
+   - Resolution message visually separated below the coupling controls.
+   - Bush details have their own spacing.
+   - Manual coupling card has proper bottom spacing.
+   - Responsive 3/2/1-column coupling controls.
 
-Release
--------
-- Visible KeySuite version updated to V3.00.
-- Local script cache keys updated to v=300.
-- Service-worker cache updated to keysuite-v300.
-- Manifest name updated to KeySuite V3.00.
-- No database migration.
+2. Quote History - Year Expand / Collapse
+   - Each year can expand/collapse independently.
+   - Expanding a year shows all 12 months.
+   - Current year opens by default on first load.
+   - Previous years start collapsed.
+   - Existing month checkboxes and Select/Clear actions remain.
+
+Deployment
+----------
+Upload every file in this ZIP to the same location in the GitHub repository and replace the old files.
+Keep the existing config.js unchanged.
+
+Database
+--------
+No new Supabase migration is required.
