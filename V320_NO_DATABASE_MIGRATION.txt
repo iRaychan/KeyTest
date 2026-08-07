@@ -1,0 +1,6 @@
+KeySuite V3.2
+No new Supabase database migration is required for the V3.1 -> V3.2 UI changes.
+
+KeyAI dependency:
+- If V310_SUPABASE_MIGRATION.sql has not already been run, run it before using KeyAI OpenAI settings.
+- Deploy supabase/functions/keyai-openai and configure OPENAI_API_KEY in Supabase Edge Function secrets.

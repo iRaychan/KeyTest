@@ -1,0 +1,13 @@
+KeySuite V3.1 -> V3.2 changed/new files
+
+index.html
+manifest.json
+sw.js
+VERSION.txt
+README.md
+INSTALL_V320.txt
+V320_CHANGES.txt
+V320_NO_DATABASE_MIGRATION.txt
+V320_QA_REPORT.txt
+
+KeyAI source files are unchanged from V3.1 and therefore are not repeated in this update patch. They are included in the V3.2 Full GitHub package.

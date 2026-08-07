@@ -1,0 +1,9 @@
+KeySuite V3.2 Upgrade
+=====================
+
+From V3.1:
+1. Keep the existing production config.js.
+2. Upload/replace the V3.2 GitHub files.
+3. No new V3.2 Supabase migration is required.
+4. KeyAI continues to require the existing V310_SUPABASE_MIGRATION.sql and keyai-openai Edge Function setup.
+5. After GitHub Pages deploys, close/reopen KeySuite and press Ctrl+F5.

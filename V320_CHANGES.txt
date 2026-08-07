@@ -1,0 +1,21 @@
+KeySuite V3.2 Changes
+=====================
+
+[Dashboard]
+- Dashboard Start customer selector is now labelled Customer Name.
+- The linked status field is labelled Quotation Customer so the Dashboard-to-Quotation relationship is explicit.
+- Existing two-way customer synchronization is retained: Dashboard selection updates Quotation, and Quotation selection updates Dashboard.
+
+[Left Navigation]
+- System and Pumpset are no longer solid yellow buttons.
+- Both now use a #FFFF00 yellow outline with yellow text on the existing #17365D left-panel background.
+- Hover/active state uses only a light transparent yellow highlight.
+
+[KeyAI]
+- KeyAI remains included in the combined KeySuite GitHub source.
+- Owner-only OpenAI ON/OFF control, model setting, monthly request limit, usage counters and Test Connection are retained.
+- Supabase Edge Function keyai-openai remains included; OPENAI_API_KEY stays server-side.
+
+Base
+- Built from KeySuite V3.1 Full GitHub.
+- Retains all V3.1 Dashboard, customer search, navigation, coupling and Quote History changes.

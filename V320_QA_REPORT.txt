@@ -1,0 +1,39 @@
+KeySuite V3.2 QA Report
+=======================
+
+Build basis
+-----------
+- Base: KeySuite V3.1 Full GitHub source.
+- Target: KeySuite V3.2.
+- KeyAI: the current V3.1 KeyAI OpenAI owner-control module is retained in the same GitHub package.
+- New V3.2 Supabase migration: none.
+- Existing KeyAI setup dependency: V310_SUPABASE_MIGRATION.sql and supabase/functions/keyai-openai, if not already installed.
+
+V3.2 amendments verified
+-------------------------
+PASS - Left-panel System and Pumpset buttons use a transparent/navy background with #FFFF00 text and a #FFFF00 outline rather than solid yellow fill.
+PASS - Dashboard Start selector label is Customer Name.
+PASS - Dashboard linked customer display label is Quotation Customer.
+PASS - Existing Dashboard customer <-> Quotation customer synchronization functions remain present.
+PASS - Existing Dashboard customer switch auto-save/new-quotation workflow remains unchanged.
+PASS - KeyAI settings page and keyai.js remain included.
+PASS - KeyAI OpenAI Edge Function remains included at supabase/functions/keyai-openai/index.ts.
+PASS - V310 KeyAI Supabase migration remains included.
+
+Source/package checks
+---------------------
+PASS - Every root JavaScript file passed node --check.
+PASS - All inline JavaScript blocks in selector/index.html passed node --check.
+PASS - manifest.json parsed successfully and identifies KeySuite V3.2.
+PASS - index.html contains 561 unique element IDs and no duplicate IDs.
+PASS - Version labels are V3.2.
+PASS - Root script cache-busting references use v=320.
+PASS - Service-worker cache is keysuite-v320.
+PASS - config.js is excluded from the release source.
+PASS - V3.2 changes are limited to release/docs plus index.html, manifest.json and sw.js; KeyAI source is carried forward unchanged from V3.1.
+
+Not performed
+-------------
+- No live GitHub deployment was performed.
+- No live Supabase migration or Edge Function deployment was performed.
+- No production OpenAI API call was made.
