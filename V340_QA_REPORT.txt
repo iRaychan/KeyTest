@@ -1,0 +1,22 @@
+KeySuite V3.4 Static QA Report
+
+PASS - All top-level JavaScript files pass node --check.
+PASS - Both V3.4 Edge Function TypeScript files pass TypeScript syntax transpilation.
+PASS - V3.4 version labels and service-worker cache are updated.
+PASS - KeyAI Inbox uses structured friendly fields instead of raw JSON display.
+PASS - Awaiting Customer status and follow-up conversation UI are present.
+PASS - Telegram webhook searches for an active awaiting-customer conversation and links customer replies to the same root enquiry.
+PASS - Telegram AI prompt limits clarification to real blocking ambiguities and explicitly handles total-flow vs per-duty-pump ambiguity.
+PASS - OpenAI OFF path still returns before any OpenAI call.
+PASS - keyai-openai records cached input tokens and estimated gpt-5-mini cost when V340 migration is installed.
+PASS - Test Connection status is persisted in ks_app_settings.
+PASS - V340 settings RPC exposes last test, last API use and estimated monthly cost.
+PASS - V340 migration changes an existing 0 monthly request limit to the recommended 500 guard.
+PASS - supabase/config.toml keeps verify_jwt=false for both KeyAI Edge Functions; each handler performs its own authentication.
+
+Live verification still required after deployment:
+- V340 migration execution.
+- Redeployment of both Edge Functions.
+- Persistent Test Connection after browser refresh.
+- Telegram clarification + customer reply round trip.
+- OpenAI billing/model permissions and actual usage cost reporting.

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V3.3</title>
+  <title>KeySuite V3.4</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -305,8 +305,9 @@
     .keyai-settings-grid{display:grid;grid-template-columns:minmax(260px,.9fr) minmax(320px,1.1fr);gap:16px}
     .keyai-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 0;border-bottom:1px solid #e2e8f0}
     .keyai-switch{position:relative;width:54px;height:30px;flex:0 0 54px}.keyai-switch input{opacity:0;width:0;height:0}.keyai-slider{position:absolute;inset:0;border-radius:999px;background:#cbd5e1;transition:.2s;cursor:pointer}.keyai-slider:before{content:"";position:absolute;width:22px;height:22px;left:4px;top:4px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:.2s}.keyai-switch input:checked+.keyai-slider{background:#15803d}.keyai-switch input:checked+.keyai-slider:before{transform:translateX(24px)}
-    .keyai-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.keyai-stat{padding:12px;border:1px solid #e2e8f0;border-radius:9px;background:#f8fafc}.keyai-stat b{display:block;font-size:20px;margin-top:5px}.keyai-status-line{display:flex;align-items:center;gap:8px;font-weight:800}.keyai-status-dot{width:10px;height:10px;border-radius:50%;background:#94a3b8}.keyai-status-dot.ok{background:#16a34a}.keyai-status-dot.off{background:#f59e0b}.keyai-status-dot.error{background:#dc2626}
+    .keyai-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}.keyai-stat{padding:12px;border:1px solid #e2e8f0;border-radius:9px;background:#f8fafc}.keyai-stat b{display:block;font-size:20px;margin-top:5px}.keyai-status-line{display:flex;align-items:center;gap:8px;font-weight:800}.keyai-status-dot{width:10px;height:10px;border-radius:50%;background:#94a3b8}.keyai-status-dot.ok{background:#16a34a}.keyai-status-dot.off{background:#f59e0b}.keyai-status-dot.error{background:#dc2626}
     .keyai-inbox-card{margin-top:16px}.keyai-inbox-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.keyai-inbox-list{display:grid;gap:10px;margin-top:12px}.keyai-enquiry{border:1px solid #e2e8f0;border-radius:10px;background:#fff;padding:12px}.keyai-enquiry-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.keyai-enquiry-status{display:inline-block;padding:4px 8px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:700}.keyai-enquiry-status.ready{background:#dcfce7;color:#166534}.keyai-enquiry-status.error{background:#fee2e2;color:#991b1b}.keyai-enquiry-message{margin-top:9px;white-space:pre-wrap;line-height:1.45}.keyai-enquiry-ai{margin-top:9px;padding:9px 10px;border-radius:8px;background:#f8fafc;font-size:12px;line-height:1.45;white-space:pre-wrap}.keyai-enquiry-meta{font-size:11px;color:#64748b;margin-top:4px}
+    .keyai-friendly-draft{margin-top:10px;padding:12px;border:1px solid #e2e8f0;border-radius:9px;background:#f8fafc}.keyai-draft-summary{padding-bottom:10px;border-bottom:1px solid #e2e8f0;line-height:1.45}.keyai-draft-summary b{display:block;margin-bottom:4px}.keyai-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:10px}.keyai-detail{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:9px 10px}.keyai-detail span{display:block;font-size:11px;color:#64748b;margin-bottom:3px}.keyai-detail b{font-size:13px}.keyai-clarification,.keyai-missing,.keyai-notes,.keyai-conversation{margin-top:10px;padding:10px 11px;border-radius:8px;background:#fff;border:1px solid #e2e8f0;line-height:1.45}.keyai-clarification{background:#fff7ed;border-color:#fed7aa}.keyai-missing.critical{background:#fff7ed;border-color:#fdba74}.keyai-clarification ul,.keyai-missing ul{margin:6px 0 0 18px;padding:0}.keyai-followup{margin-top:8px;padding:8px 10px;border-left:3px solid #3072c2;background:#f8fafc;border-radius:4px}.keyai-followup span{display:block;font-size:10px;color:#64748b;margin-bottom:3px}.keyai-enquiry-status.waiting{background:#ffedd5;color:#9a3412}
     @media(max-width:760px){.start-customer-row-v31,.keyai-settings-grid{grid-template-columns:1fr}.keyai-stat-grid{grid-template-columns:1fr}}
 
   </style>
@@ -314,7 +315,7 @@
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V3.3</small></div>
+    <div class="auth-brand">KeySuite<small>V3.4</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -329,7 +330,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V3.3</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V3.4</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -352,7 +353,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V3.3</div>
+    <div class="suite-version">KeySuite V3.4</div>
   </aside>
 
   <main>
@@ -749,19 +750,19 @@
           <h2>AI Engine</h2>
           <div class="keyai-toggle-row"><div><b>OpenAI</b><div class="muted" style="margin-top:4px">When OFF, KeyAI makes no OpenAI API calls.</div></div><label class="keyai-switch" aria-label="Enable OpenAI"><input id="keyAiOpenAiEnabled" type="checkbox"><span class="keyai-slider"></span></label></div>
           <div style="margin-top:14px"><label for="keyAiOpenAiModel">OpenAI Model</label><input id="keyAiOpenAiModel" value="gpt-5-mini" placeholder="Example: gpt-5-mini"><div class="muted" style="margin-top:5px">Owner-selectable. Change this only to a model available in your OpenAI API project.</div></div>
-          <div style="margin-top:14px"><label for="keyAiMonthlyLimit">Monthly Request Limit</label><input id="keyAiMonthlyLimit" type="number" min="0" step="1" value="0"><div class="muted" style="margin-top:5px">0 = unlimited in KeySuite. You can also maintain a spend budget in your OpenAI project.</div></div>
+          <div style="margin-top:14px"><label for="keyAiMonthlyLimit">Monthly Request Limit</label><input id="keyAiMonthlyLimit" type="number" min="0" step="1" value="500"><div class="muted" style="margin-top:5px">Recommended starting limit: 500 requests/month. Set 0 only if you intentionally want no KeySuite-side request limit.</div></div>
           <div class="actions"><button class="btn" id="saveKeyAiSettings" type="button">Save Settings</button><button class="btn secondary" id="testKeyAiConnection" type="button">Test Connection</button></div>
         </div>
         <div class="card">
           <h2>Status &amp; Usage</h2>
           <div class="keyai-status-line"><span id="keyAiStatusDot" class="keyai-status-dot"></span><span id="keyAiOpenAiStatus">Not tested</span></div>
           <p class="muted">The OpenAI API key is never stored in this website or GitHub. The Edge Function reads the server-side secret <b>OPENAI_API_KEY</b>.</p>
-          <div class="keyai-stat-grid"><div class="keyai-stat"><span class="muted">Requests this month</span><b id="keyAiUsageRequests">0</b></div><div class="keyai-stat"><span class="muted">Input tokens</span><b id="keyAiUsageInputTokens">0</b></div><div class="keyai-stat"><span class="muted">Output tokens</span><b id="keyAiUsageOutputTokens">0</b></div></div>
+          <div class="keyai-stat-grid"><div class="keyai-stat"><span class="muted">Requests this month</span><b id="keyAiUsageRequests">0</b></div><div class="keyai-stat"><span class="muted">Input tokens</span><b id="keyAiUsageInputTokens">0</b></div><div class="keyai-stat"><span class="muted">Output tokens</span><b id="keyAiUsageOutputTokens">0</b></div><div class="keyai-stat"><span class="muted">Estimated OpenAI cost</span><b id="keyAiUsageCost">US$ 0.000000</b></div></div>
           <div class="notice" style="margin-top:14px;margin-bottom:0">OpenAI handles language understanding only. Engineering selection remains with KeyES and quotation/pricing logic remains with KeySuite.</div>
         </div>
       </div>
       <div class="card keyai-inbox-card">
-        <div class="keyai-inbox-toolbar"><div><h2 style="margin-bottom:4px">Telegram Inbox</h2><div class="muted">Newest Telegram enquiries. OpenAI OFF enquiries stay here for manual review; OpenAI ON enquiries show the prepared AI summary.</div></div><button class="btn secondary" id="refreshKeyAiInbox" type="button">Refresh Inbox</button></div>
+        <div class="keyai-inbox-toolbar"><div><h2 style="margin-bottom:4px">Telegram Inbox</h2><div class="muted">Newest Telegram enquiries. OpenAI OFF enquiries stay for manual review; OpenAI ON enquiries show a structured draft and automatically request critical clarification when needed.</div></div><button class="btn secondary" id="refreshKeyAiInbox" type="button">Refresh Inbox</button></div>
         <div id="keyAiInbox" class="keyai-inbox-list"><div class="muted">Loading Telegram enquiries…</div></div>
       </div>
     </section>

@@ -1,0 +1,32 @@
+KeySuite V3.4 Upgrade (from V3.3)
+
+1. Run V340_SUPABASE_MIGRATION.sql in the SAME Supabase project used by KeySuite.
+   Prerequisite: V310 and V330 must already have been run.
+
+2. Upload/replace the V3.4 GitHub files.
+
+3. Redeploy BOTH Supabase Edge Functions from this package:
+   - supabase/functions/keyai-openai/index.ts
+   - supabase/functions/telegram-webhook/index.ts
+
+4. Keep the existing Supabase Edge Function secrets:
+   OPENAI_API_KEY
+   KEYAI_INTERNAL_SECRET
+   TELEGRAM_BOT_TOKEN
+   TELEGRAM_WEBHOOK_SECRET
+
+5. Both functions use handler-level authentication, so Supabase platform JWT verification remains OFF as defined in supabase/config.toml.
+
+6. No Telegram setWebhook change is required if the existing telegram-webhook URL and TELEGRAM_WEBHOOK_SECRET are unchanged.
+
+7. Ctrl+F5 / restart the installed PWA after GitHub Pages deployment.
+
+Recommended test sequence:
+A. Owner > Key > KeyAI. Confirm Monthly Request Limit is 500 (unless you intentionally change it).
+B. If OpenAI is OFF, confirm Telegram still saves Manual Review with no request/token increase.
+C. Turn OpenAI ON, Save Settings, then Test Connection. Refresh the page and confirm Connected / last test persists.
+D. Send: Need booster system, 2 duty 1 standby, 40 m3/hr, 45m head, 415V.
+E. KeyAI should ask whether 40 m3/hr is total system flow or flow per duty pump rather than marking the draft complete immediately.
+F. Reply in Telegram: 40 m3/hr is total system flow.
+G. The same Inbox enquiry should show the follow-up and update its structured draft. If no other blocking ambiguity remains, status becomes AI Draft Ready.
+H. Confirm Estimated OpenAI Cost increases with usage.

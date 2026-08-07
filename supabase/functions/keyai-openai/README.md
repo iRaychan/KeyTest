@@ -1,13 +1,11 @@
-# keyai-openai
+# keyai-openai — KeySuite V3.4
 
-Supabase Edge Function for KeySuite V3.3 KeyAI OpenAI calls.
+Server-side OpenAI gateway for KeyAI.
 
-Required secret:
+Secrets:
 - `OPENAI_API_KEY`
-
-Required for Telegram-to-OpenAI internal calls:
 - `KEYAI_INTERNAL_SECRET`
 
-Keep Supabase platform JWT verification OFF for this function. The function performs its own authentication inside the handler: browser calls must carry a valid signed-in KeySuite user bearer token, while Telegram-to-OpenAI calls must carry the matching `KEYAI_INTERNAL_SECRET`. This avoids blocking external/internal calls at the gateway while still enforcing KeySuite authorization in code.
+V3.4 records monthly token usage, cached input tokens and an estimated cost for known pricing (including `gpt-5-mini`). Test Connection results are persisted server-side.
 
-The function checks the Owner ON/OFF setting in `ks_app_settings` before every OpenAI request and never exposes the OpenAI key to the browser or GitHub.
+`verify_jwt=false` is intentional in `supabase/config.toml`; this handler validates either a signed-in KeySuite bearer token or `KEYAI_INTERNAL_SECRET` itself.

@@ -1,0 +1,19 @@
+KeySuite V3.3 -> V3.4 changed/new files
+
+README.md
+VERSION.txt
+app.js
+index.html
+keyai.js
+manifest.json
+sw.js
+V340_CHANGES.txt
+V340_QA_REPORT.txt
+V340_SUPABASE_MIGRATION.sql
+INSTALL_V340.txt
+setup/V340_SUPABASE_MIGRATION.sql
+supabase/functions/keyai-openai/README.md
+supabase/functions/keyai-openai/index.ts
+supabase/functions/telegram-webhook/README.md
+supabase/functions/telegram-webhook/index.ts
+PATCH_FILES_V340.txt

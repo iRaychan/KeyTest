@@ -1,0 +1,36 @@
+KeySuite V3.4 Changes
+
+1. KeyAI friendly Telegram draft display
+- Replaces raw AI JSON in the Owner Telegram Inbox with structured requirement cards.
+- Shows system/application, duty configuration, pump quantity, flow, flow basis, head, voltage, phase, frequency and material when available.
+- Separates critical confirmation items from other optional/missing information.
+- Shows customer follow-up replies in the same enquiry card.
+
+2. Automatic Telegram clarification conversation
+- When OpenAI is ON, KeyAI may ask up to 3 concise customer-facing questions when a real ambiguity blocks duty interpretation.
+- For multi-duty-pump enquiries, KeyAI specifically asks whether an ambiguous flow is total system flow or flow per duty pump.
+- Customer replies are linked to the same enquiry and merged into the existing extracted requirements.
+- When all blocking questions are resolved, status changes to AI Draft Ready.
+- Ordinary water booster/transfer enquiries do not automatically ask for fluid temperature, viscosity or solids unless the customer indicates a special fluid.
+- Missing material is recorded but is not by itself treated as a blocking question because KeySuite can apply its standard material defaults.
+
+3. Persistent OpenAI status
+- Successful/failed Test Connection result is stored server-side.
+- KeyAI page retains the last successful test after refresh.
+- If no saved test exists but OpenAI usage exists, the page shows the last successful API-use time as evidence that the connection is active.
+
+4. Monthly usage and cost visibility
+- Adds Estimated OpenAI Cost this month.
+- V3.4 calculates gpt-5-mini estimates from recorded input, cached-input and output tokens.
+- Adds cached-input token recording for future calls.
+- Existing gpt-5-mini usage is backfilled using the V3.4 pricing reference.
+- If the previous KeySuite-side monthly request limit was 0, V3.4 changes it to the recommended starting guard of 500 requests/month. Owner can change it later, including back to 0 if unlimited is intentionally required.
+
+5. KeyAI backend
+- Telegram conversations now support parent/follow-up linkage.
+- KeyAI OpenAI usage stores cached input tokens and estimated cost where a known model price is available.
+- OpenAI output allowance increased for structured extraction reliability.
+
+6. Database
+- New V340_SUPABASE_MIGRATION.sql extends KeyAI settings, usage and enquiry conversation fields.
+- Adds Owner-only V340 settings/save/inbox RPCs.

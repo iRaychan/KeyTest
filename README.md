@@ -1,21 +1,23 @@
-# KeySuite V3.3
+# KeySuite V3.4
 
 Combined KeySuite + KeyES + KeyAI build.
 
-## V3.3
-- Dashboard: Customer is the company; Customer Name is the employee/contact for that company, synchronized with Quotation.
-- Left panel: System/Pumpset use a #FFC000 outline only, with the same normal white text style as other navigation items.
-- KeyAI: Telegram webhook integrated with Owner-controlled OpenAI ON/OFF.
-- OpenAI OFF: enquiries are saved for manual review with zero OpenAI calls.
-- OpenAI ON: enquiries are processed by the server-side keyai-openai function and saved as AI Draft Ready.
-- Owner KeyAI page includes a Telegram Inbox for review/testing.
+## V3.4
+- KeyAI Telegram Inbox now shows a friendly structured draft instead of raw JSON.
+- OpenAI ON can automatically ask the customer concise clarification questions when a real ambiguity blocks duty interpretation.
+- Customer Telegram replies are attached to the same enquiry and merged into the prepared requirements.
+- OpenAI connection/test status persists after refresh and can also show the last successful API-use time.
+- Status & Usage adds Estimated OpenAI Cost this month and records cached input tokens.
+- Existing 0 KeySuite monthly request limit is changed to a recommended 500-request starting guard; Owner can change it later.
+- OpenAI OFF behaviour is unchanged: Telegram enquiries are saved for manual review with no OpenAI call.
 
-## Required V3.3 setup
-1. If V310 has not been run, run `V310_SUPABASE_MIGRATION.sql` first.
-2. Run `V330_SUPABASE_MIGRATION.sql`.
-3. Configure Supabase Edge Function secrets: `OPENAI_API_KEY`, `KEYAI_INTERNAL_SECRET`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`.
-4. Deploy `keyai-openai` and `telegram-webhook`.
-5. Keep JWT verification OFF for `telegram-webhook` and ON for `keyai-openai` (see `supabase/config.toml`).
-6. Register the Telegram webhook to `/functions/v1/telegram-webhook` with the same Telegram webhook secret.
+## Required V3.4 setup
+1. Confirm V310 and V330 migrations were already run.
+2. Run `V340_SUPABASE_MIGRATION.sql`.
+3. Upload/replace the V3.4 GitHub files.
+4. Redeploy BOTH Edge Functions from this package: `keyai-openai` and `telegram-webhook`.
+5. Keep existing secrets: `OPENAI_API_KEY`, `KEYAI_INTERNAL_SECRET`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`.
+6. Keep platform JWT verification OFF for both functions. Each function performs its own handler-level authentication.
+7. No Telegram webhook re-registration is required if its URL and secret have not changed.
 
-See `INSTALL_V330.txt` for the test sequence.
+See `INSTALL_V340.txt` for the test sequence.
