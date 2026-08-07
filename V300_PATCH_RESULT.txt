@@ -1,0 +1,18 @@
+KeySuite V3.00 Patch Result
+===========================
+Applied: 2026-08-07 10:03:50
+Target: C:\Users\User\Downloads\KeySuite_V2.38_GitHub
+
+PASS - Coupling controls use a responsive grid
+PASS - Resolution note is kept in normal document flow
+PASS - Bush information is separated below the note
+PASS - config.js preserved
+PASS - No database migration required
+
+File SHA-256
+-------------
+index.html: 991af4aa152de2372887598e15cc5e521140b39f09a9a1c904e8d4fce76c982c -> ad7434d415f83b7adea17f0725e5bdd29ba0c98d827bdd5ce0ca6cdd0960b950
+manifest.json: f29350afa44b37c6140128a7fa3e51f026ad923dc02145b8b5ab6cdd0b43792f -> 83ac1830a8b6f01d3648c1dadd639c04c7661e1322d90d29595dcb536490b15b
+sw.js: e59dc30e6670712550d0eb805ed51f1dd7d0f46817012dcca64eba0aecd1d8b7 -> c31f5234b503530d2501df7380752e358226208c109879c7bc92e2a52ed18037
+
+Backup: C:\Users\User\Downloads\KeySuite_V2.38_GitHub\.keysuite_v300_backup_20260807_100350

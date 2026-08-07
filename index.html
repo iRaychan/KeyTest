@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V2.27</title>
-  <link rel="manifest" href="manifest.json">
+  <title>KeySuite V3.00</title>
+  <link rel="manifest" href="manifest.json?v=300">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
     *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--text);background:#f6f8fb}
@@ -275,12 +275,89 @@
     .coupling-top-action-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}.coupling-top-action-row .coupling-method-row{display:flex;gap:8px;margin:0}.coupling-top-model{font-size:18px;font-weight:900;color:var(--navy);min-width:100px;padding:7px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;text-align:center}.coupling-top-action-row .actions{margin:0 0 0 auto}.coupling-selection-badge{display:none!important}
     @media(max-width:720px){.coupling-top-action-row .actions{margin-left:0;width:100%;justify-content:flex-start}.coupling-top-model{order:2}.coupling-top-action-row .actions{order:3}}
 
+  
+  /* KEYSUITE V3.00 COUPLING LAYOUT START */
+/* Keep Coupling controls, resolution message and bush information in normal document flow. */
+.assembly-item-coupling .assembly-component-detail-row{
+  display:block;
+  min-height:0;
+  overflow:visible;
+}
+.assembly-component-detail-row .assembly-coupling-options{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  align-items:start;
+  position:static;
+  z-index:auto;
+  width:100%;
+  max-width:none;
+  margin:0 0 10px!important;
+}
+.assembly-component-detail-row .assembly-coupling-options .assembly-item-option{
+  display:grid;
+  grid-template-rows:18px 42px;
+  gap:4px;
+  min-width:0;
+  margin:0;
+}
+.assembly-component-detail-row .assembly-coupling-options .assembly-item-option label{
+  margin:0;
+  line-height:18px;
+  white-space:nowrap;
+}
+.assembly-component-detail-row .assembly-coupling-options select,
+.assembly-component-detail-row .assembly-coupling-options input{
+  position:static;
+  z-index:auto;
+  width:100%;
+  min-width:0;
+  height:42px!important;
+  box-sizing:border-box;
+}
+.assembly-component-detail-row .assembly-coupling-resolved-note,
+.assembly-component-detail-row .assembly-coupling-bush-summary,
+.assembly-component-detail-row .assembly-coupling-warning{
+  display:block;
+  position:static;
+  z-index:auto;
+  clear:both;
+  width:100%;
+  max-width:none;
+  box-sizing:border-box;
+  overflow-wrap:anywhere;
+}
+.assembly-component-detail-row .assembly-coupling-resolved-note{
+  margin:0;
+  padding:7px 10px;
+  line-height:1.45;
+}
+.assembly-component-detail-row .assembly-coupling-bush-summary{
+  margin:10px 0 0;
+  padding:0;
+  line-height:1.55;
+  pointer-events:auto;
+}
+.assembly-component-detail-row .assembly-coupling-warning{
+  margin:10px 0 0;
+}
+@media(max-width:900px){
+  .assembly-component-detail-row .assembly-coupling-options{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:620px){
+  .assembly-component-detail-row .assembly-coupling-options{
+    grid-template-columns:1fr;
+  }
+}
+/* KEYSUITE V3.00 COUPLING LAYOUT END */
   </style>
 </head>
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V2.32 Coupling & Quotation Corrections</small></div>
+    <div class="auth-brand">KeySuite<small>V3.00 Coupling Layout Correction</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -295,7 +372,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V2.32</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V3.00</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -318,7 +395,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V2.32 · Coupling & Quotation Corrections</div>
+    <div class="suite-version">KeySuite V3.00 Â· Coupling Layout Correction</div>
   </aside>
 
   <main>
@@ -1258,20 +1335,20 @@
 </div>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="permissions.js?v=216"></script>
-<script src="applications.js?v=234"></script>
-<script src="app.js?v=238"></script>
-<script src="pricing.js?v=234"></script>
-<script src="quotation-references.js?v=234"></script>
-<script src="categories.js?v=234"></script>
-<script src="pricelist.js?v=234"></script>
-<script src="product.js?v=234"></script>
-<script src="manifold.js?v=234"></script>
-<script src="roles.js?v=234"></script>
-<script src="assembly.js?v=238"></script>
-<script src="motor.js?v=234"></script>
-<script src="coupling.js?v=238"></script>
-<script src="quotation-templates.js?v=234"></script>
+<script src="permissions.js?v=300"></script>
+<script src="applications.js?v=300"></script>
+<script src="app.js?v=300"></script>
+<script src="pricing.js?v=300"></script>
+<script src="quotation-references.js?v=300"></script>
+<script src="categories.js?v=300"></script>
+<script src="pricelist.js?v=300"></script>
+<script src="product.js?v=300"></script>
+<script src="manifold.js?v=300"></script>
+<script src="roles.js?v=300"></script>
+<script src="assembly.js?v=300"></script>
+<script src="motor.js?v=300"></script>
+<script src="coupling.js?v=300"></script>
+<script src="quotation-templates.js?v=300"></script>
 
 <dialog id="quotationTemplateDialog" class="ks-dialog template-dialog">
   <div class="dialog-body">
@@ -1323,7 +1400,7 @@
     <div id="productCurveHost"></div>
   </div>
 </dialog>
-<script src="company-settings.js?v=234"></script>
-<script src="auth.js?v=238"></script>
+<script src="company-settings.js?v=300"></script>
+<script src="auth.js?v=300"></script>
 </body>
 </html>
