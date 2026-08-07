@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KeySuite V3.00 Coupling Layout Preview</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:14px;font-family:Arial,Helvetica,sans-serif;background:#f6f8fb;color:#10243a}
+.section-head{display:flex;justify-content:space-between;align-items:center;background:#A9D08E;border-radius:12px 12px 0 0;padding:10px 13px;font-size:23px;font-weight:800}.section-head span{font-size:19px;font-weight:400}
+.assembly-item{display:block;border:1px solid #cbd5e1;border-radius:10px;overflow:hidden;margin:12px 0;background:#A9D08E}
+.assembly-bom-main-row{display:grid;grid-template-columns:minmax(260px,1.5fr) 110px 160px 160px auto;gap:12px;align-items:end;padding:12px}
+.field{display:grid;grid-template-rows:18px 42px;gap:4px;min-width:0}.field label{font-size:13px;font-weight:700}.field input,.field select{width:100%;height:42px;border:1px solid #cbd5e1;border-radius:9px;padding:8px 12px;background:white;font-size:18px}.field input[readonly]{background:rgba(255,255,255,.72);font-weight:700}.delete{height:42px;border:0;border-radius:10px;background:#c11;color:#fff;padding:0 18px;font-size:18px}
+.assembly-component-detail-row{display:block;min-height:0;overflow:visible;padding:0 12px 14px}.source{font-size:13px;color:#475569;margin:0 0 10px}.source b{color:#355b7d}
+.assembly-coupling-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:start;position:static;z-index:auto;width:100%;margin:0 0 10px}.assembly-coupling-options .field{grid-template-rows:18px 42px}
+.assembly-coupling-resolved-note,.assembly-coupling-bush-summary{display:block;position:static;z-index:auto;clear:both;width:100%;box-sizing:border-box;overflow-wrap:anywhere}.assembly-coupling-resolved-note{margin:0;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.55);font-size:13px;line-height:1.45}.assembly-coupling-bush-summary{margin:10px 0 0;padding:0;font-size:13px;line-height:1.55;color:#557892}
+@media(max-width:900px){.assembly-bom-main-row{grid-template-columns:1fr 1fr}.assembly-coupling-options{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.assembly-bom-main-row,.assembly-coupling-options{grid-template-columns:1fr}.delete{width:100%}}
+</style></head><body>
+<div class="section-head">Coupling <span>2 items</span></div>
+<div class="assembly-item assembly-item-coupling">
+<div class="assembly-bom-main-row"><div class="field"><label>Model / Item &nbsp; <b>AUTO</b></label><input value="F90" readonly></div><div class="field"><label>Qty</label><input value="1"></div><div class="field"><label>Unit Price</label><input value="430.00"></div><div class="field"><label>Total Price</label><input value="RM 430.00" readonly></div><button class="delete">Delete</button></div>
+<div class="assembly-component-detail-row"><div class="source"><b>Auto Coupling</b> · sized from the Pumpset Pump and Motor</div><div class="assembly-coupling-options"><div class="field"><label>Selected Type</label><select><option>Flexible</option></select></div><div class="field"><label>Resolved Model</label><input value="F90" readonly></div><div class="field"><label>F/H Arrangement</label><input value="Pump F / Motor H" readonly></div></div><div class="assembly-coupling-resolved-note">Resolved as <b>Tyre</b> using the higher suitable price. Selected Type remains Flexible.</div><div class="assembly-coupling-bush-summary">Pump: F Bush 2517 - 24 / 65 mm<br>Motor: H Bush 2517 - 55 / 65 mm</div></div>
+</div>
+</body></html>

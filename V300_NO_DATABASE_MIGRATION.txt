@@ -1,0 +1,6 @@
+KeySuite V3.00 requires no new Supabase migration.
+
+This release is a frontend Coupling layout correction affecting index.html,
+manifest.json and sw.js only. The patcher does not access or change live data.
+The existing V2.36 migration required by the earlier quotation-history build
+must already be installed.

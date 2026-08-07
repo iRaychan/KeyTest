@@ -1,0 +1,13 @@
+KeySuite V3.00 changed deployment files
+=======================================
+index.html
+manifest.json
+sw.js
+
+Generated locally after applying the patch
+==========================================
+V300_PATCH_RESULT.txt
+KeySuite_V3.00_Changed_Files.zip
+.keysuite_v300_backup_YYYYMMDD_HHMMSS/
+
+config.js is never included or modified.

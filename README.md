@@ -1,18 +1,9 @@
-# KeySuite V2.38
+# KeySuite V3.00 — Coupling Layout Correction
 
-Full GitHub source built from V2.37. `config.js` is intentionally not included; preserve the existing deployment configuration.
+This update fixes the overlap between the Coupling controls, the **Resolved as…** message, and the Pump/Motor bush details.
 
-## Upgrade
+Run `APPLY_V300.bat` and select the extracted KeySuite V2.38 or V2.38R1 source folder. The patcher backs up the affected files and creates `KeySuite_V3.00_Changed_Files.zip` for GitHub upload.
 
-For V2.37 → V2.38:
+Changed deployment files: `index.html`, `manifest.json`, and `sw.js`.
 
-1. Back up the current V2.37 deployment.
-2. Replace the files from the V2.38 update patch.
-3. Keep the existing `config.js`.
-4. No new Supabase migration is required. Confirm `V236_SUPABASE_MIGRATION.sql` was previously installed.
-5. Deploy and press `Ctrl+F5`.
-6. If the previous service worker remains, clear KeySuite site data once and reopen the app.
-
-See `V238_CHANGES.txt`, `INSTALL_V238.txt`, `V238_NO_DATABASE_MIGRATION.txt`, and `V238_QA_REPORT.txt`.
-
-KeyAI integration remains paused and is not included in this Version 2 build.
+No Supabase migration is required. `config.js` is never modified.

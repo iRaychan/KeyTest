@@ -1,0 +1,32 @@
+[
+  {
+    "columns": 3,
+    "optionsBottom": 251,
+    "noteTop": 261,
+    "noteBottom": 295.84375,
+    "bushTop": 305.84375,
+    "overlapOptionsNote": false,
+    "overlapNoteBush": false,
+    "width": 1200
+  },
+  {
+    "columns": 2,
+    "optionsBottom": 455,
+    "noteTop": 465,
+    "noteBottom": 499.84375,
+    "bushTop": 509.84375,
+    "overlapOptionsNote": false,
+    "overlapNoteBush": false,
+    "width": 800
+  },
+  {
+    "columns": 1,
+    "optionsBottom": 681,
+    "noteTop": 691,
+    "noteBottom": 725.84375,
+    "bushTop": 735.84375,
+    "overlapOptionsNote": false,
+    "overlapNoteBush": false,
+    "width": 560
+  }
+]

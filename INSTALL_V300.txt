@@ -1,0 +1,51 @@
+KeySuite V3.00 Installation
+===========================
+
+Build basis
+-----------
+Apply this update to the current KeySuite V2.38 or V2.38R1 source/deployment.
+This package corrects the Coupling detail-row overlap only. It does not include
+or change KeySelector ES and does not resume the paused KeyAI integration.
+
+Recommended Windows method
+--------------------------
+1. Back up the current KeySuite repository/source folder.
+2. Extract this V3.00 patch package to any folder.
+3. Double-click APPLY_V300.bat.
+4. When requested, paste the full path to the extracted KeySuite source folder,
+   where index.html, manifest.json and sw.js are located.
+   Alternatively, copy the patch package contents into that source folder first;
+   the batch file will detect index.html automatically.
+5. Confirm that the window reports: "KeySuite V3.00 patch completed successfully."
+6. The patcher creates in the KeySuite source folder:
+   - a timestamped .keysuite_v300_backup_* folder;
+   - V300_PATCH_RESULT.txt; and
+   - KeySuite_V3.00_Changed_Files.zip.
+7. Upload the three changed files from KeySuite_V3.00_Changed_Files.zip to GitHub:
+   - index.html
+   - manifest.json
+   - sw.js
+8. Preserve the working config.js. The patcher never modifies config.js.
+9. After GitHub Pages deploys, close all KeySuite tabs and press Ctrl+F5.
+10. If the previous page remains, clear KeySuite site data/service-worker cache
+    once, reopen the site and press Ctrl+F5 again.
+
+Command-line method
+-------------------
+python tools/apply_v300.py --target "C:\path\to\KeySuite"
+
+Verification
+------------
+1. Open Assembly > Pumpset and add/select a Pump and Motor.
+2. Confirm Auto Coupling is created.
+3. Confirm Selected Type, Resolved Model and F/H Arrangement are aligned.
+4. Confirm the "Resolved as ..." message appears entirely below the controls.
+5. Confirm Pump and Motor bush information appears below the message.
+6. Confirm no text is hidden, clipped or overlapping.
+7. Reduce the browser width and confirm the controls change to two columns and
+   then one column on a narrow screen.
+
+Database
+--------
+No new Supabase migration is required.
+The existing V2.36 migration remains a dependency of the previous build.
