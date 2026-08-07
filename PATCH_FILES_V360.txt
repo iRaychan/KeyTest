@@ -1,0 +1,23 @@
+KeySuite V3.5 -> V3.6 changed/new files
+
+README.md
+VERSION.txt
+app.js
+auth.js
+index.html
+keyai.js
+manifest.json
+sw.js
+selector-es/bgreich-logo.png
+selector-es/es-core.js
+selector-es/es-data.js
+selector-es/favicon.svg
+selector-es/index.html
+selector-es/KEYES_VERSION.txt
+selector-es/KEYES_V1.7_RELEASE_NOTES.md
+V360_CHANGES.txt
+V360_NO_DATABASE_MIGRATION.txt
+V360_QA_REPORT.txt
+INSTALL_V360.txt
+PATCH_FILES_V360.txt
+SHA256SUMS_V360_FULL.txt

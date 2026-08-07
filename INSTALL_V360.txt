@@ -1,0 +1,30 @@
+KeySuite V3.6 Upgrade (from V3.5)
+
+1. Back up your current deployed V3.5 repository if required.
+
+2. Upload/replace the COMPLETE contents of the KeySuite V3.6 Full GitHub package into the repository.
+   - The new selector-es/ folder must be uploaded together with the other V3.6 files.
+   - Do not upload selector-es as a separate website/repository for this KeySuite build.
+
+3. Keep your existing production config.js values.
+   - Do not replace a working production Supabase configuration with placeholder values.
+
+4. No new V3.6 Supabase SQL migration is required.
+
+5. No V3.6 KeyAI Edge Function redeployment is required.
+   - Keep the existing V3.5 keyai-openai and telegram-webhook functions unless you separately need to redeploy V3.5.
+
+6. After GitHub Pages/deployment completes, perform Ctrl+F5 or restart the installed PWA so keysuite-v360 replaces the older cache.
+
+Recommended V3.6 test sequence
+A. Sign in to KeySuite and confirm the displayed version is V3.6.
+B. Open Selection and confirm both CHC and ES are available.
+C. Open Selection -> ES and run a normal duty-point selection.
+D. Confirm KeyES still recommends by efficiency and Alternative Selection remains in ES catalog order.
+E. Click Assembly and confirm the ES pump is added under Assembly -> Pumpset -> Pump with KeySuite pricing.
+F. Run/select an ES pump again and click Quote. Confirm it is added to the active quotation with the selected capacity/head and ES description.
+G. Confirm the quotation unit price comes from the existing KeySuite ES source price + Customer/Category Pricing Rule.
+H. On the ES quotation item, click PDF and confirm the KeyES ES pump selection/data sheet opens.
+I. Confirm a CHC quotation item PDF still opens the CHC data sheet.
+J. Confirm Product -> ES and ES Pricelist continue to work as before.
+K. Confirm KeyAI / Telegram Inbox behavior remains unchanged from V3.5.

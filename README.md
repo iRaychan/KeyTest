@@ -1,6 +1,25 @@
-# KeySuite V3.5
+# KeySuite V3.6
 
 Combined KeySuite + KeyES + KeyAI build.
+
+## V3.6
+- Integrates **KeyES V1.7** into KeySuite under **Selection → ES**.
+- Keeps KeyES V1.7 engineering selection logic unchanged: efficiency-first recommendation, fixed catalog alternative order, system/orifice operating intersection, direct impeller/frequency control and compact motor selectors.
+- Routes a KeyES selection into KeySuite **Assembly → Pumpset → Pump** or directly to **Quotation**.
+- Applies the existing KeySuite ES source price, Customer/Category Pricing Rule and quote-blocking checks when the selected ES pump is routed.
+- Saves KeyES selection/export state with the quotation item so the item **PDF** button reopens the ES selector data sheet, not the CHC selector.
+- Protects the integrated KeyES URL with the same signed-in KeySuite access check used by the CHC selector.
+- Adds automatic iframe-height synchronization to reduce clipping/overlap inside KeySuite.
+- No database migration and no Edge Function redeployment are required for V3.6.
+
+## Required V3.6 setup
+1. Upload/replace the complete V3.6 GitHub package.
+2. Keep your existing `config.js`.
+3. No new Supabase SQL migration is required.
+4. No KeyAI Edge Function redeployment is required for this release.
+5. Ctrl+F5 / restart the installed PWA after deployment.
+
+See `INSTALL_V360.txt` for the test sequence.
 
 ## V3.5
 - Fixes the KeyAI Telegram Inbox renderer so AI results display as friendly structured requirement cards instead of raw/truncated JSON.

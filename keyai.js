@@ -151,7 +151,7 @@
         const sender=[item.sender_name,item.sender_username?`@${item.sender_username}`:''].filter(Boolean).join(' · ')||'Telegram user';
         return `<div class="keyai-enquiry"><div class="keyai-enquiry-head"><div><b>${esc(sender)}</b><div class="keyai-enquiry-meta">${esc(formatTime(item.created_at))} · Telegram</div></div><span class="keyai-enquiry-status ${statusClass(item.status)}">${esc(statusLabel(item.status))}</span></div><div class="keyai-enquiry-message">${esc(item.raw_message||'')}</div>${item.ai_enabled?`<div class="keyai-friendly-draft">${friendlyDraft(item)}</div>`:''}${item.ai_error?`<div class="keyai-enquiry-ai"><b>AI error:</b> ${esc(item.ai_error)}</div>`:''}</div>`;
       }).join('')||'<div class="muted">No Telegram enquiries yet.</div>';
-    }catch(error){console.error(error);box.innerHTML=`<div class="notice">KeyAI Inbox is unavailable. V3.5 uses the existing V340 database functions. ${esc(error.message||error)}</div>`}
+    }catch(error){console.error(error);box.innerHTML=`<div class="notice">KeyAI Inbox is unavailable. V3.6 uses the existing V340 database functions. ${esc(error.message||error)}</div>`}
   }
   function persistentStatus(r){
     if(!r.openai_enabled)return {text:'OpenAI is OFF',state:'off'};
@@ -170,7 +170,7 @@
       const s=persistentStatus(r);status(s.text,s.state);
       notice(r.openai_enabled?'OpenAI is enabled. Telegram enquiries can use KeyAI and automatically ask for critical clarification when needed.':'OpenAI is OFF. Telegram enquiries will be saved for manual review without any OpenAI call.','ok');
       await loadInbox();
-    }catch(error){console.error(error);notice(`KeyAI settings are unavailable. V3.5 uses the V340 KeyAI database functions. ${error.message||error}`);status('Settings unavailable','error')}
+    }catch(error){console.error(error);notice(`KeyAI settings are unavailable. V3.6 uses the V340 KeyAI database functions. ${error.message||error}`);status('Settings unavailable','error')}
   }
   async function save(){
     if(!owner())return;const c=client();if(!c)return;const button=el('saveKeyAiSettings');if(button){button.disabled=true;button.textContent='Saving…'}
