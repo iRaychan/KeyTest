@@ -19,8 +19,8 @@
   function showLogin(text='',type='error'){const key=el('keyButton');if(key){key.hidden=true;key.style.display='none'}setView('login');busy(false);message(text,type);el('loginPassword').value='';lockSelector()}
   function showLoading(text){el('loadingText').textContent=text||'Checking secure access…';setView('loading')}
   function friendly(error){const text=String(error?.message||'').toLowerCase();if(text.includes('invalid login credentials'))return 'The email or password is incorrect.';if(text.includes('email not confirmed'))return 'This email account has not been confirmed yet.';if(text.includes('rate limit'))return 'Too many attempts. Please try again later.';return error?.message||'Unable to sign in.'}
-  function unlockSelector(){const frame=el('selectorFrame');if(frame&&frame.src==='about:blank')frame.src=frame.dataset.src||'selector/index.html'}
-  function lockSelector(){['selectorFrame','productSelectorFrame'].forEach(id=>{const frame=el(id);if(frame&&frame.getAttribute('src')!=='about:blank')frame.src='about:blank'})}
+  function unlockSelector(){[['selectorFrame','selector/index.html'],['selectorEsFrame','selector-es/index.html']].forEach(([id,fallback])=>{const frame=el(id);if(frame&&frame.getAttribute('src')==='about:blank')frame.src=frame.dataset.src||fallback})}
+  function lockSelector(){['selectorFrame','selectorEsFrame','productSelectorFrame'].forEach(id=>{const frame=el(id);if(frame&&frame.getAttribute('src')!=='about:blank')frame.src='about:blank'})}
 
   async function verify(email){
     const {data,error}=await client.from('ks_user_access').select('email,employee_id,company_id,role,display_name,active').eq('email',String(email||'').toLowerCase()).limit(1);
