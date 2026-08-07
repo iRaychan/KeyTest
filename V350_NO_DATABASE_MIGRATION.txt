@@ -1,0 +1,8 @@
+KeySuite V3.5 requires NO new Supabase database migration.
+
+Prerequisite database state:
+- V310_SUPABASE_MIGRATION.sql already run
+- V330_SUPABASE_MIGRATION.sql already run
+- V340_SUPABASE_MIGRATION.sql already run
+
+V3.5 changes are frontend and Edge Function updates only.

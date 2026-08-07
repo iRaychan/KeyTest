@@ -17,13 +17,108 @@
   function statusClass(value){value=String(value||'');return value==='ai_draft_ready'?'ready':value==='awaiting_customer'?'waiting':value.includes('error')?'error':''}
   function formatTime(value){if(!value)return '-';try{return new Date(value).toLocaleString('en-MY',{dateStyle:'medium',timeStyle:'short'})}catch(_){return String(value)}}
   function text(value,fallback='—'){const s=String(value??'').trim();return s||fallback}
-  function list(value){return Array.isArray(value)?value.map(v=>String(v||'').trim()).filter(Boolean):[]}
+  function jsonish(value){const s=String(value??'').trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'').trim();return s.startsWith('{')||s.startsWith('[')||s.startsWith('"{')||s.startsWith("'{")}
+  function parseJsonish(value){
+    if(value&&typeof value==='object'&&!Array.isArray(value))return value;
+    let s=String(value??'').trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'').trim();
+    if(!s)return null;
+    for(let i=0;i<3;i++){
+      try{const parsed=JSON.parse(s);if(parsed&&typeof parsed==='object'&&!Array.isArray(parsed))return parsed;if(typeof parsed==='string'){s=parsed.trim();continue}}catch(_){/* try object slice below */}
+      const first=s.indexOf('{'),last=s.lastIndexOf('}');
+      if(first>=0&&last>first){try{const parsed=JSON.parse(s.slice(first,last+1));if(parsed&&typeof parsed==='object'&&!Array.isArray(parsed))return parsed}catch(_){}}
+      break;
+    }
+    return null;
+  }
+  function list(value){
+    if(Array.isArray(value))return value.map(v=>String(v||'').trim()).filter(Boolean);
+    if(typeof value==='string'&&value.trim().startsWith('[')){try{const parsed=JSON.parse(value);if(Array.isArray(parsed))return parsed.map(v=>String(v||'').trim()).filter(Boolean)}catch(_){}}
+    return [];
+  }
+  function firstNumber(match){const n=Number(match?.[1]);return Number.isFinite(n)?n:null}
+  function extractFacts(source){
+    const s=String(source||'');
+    const lower=s.toLowerCase();
+    const duty=firstNumber(s.match(/(\d+)\s*duty\b/i));
+    const standby=firstNumber(s.match(/(\d+)\s*standby\b/i));
+    const flowMatch=s.match(/(\d+(?:\.\d+)?)\s*(?:m3|m³)\s*\/\s*(?:h|hr|hour)\b/i);
+    const headMatch=s.match(/(?:head\s*[:=]?\s*)?(\d+(?:\.\d+)?)\s*m\s*(?:head)?\b/i);
+    const voltageMatch=s.match(/(\d+(?:\.\d+)?)\s*v\b/i);
+    const hzMatch=s.match(/(\d+(?:\.\d+)?)\s*hz\b/i);
+    const phaseMatch=s.match(/\b([13])\s*(?:ph|phase)\b/i);
+    let application=null;
+    if(/\bbooster\b/i.test(s))application='Booster';
+    else if(/\btransfer\b/i.test(s))application='Transfer';
+    let material=null;
+    if(/\b(?:ss\s*304|stainless\s*steel\s*304)\b/i.test(s))material='SS304';
+    else if(/\b(?:ss\s*316|stainless\s*steel\s*316)\b/i.test(s))material='SS316';
+    else if(/\bcast\s*iron\b/i.test(s)||/\bci\b/i.test(s))material='Cast Iron';
+    let flowBasis=null;
+    if(/\b(total|system)\s*(?:system\s*)?flow\b/i.test(s)||/\b(?:m3|m³)\s*\/\s*(?:h|hr|hour)\s*(?:is\s*)?total\b/i.test(lower))flowBasis='total_system';
+    if(/\bper\s+(?:duty\s+)?pump\b/i.test(s)||/\beach\s+(?:duty\s+)?pump\b/i.test(s)||/\bper\s+duty\b/i.test(s))flowBasis='per_duty_pump';
+    return {
+      application,system_type:application?`${application} System`:null,
+      pump_quantity:(duty!==null||standby!==null)?Number(duty||0)+Number(standby||0):null,
+      duty_configuration:(duty!==null||standby!==null)?[duty!==null?`${duty} Duty`:null,standby!==null?`${standby} Standby`:null].filter(Boolean).join(' + '):null,
+      flow_value:firstNumber(flowMatch),flow_unit:flowMatch?'m³/hr':null,flow_basis:flowBasis,
+      head_value:firstNumber(headMatch),head_unit:headMatch?'m':null,material,
+      voltage:firstNumber(voltageMatch),phase:phaseMatch?`${phaseMatch[1]} Phase`:null,frequency_hz:firstNumber(hzMatch)
+    };
+  }
+  function normalApplication(value){const s=String(value||'').trim();if(/booster/i.test(s))return 'Booster';if(/transfer/i.test(s))return 'Transfer';return s||null}
+  function generatedSummary(d){
+    const parts=[];
+    if(d.system_type)parts.push(d.system_type);
+    if(d.duty_configuration)parts.push(d.duty_configuration);
+    if(d.flow_value!==null&&d.flow_value!==undefined)parts.push(`${d.flow_value} ${d.flow_unit||'m³/hr'}`);
+    if(d.head_value!==null&&d.head_value!==undefined)parts.push(`${d.head_value} ${d.head_unit||'m'} head`);
+    if(d.voltage!==null&&d.voltage!==undefined)parts.push(`${d.voltage} V`);
+    return parts.join(' · ')||'KeyAI prepared quotation requirements.';
+  }
+  function normaliseDraft(item){
+    let d=parseJsonish(item?.ai_result)||{};
+    const nested=parseJsonish(d.raw_output)||parseJsonish(jsonish(d.summary)?d.summary:'');
+    if(nested)d={...d,...nested};
+    const followups=Array.isArray(item?.followups)?item.followups:[];
+    const source=[item?.raw_message||'',...followups.map(f=>f?.message||''),typeof item?.ai_result==='string'?item.ai_result:'',typeof d.raw_output==='string'?d.raw_output:''].filter(Boolean).join('\n');
+    const facts=extractFacts(source);
+    const merged={...d};
+    ['application','system_type','pump_quantity','duty_configuration','flow_value','flow_unit','flow_basis','head_value','head_unit','material','voltage','phase','frequency_hz'].forEach(k=>{
+      if((merged[k]===null||merged[k]===undefined||merged[k]==='')&&facts[k]!==null&&facts[k]!==undefined&&facts[k]!=='')merged[k]=facts[k];
+    });
+    merged.application=normalApplication(merged.application||facts.application);
+    if(merged.application&&(!merged.system_type||/duty|standby/i.test(String(merged.system_type))))merged.system_type=`${merged.application} System`;
+    if(merged.flow_value!==null&&merged.flow_value!==undefined)merged.flow_unit='m³/hr';
+    if(merged.head_value!==null&&merged.head_value!==undefined)merged.head_unit='m';
+    if(!['total_system','per_duty_pump'].includes(String(merged.flow_basis||'')))merged.flow_basis=facts.flow_basis||null;
+    const parsedSummary=String(merged.summary||'').trim();
+    merged.summary=parsedSummary&&!jsonish(parsedSummary)?parsedSummary:generatedSummary(merged);
+    let critical=list(merged.critical_missing_information);
+    let missing=list(merged.missing_information);
+    if(merged.flow_basis){critical=critical.filter(v=>!/total system flow|per duty pump|flow basis|whether .*flow/i.test(v));missing=missing.filter(v=>!/total system flow|per duty pump|flow basis|whether .*flow/i.test(v));}
+    if(merged.flow_value!==null&&merged.flow_value!==undefined)critical=critical.filter(v=>!/required flow|flow is not confirmed/i.test(v));
+    if(merged.head_value!==null&&merged.head_value!==undefined)critical=critical.filter(v=>!/required head|head is not confirmed/i.test(v));
+    if(merged.material){critical=critical.filter(v=>!/material/i.test(v));missing=missing.filter(v=>!/material/i.test(v));}
+    const automaticCritical=[];
+    const multiDuty=Number(merged.pump_quantity||0)>1||/\b[2-9]\d*\s*duty\b/i.test(String(merged.duty_configuration||source));
+    if(multiDuty&&merged.flow_value!==null&&merged.flow_value!==undefined&&!merged.flow_basis)automaticCritical.push(`Confirm whether ${merged.flow_value} ${merged.flow_unit||'m³/hr'} is total system flow or flow per duty pump.`);
+    if(merged.flow_value===null||merged.flow_value===undefined)automaticCritical.push('Required flow is not confirmed.');
+    if(merged.head_value===null||merged.head_value===undefined)automaticCritical.push('Required head is not confirmed.');
+    critical=[...automaticCritical,...critical].filter((v,i,a)=>v&&a.indexOf(v)===i).filter(v=>!/fluid temperature|viscosity|solids content|fluid properties|material/i.test(v));
+    if(!merged.material&&!missing.some(v=>/material/i.test(v)))missing.unshift('Pump material not specified.');
+    missing=missing.filter((v,i,a)=>v&&a.indexOf(v)===i).filter(v=>!critical.includes(v));
+    merged.critical_missing_information=critical;
+    merged.missing_information=missing;
+    merged.clarification_questions=list(item?.clarification_questions).length?list(item.clarification_questions):list(merged.clarification_questions);
+    return merged;
+  }
   function flowBasis(value){return ({total_system:'Total system flow',per_duty_pump:'Flow per duty pump'})[String(value||'')]||'Not confirmed'}
   function field(label,value){return `<div class="keyai-detail"><span>${esc(label)}</span><b>${esc(text(value))}</b></div>`}
   function friendlyDraft(item){
-    const d=item.ai_result&&typeof item.ai_result==='object'?item.ai_result:{};
+    const d=normaliseDraft(item);
     const details=[];
-    if(d.system_type||d.application)details.push(field('System / Application',d.system_type||d.application));
+    if(d.system_type)details.push(field('System',d.system_type));
+    if(d.application&&String(d.application)!==String(d.system_type))details.push(field('Application',d.application));
     if(d.duty_configuration)details.push(field('Configuration',d.duty_configuration));
     if(d.pump_quantity!==null&&d.pump_quantity!==undefined)details.push(field('Total Pumps',d.pump_quantity));
     if(d.flow_value!==null&&d.flow_value!==undefined)details.push(field('Flow',`${d.flow_value} ${d.flow_unit||''}`.trim()));
@@ -35,16 +130,15 @@
     if(d.material)details.push(field('Material',d.material));
     const critical=list(d.critical_missing_information);
     const missing=list(d.missing_information).filter(x=>!critical.includes(x));
-    const questions=list(item.clarification_questions).length?list(item.clarification_questions):list(d.clarification_questions);
+    const questions=String(item?.status||'')==='awaiting_customer'?list(d.clarification_questions):[];
     const followups=Array.isArray(item.followups)?item.followups:[];
-    let html='';
-    if(item.ai_summary||d.summary)html+=`<div class="keyai-draft-summary"><b>Summary</b><div>${esc(item.ai_summary||d.summary)}</div></div>`;
+    let html=`<div class="keyai-draft-summary"><b>Summary</b><div>${esc(d.summary||generatedSummary(d))}</div></div>`;
     if(details.length)html+=`<div class="keyai-detail-grid">${details.join('')}</div>`;
     if(questions.length)html+=`<div class="keyai-clarification"><b>Waiting for customer</b><ul>${questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div>`;
     if(critical.length)html+=`<div class="keyai-missing critical"><b>Critical / Need confirmation</b><ul>${critical.map(v=>`<li>${esc(v)}</li>`).join('')}</ul></div>`;
     if(missing.length)html+=`<div class="keyai-missing"><b>Other information not supplied</b><ul>${missing.map(v=>`<li>${esc(v)}</li>`).join('')}</ul></div>`;
     if(followups.length)html+=`<div class="keyai-conversation"><b>Customer follow-up</b>${followups.map(f=>`<div class="keyai-followup"><span>${esc(formatTime(f.created_at))}</span><div>${esc(f.message||'')}</div></div>`).join('')}</div>`;
-    if(d.notes)html+=`<div class="keyai-notes"><b>Notes</b><div>${esc(d.notes)}</div></div>`;
+    if(d.notes&&!jsonish(d.notes))html+=`<div class="keyai-notes"><b>Notes</b><div>${esc(d.notes)}</div></div>`;
     return html;
   }
   async function loadInbox(){
@@ -57,7 +151,7 @@
         const sender=[item.sender_name,item.sender_username?`@${item.sender_username}`:''].filter(Boolean).join(' · ')||'Telegram user';
         return `<div class="keyai-enquiry"><div class="keyai-enquiry-head"><div><b>${esc(sender)}</b><div class="keyai-enquiry-meta">${esc(formatTime(item.created_at))} · Telegram</div></div><span class="keyai-enquiry-status ${statusClass(item.status)}">${esc(statusLabel(item.status))}</span></div><div class="keyai-enquiry-message">${esc(item.raw_message||'')}</div>${item.ai_enabled?`<div class="keyai-friendly-draft">${friendlyDraft(item)}</div>`:''}${item.ai_error?`<div class="keyai-enquiry-ai"><b>AI error:</b> ${esc(item.ai_error)}</div>`:''}</div>`;
       }).join('')||'<div class="muted">No Telegram enquiries yet.</div>';
-    }catch(error){console.error(error);box.innerHTML=`<div class="notice">KeyAI Inbox is unavailable. Run V340_SUPABASE_MIGRATION.sql first. ${esc(error.message||error)}</div>`}
+    }catch(error){console.error(error);box.innerHTML=`<div class="notice">KeyAI Inbox is unavailable. V3.5 uses the existing V340 database functions. ${esc(error.message||error)}</div>`}
   }
   function persistentStatus(r){
     if(!r.openai_enabled)return {text:'OpenAI is OFF',state:'off'};
@@ -76,7 +170,7 @@
       const s=persistentStatus(r);status(s.text,s.state);
       notice(r.openai_enabled?'OpenAI is enabled. Telegram enquiries can use KeyAI and automatically ask for critical clarification when needed.':'OpenAI is OFF. Telegram enquiries will be saved for manual review without any OpenAI call.','ok');
       await loadInbox();
-    }catch(error){console.error(error);notice(`KeyAI settings are unavailable. Run V340_SUPABASE_MIGRATION.sql first. ${error.message||error}`);status('Settings unavailable','error')}
+    }catch(error){console.error(error);notice(`KeyAI settings are unavailable. V3.5 uses the V340 KeyAI database functions. ${error.message||error}`);status('Settings unavailable','error')}
   }
   async function save(){
     if(!owner())return;const c=client();if(!c)return;const button=el('saveKeyAiSettings');if(button){button.disabled=true;button.textContent='Saving…'}

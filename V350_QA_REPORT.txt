@@ -1,0 +1,78 @@
+KeySuite V3.5 QA Report
+
+Build basis
+- Full KeySuite V3.4 GitHub package.
+- V3.5 applies only the amendments agreed after V3.4.
+
+Validation completed
+1. JavaScript syntax
+- app.js: PASS (node --check)
+- keyai.js: PASS (node --check)
+- sw.js: PASS (node --check)
+
+2. Supabase Edge Function TypeScript syntax
+- keyai-openai/index.ts: PASS (TypeScript transpile syntax check)
+- telegram-webhook/index.ts: PASS (TypeScript transpile syntax check)
+
+3. KeyAI automatic clarification logic
+Test enquiry:
+  Need transfer system, 2 duty 1 standby, 30 m3/hr, 50m head, 415V.
+Result: PASS
+- Application normalized to Transfer.
+- System Type normalized to Transfer System.
+- Pump quantity resolved to 3.
+- Flow 30 m³/hr and head 50 m retained.
+- Flow Basis remains unconfirmed.
+- One deterministic Telegram clarification is produced asking total system flow vs flow per duty pump.
+
+4. KeyAI follow-up logic
+Test reply:
+  30 m3/hr total, SS304
+Result: PASS
+- Flow Basis updates to total_system.
+- Material updates to SS304.
+- Flow-basis clarification is removed.
+- Resolved critical missing information is removed.
+- No duplicate material-missing item remains.
+
+5. Clarification false-positive guard
+Test text containing "total pumps 3" but no statement that flow is total.
+Result: PASS
+- Does not incorrectly mark Flow Basis as total_system.
+
+6. Friendly AI draft fallback renderer
+Simulated older malformed/truncated V3.4 AI JSON plus the original Telegram message.
+Result: PASS
+- Renderer recovers Transfer System / 2 Duty + 1 Standby / 30 m³/hr / 50 m / 415 V.
+- Raw JSON is not displayed as the Summary.
+
+7. Dashboard Customer alignment structure
+Result: PASS
+- Customer picker and Customer Name contact field are direct same-row grid items.
+- Linked-status text is a separate full-width row below them.
+- Both controls retain the existing Quotation synchronization IDs/handlers.
+
+8. Version/cache consistency
+- VERSION.txt = 3.5: PASS
+- index.html V3.5 labels: PASS
+- manifest.json = KeySuite V3.5: PASS
+- service worker cache = keysuite-v350: PASS
+
+9. Edge Function authentication configuration
+- telegram-webhook verify_jwt=false: PASS
+- keyai-openai verify_jwt=false: PASS
+- Existing handler-level Telegram/internal authentication retained.
+
+10. OpenAI structured extraction configuration
+- Responses API Structured Output json_schema request present: PASS
+- strict schema mode present: PASS
+- Incomplete OpenAI response is rejected instead of being stored as a completed draft: PASS (source-path validation)
+
+Database
+- No new V3.5 SQL migration.
+- Existing V310 + V330 + V340 database state is reused.
+
+Deployment requirement
+- Replace/upload the GitHub files.
+- Redeploy BOTH Edge Functions because both V3.5 Edge Function sources changed.
+- Existing Telegram webhook URL and secrets do not need to be re-registered/changed.

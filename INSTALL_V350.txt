@@ -1,0 +1,31 @@
+KeySuite V3.5 Upgrade (from V3.4)
+
+1. Upload/replace the V3.5 GitHub files.
+
+2. No new SQL migration is required if V310, V330 and V340 were already run.
+
+3. Redeploy BOTH Supabase Edge Functions from this package:
+   - supabase/functions/keyai-openai/index.ts
+   - supabase/functions/telegram-webhook/index.ts
+
+4. Keep the existing Supabase Edge Function secrets:
+   OPENAI_API_KEY
+   KEYAI_INTERNAL_SECRET
+   TELEGRAM_BOT_TOKEN
+   TELEGRAM_WEBHOOK_SECRET
+
+5. Both functions use handler-level authentication, so Supabase platform JWT verification remains OFF as defined in supabase/config.toml.
+
+6. No Telegram setWebhook change is required if the existing telegram-webhook URL and TELEGRAM_WEBHOOK_SECRET are unchanged.
+
+7. Ctrl+F5 / restart the installed PWA after GitHub Pages deployment.
+
+Recommended test sequence:
+A. Dashboard: confirm Customer and Customer Name labels/inputs are aligned on one row and both remain synchronized with Quotation.
+B. Turn OpenAI ON and save.
+C. Send Telegram: Need transfer system, 2 duty 1 standby, 30 m3/hr, 50m head, 415V.
+D. Telegram should ask whether 30 m3/hr is total system flow or 30 m3/hr per duty pump.
+E. KeyAI Inbox root status should be Awaiting Customer and show friendly structured cards, not raw JSON.
+F. Reply in Telegram: 30 m3/hr total, SS304.
+G. The same root enquiry should show the follow-up, Flow Basis = Total system flow, Material = SS304, and return to AI Draft Ready if no other blocking item remains.
+H. Turn OpenAI OFF and send one new enquiry. Confirm it is saved for Manual Review and OpenAI request/token counts do not increase.

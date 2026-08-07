@@ -1,0 +1,40 @@
+KeySuite V3.5 Changes
+
+1. KeyAI friendly draft renderer fix
+- Fixes V3.4 cases where the Telegram Inbox still displayed raw JSON.
+- Handles JSON objects, JSON stored as text, fenced JSON and older malformed/truncated AI output.
+- Uses the original Telegram message as a safe fallback to recover common fields for display.
+- Displays System, Application, Configuration, Total Pumps, Flow, Flow Basis, Head, Voltage, Phase, Frequency and Material as structured cards.
+
+2. KeyAI field normalization
+- Keeps System Type separate from Duty Configuration.
+- Normalizes Booster / Transfer enquiries to Booster System / Transfer System.
+- Normalizes m3/hr display to m³/hr and head to metres.
+- Prevents raw JSON text from becoming the user-facing Summary.
+
+3. Automatic Telegram clarification fix
+- Adds a deterministic server-side clarification check after OpenAI extraction.
+- For multi-duty-pump enquiries with a stated flow but no flow basis, Telegram asks whether the flow is total system flow or flow per duty pump even if the model omitted the question.
+- Missing flow or head also produces a blocking clarification question.
+- Ordinary booster/transfer enquiries do not automatically ask fluid-temperature, viscosity, solids or material questions.
+- Material remains visible as missing information but is not a blocking question.
+
+4. Telegram follow-up conversation fix
+- Customer replies continue under the same root enquiry.
+- A reply such as "30 m3/hr total, SS304" updates Flow Basis and Material.
+- Resolved questions / critical missing items are removed.
+- When no blocking question remains, the root enquiry returns to AI Draft Ready.
+
+5. OpenAI structured extraction
+- Telegram and Telegram follow-up processing request OpenAI Structured Outputs using a strict JSON schema.
+- Detects incomplete OpenAI responses instead of accepting truncated data.
+- Keeps the Owner-selected model and existing usage/cost tracking.
+
+6. Dashboard Customer alignment
+- Customer = company and Customer Name = employee/contact remain linked to Quotation.
+- Both fields are placed on the same row with aligned labels and equal-height inputs.
+- The linked-status text is moved below both fields so it no longer disturbs vertical alignment.
+
+7. Database
+- No new database migration is required.
+- V3.5 continues using the V340 KeyAI settings/inbox functions and tables.

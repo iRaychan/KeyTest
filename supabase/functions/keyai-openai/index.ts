@@ -7,6 +7,32 @@ const corsHeaders={
 };
 const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{...corsHeaders,'Content-Type':'application/json'}});
 
+const keyAiSchema={
+  type:'object',
+  additionalProperties:false,
+  properties:{
+    summary:{type:'string'},
+    application:{type:['string','null']},
+    system_type:{type:['string','null']},
+    pump_quantity:{type:['integer','null']},
+    duty_configuration:{type:['string','null']},
+    flow_value:{type:['number','null']},
+    flow_unit:{type:['string','null']},
+    flow_basis:{type:['string','null'],enum:['total_system','per_duty_pump',null]},
+    head_value:{type:['number','null']},
+    head_unit:{type:['string','null']},
+    material:{type:['string','null']},
+    voltage:{type:['number','null']},
+    phase:{type:['string','null']},
+    frequency_hz:{type:['number','null']},
+    critical_missing_information:{type:'array',items:{type:'string'}},
+    missing_information:{type:'array',items:{type:'string'}},
+    clarification_questions:{type:'array',items:{type:'string'}},
+    notes:{type:['string','null']}
+  },
+  required:['summary','application','system_type','pump_quantity','duty_configuration','flow_value','flow_unit','flow_basis','head_value','head_unit','material','voltage','phase','frequency_hz','critical_missing_information','missing_information','clarification_questions','notes']
+};
+
 function pricingFor(model:string){
   const key=String(model||'').toLowerCase();
   if(key.startsWith('gpt-5-mini'))return {input:0.25,cached:0.025,output:2.00};
@@ -85,16 +111,24 @@ Deno.serve(async(req)=>{
     const input=mode==='test'?'Reply exactly with: KeyAI OpenAI connection OK':String(body?.input||'').trim();
     if(!input)return json({ok:false,error:'No KeyAI input was supplied.'},400);
     const instructions=String(body?.instructions||'You are KeyAI for KeySuite. Understand customer pump and quotation enquiries. Do not invent engineering selections, prices, discounts or commercial terms. Return clear information for KeySuite/KeyES to process.');
+    const structured=mode==='telegram'||mode==='telegram-followup';
+    const requestBody:any={model,instructions,input,max_output_tokens:mode==='test'?80:3200};
+    if(structured)requestBody.text={format:{type:'json_schema',name:'keyai_quotation_requirements',description:'Structured pump or system quotation requirements extracted from the customer enquiry.',strict:true,schema:keyAiSchema}};
     const response=await fetch('https://api.openai.com/v1/responses',{
-      method:'POST',headers:{'Authorization':`Bearer ${openAiKey}`,'Content-Type':'application/json'},
-      body:JSON.stringify({model,instructions,input,max_output_tokens:mode==='test'?80:1800})
+      method:'POST',headers:{'Authorization':`Bearer ${openAiKey}`,'Content-Type':'application/json'},body:JSON.stringify(requestBody)
     });
     const data=await response.json().catch(()=>({}));
     if(!response.ok){
       const error=String(data?.error?.message||`OpenAI HTTP ${response.status}`);await saveTestStatus(false,error);
       return json({ok:false,error,model},502);
     }
+    if(data?.status==='incomplete'){
+      const error=`OpenAI response incomplete${data?.incomplete_details?.reason?`: ${data.incomplete_details.reason}`:''}.`;
+      await saveTestStatus(false,error);
+      return json({ok:false,error,model},502);
+    }
     const outputText=String(data?.output_text||data?.output?.flatMap((item:any)=>item?.content||[]).find((part:any)=>part?.type==='output_text')?.text||'').trim();
+    if(!outputText){const error='OpenAI returned no text output.';await saveTestStatus(false,error);return json({ok:false,error,model},502)}
     const usage=data?.usage||{};
     const inputTokens=Number(usage.input_tokens||0);
     const cachedTokens=Number(usage.input_tokens_details?.cached_tokens||0);
