@@ -1,82 +1,70 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+const corsHeaders={
+  'Access-Control-Allow-Origin':'*',
+  'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type, x-keyai-internal-secret',
+  'Access-Control-Allow-Methods':'POST, OPTIONS'
 };
+const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{...corsHeaders,'Content-Type':'application/json'}});
 
-Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
-  if (req.method !== 'POST') return json({ error: 'Method not allowed.' }, 405);
+Deno.serve(async(req)=>{
+  if(req.method==='OPTIONS')return new Response('ok',{headers:corsHeaders});
+  if(req.method!=='POST')return json({ok:false,error:'POST required.'},405);
+  try{
+    const supabaseUrl=Deno.env.get('SUPABASE_URL')||'';
+    const anonKey=Deno.env.get('SUPABASE_ANON_KEY')||'';
+    const serviceKey=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'';
+    const openAiKey=Deno.env.get('OPENAI_API_KEY')||'';
+    if(!supabaseUrl||!anonKey||!serviceKey)throw new Error('Supabase Edge Function environment is incomplete.');
+    const service=createClient(supabaseUrl,serviceKey,{auth:{persistSession:false,autoRefreshToken:false}});
+    const body=await req.json().catch(()=>({}));
+    const mode=String(body?.mode||'process').toLowerCase();
 
-  try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-    const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-    if (!supabaseUrl || !anonKey || !serviceKey) throw new Error('Supabase function environment is incomplete.');
-
-    const authHeader = req.headers.get('Authorization') ?? '';
-    if (!authHeader.startsWith('Bearer ')) return json({ error: 'Missing login session.' }, 401);
-
-    const callerClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } },
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-    const { data: userData, error: userError } = await callerClient.auth.getUser();
-    if (userError || !userData.user?.email) return json({ error: 'Invalid login session.' }, 401);
-
-    const service = createClient(supabaseUrl, serviceKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-    const callerEmail = userData.user.email.toLowerCase();
-    const { data: caller, error: callerError } = await service
-      .from('ks_user_access')
-      .select('email,role,active,company_id')
-      .eq('email', callerEmail)
-      .maybeSingle();
-    if (callerError) throw callerError;
-    if (!caller?.active || String(caller.role).toLowerCase() !== 'owner') return json({ error: 'Only the Owner can invite users.' }, 403);
-
-    const body = await req.json().catch(() => ({}));
-    const email = String(body.email ?? '').trim().toLowerCase();
-    const displayName = String(body.display_name ?? '').trim();
-    const role = String(body.role ?? 'user').trim().toLowerCase();
-    const redirectTo = String(body.redirect_to ?? '').trim();
-    if (!/^\S+@\S+\.\S+$/.test(email)) return json({ error: 'A valid email address is required.' }, 400);
-    if (!['owner', 'admin', 'user', 'dealer', 'viewer'].includes(role)) return json({ error: 'The selected role is invalid.' }, 400);
-
-    const { data: target, error: targetError } = await service
-      .from('ks_user_access')
-      .select('email,active,company_id,role')
-      .eq('email', email)
-      .maybeSingle();
-    if (targetError) throw targetError;
-    if (!target?.active) return json({ error: 'Save the user as Active in KeySuite before sending an invitation.' }, 400);
-    if (target.company_id !== caller.company_id) return json({ error: 'The user belongs to a different company.' }, 403);
-
-    const invite = await service.auth.admin.inviteUserByEmail(email, {
-      redirectTo: redirectTo || undefined,
-      data: { display_name: displayName, role, company_id: caller.company_id },
-    });
-
-    if (invite.error) {
-      const text = String(invite.error.message ?? '').toLowerCase();
-      if (text.includes('already') || text.includes('registered') || text.includes('exists')) {
-        return json({ status: 'already_exists', email });
-      }
-      throw invite.error;
+    let requestedBy='';let authorised=false;let owner=false;
+    const internalSecret=Deno.env.get('KEYAI_INTERNAL_SECRET')||'';
+    const suppliedInternal=req.headers.get('x-keyai-internal-secret')||'';
+    if(internalSecret&&suppliedInternal&&suppliedInternal===internalSecret){authorised=true;requestedBy='keyai-internal';}
+    if(!authorised){
+      const authHeader=req.headers.get('Authorization')||'';
+      if(!authHeader.toLowerCase().startsWith('bearer '))return json({ok:false,error:'Authorisation required.'},401);
+      const userClient=createClient(supabaseUrl,anonKey,{global:{headers:{Authorization:authHeader}},auth:{persistSession:false,autoRefreshToken:false}});
+      const userResult=await userClient.auth.getUser();
+      const email=String(userResult.data?.user?.email||'').toLowerCase();
+      if(!email)return json({ok:false,error:'Invalid KeySuite session.'},401);
+      const accessResult=await service.from('ks_user_access').select('role,active').eq('email',email).eq('active',true).limit(1).maybeSingle();
+      if(accessResult.error||!accessResult.data?.active)return json({ok:false,error:'KeySuite access is not active.'},403);
+      requestedBy=email;owner=String(accessResult.data.role||'').toLowerCase()==='owner';authorised=true;
     }
-    return json({ status: 'invited', email });
-  } catch (error) {
-    console.error(error);
-    return json({ error: error instanceof Error ? error.message : String(error) }, 400);
-  }
-});
+    if(mode==='test'&&!owner&&requestedBy!=='keyai-internal')return json({ok:false,error:'Only the Owner can test the OpenAI connection.'},403);
 
-function json(body: Record<string, unknown>, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  });
-}
+    const settingsResult=await service.from('ks_app_settings').select('keyai_openai_enabled,keyai_openai_model,keyai_monthly_request_limit').eq('id','default').maybeSingle();
+    if(settingsResult.error)throw settingsResult.error;
+    const settings=settingsResult.data||{};
+    const enabled=!!settings.keyai_openai_enabled;
+    const model=String(settings.keyai_openai_model||'gpt-5-mini');
+    const monthlyLimit=Math.max(0,Number(settings.keyai_monthly_request_limit||0));
+    if(!enabled)return json({ok:false,enabled:false,error:'KeyAI OpenAI is switched OFF by the Owner.'},409);
+    if(!openAiKey)return json({ok:false,enabled:true,error:'OPENAI_API_KEY is not configured in Supabase Edge Function secrets.'},500);
+
+    if(monthlyLimit>0){
+      const start=new Date();start.setUTCDate(1);start.setUTCHours(0,0,0,0);
+      const countResult=await service.from('ks_keyai_usage').select('id',{count:'exact',head:true}).gte('created_at',start.toISOString());
+      if(countResult.error)throw countResult.error;
+      if(Number(countResult.count||0)>=monthlyLimit)return json({ok:false,enabled:true,error:`KeyAI monthly request limit (${monthlyLimit}) has been reached.`},429);
+    }
+
+    const input=mode==='test'?'Reply exactly with: KeyAI OpenAI connection OK':String(body?.input||'').trim();
+    if(!input)return json({ok:false,error:'No KeyAI input was supplied.'},400);
+    const instructions=String(body?.instructions||'You are KeyAI for KeySuite. Understand customer pump and quotation enquiries. Do not invent engineering selections, prices, discounts or commercial terms. Return clear information for KeySuite/KeyES to process.');
+    const response=await fetch('https://api.openai.com/v1/responses',{
+      method:'POST',headers:{'Authorization':`Bearer ${openAiKey}`,'Content-Type':'application/json'},
+      body:JSON.stringify({model,instructions,input,max_output_tokens:mode==='test'?40:1200})
+    });
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)return json({ok:false,error:String(data?.error?.message||`OpenAI HTTP ${response.status}`),model},502);
+    const outputText=String(data?.output_text||data?.output?.flatMap((item:any)=>item?.content||[]).find((part:any)=>part?.type==='output_text')?.text||'').trim();
+    const usage=data?.usage||{};
+    await service.from('ks_keyai_usage').insert({provider:'openai',model,purpose:mode,requested_by:requestedBy,input_tokens:Number(usage.input_tokens||0),output_tokens:Number(usage.output_tokens||0)});
+    return json({ok:true,enabled:true,model,output:outputText,usage:{input_tokens:Number(usage.input_tokens||0),output_tokens:Number(usage.output_tokens||0)}});
+  }catch(error){console.error(error);return json({ok:false,error:error instanceof Error?error.message:String(error)},500)}
+});

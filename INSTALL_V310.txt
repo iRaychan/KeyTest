@@ -1,0 +1,12 @@
+KeySuite V3.1 - Full GitHub
+===========================
+
+1. Run V310_SUPABASE_MIGRATION.sql in the KeySuite Supabase SQL Editor.
+2. Set Supabase Edge Function secret OPENAI_API_KEY.
+3. Deploy the Edge Function named keyai-openai. CLI command: supabase functions deploy keyai-openai --no-verify-jwt
+4. Upload the full contents of this package to the GitHub repository root, replacing existing files.
+5. Keep your existing working config.js (it is intentionally not included in this package).
+6. After GitHub Pages deploys, close/reopen KeySuite and use Ctrl+F5 once.
+7. Sign in as Owner > Key > KeyAI, switch OpenAI ON, save, and Test Connection.
+
+Optional: set KEYAI_INTERNAL_SECRET for future Telegram/WhatsApp KeyAI server-to-server calls.

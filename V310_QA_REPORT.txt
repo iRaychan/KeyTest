@@ -1,0 +1,39 @@
+KeySuite V3.1 QA Report
+======================
+
+Build basis
+-----------
+- Base: KeySuite V3.00 full GitHub source.
+- Target: KeySuite V3.1 full GitHub source.
+- Existing V3.00 coupling layout and quotation-history year/month expand-collapse changes retained.
+
+Automated source checks
+-----------------------
+PASS - Every root JavaScript file passes node --check.
+PASS - All inline JavaScript blocks in selector/index.html pass node --check.
+PASS - manifest.json parses successfully.
+PASS - index.html has 561 element IDs and no duplicate IDs.
+PASS - Dashboard Customers / Quotations / Quoted Value / Pending metric elements are removed.
+PASS - Dashboard Start no longer contains Selection / Product / System / Pumpset action buttons.
+PASS - Dashboard contains the new searchable customer picker and hidden synchronized customer ID.
+PASS - Left navigation has direct System and Pumpset controls and no Assembly navigation button.
+PASS - Expanded Selection/Product navigation styling contains #3072C2.
+PASS - System/Pumpset navigation styling contains #FFFF00.
+PASS - KeyAI Owner settings page and Key Dashboard module are present.
+PASS - KeyAI browser module contains no OPENAI_API_KEY value or secret.
+PASS - OpenAI server function checks the database ON/OFF flag before contacting OpenAI.
+PASS - OpenAI server function logs request/input/output token usage.
+PASS - config.js is not included in the full GitHub package.
+PASS - V3.1 Supabase migration and Edge Function source are included.
+
+Database / OpenAI notes
+-----------------------
+- V310_SUPABASE_MIGRATION.sql was statically reviewed and packaged; it was not executed against the live Supabase project.
+- The keyai-openai Edge Function was source-reviewed but not deployed from this environment.
+- A real OpenAI connection test requires the Owner to set the Supabase Edge Function secret OPENAI_API_KEY and deploy the function.
+- The API key is intentionally absent from all GitHub/browser files.
+
+Test scope
+----------
+- No production Supabase credentials or OpenAI API key were used.
+- Live Telegram/WhatsApp KeyAI processing was not exercised; V3.1 provides the shared OpenAI engine/control foundation for those channels.

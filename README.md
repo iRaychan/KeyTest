@@ -1,9 +1,10 @@
-# KeySuite V3.00 — Coupling Layout Correction
+# keyai-openai
 
-This update fixes the overlap between the Coupling controls, the **Resolved as…** message, and the Pump/Motor bush details.
+Supabase Edge Function for KeySuite V3.1 KeyAI OpenAI calls.
 
-Run `APPLY_V300.bat` and select the extracted KeySuite V2.38 or V2.38R1 source folder. The patcher backs up the affected files and creates `KeySuite_V3.00_Changed_Files.zip` for GitHub upload.
+Required secret: `OPENAI_API_KEY`
+Optional internal KeyAI caller secret: `KEYAI_INTERNAL_SECRET`
 
-Changed deployment files: `index.html`, `manifest.json`, and `sw.js`.
+Deploy from Supabase CLI with: `supabase functions deploy keyai-openai --no-verify-jwt`
 
-No Supabase migration is required. `config.js` is never modified.
+The function checks the Owner ON/OFF setting in `ks_app_settings` before every OpenAI request and never exposes the OpenAI key to the browser.

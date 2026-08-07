@@ -1,0 +1,24 @@
+KeySuite V3.1 Changes
+=====================
+
+[KeyAI]
+- Added Owner-only KeyAI > OpenAI settings in Key Dashboard.
+- Added server-side ON/OFF control, model setting and monthly request limit.
+- Added Test Connection and monthly request/input/output token usage display.
+- Added Supabase Edge Function source keyai-openai; OPENAI_API_KEY stays server-side.
+
+[Dashboard]
+- Removed Customers, Quotations, Quoted Value and Pending metric cards.
+- Promoted Start to the main visual focus.
+- Removed Selection / Product / System / Pumpset buttons from Start.
+- Replaced the long customer list dropdown with a searchable customer picker.
+- Shows recent customers first, limits visible results and includes + New Customer.
+- Dashboard working customer remains synchronized with Quotation customer.
+
+[Left Navigation]
+- Selection and Product expanded groups use #3072C2.
+- Replaced Assembly with direct System and Pumpset buttons.
+- System and Pumpset buttons use #FFFF00.
+
+Base
+- Retains all V3.00 coupling layout and Quote History year/month expand-collapse changes.

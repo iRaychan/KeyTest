@@ -1,0 +1,21 @@
+KeyAI OpenAI Setup - V3.1
+==========================
+
+Required Supabase Edge Function secret:
+  OPENAI_API_KEY = your OpenAI API project key
+
+Optional server-to-server secret:
+  KEYAI_INTERNAL_SECRET = a long random value for future KeyAI Telegram/WhatsApp calls
+
+Do NOT put OPENAI_API_KEY in config.js, index.html, keyai.js or GitHub.
+
+Deploy function name:
+  keyai-openai
+
+Supabase CLI deploy command:
+  supabase functions deploy keyai-openai --no-verify-jwt
+
+Owner control:
+  Key > KeyAI > OpenAI ON/OFF
+
+When OFF the Edge Function blocks OpenAI requests before contacting OpenAI.
