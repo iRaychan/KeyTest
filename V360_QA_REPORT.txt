@@ -1,0 +1,86 @@
+KeySuite V3.6 QA Report
+
+Build basis
+- KeySuite V3.5 Full GitHub package supplied by user.
+- KeyES V1.7 Full GitHub package supplied by user.
+
+Validation completed
+
+1. JavaScript syntax
+- app.js: PASS (node --check)
+- auth.js: PASS (node --check)
+- pricing.js: PASS (node --check)
+- product.js: PASS (node --check)
+- assembly.js: PASS (node --check)
+- selector-es/es-core.js: PASS (node --check)
+- selector-es/es-data.js: PASS (node --check)
+
+2. KeyES V1.7 core regression suite
+Result: PASS
+- Q-H polynomial behavior retained.
+- Efficiency / power / NPSH regression checks retained.
+- Efficiency-first recommended-selection priority retained.
+- Fixed ES catalog Alternative Selection order retained.
+- System curve / orifice curve / operating intersection behavior retained.
+- ES 50-32G and ES 65-32G flow-domain regression retained.
+
+3. KeyES V1.7 UI/report regression suite
+Result: PASS
+- Blank duty startup retained.
+- Direct whole-mm impeller controls retained.
+- 0.1 Hz frequency controls retained.
+- KeySuite Assembly / Quote action styling retained.
+- Compact motor and IE3 controls retained.
+- BHP alert behavior retained.
+- Selection/report structure retained.
+
+4. KeySuite ES model/pricelist mapping
+Result: PASS
+- KeyES active curve records: 78.
+- KeyES unique ES models: 54.
+- Unique KeyES models matching KeySuite ES product IDs: 54 / 54.
+- Missing priced model IDs: none.
+
+5. KeySuite navigation integration
+Result: PASS (static/source validation)
+- Selection submenu exposes CHC and ES.
+- ES selector iframe points to selector-es/index.html.
+- V3.6 signed-in unlock/lock logic includes selectorEsFrame.
+
+6. Assembly / quotation routing
+Result: PASS (source-path validation)
+- ES payload is identified separately from CHC payload.
+- Assembly route assigns PUMPSET_COMPONENT / pump.
+- Quotation route uses KeySuitePricing.findEsPrice().
+- Existing quotation source-price validation is retained.
+- Existing Customer/Category pricing context is required before routing.
+
+7. ES quotation PDF routing
+Result: PASS (source-path validation)
+- ES pumpData is identified from product/type/source.
+- ES quotation item PDF posts KEYSUITE_EXPORT_DATASHEET to selectorEsFrame.
+- Non-ES pumpData continues to use selectorFrame (CHC).
+
+8. Integrated KeyES access protection
+Result: PASS (source validation)
+- selector-es loads KeySuite config.
+- Existing Supabase session is required.
+- Active ks_user_access is required.
+- Unauthorized access redirects to the main KeySuite sign-in page.
+
+9. Version/cache consistency
+- VERSION.txt = 3.6: PASS
+- index.html current V3.6 branding: PASS
+- manifest.json current V3.6 name: PASS
+- service worker cache = keysuite-v360: PASS
+- selector-es runtime included in service-worker shell: PASS
+
+10. Database / Edge Functions
+- No V3.6 SQL migration required.
+- No V3.6 Edge Function change required.
+- Existing V3.5 database and KeyAI backend are reused.
+
+Deployment requirement
+- Upload the complete V3.6 GitHub package, including selector-es/.
+- Keep the current production config.js.
+- Ctrl+F5 / restart the installed PWA after deployment.

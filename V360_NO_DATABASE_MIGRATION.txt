@@ -1,0 +1,12 @@
+KeySuite V3.6 - No Database Migration Required
+
+V3.6 integrates KeyES V1.7 into the existing KeySuite frontend and reuses the ES product/pricelist database structure already present in KeySuite V3.5.
+
+Do NOT run a new V3.6 SQL migration; none is supplied or required.
+
+Database prerequisite:
+- Your working KeySuite V3.5 database/migrations must already be in place.
+
+KeyAI:
+- No Supabase Edge Function redeployment is required specifically for V3.6.
+- Keep the existing V3.5 KeyAI functions and secrets unchanged.

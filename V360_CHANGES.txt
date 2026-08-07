@@ -1,0 +1,53 @@
+KeySuite V3.6 Changes
+
+Build basis
+- KeySuite V3.5 Full GitHub package.
+- KeyES V1.7 Full GitHub package.
+
+1. KeyES V1.7 integrated into KeySuite
+- Adds Selection -> ES beside the existing CHC selector.
+- Embeds the KeyES V1.7 End Suction selector inside the authenticated KeySuite workspace.
+- Retains the supplied KeyES V1.7 engineering calculation and selection behavior.
+
+2. KeyES selection behavior retained
+- Recommendation remains efficiency-first at the required duty point.
+- Alternative Selection remains in the fixed ES catalog/model order.
+- Existing system curve, orifice curve, intersection, direct whole-mm impeller and 0.1 Hz controls are retained.
+- Existing compact motor / efficiency selectors and BHP warning behavior are retained.
+
+3. Assembly integration
+- KeyES Assembly sends the selected ES pump into KeySuite Assembly.
+- ES selection is routed as Assembly -> Pumpset -> Pump.
+- The complete KeyES selection payload is retained with the assembly item.
+
+4. Quotation integration
+- KeyES Quote sends the selected ES pump directly to the active KeySuite quotation.
+- Existing KeySuite Customer / Category Pricing Rule remains authoritative for selling price.
+- Existing ES source price and quote-blocking validation are reused; KeyES does not duplicate pricing formulas.
+- Selected duty capacity/head is retained in the quotation item.
+- KeyES material, seal and elastomer selections are retained in the pump description.
+
+5. Pump PDF integration
+- A quotation item created from KeyES retains its KeyES export state.
+- The quotation item PDF action routes back to the ES selector and regenerates the KeyES ES data sheet.
+- CHC quotation items continue to route to the CHC selector as before.
+
+6. Access and layout integration
+- The integrated selector-es page verifies the current KeySuite Supabase session and active ks_user_access record.
+- ES iframe height is synchronized back to KeySuite to reduce clipping / overlap.
+- Service-worker shell now includes the KeyES selector runtime files.
+
+7. ES catalog / pricing compatibility
+- KeyES V1.7 contains 78 active curve records across 54 unique ES models.
+- All 54 unique KeyES ES models map to existing KeySuite V3.5 ES product/pricelist IDs.
+
+8. Versioning
+- KeySuite branding updated to V3.6.
+- VERSION.txt = 3.6.
+- PWA manifest updated to V3.6.
+- Service worker cache updated to keysuite-v360.
+
+9. Database / KeyAI
+- No new database migration is required for V3.6.
+- No KeyAI Edge Function source changes are required for V3.6.
+- Existing V3.5 KeyAI behavior is retained.

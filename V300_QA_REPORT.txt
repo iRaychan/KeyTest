@@ -1,13 +1,27 @@
-KeySuite V3.00 QA
-==================
-PASS - app.js JavaScript syntax.
-PASS - Coupling V3.00 runtime styles are installed once.
-PASS - Coupling cards use automatic height and dedicated resolution/bush spacing.
-PASS - Responsive coupling controls include desktop/tablet/mobile layouts.
-PASS - Quote History uses native year expand/collapse details/summary markup.
-PASS - Expanded years retain all 12 month checkboxes.
-PASS - Current year opens by default on first filter initialization.
-PASS - Existing Customer/User and month filtering code remains in the same populate function.
-PASS - Service-worker cache updated to keysuite-v300.
-PASS - config.js is not included in the update package.
-PASS - No Supabase migration required.
+KeySuite V3.00 QA Report
+========================
+
+Build basis
+-----------
+PASS - Built from the user-supplied KeySuite V2.38 full GitHub source.
+PASS - V3.00 app.js, manifest.json and sw.js overlaid onto the complete V2.38 source.
+PASS - All V2.38 source files/folders retained unless intentionally replaced by V3.00.
+PASS - config.js is not included; existing production configuration is preserved.
+
+V3.00 amendments
+----------------
+PASS - Coupling Card Layout V2 runtime styles installed once.
+PASS - Coupling cards use auto height with separated resolution and bush-detail spacing.
+PASS - Coupling controls include responsive desktop/tablet/mobile layouts.
+PASS - Quote History uses independent year expand/collapse groups.
+PASS - Expanded years show all 12 months.
+PASS - Current year opens by default; previous years start collapsed.
+PASS - Existing Customer/User and month filtering logic retained.
+
+Technical checks
+----------------
+PASS - JavaScript syntax checked for all 18 JavaScript files in the full package.
+PASS - manifest.json parses successfully and identifies KeySuite V3.00.
+PASS - Service-worker cache is keysuite-v300.
+PASS - ZIP archive integrity verified.
+PASS - No new Supabase/database migration required.
