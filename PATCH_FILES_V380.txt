@@ -1,0 +1,7 @@
+Runtime files changed in KeySuite V3.8
+======================================
+
+/universe.js
+/sw.js
+
+Documentation included in this package is optional for deployment.

@@ -1,0 +1,40 @@
+KeySuite V3.8 - KeyCore
+========================
+
+1. Universe View renamed to KeyCore
+   - Sidebar button now shows KeyCore.
+   - Dashboard launcher now shows KeyCore / Enter KeyCore.
+   - Main visualization title and center core are labelled KeyCore.
+   - User-facing Universe terminology removed.
+
+2. Matrix / AI visual direction
+   - Dark green-black AI command-center styling.
+   - Animated Matrix-style data rain layer.
+   - Neon grid / orbital rings / live data connection styling.
+   - KeyCore center has its own breathing pulse and system-online status.
+
+3. Data gravity particles
+   - Every data globe receives orbiting particles.
+   - Particle density increases with the module's data volume.
+   - Larger data volume still increases the globe's base size using controlled logarithmic scaling.
+   - This makes larger datasets feel visually heavier without allowing one globe to dominate the screen.
+
+4. New-data absorption animation
+   - When a module changes, particles are spawned around that globe and are pulled inward.
+   - The globe absorbs the particles and performs a stronger big -> small -> big -> normal heartbeat.
+   - Its KeyCore connection flashes at the same time.
+   - Higher change magnitude can produce a stronger / repeated reaction.
+
+5. Existing live behavior retained
+   - Live refresh polling.
+   - Recent activity panel.
+   - Data-volume sizing.
+   - Drag / pan / zoom / reset.
+   - Pause / resume motion.
+   - Click a globe to open the corresponding KeySuite module.
+
+6. Compatibility
+   - The repository filename universe.js is intentionally retained so V3.7 can be upgraded by replacement only.
+   - Runtime public API is window.KeySuiteKeyCore.
+   - A backward compatibility alias for window.KeySuiteUniverse is retained for any V3.7 caller.
+   - No KeyES selection logic, quotation pricing logic, assembly calculations, or database schema is changed.

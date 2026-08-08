@@ -1,9 +1,9 @@
 (()=>{
   'use strict';
-  if(window.__KEYSUITE_UNIVERSE_V370__)return;
-  window.__KEYSUITE_UNIVERSE_V370__=true;
+  if(window.__KEYSUITE_KEYCORE_V380__)return;
+  window.__KEYSUITE_KEYCORE_V380__=true;
 
-  const VERSION='3.7';
+  const VERSION='3.8';
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
   const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
@@ -11,7 +11,7 @@
   const fmt=n=>Number(n||0).toLocaleString('en-MY');
   const safeJson=(value,fallback=null)=>{try{return JSON.parse(value)}catch(_){return fallback}};
   const now=()=>Date.now();
-  const state={open:false,paused:false,scale:1,panX:0,panY:0,dragging:false,startX:0,startY:0,startPanX:0,startPanY:0,lastSnapshot:null,poll:null,activity:[],lastRefreshAt:0};
+  const state={open:false,paused:false,scale:1,panX:0,panY:0,dragging:false,startX:0,startY:0,startPanX:0,startPanY:0,lastSnapshot:null,poll:null,activity:[],lastRefreshAt:0,raf:0,lastFrame:0,matrix:null,particleCtx:null,particles:[],inbound:[],coreParticles:[],moduleSizes:{}};
 
   const modules=[
     {id:'quotation',label:'Quotation',sub:'Total quotations',icon:'▤',tone:'purple',nav:()=>window.KeySuiteApp?.showPage?.('history')},
@@ -67,7 +67,7 @@
       .ksu-core::after{content:"";position:absolute;width:112px;height:112px;border-radius:50%;background:radial-gradient(circle,#fff 0 7%,#c5ffe7 16%,#53d7ae 30%,#0e806d 52%,rgba(4,38,50,.82) 67%,transparent 72%);box-shadow:0 0 26px rgba(102,255,210,.8),0 0 70px rgba(77,183,255,.35)}
       .ksu-core-label{position:relative;z-index:2;color:#e8fff8;text-shadow:0 2px 12px #001b17;font-weight:900;font-size:21px;margin-top:3px}.ksu-core-label small{display:block;font-weight:500;color:#a9c9c5;font-size:11px;margin-top:4px}
       .ksu-node{position:absolute;transform:translate(-50%,-50%);z-index:4;display:grid;place-items:center}.ksu-planet{--size:136px;--glow:#60a5fa;width:var(--size);height:var(--size);border-radius:50%;border:1px solid color-mix(in srgb,var(--glow) 70%,white 8%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;color:white;cursor:pointer;user-select:none;box-shadow:inset -28px -24px 42px rgba(0,0,0,.45),inset 14px 12px 26px rgba(255,255,255,.07),0 0 18px color-mix(in srgb,var(--glow) 48%,transparent),0 0 42px color-mix(in srgb,var(--glow) 20%,transparent);background:radial-gradient(circle at 32% 27%,color-mix(in srgb,var(--glow) 68%,white 16%),color-mix(in srgb,var(--glow) 48%,#07111f 36%) 31%,color-mix(in srgb,var(--glow) 26%,#030814 74%) 68%,#02050c 100%);animation:ksuHeartbeat var(--beat,5.8s) ease-in-out infinite;transition:width .65s ease,height .65s ease,filter .25s,box-shadow .25s;will-change:transform}
-      .ksu-paused .ksu-planet,.ksu-paused .ksu-live-dot,.ksu-paused .ksu-core::before{animation-play-state:paused!important}.ksu-planet:hover{filter:brightness(1.13);box-shadow:inset -28px -24px 42px rgba(0,0,0,.42),inset 14px 12px 28px rgba(255,255,255,.1),0 0 26px color-mix(in srgb,var(--glow) 66%,transparent),0 0 60px color-mix(in srgb,var(--glow) 30%,transparent)}
+      .ksu-paused .ksu-planet,.ksu-paused .ksu-live-dot,.ksu-paused .ksu-core::before,.ksu-paused .ksu-core::after,.ksu-paused .ksu-core-grid,.ksu-paused .ksu-planet::before,.ksu-paused .ksu-planet::after,.ksu-paused .ksu-node::after{animation-play-state:paused!important}.ksu-planet:hover{filter:brightness(1.13);box-shadow:inset -28px -24px 42px rgba(0,0,0,.42),inset 14px 12px 28px rgba(255,255,255,.1),0 0 26px color-mix(in srgb,var(--glow) 66%,transparent),0 0 60px color-mix(in srgb,var(--glow) 30%,transparent)}
       .ksu-planet::before{content:"";position:absolute;inset:-11px;border:1px solid color-mix(in srgb,var(--glow) 48%,transparent);border-radius:50%;opacity:.45}.ksu-planet::after{content:"";position:absolute;inset:-3px;border-top:2px solid color-mix(in srgb,var(--glow) 82%,white 8%);border-right:1px solid transparent;border-left:1px solid transparent;border-bottom:1px solid transparent;border-radius:50%;opacity:.8;filter:drop-shadow(0 0 6px var(--glow))}
       .ksu-planet.ksu-burst{animation:ksuBurst 1.05s cubic-bezier(.2,.7,.2,1),ksuHeartbeat var(--beat,5.8s) ease-in-out 1.05s infinite}.ksu-planet.ksu-burst::before{animation:ksuRipple 1.15s ease-out}
       .ksu-tone-purple{--glow:#c65dff}.ksu-tone-green{--glow:#56e982}.ksu-tone-orange{--glow:#ff9f43}.ksu-tone-blue{--glow:#4aa3ff}.ksu-tone-cyan{--glow:#25dff2}.ksu-tone-gold{--glow:#ffd84d}.ksu-tone-steel{--glow:#6eb7ff}.ksu-tone-red{--glow:#ff5c67}
@@ -80,6 +80,31 @@
       .ksu-minimap{right:18px;bottom:18px;width:196px;height:106px;padding:9px;overflow:hidden}.ksu-minimap-world{position:relative;width:100%;height:74px}.ksu-mini-center{position:absolute;left:50%;top:50%;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);background:#4ade80;box-shadow:0 0 12px #4ade80}.ksu-mini-node{position:absolute;width:8px;height:8px;border-radius:50%;transform:translate(-50%,-50%);background:#60a5fa;box-shadow:0 0 7px currentColor}.ksu-mini-ring-map{position:absolute;left:50%;top:50%;width:150px;height:52px;border:1px solid rgba(99,161,255,.18);border-radius:50%;transform:translate(-50%,-50%) rotate(-8deg)}
       .ksu-hint{position:absolute;z-index:8;left:50%;bottom:18px;transform:translateX(-50%);border:1px solid rgba(148,163,184,.18);background:rgba(3,12,24,.64);border-radius:999px;padding:9px 14px;color:#a9bfd0;font-size:10px;pointer-events:none;backdrop-filter:blur(7px)}
       .ksu-toast{position:absolute;z-index:30;left:50%;top:104px;transform:translate(-50%,-12px);opacity:0;pointer-events:none;background:rgba(12,28,42,.96);color:#eaf7ff;border:1px solid rgba(94,234,212,.35);border-radius:10px;padding:10px 14px;box-shadow:0 18px 40px rgba(0,0,0,.3);transition:.25s;font-size:12px}.ksu-toast.show{opacity:1;transform:translate(-50%,0)}
+      .ksu-matrix{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.34;pointer-events:none;mix-blend-mode:screen;filter:blur(.05px)}
+      .ksu-stars{z-index:0;opacity:.62!important;background:radial-gradient(circle at 14% 20%,rgba(31,255,145,.22),transparent 1px),radial-gradient(circle at 70% 17%,rgba(117,255,196,.5),transparent 1.2px),radial-gradient(circle at 41% 81%,rgba(0,255,183,.35),transparent 1px),radial-gradient(circle at 84% 62%,rgba(255,255,255,.38),transparent 1px),linear-gradient(180deg,#010604 0%,#020d0a 50%,#000503 100%)!important}
+      .ksu-nebula{z-index:0;background:radial-gradient(ellipse at 50% 52%,rgba(0,255,174,.15),transparent 34%),radial-gradient(ellipse at 48% 52%,rgba(0,133,92,.13),transparent 48%),repeating-linear-gradient(90deg,rgba(44,255,171,.025) 0 1px,transparent 1px 72px),repeating-linear-gradient(0deg,rgba(44,255,171,.018) 0 1px,transparent 1px 72px)!important}
+      .ksu-topbar{background:linear-gradient(180deg,rgba(0,7,5,.97),rgba(0,10,7,.78),transparent)!important;border-bottom-color:rgba(52,255,169,.14)!important}
+      .ksu-kicker{font:700 9px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:2.1px;color:#38ffad;margin-bottom:4px;text-shadow:0 0 12px rgba(56,255,173,.55)}
+      .ksu-title h1{color:#d9ffed!important;text-shadow:0 0 18px rgba(51,255,170,.26);letter-spacing:.4px}.ksu-title p{color:#7fbd9f!important}
+      .ksu-control{border-color:rgba(58,255,172,.24)!important;background:rgba(0,18,12,.72)!important;color:#d9ffed!important}.ksu-control:hover{border-color:rgba(58,255,172,.68)!important;background:rgba(0,34,22,.9)!important;box-shadow:0 0 22px rgba(28,255,157,.12)}
+      .ksu-world::before{content:"";position:absolute;left:50%;top:51%;width:1100px;height:560px;transform:translate(-50%,-50%) rotate(-8deg);border-radius:50%;background:repeating-radial-gradient(ellipse at center,transparent 0 42px,rgba(45,255,169,.028) 43px,transparent 44px 80px);filter:drop-shadow(0 0 14px rgba(32,255,162,.11));pointer-events:none}
+      .ksu-particles{position:absolute;inset:0;width:1600px;height:950px;z-index:2;pointer-events:none;overflow:visible;mix-blend-mode:screen}
+      .ksu-orbit{border-color:rgba(41,255,165,.13)!important;box-shadow:0 0 18px rgba(42,255,168,.035),inset 0 0 18px rgba(42,255,168,.025)}.ksu-orbit.o4{border-color:rgba(41,255,165,.09)!important}
+      .ksu-line{stroke:rgba(57,255,175,.19)!important;stroke-dasharray:2 10!important}.ksu-line.ksu-flash{stroke:#63ffc1!important;filter:drop-shadow(0 0 9px rgba(71,255,185,.95))!important}
+      .ksu-core{width:270px!important;height:270px!important}.ksu-core::before{width:500px!important;height:205px!important;background:conic-gradient(from 20deg,rgba(0,255,169,.02),rgba(33,255,169,.28),rgba(216,255,237,.86),rgba(0,255,183,.22),rgba(0,109,74,.12),rgba(0,255,169,.02))!important;filter:blur(14px)!important;box-shadow:0 0 80px rgba(28,255,162,.2)!important}.ksu-core::after{width:156px!important;height:156px!important;background:radial-gradient(circle at 38% 32%,#eafff5 0 4%,#78ffbf 7%,#20cb88 19%,#086544 44%,#04261a 65%,#00130d 80%,transparent 82%)!important;box-shadow:inset -25px -20px 38px rgba(0,0,0,.52),inset 12px 10px 22px rgba(158,255,210,.16),0 0 32px rgba(70,255,180,.75),0 0 100px rgba(27,255,161,.26)!important;animation:ksuCoreBreath 5.2s ease-in-out infinite}
+      .ksu-core-grid{position:absolute;width:150px;height:150px;border-radius:50%;z-index:1;opacity:.44;background:repeating-linear-gradient(0deg,transparent 0 10px,rgba(124,255,199,.11) 11px),repeating-linear-gradient(90deg,transparent 0 10px,rgba(124,255,199,.08) 11px);clip-path:circle(49%);animation:ksuCoreGrid 13s linear infinite}
+      .ksu-core-label{z-index:4!important;margin-top:0!important;font-family:ui-monospace,SFMono-Regular,Consolas,monospace!important}.ksu-core-label strong{display:block;font-size:24px;color:#dfffee;text-shadow:0 0 18px rgba(89,255,185,.7)}.ksu-core-label span{display:block;margin-top:8px;color:#52ffae;font-size:9px;letter-spacing:1.7px}.ksu-core-label small{font-size:8px!important;letter-spacing:1.1px;color:#79b79a!important}
+      .ksu-node::before,.ksu-node::after{content:"";position:absolute;border-radius:50%;pointer-events:none}.ksu-node::before{width:calc(var(--node-size,136px) + 34px);height:calc(var(--node-size,136px) + 34px);border:1px solid rgba(79,255,188,.09);transform:rotateX(63deg) rotateZ(-12deg);box-shadow:0 0 15px rgba(79,255,188,.035)}.ksu-node::after{width:6px;height:6px;background:var(--node-glow,#5cffb2);box-shadow:0 0 12px var(--node-glow,#5cffb2);animation:ksuNodeSatellite 6.5s linear infinite;transform-origin:calc((var(--node-size,136px) + 48px)/2) 3px}
+      .ksu-local-orbit{position:absolute;width:calc(var(--node-size,136px) + 64px);height:calc(var(--node-size,136px) + 26px);border:1px solid color-mix(in srgb,var(--node-glow,#55ffb2) 24%,transparent);border-radius:50%;transform:rotate(-10deg);opacity:.45;pointer-events:none}
+      .ksu-planet{background:radial-gradient(circle at 30% 24%,color-mix(in srgb,var(--glow) 64%,white 12%),color-mix(in srgb,var(--glow) 40%,#02110b 48%) 29%,color-mix(in srgb,var(--glow) 19%,#020805 80%) 68%,#010302 100%)!important;border-color:color-mix(in srgb,var(--glow) 58%,#aaffd9 12%)!important;box-shadow:inset -28px -24px 42px rgba(0,0,0,.58),inset 14px 12px 28px rgba(210,255,231,.07),0 0 18px color-mix(in srgb,var(--glow) 50%,transparent),0 0 55px color-mix(in srgb,var(--glow) 18%,transparent)!important}
+      .ksu-planet::before{inset:-13px!important;border-style:dashed!important;animation:ksuRingSpin 14s linear infinite}.ksu-planet::after{animation:ksuRingSpinReverse 9s linear infinite}
+      .ksu-icon{background:rgba(0,12,8,.52)!important}.ksu-label{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.25px}.ksu-value{text-shadow:0 0 14px color-mix(in srgb,var(--glow) 65%,transparent)}.ksu-sub{color:#82ad99!important}.ksu-delta{color:#54ffab!important}
+      .ksu-leftpanel,.ksu-legend,.ksu-minimap,.ksu-zoom{border-color:rgba(59,255,171,.16)!important;background:rgba(0,13,9,.76)!important;box-shadow:0 14px 34px rgba(0,0,0,.32),inset 0 0 24px rgba(44,255,166,.018)!important}.ksu-panel-title{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#78ffc0!important;letter-spacing:.9px}.ksu-activity-item{border-top-color:rgba(63,255,172,.07)!important}.ksu-activity-item b{color:#d9ffec!important}.ksu-activity-item span,.ksu-legend-row{color:#66967e!important}.ksu-hint{border-color:rgba(59,255,171,.16)!important;background:rgba(0,13,9,.72)!important;color:#6eb38e!important;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.65px}
+      #ksu-overlay.ksu-absorbing .ksu-core::after{box-shadow:0 0 46px rgba(88,255,190,.95),0 0 140px rgba(35,255,166,.5)!important}
+      @keyframes ksuCoreBreath{0%,100%{transform:scale(1);filter:brightness(.94)}14%{transform:scale(1.045);filter:brightness(1.12)}21%{transform:scale(.992)}28%{transform:scale(1.025)}38%{transform:scale(1)}}
+      @keyframes ksuCoreGrid{to{transform:rotate(360deg)}}
+      @keyframes ksuRingSpin{to{transform:rotate(360deg)}}@keyframes ksuRingSpinReverse{to{transform:rotate(-360deg)}}
+      @keyframes ksuNodeSatellite{0%{transform:rotate(0deg) translateX(calc((var(--node-size,136px) + 46px)/2))}100%{transform:rotate(360deg) translateX(calc((var(--node-size,136px) + 46px)/2))}}
       @keyframes ksuHeartbeat{0%,12%,100%{transform:scale(1)}16%{transform:scale(1.023)}21%{transform:scale(.995)}26%{transform:scale(1.016)}34%{transform:scale(1)}}
       @keyframes ksuBurst{0%{transform:scale(1)}18%{transform:scale(1.08)}34%{transform:scale(.98)}52%{transform:scale(1.055)}72%,100%{transform:scale(1)}}
       @keyframes ksuRipple{0%{transform:scale(.96);opacity:.9}100%{transform:scale(1.32);opacity:0}}
@@ -101,12 +126,12 @@
   function injectLaunchers(){
     const nav=$('#appView nav')||$('aside nav');
     if(nav&&!$('#ksu-nav')){
-      const b=document.createElement('button');b.id='ksu-nav';b.type='button';b.innerHTML='◉&nbsp;&nbsp;Universe View';b.addEventListener('click',open);nav.appendChild(b);
+      const b=document.createElement('button');b.id='ksu-nav';b.type='button';b.innerHTML='◎&nbsp;&nbsp;KeyCore';b.addEventListener('click',open);nav.appendChild(b);
     }
     const dashboard=$('#dashboard');
     if(dashboard&&!$('#ksu-launch')){
       const start=$('.dashboard-start-card',dashboard);
-      const card=document.createElement('div');card.className='card ksu-launch';card.id='ksu-launch';card.innerHTML=`<div class="ksu-launch-inner"><div class="ksu-launch-copy"><h2>KeySuite Universe</h2><div class="muted">Explore quotation, customer, pricing, product and assembly data as a live data universe. Planet size follows data volume and activity triggers a heartbeat pulse.</div><div class="ksu-launch-actions"><button class="ksu-launch-btn" id="ksu-launch-button" type="button">◉ Enter Universe View</button><span class="muted">Drag · zoom · click a planet to open it</span></div></div><div class="ksu-mini-orbit" aria-hidden="true"><div class="ksu-mini-ring r2"></div><div class="ksu-mini-ring r1"></div><div class="ksu-mini-core"></div><i class="ksu-mini-dot d1"></i><i class="ksu-mini-dot d2"></i><i class="ksu-mini-dot d3"></i><i class="ksu-mini-dot d4"></i></div></div>`;
+      const card=document.createElement('div');card.className='card ksu-launch';card.id='ksu-launch';card.innerHTML=`<div class="ksu-launch-inner"><div class="ksu-launch-copy"><h2>KeyCore</h2><div class="muted">Enter the live AI core of KeySuite. Data globes grow with stored information, orbiting particles show data gravity, and new activity triggers absorption pulses and heartbeat reactions.</div><div class="ksu-launch-actions"><button class="ksu-launch-btn" id="ksu-launch-button" type="button">◎ Enter KeyCore</button><span class="muted">AI matrix · data gravity · drag · zoom · explore</span></div></div><div class="ksu-mini-orbit" aria-hidden="true"><div class="ksu-mini-ring r2"></div><div class="ksu-mini-ring r1"></div><div class="ksu-mini-core"></div><i class="ksu-mini-dot d1"></i><i class="ksu-mini-dot d2"></i><i class="ksu-mini-dot d3"></i><i class="ksu-mini-dot d4"></i></div></div>`;
       (start?.parentNode||dashboard).insertBefore(card,start?.nextSibling||dashboard.firstChild);
       $('#ksu-launch-button',card)?.addEventListener('click',open);
     }
@@ -114,17 +139,17 @@
 
   function buildOverlay(){
     if($('#ksu-overlay'))return;
-    const overlay=document.createElement('div');overlay.id='ksu-overlay';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-label','KeySuite Universe View');
+    const overlay=document.createElement('div');overlay.id='ksu-overlay';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-label','KeyCore');
     overlay.innerHTML=`
-      <div class="ksu-stars"></div><div class="ksu-nebula"></div>
-      <header class="ksu-topbar"><div class="ksu-title"><h1>KeySuite Universe</h1><p>Live view of your KeySuite data. Explore, zoom and discover connections.</p><div class="ksu-live"><span class="ksu-live-dot"></span><b>Live Sync</b><span id="ksu-sync-time">Preparing data…</span></div></div><div class="ksu-top-actions"><button class="ksu-control" id="ksu-pause" type="button">Ⅱ Pause motion</button><button class="ksu-control" id="ksu-refresh" type="button">↻ Refresh</button><button class="ksu-control" id="ksu-close" type="button">← Back to Dashboard</button></div></header>
+      <canvas class="ksu-matrix" id="ksu-matrix" aria-hidden="true"></canvas><div class="ksu-stars"></div><div class="ksu-nebula"></div>
+      <header class="ksu-topbar"><div class="ksu-title"><div class="ksu-kicker">KEYSUITE // INTELLIGENT DATA CORE</div><h1>KeyCore</h1><p>Your data. Connected. Intelligent. Watch information gain gravity as KeySuite grows.</p><div class="ksu-live"><span class="ksu-live-dot"></span><b>Live Sync</b><span id="ksu-sync-time">Preparing data…</span></div></div><div class="ksu-top-actions"><button class="ksu-control" id="ksu-pause" type="button">Ⅱ Pause motion</button><button class="ksu-control" id="ksu-refresh" type="button">↻ Refresh</button><button class="ksu-control" id="ksu-close" type="button">← Back to Dashboard</button></div></header>
       <div class="ksu-viewport" id="ksu-viewport">
-        <div class="ksu-world" id="ksu-world"><div class="ksu-orbit o1"></div><div class="ksu-orbit o2"></div><div class="ksu-orbit o3"></div><div class="ksu-orbit o4"></div><svg class="ksu-connectors" id="ksu-connectors" viewBox="0 0 1600 950" preserveAspectRatio="none"></svg><div class="ksu-core"><div class="ksu-core-label">KeySuite<small>V${VERSION} · live data core</small></div></div></div>
-        <section class="ksu-leftpanel"><div class="ksu-panel-title">⌁ Recent Activity</div><div class="ksu-activity-list" id="ksu-activity-list"><div class="ksu-empty">Universe is synchronising…</div></div></section>
-        <section class="ksu-legend"><div class="ksu-panel-title">Data Volume</div><div class="ksu-legend-row">Smaller → Larger</div><div class="ksu-legend-dots"><i></i><i></i><i></i><i></i><i></i></div><div class="ksu-panel-title" style="margin-top:12px">Activity</div><div class="ksu-legend-row">Heartbeat = recent changes</div><svg class="ksu-heartline" viewBox="0 0 150 22"><path d="M1 12h28l5-7 7 14 8-11 5 4h26l6-9 8 17 8-12 6 4h41" fill="none" stroke="#7debd7" stroke-width="1.5"/></svg></section>
+        <div class="ksu-world" id="ksu-world"><canvas class="ksu-particles" id="ksu-particles" width="1600" height="950" aria-hidden="true"></canvas><div class="ksu-orbit o1"></div><div class="ksu-orbit o2"></div><div class="ksu-orbit o3"></div><div class="ksu-orbit o4"></div><svg class="ksu-connectors" id="ksu-connectors" viewBox="0 0 1600 950" preserveAspectRatio="none"></svg><div class="ksu-core"><div class="ksu-core-grid"></div><div class="ksu-core-label"><strong>KeyCore</strong><span id="ksu-core-pulse">SYSTEM ONLINE</span><small>V${VERSION} · DATA GRAVITY ACTIVE</small></div></div></div>
+        <section class="ksu-leftpanel"><div class="ksu-panel-title">⌁ Recent Activity</div><div class="ksu-activity-list" id="ksu-activity-list"><div class="ksu-empty">KeyCore is synchronising…</div></div></section>
+        <section class="ksu-legend"><div class="ksu-panel-title">DATA GRAVITY</div><div class="ksu-legend-row">More records → larger globe + denser orbit</div><div class="ksu-legend-dots"><i></i><i></i><i></i><i></i><i></i></div><div class="ksu-panel-title" style="margin-top:12px">LIVE ACTIVITY</div><div class="ksu-legend-row">New data → particles absorb → heartbeat</div><svg class="ksu-heartline" viewBox="0 0 150 22"><path d="M1 12h28l5-7 7 14 8-11 5 4h26l6-9 8 17 8-12 6 4h41" fill="none" stroke="#7debd7" stroke-width="1.5"/></svg></section>
         <div class="ksu-zoom"><button id="ksu-plus" type="button" title="Zoom in">+</button><div class="ksu-zoom-read" id="ksu-zoom-read">100%</div><button id="ksu-minus" type="button" title="Zoom out">−</button><button class="ksu-center" id="ksu-reset" type="button" title="Reset view">◎</button></div>
         <div class="ksu-minimap"><div class="ksu-minimap-world"><div class="ksu-mini-ring-map"></div><div class="ksu-mini-center"></div></div></div>
-        <div class="ksu-hint">Drag to move &nbsp;·&nbsp; Scroll to zoom &nbsp;·&nbsp; Click a planet to explore</div><div class="ksu-toast" id="ksu-toast"></div>
+        <div class="ksu-hint">DRAG TO NAVIGATE &nbsp;·&nbsp; SCROLL TO ZOOM &nbsp;·&nbsp; CLICK A DATA GLOBE TO OPEN</div><div class="ksu-toast" id="ksu-toast"></div>
       </div>`;
     document.body.appendChild(overlay);
     createPlanets();createConnectors();bindControls();
@@ -135,7 +160,7 @@
     modules.forEach((m,i)=>{
       const [x,y]=modulePosition[m.id];
       const node=document.createElement('div');node.className='ksu-node';node.dataset.module=m.id;node.style.left=`${x}%`;node.style.top=`${y}%`;
-      node.innerHTML=`<button type="button" class="ksu-planet ksu-tone-${m.tone}" data-planet="${m.id}" aria-label="Open ${m.label}"><span class="ksu-badge"></span><span class="ksu-icon">${m.icon}</span><span class="ksu-label">${m.label}</span><span class="ksu-value" data-value>—</span><span class="ksu-sub">${m.sub}</span><span class="ksu-delta" data-delta></span></button>`;
+      node.innerHTML=`<div class="ksu-local-orbit" aria-hidden="true"></div><button type="button" class="ksu-planet ksu-tone-${m.tone}" data-planet="${m.id}" aria-label="Open ${m.label}"><span class="ksu-badge"></span><span class="ksu-icon">${m.icon}</span><span class="ksu-label">${m.label}</span><span class="ksu-value" data-value>—</span><span class="ksu-sub">${m.sub}</span><span class="ksu-delta" data-delta></span></button>`;
       world.appendChild(node);$('.ksu-planet',node).addEventListener('click',e=>{e.stopPropagation();close();setTimeout(()=>m.nav(),60)});
       const dot=document.createElement('i');dot.className='ksu-mini-node';dot.style.left=`${x}%`;dot.style.top=`${y}%`;dot.style.color=['#c65dff','#56e982','#ff9f43','#4aa3ff','#25dff2','#ffd84d','#6eb7ff','#ff5c67'][i];mini?.appendChild(dot);
     });
@@ -200,6 +225,8 @@
     state.lastRefreshAt=now();
     $('#ksu-sync-time').textContent='Syncing…';
     const snap=await collectSnapshot();const values=modules.map(m=>num(snap[m.id])).filter(n=>n>0),maxValue=Math.max(1,...values);
+    rebuildParticles(snap,maxValue);
+    const corePulse=$('#ksu-core-pulse');if(corePulse){const live=values.reduce((a,b)=>a+b,0);corePulse.textContent=`SYSTEM ONLINE · ${fmt(live)} DATA POINTS`;}
     modules.forEach((m,index)=>{
       const value=num(snap[m.id]);const planet=$(`[data-planet="${m.id}"]`);if(!planet)return;
       planet.style.setProperty('--size',`${moduleSize(value,maxValue)}px`);
@@ -217,17 +244,39 @@
 
   function burst(id,magnitude=1){
     const planet=$(`[data-planet="${id}"]`),line=$(`[data-line="${id}"]`);if(!planet)return;
-    planet.classList.remove('ksu-burst');void planet.offsetWidth;planet.classList.add('ksu-burst');line?.classList.remove('ksu-flash');if(line){void line.getBoundingClientRect();line.classList.add('ksu-flash')}
+    planet.classList.remove('ksu-burst');void planet.offsetWidth;planet.classList.add('ksu-burst');spawnAbsorption(id,magnitude);line?.classList.remove('ksu-flash');if(line){void line.getBoundingClientRect();line.classList.add('ksu-flash')}
     setTimeout(()=>{planet.classList.remove('ksu-burst');line?.classList.remove('ksu-flash')},1500);
     if(Math.abs(magnitude)>1&&!state.paused)setTimeout(()=>{planet.classList.add('ksu-burst');setTimeout(()=>planet.classList.remove('ksu-burst'),1100)},520);
   }
+
+  function toneHex(id){return {quotation:'#c65dff',customers:'#56e982',price:'#ffb347',curves:'#4aa3ff',keyai:'#25dff2',assembly:'#ffd84d',products:'#6eb7ff',alerts:'#ff5c67'}[id]||'#55ffb2'}
+  function hexRgb(hex){const h=String(hex).replace('#','');const n=parseInt(h.length===3?h.split('').map(x=>x+x).join(''):h,16);return [(n>>16)&255,(n>>8)&255,n&255]}
+  function ensureCanvasSize(){
+    const c=$('#ksu-matrix');if(c){const dpr=Math.min(2,window.devicePixelRatio||1),w=Math.max(1,Math.round(c.clientWidth*dpr)),h=Math.max(1,Math.round(c.clientHeight*dpr));if(c.width!==w||c.height!==h){c.width=w;c.height=h;state.matrix={dpr,w,h,font:Math.round(13*dpr),drops:[]};const cols=Math.ceil(w/(13*dpr));state.matrix.drops=Array.from({length:cols},()=>Math.random()*-80)}}
+    const p=$('#ksu-particles');if(p&&!state.particleCtx)state.particleCtx=p.getContext('2d');
+  }
+  function rebuildParticles(snap,maxValue){
+    const items=[];modules.forEach(m=>{const value=num(snap[m.id]),size=moduleSize(value,maxValue),[px,py]=modulePosition[m.id],cx=px*16,cy=py*9.5;state.moduleSizes[m.id]=size;const node=$(`[data-module="${m.id}"]`);if(node){node.style.setProperty('--node-size',`${size}px`);node.style.setProperty('--node-glow',toneHex(m.id))}
+      const density=value<=0?5:Math.round(7+22*Math.sqrt(Math.log10(value+1)/Math.max(1,Math.log10(maxValue+1))));
+      for(let i=0;i<density;i++){const r=size*.55+15+Math.random()*(26+size*.14);items.push({module:m.id,cx,cy,r,ry:r*(.34+Math.random()*.22),a:Math.random()*Math.PI*2,s:(.00028+Math.random()*.00055)*(Math.random()<.5?-1:1),z:.45+Math.random()*.8,tw:Math.random()*Math.PI*2})}
+    });state.particles=items;
+    if(!state.coreParticles.length)state.coreParticles=Array.from({length:44},(_,i)=>({a:Math.random()*Math.PI*2,r:105+Math.random()*115,ry:32+Math.random()*53,s:(.00018+Math.random()*.00042)*(i%2?1:-1),z:.35+Math.random()*.9,tw:Math.random()*6.28}));
+  }
+  function spawnAbsorption(id,magnitude=1){const [px,py]=modulePosition[id]||[50,50],cx=px*16,cy=py*9.5,size=state.moduleSizes[id]||136,count=clamp(5+Math.round(Math.abs(magnitude)*2),6,18),color=toneHex(id);for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2,r=size*.8+75+Math.random()*130;state.inbound.push({id,cx,cy,startX:cx+Math.cos(a)*r,startY:cy+Math.sin(a)*r*(.45+Math.random()*.35),born:performance.now()+Math.random()*250,dur:780+Math.random()*650,color,size:1.2+Math.random()*2.4})}$('#ksu-overlay')?.classList.add('ksu-absorbing');setTimeout(()=>$('#ksu-overlay')?.classList.remove('ksu-absorbing'),1300)}
+  function drawMatrix(dt){const c=$('#ksu-matrix'),m=state.matrix;if(!c||!m)return;const ctx=c.getContext('2d');ctx.fillStyle='rgba(0,5,3,.105)';ctx.fillRect(0,0,m.w,m.h);ctx.font=`${m.font}px ui-monospace,Consolas,monospace`;ctx.textAlign='center';const step=m.font,chars='01KEYCORE<>/{}[]:+*';for(let i=0;i<m.drops.length;i++){const x=i*step+step/2,y=m.drops[i]*step;const ch=chars[Math.floor(Math.random()*chars.length)];ctx.fillStyle=Math.random()>.985?'rgba(210,255,232,.9)':`rgba(42,255,163,${.10+Math.random()*.32})`;ctx.fillText(ch,x,y);m.drops[i]+=.38+Math.random()*.18;if(y>m.h&&Math.random()>.975)m.drops[i]=Math.random()*-35}}
+  function drawWorldParticles(t,dt){const ctx=state.particleCtx;if(!ctx)return;ctx.clearRect(0,0,1600,950);ctx.globalCompositeOperation='lighter';
+    for(const p of state.coreParticles){p.a+=p.s*dt;const x=800+Math.cos(p.a)*p.r,y=484+Math.sin(p.a)*p.ry,alpha=.16+.32*(.5+.5*Math.sin(t*.002+p.tw));ctx.fillStyle=`rgba(72,255,177,${alpha*p.z})`;ctx.beginPath();ctx.arc(x,y,.7+1.25*p.z,0,6.283);ctx.fill()}
+    for(const p of state.particles){p.a+=p.s*dt;const x=p.cx+Math.cos(p.a)*p.r,y=p.cy+Math.sin(p.a)*p.ry,alpha=.25+.45*(.5+.5*Math.sin(t*.0024+p.tw)),rgb=hexRgb(toneHex(p.module));ctx.fillStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha*p.z})`;ctx.beginPath();ctx.arc(x,y,.65+1.15*p.z,0,6.283);ctx.fill();if(p.z>.9){ctx.strokeStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha*.18})`;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-Math.sin(p.a)*5,y+Math.cos(p.a)*2);ctx.stroke()}}
+    const now=performance.now();state.inbound=state.inbound.filter(p=>{if(now<p.born)return true;const u=clamp((now-p.born)/p.dur,0,1),ease=1-Math.pow(1-u,3),bend=Math.sin(u*Math.PI)*(16+((p.startX+p.startY)%23)),x=p.startX+(p.cx-p.startX)*ease+bend*.22,y=p.startY+(p.cy-p.startY)*ease-bend*.12,rgb=hexRgb(p.color),alpha=(1-u)*.9+.08;ctx.fillStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha})`;ctx.shadowBlur=8;ctx.shadowColor=p.color;ctx.beginPath();ctx.arc(x,y,p.size*(1-u*.55),0,6.283);ctx.fill();ctx.shadowBlur=0;return u<1});ctx.globalCompositeOperation='source-over'}
+  function animationLoop(t){if(!state.open){state.raf=0;return}ensureCanvasSize();const dt=Math.min(40,Math.max(8,t-(state.lastFrame||t)));state.lastFrame=t;if(!state.paused){drawMatrix(dt);drawWorldParticles(t,dt)}state.raf=requestAnimationFrame(animationLoop)}
+  function startAnimation(){cancelAnimationFrame(state.raf);state.lastFrame=0;ensureCanvasSize();state.raf=requestAnimationFrame(animationLoop)}
 
   function transformWorld(){const w=$('#ksu-world');if(!w)return;w.style.transform=`translate(calc(-50% + ${state.panX}px),calc(-50% + ${state.panY}px)) scale(${state.scale})`;$('#ksu-zoom-read').textContent=`${Math.round(state.scale*100)}%`}
   function zoomBy(delta,cx=null,cy=null){state.scale=clamp(state.scale+delta,.55,1.8);transformWorld()}
   function resetView(){state.scale=1;state.panX=0;state.panY=0;transformWorld()}
   function bindControls(){
     $('#ksu-close').addEventListener('click',close);$('#ksu-refresh').addEventListener('click',()=>refresh({forceBurst:true}));$('#ksu-plus').addEventListener('click',()=>zoomBy(.12));$('#ksu-minus').addEventListener('click',()=>zoomBy(-.12));$('#ksu-reset').addEventListener('click',resetView);
-    $('#ksu-pause').addEventListener('click',()=>{state.paused=!state.paused;$('#ksu-overlay').classList.toggle('ksu-paused',state.paused);$('#ksu-pause').textContent=state.paused?'▶ Resume motion':'Ⅱ Pause motion'});
+    $('#ksu-pause').addEventListener('click',()=>{state.paused=!state.paused;$('#ksu-overlay').classList.toggle('ksu-paused',state.paused);$('#ksu-pause').textContent=state.paused?'▶ Resume motion':'Ⅱ Pause motion';if(!state.paused)startAnimation()});
     const vp=$('#ksu-viewport');
     vp.addEventListener('wheel',e=>{e.preventDefault();zoomBy(e.deltaY<0?.08:-.08)},{passive:false});
     vp.addEventListener('pointerdown',e=>{if(e.target.closest('button,.ksu-leftpanel,.ksu-legend,.ksu-minimap'))return;state.dragging=true;state.startX=e.clientX;state.startY=e.clientY;state.startPanX=state.panX;state.startPanY=state.panY;vp.classList.add('ksu-dragging');vp.setPointerCapture?.(e.pointerId)});
@@ -239,10 +288,10 @@
   function toast(message){const t=$('#ksu-toast');if(!t){alert(message);return}t.textContent=message;t.classList.add('show');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),3000)}
   async function open(){
     buildOverlay();updateSideWidth();state.open=true;$('#ksu-overlay').classList.add('ksu-open');$('#ksu-nav')?.classList.add('ksu-active');document.body.style.overflow='hidden';resetView();
-    await refresh();
+    await refresh();startAnimation();
     clearInterval(state.poll);state.poll=setInterval(()=>{if(state.open)refresh()},12000);
   }
-  function close(){state.open=false;$('#ksu-overlay')?.classList.remove('ksu-open');$('#ksu-nav')?.classList.remove('ksu-active');document.body.style.overflow='';clearInterval(state.poll);state.poll=null}
+  function close(){state.open=false;$('#ksu-overlay')?.classList.remove('ksu-open');$('#ksu-nav')?.classList.remove('ksu-active');document.body.style.overflow='';clearInterval(state.poll);state.poll=null;cancelAnimationFrame(state.raf);state.raf=0}
 
   function watchLiveChanges(){
     window.addEventListener('keysuite-customers-changed',()=>{if(state.open){burst('customers',1);addActivity('customers','Customer data updated','Secure customer list changed');setTimeout(refresh,250)}});
@@ -253,7 +302,8 @@
 
   function init(){
     injectStyles();installVersionLabels();injectLaunchers();buildOverlay();updateSideWidth();watchLiveChanges();window.addEventListener('resize',updateSideWidth);
-    window.KeySuiteUniverse={open,close,refresh,burst,version:VERSION};
+    window.KeySuiteKeyCore={open,close,refresh,burst,version:VERSION};
+    window.KeySuiteUniverse=window.KeySuiteKeyCore; // backward compatibility for V3.7 callers
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,0),{once:true});else setTimeout(init,0);
 })();

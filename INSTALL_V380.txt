@@ -1,0 +1,29 @@
+KeySuite V3.8 - KeyCore installation
+====================================
+
+Base expected
+-------------
+Existing KeySuite V3.7 deployment.
+
+Upload to GitHub root
+---------------------
+1. universe.js
+2. sw.js
+
+You may also upload the release documentation files; they are not required at runtime.
+
+Important
+---------
+- Replace the existing universe.js and sw.js with the V3.8 copies.
+- Keep your existing config.js unchanged.
+- No Supabase SQL migration is required.
+- No KeyAI Edge Function redeployment is required.
+- Do not delete or rename universe.js. V3.8 intentionally uses that same filename for a clean V3.7 upgrade.
+
+After GitHub deployment
+-----------------------
+1. Open KeySuite once while online.
+2. Reload once more, or close and reopen the installed PWA, so the V3.8 service worker becomes active.
+3. Confirm the left navigation shows KeyCore.
+4. Open Dashboard and confirm the KeyCore launcher appears below Start New.
+5. Enter KeyCore and confirm the Matrix background, orbiting particles and live heartbeat animation are visible.

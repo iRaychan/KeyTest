@@ -1,0 +1,4 @@
+KeySuite V3.8 does NOT require a Supabase migration.
+
+This release changes only the KeyCore browser visualization and service-worker cache/injection version.
+Database tables, pricing functions, quotation numbering, permissions, KeyAI functions and KeyES engineering data are unchanged.

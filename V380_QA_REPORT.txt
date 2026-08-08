@@ -1,0 +1,33 @@
+KeySuite V3.8 - QA report
+========================
+
+Static checks completed
+-----------------------
+PASS - universe.js parses successfully with Node.js syntax check.
+PASS - sw.js parses successfully with Node.js syntax check.
+PASS - version updated to 3.8.
+PASS - service-worker cache updated to keysuite-v380-keycore.
+PASS - injected script query updated to universe.js?v=380.
+PASS - no user-facing "Universe View", "KeySuite Universe", "Enter Universe", or "data universe" wording remains.
+PASS - KeyCore launcher, title and center label present.
+PASS - Matrix canvas layer present.
+PASS - world particle canvas layer present.
+PASS - data-volume globe sizing retained.
+PASS - per-module orbit particle density is based on data volume.
+PASS - new-data burst now triggers particle absorption plus heartbeat and connection flash.
+PASS - pause/resume includes the new animation layers.
+PASS - V3.7 runtime alias retained for compatibility.
+PASS - no database migration introduced.
+
+Deployment smoke-test checklist
+-------------------------------
+- KeyCore button visible in sidebar.
+- KeyCore launcher visible on Dashboard.
+- KeyCore opens without changing the normal Dashboard.
+- Matrix data rain animates.
+- Small particles orbit each data globe.
+- Data-heavy globes are larger and have denser particle fields.
+- Refresh/activity produces inward particle attraction and heartbeat burst.
+- Drag / zoom / reset work.
+- Pause stops visual motion and Resume restarts it.
+- Clicking a data globe opens the expected KeySuite area.
