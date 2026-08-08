@@ -1,9 +1,9 @@
 (()=>{
   'use strict';
-  if(window.__KEYSUITE_KEYCORE_V381__)return;
-  window.__KEYSUITE_KEYCORE_V381__=true;
+  if(window.__KEYSUITE_KEYCORE_V383__)return;
+  window.__KEYSUITE_KEYCORE_V383__=true;
 
-  const VERSION='3.8.1';
+  const VERSION='3.8.3';
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
   const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
@@ -17,13 +17,13 @@
     {id:'quotation',label:'Quotation',sub:'Total quotations',icon:'▤',tone:'purple',nav:()=>window.KeySuiteApp?.showPage?.('history')},
     {id:'customers',label:'Customers',sub:'Active customers',icon:'♟',tone:'green',nav:()=>window.KeySuiteApp?.showPage?.('customers')},
     {id:'price',label:'Price List',sub:'Source price items',icon:'▦',tone:'orange',nav:()=>window.KeySuiteApp?.showPage?.('priceListDashboard')},
-    {id:'curves',label:'Pump Curves',sub:'CHC + ES models',icon:'⌁',tone:'blue',nav:()=>window.KeySuiteApp?.showPage?.('selectorEs')},
+    {id:'curves',label:'Pump Curves',sub:'CHC + ES models',icon:'⌁',tone:'blue',nav:()=>window.KeySuiteV383?.openHub?.('curve')},
     {id:'keyai',label:'KeyAI',sub:'Recent enquiries',icon:'✦',tone:'cyan',nav:()=>{
       if(String(window.KEYSUITE_ACCESS?.role||'').toLowerCase()==='owner')window.KeySuiteApp?.showPage?.('keyAiSettings');
       else toast('KeyAI settings and Telegram inbox are Owner-only in the current KeySuite build.');
     }},
     {id:'assembly',label:'Assembly',sub:'Saved assemblies',icon:'⌘',tone:'gold',nav:()=>window.KeySuiteAssembly?.open?.('system')},
-    {id:'products',label:'Products',sub:'Product records',icon:'◇',tone:'steel',nav:()=>window.KeySuiteApp?.showPage?.('productChc')},
+    {id:'products',label:'Products',sub:'Product records',icon:'◇',tone:'steel',nav:()=>window.KeySuiteV383?.openHub?.('product')},
     {id:'alerts',label:'Alerts',sub:'Items needing attention',icon:'!',tone:'red',nav:()=>{close();window.KeySuiteApp?.showPage?.('quotation');setTimeout(()=>document.querySelector('.quote-item.status-error,.quote-item.status-warning')?.scrollIntoView?.({behavior:'smooth',block:'center'}),250)}}
   ];
 
@@ -40,7 +40,7 @@
   function injectStyles(){
     if($('#ksu-style'))return;
     const style=document.createElement('style');style.id='ksu-style';style.textContent=`
-      :root{--ksu-side:230px}
+      :root{--ksu-side:0px}
       #ksu-nav{margin-top:11px!important;border:1px solid rgba(72,220,188,.55)!important;background:linear-gradient(135deg,rgba(8,73,82,.72),rgba(30,72,124,.62))!important;color:#ecfeff!important;position:relative;overflow:hidden}
       #ksu-nav::after{content:"";position:absolute;inset:auto -18px -23px auto;width:62px;height:62px;border:1px solid rgba(100,240,220,.45);border-radius:50%;box-shadow:0 0 18px rgba(74,222,198,.28)}
       #ksu-nav.ksu-active{box-shadow:0 0 0 1px rgba(94,234,212,.35),0 0 22px rgba(45,212,191,.22)!important}
@@ -120,10 +120,8 @@
   }
 
   function updateSideWidth(){
-    const aside=$('#appView aside')||$('aside');
-    let width=0;
-    if(aside&&getComputedStyle(aside).display!=='none'&&innerWidth>900)width=Math.round(aside.getBoundingClientRect().width);
-    document.documentElement.style.setProperty('--ksu-side',`${width}px`);
+    // V3.8.3: KeyCore is a true full-screen universe; normal KeySuite sidebar stays underneath the overlay.
+    document.documentElement.style.setProperty('--ksu-side','0px');
   }
 
   function injectLaunchers(){
