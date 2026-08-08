@@ -1,0 +1,19 @@
+KeySuite V3.8.1 - KeyCore Dark Stage Hotfix
+
+Amendment
+- Fix the large white rounded rectangle appearing behind the KeyCore globes.
+
+Cause addressed
+- The finite 1600 x 950 KeyCore world could inherit normal KeySuite light/card styling from the host application, producing a white panel while the surrounding KeyCore overlay remained dark.
+
+Changes
+- Force the KeyCore overlay to a continuous green-black Matrix background.
+- Force the KeyCore viewport to remain dark.
+- Force the 1600 x 950 KeyCore world surface to transparent so Matrix stars/data-rain remain visible behind all globes.
+- Remove inherited border radius, borders and box shadows from the KeyCore world/canvas surfaces.
+- Change KeyCore overlay semantics from role=dialog to role=region to avoid generic modal/dialog skins.
+- Add inline !important safeguards so late-loaded KeySuite light-theme CSS cannot repaint KeyCore white.
+- Preserve all V3.8 KeyCore heartbeat, gravity particles, globe growth, connection pulses, pan/zoom and navigation behavior.
+
+No database changes.
+No KeyAI Edge Function changes.

@@ -1,0 +1,2 @@
+KeySuite V3.8.1 does not require any Supabase/database migration.
+This patch changes only the KeyCore frontend visual container and service-worker cache version.

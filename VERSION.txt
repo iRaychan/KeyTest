@@ -1,3 +1,3 @@
-KeySuite V3.8
-Feature release: KeyCore Matrix / AI data visualization
-Base: KeySuite V3.7 Universe View update
+KeySuite V3.8.1
+Base: KeySuite V3.8 KeyCore Matrix / AI
+Release type: KeyCore visual hotfix

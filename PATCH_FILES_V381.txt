@@ -1,0 +1,13 @@
+Changed runtime files for V3.8.1:
+- universe.js
+- sw.js
+
+Release/support files:
+- VERSION.txt
+- V381_CHANGES.txt
+- INSTALL_V381.txt
+- V381_NO_DATABASE_MIGRATION.txt
+- V381_QA_REPORT.txt
+- PATCH_FILES_V381.txt
+- README_V381.md
+- SHA256SUMS_V381.txt

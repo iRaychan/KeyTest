@@ -1,0 +1,15 @@
+KeySuite V3.8.1 Installation
+
+Base required: KeySuite V3.8
+
+1. Extract this ZIP.
+2. Upload all files to the ROOT of the existing KeySuite GitHub repository.
+3. Replace universe.js and sw.js when prompted.
+4. Keep the existing config.js unchanged.
+5. Wait for GitHub deployment to complete.
+6. Open KeySuite and reload once.
+7. Because sw.js cache version changes in V3.8.1, reload again or close/reopen the installed PWA if the old KeyCore scene is still cached.
+8. Open KeyCore and confirm the globe area is fully dark/Matrix styled with no white rectangular stage.
+
+No Supabase migration is required.
+No KeyAI redeployment is required.

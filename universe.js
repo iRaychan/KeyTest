@@ -1,9 +1,9 @@
 (()=>{
   'use strict';
-  if(window.__KEYSUITE_KEYCORE_V380__)return;
-  window.__KEYSUITE_KEYCORE_V380__=true;
+  if(window.__KEYSUITE_KEYCORE_V381__)return;
+  window.__KEYSUITE_KEYCORE_V381__=true;
 
-  const VERSION='3.8';
+  const VERSION='3.8.1';
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
   const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
@@ -51,15 +51,18 @@
       .ksu-launch-btn:hover{filter:brightness(1.08)}
       .ksu-mini-orbit{height:122px;position:relative;isolation:isolate}.ksu-mini-core{position:absolute;left:50%;top:50%;width:34px;height:34px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#fff 0 16%,#6ee7b7 18% 30%,#0f766e 55%,#083344 100%);box-shadow:0 0 22px rgba(16,185,129,.48)}
       .ksu-mini-ring{position:absolute;left:50%;top:50%;border:1px solid rgba(36,99,235,.2);border-radius:50%;transform:translate(-50%,-50%) rotate(-10deg)}.ksu-mini-ring.r1{width:120px;height:48px}.ksu-mini-ring.r2{width:190px;height:74px}.ksu-mini-dot{position:absolute;width:13px;height:13px;border-radius:50%;box-shadow:0 0 12px currentColor}.ksu-mini-dot.d1{left:25%;top:33%;background:#22c55e;color:#22c55e}.ksu-mini-dot.d2{right:18%;top:31%;background:#f59e0b;color:#f59e0b}.ksu-mini-dot.d3{left:31%;bottom:14%;background:#3b82f6;color:#3b82f6}.ksu-mini-dot.d4{right:31%;bottom:10%;background:#a855f7;color:#a855f7}
-      #ksu-overlay{position:fixed;z-index:5000;top:0;right:0;bottom:0;left:var(--ksu-side);display:none;background:#020712;color:#e8f3ff;font-family:Arial,Helvetica,sans-serif;overflow:hidden}
-      #ksu-overlay.ksu-open{display:block}
+      #ksu-overlay{position:fixed!important;z-index:5000!important;top:0!important;right:0!important;bottom:0!important;left:var(--ksu-side)!important;display:none;background:linear-gradient(180deg,#000503 0%,#010906 48%,#000302 100%)!important;background-color:#000503!important;color:#e8f3ff!important;font-family:Arial,Helvetica,sans-serif!important;overflow:hidden!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;margin:0!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;isolation:isolate!important}
+      #ksu-overlay.ksu-open{display:block!important}
+      #ksu-overlay .ksu-viewport{background:radial-gradient(ellipse at 50% 52%,rgba(0,255,174,.075),transparent 41%),linear-gradient(180deg,rgba(0,8,5,.35),rgba(0,3,2,.66))!important;background-color:#000503!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+      #ksu-overlay .ksu-world{background:transparent!important;background-color:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;outline:0!important}
+      #ksu-overlay canvas.ksu-matrix,#ksu-overlay canvas.ksu-particles{background:transparent!important;background-color:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
       .ksu-stars{position:absolute;inset:0;background:
         radial-gradient(circle at 14% 20%,rgba(54,153,255,.24),transparent 1px),radial-gradient(circle at 70% 17%,rgba(255,255,255,.72),transparent 1.2px),radial-gradient(circle at 41% 81%,rgba(119,183,255,.55),transparent 1px),radial-gradient(circle at 84% 62%,rgba(255,255,255,.55),transparent 1px),radial-gradient(circle at 26% 66%,rgba(111,228,255,.42),transparent 1px),linear-gradient(180deg,#020712 0%,#03101f 52%,#020712 100%);background-size:83px 83px,137px 137px,119px 119px,103px 103px,151px 151px,100% 100%;opacity:.95;pointer-events:none}
       .ksu-nebula{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 53%,rgba(105,45,180,.16),transparent 32%),radial-gradient(ellipse at 52% 50%,rgba(0,161,255,.11),transparent 43%),radial-gradient(ellipse at 48% 54%,rgba(255,153,64,.08),transparent 26%);pointer-events:none}
       .ksu-topbar{height:86px;position:relative;z-index:9;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:19px 24px 12px;border-bottom:1px solid rgba(148,163,184,.14);background:linear-gradient(180deg,rgba(2,7,18,.94),rgba(2,7,18,.66),transparent)}
       .ksu-title h1{font-size:25px;margin:0 0 4px;color:#fff}.ksu-title p{margin:0;color:#9fb2c7;font-size:13px}.ksu-live{display:inline-flex;align-items:center;gap:7px;margin-top:9px;font-size:11px;color:#c7d9e9}.ksu-live-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 10px #22c55e;animation:ksuLive 1.8s ease-in-out infinite}
       .ksu-top-actions{display:flex;gap:8px;align-items:center}.ksu-control{border:1px solid rgba(148,163,184,.3);background:rgba(7,18,32,.72);color:#e8f3ff;border-radius:9px;padding:9px 12px;font-weight:700;backdrop-filter:blur(8px)}.ksu-control:hover{border-color:rgba(94,234,212,.55);background:rgba(10,37,50,.82)}
-      .ksu-viewport{position:absolute;inset:86px 0 0 0;overflow:hidden;cursor:grab;touch-action:none}.ksu-viewport.ksu-dragging{cursor:grabbing}.ksu-world{position:absolute;left:50%;top:50%;width:1600px;height:950px;transform-origin:50% 50%;will-change:transform}
+      .ksu-viewport{position:absolute;inset:86px 0 0 0;overflow:hidden;cursor:grab;touch-action:none;background:#000503}.ksu-viewport.ksu-dragging{cursor:grabbing}.ksu-world{position:absolute;left:50%;top:50%;width:1600px;height:950px;transform-origin:50% 50%;will-change:transform;background:transparent!important}
       .ksu-orbit{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-8deg);border:1px solid rgba(85,145,255,.17);border-radius:50%;pointer-events:none}.ksu-orbit.o1{width:520px;height:250px}.ksu-orbit.o2{width:850px;height:430px}.ksu-orbit.o3{width:1170px;height:610px}.ksu-orbit.o4{width:1420px;height:780px;border-style:dashed;border-color:rgba(116,238,225,.12)}
       .ksu-connectors{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}.ksu-line{fill:none;stroke:rgba(94,234,212,.18);stroke-width:1.25;stroke-dasharray:4 8;transition:stroke .3s,stroke-width .3s,filter .3s}.ksu-line.ksu-flash{stroke:rgba(125,249,231,.92);stroke-width:2.8;filter:drop-shadow(0 0 7px rgba(94,234,212,.9));animation:ksuLineFlash 1.5s ease-out}
       .ksu-core{position:absolute;left:50%;top:51%;width:224px;height:224px;transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;text-align:center;z-index:3;pointer-events:none}
@@ -139,7 +142,7 @@
 
   function buildOverlay(){
     if($('#ksu-overlay'))return;
-    const overlay=document.createElement('div');overlay.id='ksu-overlay';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-label','KeyCore');
+    const overlay=document.createElement('div');overlay.id='ksu-overlay';overlay.setAttribute('role','region');overlay.setAttribute('aria-label','KeyCore');
     overlay.innerHTML=`
       <canvas class="ksu-matrix" id="ksu-matrix" aria-hidden="true"></canvas><div class="ksu-stars"></div><div class="ksu-nebula"></div>
       <header class="ksu-topbar"><div class="ksu-title"><div class="ksu-kicker">KEYSUITE // INTELLIGENT DATA CORE</div><h1>KeyCore</h1><p>Your data. Connected. Intelligent. Watch information gain gravity as KeySuite grows.</p><div class="ksu-live"><span class="ksu-live-dot"></span><b>Live Sync</b><span id="ksu-sync-time">Preparing data…</span></div></div><div class="ksu-top-actions"><button class="ksu-control" id="ksu-pause" type="button">Ⅱ Pause motion</button><button class="ksu-control" id="ksu-refresh" type="button">↻ Refresh</button><button class="ksu-control" id="ksu-close" type="button">← Back to Dashboard</button></div></header>
@@ -152,6 +155,16 @@
         <div class="ksu-hint">DRAG TO NAVIGATE &nbsp;·&nbsp; SCROLL TO ZOOM &nbsp;·&nbsp; CLICK A DATA GLOBE TO OPEN</div><div class="ksu-toast" id="ksu-toast"></div>
       </div>`;
     document.body.appendChild(overlay);
+    // V3.8.1: prevent late-loaded KeySuite light/card styles from painting the KeyCore world white.
+    overlay.style.setProperty('background','linear-gradient(180deg,#000503 0%,#010906 48%,#000302 100%)','important');
+    overlay.style.setProperty('border-radius','0','important');
+    overlay.style.setProperty('box-shadow','none','important');
+    const viewport=$('#ksu-viewport',overlay),world=$('#ksu-world',overlay);
+    viewport?.style.setProperty('background','radial-gradient(ellipse at 50% 52%,rgba(0,255,174,.075),transparent 41%),linear-gradient(180deg,rgba(0,8,5,.35),rgba(0,3,2,.66))','important');
+    viewport?.style.setProperty('border-radius','0','important');
+    world?.style.setProperty('background','transparent','important');
+    world?.style.setProperty('border-radius','0','important');
+    world?.style.setProperty('box-shadow','none','important');
     createPlanets();createConnectors();bindControls();
   }
 
