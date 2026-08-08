@@ -1,0 +1,6 @@
+KeySuite V3.8.8
+
+FULL: replace/upload the full repository, preserving your live config.js values.
+UPDATE: overlay the V3.8.8 patch on V3.8.7.
+No SQL migration.
+After deploy, hard refresh (Ctrl+F5) and reopen the installed PWA once if applicable.

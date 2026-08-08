@@ -1,0 +1,29 @@
+KeySuite V3.8.8
+
+1. Product > CHC Curve follows Selection > CHC exactly
+   - Product CHC Curve now displays the full CHC Selection UI rather than a separate Product-specific chart layout.
+   - The selected Product model is loaded manually and stays the model being evaluated when Flow + Head are entered.
+   - PDF / Assembly / Quote, duty entry, summary and curve behavior come directly from the CHC selector UI.
+   - Removed the duplicate Product duty/action layer and extra/duplicate curve presentation.
+
+2. Product > ES Curve follows Selection > ES exactly
+   - Product ES Curve now displays the full ES Selection UI rather than a separate Product-specific chart layout.
+   - The selected Product model is loaded manually and stays the model being evaluated when Flow + Head are entered.
+   - PDF / Assembly / Quote, material/seal controls, duty entry, summary and curve behavior come directly from the ES selector UI.
+   - Removed the duplicate Product duty/action layer and extra/duplicate curve presentation.
+
+3. Shared curve balance — CHC / ES / Product / Selection / Quick Selection
+   - CHC compact right-panel height is the shared standard.
+   - Efficiency / Power / NPSH are each 178 px high with 10 px gaps.
+   - Pump Curve left panel is 554 px high, exactly matching the total right stack.
+   - CHC and ES use the same balanced desktop curve geometry in Selection, Product and Quick Selection paths.
+
+4. Quick Selection Return icon
+   - Return to Quick Selection is now a fixed floating circular icon at the bottom-right.
+   - It remains visible while the selector page is scrolled.
+   - Existing Quick Selection duty/results are preserved on return.
+
+5. Product PDF styling
+   - Product Curve uses the selector's standard blue PDF action, matching the corresponding CHC/ES Selection UI.
+
+6. No database migration required.

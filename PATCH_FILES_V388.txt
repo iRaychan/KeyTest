@@ -1,0 +1,17 @@
+KeySuite V3.8.8 update patch from V3.8.7
+
+Changed/new files:
+INSTALL_V388.txt
+PATCH_FILES_V388.txt
+SHA256SUMS_V388_FULL.txt
+V388_CHANGES.txt
+V388_NO_DATABASE_MIGRATION.txt
+V388_QA_REPORT.txt
+index.html
+product.js
+selector-es/index.html
+selector/index.html
+sw.js
+v388-dashboard-keycore.js
+
+Deleted files: none

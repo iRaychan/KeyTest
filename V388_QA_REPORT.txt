@@ -1,0 +1,31 @@
+KeySuite V3.8.8 QA Report
+
+Result: PASS
+
+Validation performed:
+- Static/integration amendment checks: 39/39 PASS.
+- product.js JavaScript syntax: PASS.
+- v388-dashboard-keycore.js JavaScript syntax: PASS.
+- All inline JavaScript blocks in index.html / selector/index.html / selector-es/index.html: PASS.
+- ES engineering/regression tests: PASS.
+  - 70 m3/hr @ 80 m: ES 50-26 and ES 50-26G remain valid alternatives where applicable.
+  - 90 m3/hr @ 80 m: ES 50-26 remains visible with torque warning; 50-26G remains valid.
+  - Same-pole 50% BEP alternative guard: PASS.
+  - BEP-group recommended selection regression: PASS.
+- CHC engineering/regression tests: PASS.
+  - 50% BEP alternative guard: PASS.
+  - BEP-group recommended selection regression: PASS.
+  - Product exact-model duty calculation regression: PASS.
+- Product Curve architecture:
+  - Outer duplicate Product duty bar removed: PASS.
+  - Outer duplicate Product PDF / Assembly / Quote controls removed: PASS.
+  - Product > CHC uses full Selection > CHC UI: PASS.
+  - Product > ES uses full Selection > ES UI: PASS.
+  - Product duty Select keeps the manually chosen model: PASS.
+- Shared curve geometry:
+  - Left Pump Curve = 554 px: PASS.
+  - Right Efficiency / Power / NPSH = 3 x 178 px + 2 x 10 px gaps = 554 px: PASS.
+- Quick Selection Return icon fixed bottom-right: PASS.
+- Product PDF uses selector blue PDF styling: PASS.
+- config.js preserved unchanged from V3.8.7: PASS.
+- Database migration required: NO.
