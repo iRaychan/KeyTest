@@ -1,20 +1,20 @@
-KeySuite V3.8.2 — GitHub Update Overlay
+KeySuite V3.8.2 R2 — GitHub Update Overlay
 Base required: KeySuite V3.8.1
 
 INSTALL
 1. Confirm the target repository is KeySuite V3.8.1.
 2. Extract this ZIP at the ROOT of the existing repository.
-3. Allow files in selector/ and selector-es/ to overwrite the existing selector files.
+3. Allow the included files to overwrite files with the same names.
 4. Upload/commit all extracted files to GitHub.
-5. Keep the existing config.js.
-6. Hard refresh after deployment (Ctrl+F5 / restart installed PWA).
+5. Keep your existing config.js.
+6. After deployment, hard refresh twice (Ctrl+F5 twice) or fully close/reopen the installed PWA. This allows the updated service worker to activate and load the Dashboard/KeyCore extension.
 
 DATABASE / BACKEND
 - No Supabase SQL migration is required.
 - No config.js is included or changed.
 - No KeyAI Edge Function changes are required.
 
-IMPORTANT — APP SHELL
-This is intentionally a changed-files overlay. The exact full V3.8.1 repository was not available during the build.
-To avoid downgrading newer V3.8.1 work, older V3.6 index.html/app.js files are NOT included.
-Therefore the KeyCore Product Hub and Pump Curve Hub parent-navigation amendments are documented in V382_APP_SHELL_PENDING.txt and require the exact V3.8.1 app shell before they can be safely merged.
+APP-SHELL SAFETY
+- This remains a changed-files overlay because the exact full V3.8.1 app shell was not available during the build.
+- No older V3.6 index.html/app.js is included.
+- Dashboard duty finder and KeyCore hub/full-screen amendments are enabled by v382-dashboard-keycore.js through the updated service worker, preserving the newer V3.8.1 shell.

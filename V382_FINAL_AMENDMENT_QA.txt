@@ -1,22 +1,27 @@
-KeySuite V3.8.2 Final Amendment QA
+KeySuite V3.8.2 R2 Final Amendment QA
 
-PASS — CHC action order PDF / Assembly / Quote
 PASS — CHC Flow starts blank
 PASS — CHC Head starts blank
 PASS — CHC dropdown excludes m³/min
-PASS — CHC duplicate Summary-side PDF removed
+PASS — CHC action order PDF / Assembly / Quote
+PASS — CHC duplicate PDF is not in Summary action row
 PASS — CHC alternative order -2 < -1 < standard
-PASS — CHC Page 1 motor kW + pole
-PASS — ES action order PDF / Assembly / Quote
+PASS — CHC Page 1 motor label includes pole
 PASS — ES dropdown excludes m³/min
-PASS — ES top Material
-PASS — ES top Mechanical Seal
-PASS — ES top Elastomer
-PASS — ES top Bare Shaft
-PASS — ES top Motor Voltage
-PASS — ES non-default alert fill on four controls
-PASS — ES Summary expand/collapse
-PASS — ES Summary shows efficiency
+PASS — ES action order PDF / Assembly / Quote
+PASS — ES top row Material / Seal Type / Seal Material / Elastomer / Bare Shaft
+PASS — ES Seal Type default Mechanical Seal
+PASS — ES Seal Type includes Gland Packing
+PASS — ES Gland Packing makes Graphite the only Seal Material
+PASS — ES Mechanical Seal default material Carbon Ceramic
+PASS — ES non-default Material / Seal Type / Seal Material / Elastomer / Voltage alert fill
+PASS — ES Bare Shaft tick uses alert fill
+PASS — ES Motor Voltage remains separate
+PASS — ES Pump Speed Range defaults All Speed
+PASS — ES alternative rejects duty below max-flow endpoint head
+PASS — ES alternative list is nearest relevant, not fixed nine
+PASS — ES Summary expand/collapse exists
+PASS — ES Summary shows Efficiency
 PASS — ES Summary shows Power/BHP
 PASS — ES Summary shows NPSHr
 PASS — ES Page 1 motor kW + pole
@@ -24,11 +29,26 @@ PASS — ES Page 2 Operating Data section
 PASS — ES Page 2 Pump section
 PASS — ES Page 2 Motor section
 PASS — ES Page 2 Pumpset section
-PASS — ES Mechanical Seal label
-PASS — ES standard seal hides Ca Ce
-PASS — ES Bearing Type = Ball
-PASS — ES Pumpset dimension placeholders blank
-PASS — ES Bare Shaft suppresses motor assembly
-PASS — ES Assembly includes live motor API route
+PASS — ES Page 2 Bearing Type = Ball
+PASS — ES PDF label uses Shaft Seal
+PASS — ES default seal output = Mechanical Seal
+PASS — ES non-default seal output uses Mech Seal abbreviation
+PASS — ES Gland Packing output = Gland Packing
+PASS — ES Pumpset dimension placeholders remain blank
+PASS — ES Bare Shaft transfers pump only
+PASS — ES normal pumpset carries Flexible Coupling
+PASS — Dashboard adds Flow + Head quick selector
+PASS — Dashboard checks CHC + ES live selector families
+PASS — Dashboard only renders suitable families
+PASS — Dashboard family expands recommended model + details
+PASS — CHC selector has Dashboard message bridge
+PASS — ES selector has Dashboard message bridge
+PASS — KeyCore hides left panel
+PASS — KeyCore uses full-width page
+PASS — KeyCore Product opens Product Hub
+PASS — Product Hub includes CHC / ES / Motor / Coupling / Control Panel / Tank / Manifold
+PASS — KeyCore Pump Curve opens family Hub
+PASS — Service worker injects extension without replacing app shell
+PASS — Service worker sanitizes transformed response headers
 
-RESULT: 30/30 PASS
+RESULT: 50/50 PASS

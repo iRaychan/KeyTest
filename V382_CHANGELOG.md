@@ -1,49 +1,55 @@
-# KeySuite V3.8.2
-
-## Corrective rebuild — 2026-08-08
-- Revalidated CHC and ES top action order as `PDF / Assembly / Quote`.
-- Revalidated blank CHC Flow/Head startup and removal of `m³/min` from integrated flow dropdowns.
-- Corrected ES PDF Page 2 Bearing Type from `Ball Bearing` to `Ball`.
-- Revalidated Page 1 motor labels with actual pole count.
-- Final amendment QA: 30/30 PASS.
+# KeySuite V3.8.2 — R2 Corrective Update
 
 Base required: **KeySuite V3.8.1**
+Build date: **2026-08-08**
 
 ## CHC — KeyCHC V3.4.7
-- Updated the integrated CHC selector runtime to KeyCHC V3.4.7.
-- Required Duty starts blank: Flow and Head are not pre-filled.
-- Removed `m³/min` from all integrated selector flow-unit dropdowns. CHC and ES now expose only the remaining approved flow units.
-- Removed the duplicate PDF control beside Summary; the main/top PDF control remains.
-- Alternative Model catalog order is smallest to biggest with variant priority `-2 < -1 < standard` for the same base model.
-- PDF Curve Page 1 motor label now includes pole count, e.g. `0.75kW 2P` or `15kW 4P`.
-- Existing KeySuite Assembly / Quote / saved-PDF bridge behavior is retained.
+- Required Duty opens with Flow and Head blank.
+- `m³/min` is removed from the visible Flow-unit dropdown.
+- Top actions are `PDF / Assembly / Quote`.
+- Duplicate PDF beside Summary is removed.
+- Alternative Model ordering is small-to-big, with same-base variants ordered `-2 < -1 < standard`.
+- PDF curve Page 1 motor label includes actual pole count, e.g. `0.75kW 2P`.
 
 ## ES — KeyES V1.9
-- Updated the integrated ES selector runtime to KeyES V1.9.
-- Top action order is now `PDF / Assembly / Quote`, matching CHC.
-- Moved Material, Mechanical Seal, Elastomer and Motor Voltage into the top option area.
-- Any of those four controls uses the existing alert fill when its value differs from the standard/default selection.
-- Added Bare Shaft Pump checkbox in the same top option area.
-- Added CHC-style Summary expand/collapse. Core collapsed values are Efficiency, Power/BHP and NPSHr.
-- Assembly payload now carries Pump, Motor, Flexible Coupling intent and Baseplate/pumpset context. When KeySuite's live Assembly/Motor APIs are available, Pump + selected Motor are inserted directly and the Pumpset Assembly auto-selects its default Flexible Coupling; the coupling description carries the baseplate. Bare Shaft Pump transfers only the pump.
-- PDF Curve Page 1 motor label now includes pole count.
+- Top actions are `PDF / Assembly / Quote`.
+- Top option row is now: Material / Seal Type / Seal Material / Elastomer / Bare Shaft.
+- Seal Type default is `Mechanical Seal`; alternate is `Gland Packing`.
+- Mechanical Seal materials: Carbon Ceramic (default), Silicon Carbide, Tungsten.
+- Gland Packing automatically changes Seal Material to `Graphite` and Graphite is the only available material while Gland Packing is selected.
+- Non-default Material / Seal Type / Seal Material / Elastomer / Motor Voltage use the existing alert fill.
+- Bare Shaft Pump uses the same alert fill when ticked.
+- Motor Voltage remains available separately below Pump Speed Range.
+- Pump Speed Range defaults to `All Speed`.
+- Alternative Selection no longer forces nine models. A candidate is excluded when the required duty head is below that candidate's head at its maximum-flow curve endpoint. Only the nearest relevant catalog neighbours are shown; one suitable alternative is acceptable.
+- Summary expand/collapse follows CHC and shows Efficiency / Power-BHP / NPSHr.
+- Normal Assembly transfers Pump + Motor and retains Flexible Coupling / Baseplate pumpset intent. Bare Shaft transfers pump only.
 
-## ES PDF Page 2 — Technical Data
-- Page 2 follows the KeyCHC technical-data table style.
-- Sections: Operating Data, Pump, Motor and Pumpset.
-- Pump data comes from the active KeyES pump/result dataset.
-- `Shaft Seal` is renamed to `Mechanical Seal`.
-- Standard Mechanical Seal displays as `Carbon Ceramic` without `(Ca Ce)`.
-- Bearing Type is `Ball`.
-- Motor data prefers the live KeySuite motor backend; KeyCHC motor technical data remains a fallback for fields not exposed by the backend.
-- Pumpset dimension format is present now. Dimension values are intentionally blank (`-`) until the later dimension mapping is supplied.
+## ES PDF
+- Curve Page 1 retains the aligned Q-H / Efficiency / Power / NPSHr layout and motor label with actual pole count.
+- Technical Page 2 retains Operating Data / Pump / Motor / Pumpset sections.
+- Page 2 `Bearing Type` is `Ball`.
+- Shaft seal output uses:
+  - default Mechanical Seal + Carbon Ceramic -> `Mechanical Seal`
+  - non-default Mechanical Seal material -> `Mech Seal (SiC SiC)` / actual abbreviation
+  - Gland Packing -> `Gland Packing`
+- Pumpset dimension format remains visible with blank placeholders until the dimension mapping is supplied.
 
-## Dimension scope
-- No new dimension mapping is invented in V3.8.2.
-- Existing KeyES V1.9 dimensional page/data is otherwise preserved.
+## Dashboard — Quick Pump Selection
+- Adds Flow + Head duty inputs to Dashboard.
+- Checks CHC and ES selector families through their live selector logic.
+- Only families with a suitable recommended model are displayed.
+- Family button expands its recommended model.
+- Model button expands key information including duty, efficiency, power, NPSHr, motor, speed/frequency and connection where available.
 
-## KeyCore app-shell amendments
-The requested KeyCore `Product Hub` and `Pump Curve Hub` routing belongs to the main KeySuite V3.8.1 app shell. The exact V3.8.1 full repository was not available in this build session, so those two parent-app files were **not replaced with older V3.6 files**. See `V382_APP_SHELL_PENDING.txt`.
+## KeyCore
+- KeyCore hides the normal left navigation and expands to a full-width immersive view while KeyCore is active.
+- `Product` opens a Product Hub instead of opening CHC directly.
+- Product Hub exposes CHC, ES, Motor, Coupling, Control Panel, GWS Tank and Manifold using existing KeySuite routes.
+- `Pump Curve` opens a Pump Curve Hub first, with CHC and ES families.
+- Because the exact V3.8.1 main shell was not available, these parent-shell changes are loaded through the forward-compatible `v382-dashboard-keycore.js` extension injected by `sw.js`; older V3.6 app shell files are not copied over V3.8.1.
 
 ## Database
-No database migration required.
+- No Supabase migration.
+- No config.js change.
+- No KeyAI Edge Function change.

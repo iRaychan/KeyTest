@@ -1303,6 +1303,11 @@ alternatives.innerHTML='';
  document.getElementById('keysuitePdf')?.addEventListener('click',()=>exportPDF());
  window.addEventListener('message',function(event){
   const msg=event.data||{};
+  if(msg.type==='KEYSUITE_DASHBOARD_SELECT'){
+   flowInput.value=Number(msg.flowM3h||0);headInput.value=Number(msg.headM||0);flowUnitInput.value='m3h';headUnitInput.value='m';
+   speedUnit.value='hz';speedInput.value='50';updateSpeedConversion();run();
+   const data=currentSelection();window.parent?.postMessage({type:'KEYSUITE_DASHBOARD_RESULT',requestId:msg.requestId,family:'CHC',suitable:!!data,data},'*');return;
+  }
   if(msg.type==='KEYSUITE_PRODUCT_MODEL'){
    const payload=prepareProductModel(msg.model,msg.options||{});if(!payload){alert('This CHC model could not be loaded.');return}
    if(['add','assembly'].includes(msg.action))window.parent?.postMessage({type:'KEYSUITE_ADD_SELECTION',route:msg.action==='add'?'quotation':msg.action,payload},'*');

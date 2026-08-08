@@ -1,4 +1,4 @@
-KeySuite V3.8.2 overlay files
+KeySuite V3.8.2 R2 overlay files
 
 selector/index.html
 selector/apple-touch-icon.png
@@ -10,6 +10,8 @@ selector-es/es-data.js
 selector-es/motor-data.js
 selector-es/favicon.svg
 selector-es/bgreich-logo.png
+v382-dashboard-keycore.js
+sw.js
 V382_CHANGELOG.md
 V382_NO_DATABASE_MIGRATION.txt
 V382_APP_SHELL_PENDING.txt

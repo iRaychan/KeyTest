@@ -1,19 +1,27 @@
-KeySuite V3.8.2 — MAIN APP-SHELL ITEMS NOT SAFELY APPLIED
+KeySuite V3.8.2 R2 — APP-SHELL INTEGRATION NOTE
 
-The exact KeySuite V3.8.1 full repository/app shell was not available in this build session.
-The public KeyTest repository available during the build is still V3.6, so copying its index.html/app.js would downgrade newer V3.8.1 work.
+The exact full KeySuite V3.8.1 parent app shell was not available in this build session. The public KeyTest shell visible during the build is older (V3.6), so it was intentionally NOT copied over V3.8.1.
 
-For that reason this overlay DOES NOT replace the V3.8.1 parent app shell for these two agreed amendments:
+The formerly pending parent-shell amendments are now supplied without replacing index.html/app.js:
 
-1. KeyCore > Product
-   Current wrong route: directly opens CHC Product.
-   Required V3.8.2 route: open a Product Hub first, showing available product modules such as CHC, ES, Motor, Coupling, Control Panel/KeyPLC, GWS Tank, Manifold and other existing categories.
+1. Dashboard Quick Pump Selection
+   - Flow + Head input.
+   - Live CHC and ES duty checks.
+   - Show only suitable product families.
+   - Expand family -> recommended model -> pump details.
 
-2. KeyCore > Pump Curve
-   Current wrong route: directly opens CHC Pump Curve.
-   Required V3.8.2 route: open a Pump Curve Hub first, then choose CHC, ES or future pump families.
+2. KeyCore Full-Screen Mode
+   - Hide normal left panel while KeyCore is active.
+   - Use the full available page/canvas.
 
-Do NOT copy V3.6 index.html/app.js over V3.8.1 to implement these items.
-When the exact V3.8.1 full GitHub package is available, merge these two routes into that shell.
+3. KeyCore > Product
+   - Opens Product Hub first instead of CHC directly.
 
-Selector-side V3.8.2 changes in selector/ and selector-es/ are safe to overlay now.
+4. KeyCore > Pump Curve
+   - Opens Pump Curve Hub first instead of CHC directly.
+
+IMPLEMENTATION
+- v382-dashboard-keycore.js contains the parent-shell extension.
+- sw.js injects the extension into KeySuite navigation HTML at runtime using the current service-worker scope.
+- This avoids downgrading unknown V3.8.1 app-shell changes.
+- After deployment, hard refresh twice or restart the installed PWA so the new service worker takes control.
