@@ -1,15 +1,20 @@
+KeySuite V3.8.2 overlay files
+
 selector/index.html
-selector/bgreich-logo.png
-selector/favicon.png
 selector/apple-touch-icon.png
+selector/favicon.png
+selector/bgreich-logo.png
 selector-es/index.html
 selector-es/es-core.js
 selector-es/es-data.js
 selector-es/motor-data.js
-selector-es/bgreich-logo.png
 selector-es/favicon.svg
-INSTALL_V382.txt
+selector-es/bgreich-logo.png
 V382_CHANGELOG.md
-V382_QA.txt
 V382_NO_DATABASE_MIGRATION.txt
+V382_APP_SHELL_PENDING.txt
+V382_QA.txt
+V382_FINAL_AMENDMENT_QA.txt
+INSTALL_V382.txt
+PATCH_FILES_V382.txt
 SHA256SUMS_V382.txt

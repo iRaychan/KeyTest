@@ -183,9 +183,9 @@ body.product-frame main{display:block;max-width:none;padding:8px}body.product-fr
   <div class="duty-header"><h3>Required Duty</h3><button id="go" type="button">Select</button></div>
   <button class="export-btn mobile-export-btn" type="button" onclick="exportPDF()">PDF</button>
   <label>Flow</label>
-  <div class="row"><input id="flow" type="number" value="0" step="0.1"><select id="fu"><option value="m3h">m³/h</option><option value="m3min">m³/min</option><option value="lpm">L/min</option><option value="lps">L/s</option><option value="usgpm">US GPM</option><option value="igpm">Imp GPM</option></select></div>
+  <div class="row"><input id="flow" type="number" value="" step="0.1" placeholder=""><select id="fu"><option value="m3h">m³/h</option><option value="lpm">L/min</option><option value="lps">L/s</option><option value="usgpm">US GPM</option><option value="igpm">Imp GPM</option></select></div>
   <label>Head</label>
-  <div class="row"><input id="head" type="number" value="0" step="0.1"><select id="hu"><option value="m">m</option><option value="bar">bar</option><option value="ft">ft</option><option value="kpa">kPa</option><option value="psi">psi</option></select></div>
+  <div class="row"><input id="head" type="number" value="" step="0.1" placeholder=""><select id="hu"><option value="m">m</option><option value="bar">bar</option><option value="ft">ft</option><option value="kpa">kPa</option><option value="psi">psi</option></select></div>
 
   <details id="dutyPointsSettings" class="settings" open>
     <summary>Multiple Duty Points</summary>
@@ -573,7 +573,7 @@ function keychcModelComparator(a,b){
  const A=keychcModelSortParts(a.model),B=keychcModelSortParts(b.model);
  if(A.family!==B.family)return A.family-B.family;
  if(A.stage!==B.stage)return A.stage-B.stage;
- const rank=v=>v===2?0:v===null?1:2+v/1000;
+ const rank=v=>v===2?0:v===1?1:v===null?2:3+Number(v||0)/1000;
  const vr=rank(A.variant)-rank(B.variant);
  if(vr)return vr;
  return A.raw.localeCompare(B.raw,undefined,{numeric:true,sensitivity:'base'});
@@ -838,7 +838,7 @@ function exportPDF(){
  <div class="under-line">
    <div class="duty"><span class="required-duty-value">${reportFlowText()}</span> <span class="duty-separator">&nbsp;&nbsp; @ &nbsp;&nbsp;</span> <span class="required-duty-value">${reportHeadText()}</span></div>
    <div class="drive">
-     <div>${best.motor_kw.toFixed(2)} kW</div>
+     <div>${best.motor_kw.toFixed(2)}kW ${(Number((DB.curves[best.series]||{}).speed_rpm)||2900)<2000?4:2}P</div>
      <div>${hz.toFixed(1)} Hz</div>
    </div>
  </div>
@@ -1137,7 +1137,7 @@ function renderSelected(){
  out.innerHTML=`
  <div class="selection-hero">
    <div><div class="selection-eyebrow">Selected Pump</div><div class="selection-model">${best.model}</div><div class="selection-sub">${best.series} · ${best.stages} stage${best.stages>1?'s':''} · ${best.connection}</div><span class="selection-status">SELECTED</span></div>
-   <div class="selection-drive"><div class="drive-model">${formatHP(best.motor_hp)} &nbsp; | &nbsp; ${motorClass}</div><div>${best.motor_kw.toFixed(2)} kW &nbsp; | &nbsp; Curve ${hz.toFixed(1)} Hz</div><div>${best.rpm.toFixed(0)} rpm · Selected @ ${selectionHz.toFixed(1)} Hz</div><div class="selection-action-row"><button class="summary-toggle-btn" type="button" onclick="toggleKeyCHCSummary()">Summary ${keychcSummaryCollapsed?'▶':'▼'}</button><button class="export-btn" onclick="exportPDF()">PDF</button></div></div>
+   <div class="selection-drive"><div class="drive-model">${formatHP(best.motor_hp)} &nbsp; | &nbsp; ${motorClass}</div><div>${best.motor_kw.toFixed(2)} kW &nbsp; | &nbsp; Curve ${hz.toFixed(1)} Hz</div><div>${best.rpm.toFixed(0)} rpm · Selected @ ${selectionHz.toFixed(1)} Hz</div><div class="selection-action-row"><button class="summary-toggle-btn" type="button" onclick="toggleKeyCHCSummary()">Summary ${keychcSummaryCollapsed?'▶':'▼'}</button></div></div>
  </div>${speedNotice}${rangeNotice}${powerNotice}
  <div class="kpis ${keychcSummaryCollapsed?'summary-collapsed':''}">
    <div class="kpi"><span>Required Duty</span><b>${q.toFixed(1)} m³/h</b><span>${h.toFixed(1)} m</span></div>
@@ -1262,7 +1262,8 @@ updateMotorVoltageRange();
 document.querySelectorAll('input[name="pref"]').forEach(el=>el.addEventListener('change',run));
 go.onclick=run;
 keychcRenderDutyPointEditor();
-run();
+out.innerHTML='<div class="warning">Enter Required Duty Flow and Head, then select a pump.</div>';
+alternatives.innerHTML='';
 </script>
 
 <script id="keysuite-v382-bridge-script">
@@ -1272,7 +1273,7 @@ run();
  if(productFrame){document.body.classList.add('product-frame');setTimeout(()=>window.parent?.postMessage({type:'KEYSUITE_PRODUCT_FRAME_READY'},'*'),0)}
  function liveOptions(){const o=window.keysuiteExportPayload||{};return {keysuite_material:o.keysuite_material||'SS304 (Cast Iron Connection)',keysuite_seal:o.keysuite_seal||'Car/Cer',keysuite_elastomer:o.keysuite_elastomer||'Viton',keysuite_connection_type:o.keysuite_connection_type||'round',keysuite_bare_shaft:!!o.keysuite_bare_shaft}}
  function syncControlsFromState(){
-  try{flow.value=selectionState.rawFlow??selectionState.q??0;head.value=selectionState.rawHead??selectionState.h??0;fu.value=selectionState.flowUnit||'m3h';hu.value=selectionState.headUnit||'m';
+  try{flow.value=(selectionState.rawFlow??selectionState.q??'');head.value=(selectionState.rawHead??selectionState.h??'');fu.value=selectionState.flowUnit||'m3h';hu.value=selectionState.headUnit||'m';
    motorEff.value=selectionState.motorEffClass||'IE3';motorPhase.value=selectionState.motorPhase||'3Ph';updateMotorVoltageRange();
    const hz=Number(selectionState.curveHz||selectionState.hz||50);speedUnit.value='hz';speedInput.value=hz.toFixed(1);selectionState.curveHz=hz;selectionState.hz=hz;
   }catch(e){}

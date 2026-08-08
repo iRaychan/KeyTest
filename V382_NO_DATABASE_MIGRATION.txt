@@ -1,2 +1,2 @@
-KeySuite V3.8.2 does not require a Supabase/database migration.
-This release updates only the integrated CHC / ES selector runtime and KeyES PDF Page 2 report presentation/data binding.
+KeySuite V3.8.2 does not require a Supabase/database migration for the selector/PDF changes in this overlay.
+No config.js or KeyAI Edge Function changes are included.

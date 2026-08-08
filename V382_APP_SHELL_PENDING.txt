@@ -1,0 +1,19 @@
+KeySuite V3.8.2 — MAIN APP-SHELL ITEMS NOT SAFELY APPLIED
+
+The exact KeySuite V3.8.1 full repository/app shell was not available in this build session.
+The public KeyTest repository available during the build is still V3.6, so copying its index.html/app.js would downgrade newer V3.8.1 work.
+
+For that reason this overlay DOES NOT replace the V3.8.1 parent app shell for these two agreed amendments:
+
+1. KeyCore > Product
+   Current wrong route: directly opens CHC Product.
+   Required V3.8.2 route: open a Product Hub first, showing available product modules such as CHC, ES, Motor, Coupling, Control Panel/KeyPLC, GWS Tank, Manifold and other existing categories.
+
+2. KeyCore > Pump Curve
+   Current wrong route: directly opens CHC Pump Curve.
+   Required V3.8.2 route: open a Pump Curve Hub first, then choose CHC, ES or future pump families.
+
+Do NOT copy V3.6 index.html/app.js over V3.8.1 to implement these items.
+When the exact V3.8.1 full GitHub package is available, merge these two routes into that shell.
+
+Selector-side V3.8.2 changes in selector/ and selector-es/ are safe to overlay now.

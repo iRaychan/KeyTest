@@ -1,0 +1,34 @@
+KeySuite V3.8.2 Final Amendment QA
+
+PASS — CHC action order PDF / Assembly / Quote
+PASS — CHC Flow starts blank
+PASS — CHC Head starts blank
+PASS — CHC dropdown excludes m³/min
+PASS — CHC duplicate Summary-side PDF removed
+PASS — CHC alternative order -2 < -1 < standard
+PASS — CHC Page 1 motor kW + pole
+PASS — ES action order PDF / Assembly / Quote
+PASS — ES dropdown excludes m³/min
+PASS — ES top Material
+PASS — ES top Mechanical Seal
+PASS — ES top Elastomer
+PASS — ES top Bare Shaft
+PASS — ES top Motor Voltage
+PASS — ES non-default alert fill on four controls
+PASS — ES Summary expand/collapse
+PASS — ES Summary shows efficiency
+PASS — ES Summary shows Power/BHP
+PASS — ES Summary shows NPSHr
+PASS — ES Page 1 motor kW + pole
+PASS — ES Page 2 Operating Data section
+PASS — ES Page 2 Pump section
+PASS — ES Page 2 Motor section
+PASS — ES Page 2 Pumpset section
+PASS — ES Mechanical Seal label
+PASS — ES standard seal hides Ca Ce
+PASS — ES Bearing Type = Ball
+PASS — ES Pumpset dimension placeholders blank
+PASS — ES Bare Shaft suppresses motor assembly
+PASS — ES Assembly includes live motor API route
+
+RESULT: 30/30 PASS

@@ -1,32 +1,48 @@
 KeySuite V3.8.2 QA
 
-PASS — KeyES V1.9 regression suite
-- Core tests
-- Q-H / Efficiency / Power / NPSH tests
-- Recommendation priority
-- Torque protection
-- Catalog ordering
-- System/orifice limits and intersections
-- Large impeller domain regression
-- UI/report structure
-- KeySuite action controls
-- PDF Page 1 chart alignment tests
-
 PASS — KeyCHC V3.4.7 integration
-- KeyCHC V3.4.7 runtime used.
-- KeySuite Assembly / Quote / PDF bridge present.
-- Product-frame and saved-datasheet message hooks present.
-- All inline JavaScript blocks pass `node --check` syntax validation.
+- Flow starts empty.
+- Head starts empty.
+- m³/min is absent from all integrated selector flow dropdowns (CHC and ES).
+- Duplicate Summary-side PDF removed; top PDF retained.
+- Alternative ordering uses -2 < -1 < standard for the same base model.
+- Curve Page 1 motor label includes pole count.
+- Inline JavaScript syntax validation passed.
 
-PASS — KeyES PDF scope protection
-- Page 1 expression is unchanged from KeyES V1.9.
-- Page 2 contains KeyCHC-style TECHNICAL DATA / Operating Data / Pump / Motor structure.
-- Page 2 pump fields bind to active KeyES result/back pump data.
-- Page 2 motor fields prefer KeySuite live motorProducts data and use technical fallback when available.
-- Page 3 dimension expression is unchanged from KeyES V1.9.
+PASS — KeyES V1.9 regression suite
+- Core tests.
+- Q-H / Efficiency / Power / NPSH tests.
+- Recommendation priority.
+- Torque protection.
+- Catalog ordering.
+- System/orifice limits and intersections.
+- Large-impeller flow-domain regression.
+- UI/report structure regression.
+- PDF Page 1 chart alignment regression.
+
+PASS — KeyES V3.8.2 UI amendments
+- Action order: PDF / Assembly / Quote.
+- Material / Mechanical Seal / Elastomer / Motor Voltage moved to top.
+- Non-default alert fill logic present for all four options.
+- Bare Shaft Pump checkbox present and defaults unchecked.
+- Summary expand/collapse present with Efficiency, Power/BHP and NPSHr core values.
+- Assembly payload contains selected pump/motor and Flexible Coupling intent; direct parent Assembly/Motor API route has safe message-bridge fallback.
+
+PASS — KeyES PDF Page 2
+- KeyCHC-style TECHNICAL DATA layout.
+- Operating Data / Pump / Motor / Pumpset sections.
+- Mechanical Seal label used.
+- Standard Carbon Ceramic does not show `(Ca Ce)`.
+- Bearing Type = Ball.
+- Pumpset dimension format present with blank values.
+- Live KeySuite motor backend preferred with technical fallback.
 
 PASS — Deployment safety
 - No config.js included.
 - No database migration.
 - No KeyAI changes.
-- Package changes only selector/ and selector-es/ plus release notes.
+- No older main app shell files included.
+
+PENDING — requires exact V3.8.1 app shell
+- KeyCore > Product Hub parent navigation.
+- KeyCore > Pump Curve Hub parent navigation.
