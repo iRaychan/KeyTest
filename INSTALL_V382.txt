@@ -1,0 +1,18 @@
+KeySuite V3.8.2 — GitHub Update Overlay
+Base required: KeySuite V3.8.1
+
+INSTALL
+1. Confirm your repository is currently KeySuite V3.8.1.
+2. Extract this ZIP at the ROOT of your KeySuite repository.
+3. Allow the files in selector/ and selector-es/ to overwrite the existing files.
+4. Upload/commit all extracted files to GitHub.
+5. Hard refresh the browser after deployment (Ctrl+F5).
+
+DATABASE
+- No Supabase SQL migration is required for V3.8.2.
+- config.js is not included or changed.
+- No KeyAI Edge Function changes are included.
+
+IMPORTANT
+This package is intentionally an overlay, not a full older KeySuite repository snapshot.
+The exact V3.8.1 full ZIP was not available in the build session, so this format preserves all unrelated V3.8.1 files while replacing only CHC / ES selector files.

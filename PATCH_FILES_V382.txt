@@ -1,0 +1,15 @@
+selector/index.html
+selector/bgreich-logo.png
+selector/favicon.png
+selector/apple-touch-icon.png
+selector-es/index.html
+selector-es/es-core.js
+selector-es/es-data.js
+selector-es/motor-data.js
+selector-es/bgreich-logo.png
+selector-es/favicon.svg
+INSTALL_V382.txt
+V382_CHANGELOG.md
+V382_QA.txt
+V382_NO_DATABASE_MIGRATION.txt
+SHA256SUMS_V382.txt

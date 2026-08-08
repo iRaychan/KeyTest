@@ -180,6 +180,17 @@
     };
   }
 
+  function shaftTorqueNm(perf){
+    if(!perf||!finite(perf.shaftKw)||!finite(perf.rpm)||!(perf.rpm>0))return null;
+    return 9550*perf.shaftKw/perf.rpm;
+  }
+  function torqueCheck(pump,perf){
+    var d=(pump&&pump.dimensions)||{},shaftMm=Number(d.shaft_mm),maxTorqueNm=Number(d.max_torque_nm),actualTorqueNm=shaftTorqueNm(perf);
+    var hasLimit=finite(maxTorqueNm)&&maxTorqueNm>0;
+    var exceeded=hasLimit&&finite(actualTorqueNm)&&actualTorqueNm>maxTorqueNm+1e-9;
+    return {shaftMm:finite(shaftMm)?shaftMm:null,maxTorqueNm:hasLimit?maxTorqueNm:null,actualTorqueNm:actualTorqueNm,exceeded:exceeded};
+  }
+
   function solveTheoreticalDiameter(pump,flowLps,targetHead){
     var lo=dmin(pump),hi=dmax(pump);
     var maxPerf=performance(pump,hi,flowLps,1);
@@ -324,6 +335,7 @@
       perf=rounded.performance;
     }
     if(!perf||perf.headM+1e-7<targetHead||!finite(perf.efficiencyPct)||perf.efficiencyPct<=0)return null;
+    var torque=torqueCheck(pump,perf);
     var motor=sizeMotor(pump,selectedD,speedRatio,perf);
     if(!motor)return null;
     var insidePreferred=motor.flowRatio>=0.82&&motor.flowRatio<=1.13;
@@ -341,6 +353,8 @@
       speedRatio:speedRatio,
       performance:perf,
       motor:motor,
+      torque:torque,
+      torqueExceeded:torque.exceeded,
       insidePreferredRange:insidePreferred,
       score:score
     };
@@ -374,6 +388,8 @@
   // 1) highest duty-point efficiency, 2) impeller nearest full/max diameter,
   // 3) duty flow within +/-10% of BEP, then closest to BEP.
   function compareSelectionPriority(a,b){
+    var ta=!!(a&&a.torqueExceeded),tb=!!(b&&b.torqueExceeded);
+    if(ta!==tb)return ta?1:-1;
     var ea=selectionEfficiency(a),eb=selectionEfficiency(b);
     if(Math.abs(ea-eb)>1e-9)return eb-ea;
     var ga=selectionImpellerGap(a),gb=selectionImpellerGap(b);
@@ -403,7 +419,7 @@
     return (duties||[]).map(function(d,i){
       var total=Number(d.totalFlowLps!=null?d.totalFlowLps:d.flowLps);
       var head=Number(d.headM);
-      var pumps=Math.max(1,Math.min(6,Math.round(Number(d.pumps)||1)));
+      var pumps=i===0?1:Math.max(1,Math.min(6,Math.round(Number(d.pumps)||1)));
       if(!(total>0&&head>0))return null;
       return {index:i,label:d.label||('D'+(i+1)),totalFlowLps:total,headM:head,pumps:pumps,perPumpFlowLps:total/pumps};
     }).filter(Boolean).slice(0,6);
@@ -446,7 +462,7 @@
         var fd=duties[f],fp=performance(pump,selectedD,fd.perPumpFlowLps,1);
         if(!fp||!finite(fp.efficiencyPct)||fp.efficiencyPct<=0||fp.headM+1e-7<fd.headM)return null;
         var fmc=sizeMotor(pump,selectedD,1,fp);if(!fmc)return null;
-        dutyResults.push(Object.assign({},fd,{impellerMm:selectedD,exactFrequencyHz:50,frequencyHz:50,speedRatio:1,performance:fp,motor:fmc,meetsHead:true}));
+        dutyResults.push(Object.assign({},fd,{impellerMm:selectedD,exactFrequencyHz:50,frequencyHz:50,speedRatio:1,performance:fp,motor:fmc,torque:torqueCheck(pump,fp),meetsHead:true}));
       }
     }else if(mode==='vfd'){
       for(var i=0;i<duties.length;i++){
@@ -457,7 +473,7 @@
         var speedRatio=selectedHz/50,perf=performance(pump,maxD,d.perPumpFlowLps,speedRatio);
         if(!perf||perf.headM+1e-7<d.headM||!finite(perf.efficiencyPct)||perf.efficiencyPct<=0)return null;
         var motorCheck=sizeMotor(pump,maxD,speedRatio,perf);if(!motorCheck)return null;
-        dutyResults.push(Object.assign({},d,{impellerMm:maxD,exactFrequencyHz:exactHz,frequencyHz:selectedHz,speedRatio:speedRatio,performance:perf,motor:motorCheck}));
+        dutyResults.push(Object.assign({},d,{impellerMm:maxD,exactFrequencyHz:exactHz,frequencyHz:selectedHz,speedRatio:speedRatio,performance:perf,motor:motorCheck,torque:torqueCheck(pump,perf)}));
       }
     }else{
       var required=[];
@@ -471,11 +487,11 @@
         var dd=duties[k],pp=performance(pump,selectedD,dd.perPumpFlowLps,1);
         if(!pp||pp.headM+1e-7<dd.headM||!finite(pp.efficiencyPct)||pp.efficiencyPct<=0)return null;
         var mc=sizeMotor(pump,selectedD,1,pp);if(!mc)return null;
-        dutyResults.push(Object.assign({},dd,{impellerMm:selectedD,theoreticalDiameterMm:required[k],exactFrequencyHz:50,frequencyHz:50,speedRatio:1,performance:pp,motor:mc}));
+        dutyResults.push(Object.assign({},dd,{impellerMm:selectedD,theoreticalDiameterMm:required[k],exactFrequencyHz:50,frequencyHz:50,speedRatio:1,performance:pp,motor:mc,torque:torqueCheck(pump,pp)}));
       }
     }
     var combined=combineMotorChecks(dutyResults.map(function(x){return x.motor;}));if(!combined)return null;
-    var primary=dutyResults[0],allPreferred=dutyResults.every(function(x){return x.motor.flowRatio>=0.82&&x.motor.flowRatio<=1.13;});
+    var primary=dutyResults[0],criticalTorqueDuty=dutyResults.reduce(function(best,x){var ta=x.torque&&x.torque.actualTorqueNm,tb=best&&best.torque&&best.torque.actualTorqueNm;return finite(ta)&&(!finite(tb)||ta>tb)?x:best;},dutyResults[0]),torqueExceeded=dutyResults.some(function(x){return x.torque&&x.torque.exceeded;}),allPreferred=dutyResults.every(function(x){return x.motor.flowRatio>=0.82&&x.motor.flowRatio<=1.13;});
     var avgEta=dutyResults.reduce(function(s,x){return s+x.performance.efficiencyPct;},0)/dutyResults.length;
     var avgDev=dutyResults.reduce(function(s,x){return s+Math.abs(x.motor.flowRatio-1);},0)/dutyResults.length;
     var score=(allPreferred?1000:0)+avgEta-avgDev*10-combined.motorKw*0.001;
@@ -484,8 +500,8 @@
       requestedFlowLps:primary.totalFlowLps,requestedHeadM:primary.headM,requestedTotalFlowLps:primary.totalFlowLps,
       theoreticalDiameterMm:mode==='trim'?theoretical:null,impellerMm:(mode==='trim'||mode==='flex')?selectedD:maxD,
       exactFrequencyHz:primary.exactFrequencyHz,frequencyHz:primary.frequencyHz,speedRatio:primary.speedRatio,
-      performance:primary.performance,motor:combined,insidePreferredRange:allPreferred,score:score,
-      dutyPoints:dutyResults,criticalDutyIndex:combined.criticalDutyIndex
+      performance:primary.performance,motor:combined,torque:criticalTorqueDuty.torque,torqueExceeded:torqueExceeded,insidePreferredRange:allPreferred,score:score,
+      dutyPoints:dutyResults,criticalDutyIndex:combined.criticalDutyIndex,criticalTorqueDutyIndex:criticalTorqueDuty.index
     };
   }
 
@@ -514,13 +530,13 @@
       var d=duties[i],perf=performance(pump,diameterMm,d.perPumpFlowLps,speedRatio);
       if(!perf||!finite(perf.efficiencyPct)||perf.efficiencyPct<=0)return null;
       var mc=sizeMotor(pump,diameterMm,speedRatio,perf);if(!mc)return null;
-      dutyResults.push(Object.assign({},d,{impellerMm:diameterMm,exactFrequencyHz:frequencyHz,frequencyHz:frequencyHz,speedRatio:speedRatio,performance:perf,motor:mc,meetsHead:perf.headM+1e-7>=d.headM}));
+      dutyResults.push(Object.assign({},d,{impellerMm:diameterMm,exactFrequencyHz:frequencyHz,frequencyHz:frequencyHz,speedRatio:speedRatio,performance:perf,motor:mc,torque:torqueCheck(pump,perf),meetsHead:perf.headM+1e-7>=d.headM}));
     }
     var combined=combineMotorChecks(dutyResults.map(function(x){return x.motor;}));if(!combined)return null;
-    var primary=dutyResults[0],allPreferred=dutyResults.every(function(x){return x.motor.flowRatio>=0.82&&x.motor.flowRatio<=1.13;}),meetsAll=dutyResults.every(function(x){return x.meetsHead;});
+    var primary=dutyResults[0],criticalTorqueDuty=dutyResults.reduce(function(best,x){var ta=x.torque&&x.torque.actualTorqueNm,tb=best&&best.torque&&best.torque.actualTorqueNm;return finite(ta)&&(!finite(tb)||ta>tb)?x:best;},dutyResults[0]),torqueExceeded=dutyResults.some(function(x){return x.torque&&x.torque.exceeded;}),allPreferred=dutyResults.every(function(x){return x.motor.flowRatio>=0.82&&x.motor.flowRatio<=1.13;}),meetsAll=dutyResults.every(function(x){return x.meetsHead;});
     var avgEta=dutyResults.reduce(function(sum,x){return sum+x.performance.efficiencyPct;},0)/dutyResults.length;
     var avgDev=dutyResults.reduce(function(sum,x){return sum+Math.abs(x.motor.flowRatio-1);},0)/dutyResults.length;
-    return Object.assign({},result,{mode:'flex',id:pump.id+'-flex-manual',theoreticalDiameterMm:null,impellerMm:diameterMm,exactFrequencyHz:frequencyHz,frequencyHz:frequencyHz,speedRatio:speedRatio,performance:primary.performance,motor:combined,insidePreferredRange:allPreferred,meetsAllDuties:meetsAll,score:(allPreferred?1000:0)+avgEta-avgDev*10-combined.motorKw*0.001,dutyPoints:dutyResults,criticalDutyIndex:combined.criticalDutyIndex});
+    return Object.assign({},result,{mode:'flex',id:pump.id+'-flex-manual',theoreticalDiameterMm:null,impellerMm:diameterMm,exactFrequencyHz:frequencyHz,frequencyHz:frequencyHz,speedRatio:speedRatio,performance:primary.performance,motor:combined,torque:criticalTorqueDuty.torque,torqueExceeded:torqueExceeded,insidePreferredRange:allPreferred,meetsAllDuties:meetsAll,score:(allPreferred?1000:0)+avgEta-avgDev*10-combined.motorKw*0.001,dutyPoints:dutyResults,criticalDutyIndex:combined.criticalDutyIndex,criticalTorqueDutyIndex:criticalTorqueDuty.index});
   }
 
   function systemCurveStaticDuty(staticHeadM,designFlowLps,designHeadM){
@@ -533,6 +549,21 @@
     // Retain equivalent L/s coefficient for compatibility and diagnostics.
     var k=(designHeadM-staticHeadM)/(designFlowLps*designFlowLps);
     return {staticHeadM:staticHeadM,staticHeadFt:staticHeadFt,k:k,kUsGpm2:kUsGpm2,designFlowLps:designFlowLps,designHeadM:designHeadM,method:'static-duty-usgpm'};
+  }
+  function systemCurveFlowLimit(curve,maxHeadM,maxFlowLps){
+    maxHeadM=Number(maxHeadM);maxFlowLps=Number(maxFlowLps);
+    if(!curve||!(maxFlowLps>=0)||!finite(maxHeadM))return null;
+    var h0=systemHead(curve,0);
+    if(!finite(h0))return null;
+    if(h0>=maxHeadM-1e-9)return 0;
+    var hMax=systemHead(curve,maxFlowLps);
+    if(!finite(hMax)||hMax<=maxHeadM+1e-9)return maxFlowLps;
+    var lo=0,hi=maxFlowLps;
+    for(var i=0;i<80;i++){
+      var mid=(lo+hi)/2,h=systemHead(curve,mid);
+      if(!finite(h)||h>maxHeadM)hi=mid;else lo=mid;
+    }
+    return (lo+hi)/2;
   }
   function systemCurveTwoPoints(q1,h1,q2,h2){
     q1=Number(q1);h1=Number(h1);q2=Number(q2);h2=Number(h2);
@@ -625,6 +656,8 @@
     dmax:dmax,dmin:dmin,
     efficiencyAt:efficiencyAt,
     performance:performance,
+    shaftTorqueNm:shaftTorqueNm,
+    torqueCheck:torqueCheck,
     solveTheoreticalDiameter:solveTheoreticalDiameter,
     roundImpeller:roundImpeller,
     solveSpeedRatio:solveSpeedRatio,
@@ -640,6 +673,7 @@
     selectPumpsMulti:selectPumpsMulti,
     applyFlexibleSetting:applyFlexibleSetting,
     systemCurveStaticDuty:systemCurveStaticDuty,
+    systemCurveFlowLimit:systemCurveFlowLimit,
     systemCurveTwoPoints:systemCurveTwoPoints,
     systemHead:systemHead,
     orificeCurveKnown:orificeCurveKnown,

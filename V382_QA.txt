@@ -1,0 +1,32 @@
+KeySuite V3.8.2 QA
+
+PASS — KeyES V1.9 regression suite
+- Core tests
+- Q-H / Efficiency / Power / NPSH tests
+- Recommendation priority
+- Torque protection
+- Catalog ordering
+- System/orifice limits and intersections
+- Large impeller domain regression
+- UI/report structure
+- KeySuite action controls
+- PDF Page 1 chart alignment tests
+
+PASS — KeyCHC V3.4.7 integration
+- KeyCHC V3.4.7 runtime used.
+- KeySuite Assembly / Quote / PDF bridge present.
+- Product-frame and saved-datasheet message hooks present.
+- All inline JavaScript blocks pass `node --check` syntax validation.
+
+PASS — KeyES PDF scope protection
+- Page 1 expression is unchanged from KeyES V1.9.
+- Page 2 contains KeyCHC-style TECHNICAL DATA / Operating Data / Pump / Motor structure.
+- Page 2 pump fields bind to active KeyES result/back pump data.
+- Page 2 motor fields prefer KeySuite live motorProducts data and use technical fallback when available.
+- Page 3 dimension expression is unchanged from KeyES V1.9.
+
+PASS — Deployment safety
+- No config.js included.
+- No database migration.
+- No KeyAI changes.
+- Package changes only selector/ and selector-es/ plus release notes.
