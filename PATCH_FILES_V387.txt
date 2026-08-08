@@ -1,0 +1,17 @@
+KeySuite V3.8.7 update patch from V3.8.6
+
+Changed/new files:
+INSTALL_V387.txt
+PATCH_FILES_V387.txt
+SHA256SUMS_V387_FULL.txt
+V387_CHANGES.txt
+V387_NO_DATABASE_MIGRATION.txt
+V387_QA_REPORT.txt
+index.html
+product.js
+selector/index.html
+selector-es/index.html
+sw.js
+v387-dashboard-keycore.js
+
+Deleted files: none

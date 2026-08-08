@@ -1,0 +1,30 @@
+KeySuite V3.8.7
+
+1. CHC + ES Alternative Models — same-speed 50% BEP guard
+   - Keeps the existing hydraulic envelope and +5% full-curve tolerance.
+   - 2P alternatives are compared only with 2P; 4P only with 4P.
+   - If Duty Flow is below 50% of a candidate's BEP Flow, that oversized candidate is hidden only when a smaller hydraulically qualified model of the same pole group exists.
+   - If no smaller same-pole qualified model exists, the candidate remains visible.
+   - Alternative display remains small-to-big by catalog sequence.
+
+2. Product > CHC / ES > Curve duty point
+   - Product curve popup now has Flow + unit and Head + unit inputs.
+   - Entering both values recalculates the selected product model and plots the new duty point without changing to another model.
+   - If the selected ES model cannot meet the entered head but flow remains on its curve, the max/full curve remains visible as reference with the requested duty point.
+
+3. Product curve actions
+   - Popup header now includes PDF / Assembly / Quote / Close.
+   - Actions use the currently displayed model, configuration and entered duty point.
+
+4. Product curve scrolling and chart balance
+   - ES Material / Seal Type / Seal Material / Elastomer / Bare Shaft row is no longer sticky in Product Curve mode; it scrolls normally with the curve.
+   - Efficiency / Power / NPSH use the compact CHC right-panel height as the standard.
+   - Pump Curve left panel height is matched to the full three-card right stack for both CHC and ES Product Curve views.
+
+5. Dashboard Quick Selection
+   - Recommended model shows Motor kW + Pole + Duty Efficiency immediately next to the model name.
+   - Alternatives retain the same compact kW / Pole / Efficiency format.
+   - Curves opened from Quick Selection show an icon-only Return to Quick Selection control on the CHC/ES selector page.
+   - Return preserves Flow, Head, available series, expanded/collapsed state, recommended model and alternatives; it does not rerun selection.
+
+6. No database migration required.

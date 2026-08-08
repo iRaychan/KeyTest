@@ -1,0 +1,53 @@
+KeySuite V3.8.7 QA
+
+Static / integration checks: 63/63 PASS
+PASS - Version 3.8.7 index and V387 service-worker cache
+PASS - Dashboard loads V387 Quick Selection extension
+PASS - Dashboard Recommended + Alternative rows show compact Motor kW + Pole + Duty Efficiency beside the model
+PASS - Dashboard Available Series starts expanded
+PASS - Quick Selection curve origin is tracked for CHC and ES
+PASS - Icon-only Return to Quick Selection control exists for CHC and ES
+PASS - Return navigates to Dashboard without rerunning Quick Selection and retains the existing Quick Selection DOM/state
+PASS - Product CHC/ES Curve popup has Flow + unit and Head + unit duty controls
+PASS - Product Curve popup action order is PDF / Assembly / Quote / Close
+PASS - Product Curve actions operate through the current displayed selector state
+PASS - CHC Product Curve accepts an exact-model duty point and retains the same model
+PASS - ES Product Curve accepts an exact-model duty point and retains the same model
+PASS - ES Product Curve can retain the full/max curve as reference when entered head is above the selected model curve but flow remains in range
+PASS - ES Product Curve top Material / Seal Type / Seal Material / Elastomer / Bare Shaft row is non-sticky
+PASS - CHC Product Curve balanced layout: left Pump Curve 554 px; right stack 3 x 178 px with 10 px gaps
+PASS - ES Product Curve balanced layout: left Pump Curve 554 px; right stack 3 x 178 px with 10 px gaps
+PASS - CHC Alternative same-pole 50% BEP guard
+PASS - ES Alternative same-pole 50% BEP guard
+PASS - CHC oversized alternative is hidden only when a smaller hydraulically qualified same-pole model exists
+PASS - ES oversized alternative is hidden only when a smaller hydraulically qualified same-pole model exists
+PASS - CHC Alternative ordering remains catalog sequence small-to-big
+PASS - ES Alternative ordering remains catalog sequence small-to-big
+PASS - CHC alternatives retain max-flow endpoint lower-head rule and +5% full-curve upper allowance
+PASS - ES alternatives retain max-flow endpoint lower-head rule and +5% full-curve upper allowance
+PASS - ES torque-exceeded alternatives remain visible with warning
+PASS - ES torque-exceeded candidates remain excluded from Most Suitable recommendation
+PASS - CHC/ES Most Suitable BEP Group 1 / 2 / 3 ranking remains unchanged
+PASS - CHC/ES no fixed-two Alternative Model limit
+
+JavaScript syntax: PASS
+- product.js
+- v387-dashboard-keycore.js
+- sw.js
+- selector-es/es-core.js
+- CHC selector inline scripts
+- ES selector inline script
+
+Engineering selection tests: PASS
+- ES 70 m3/hr @ 80 m: ES 50-26 and ES 50-26G both remain hydraulically qualified and visible; ES 50-26 is within torque limit.
+- ES 90 m3/hr @ 80 m: ES 50-26 and ES 50-26G both remain hydraulically qualified and visible; ES 50-26 is torque-exceeded and warning-only.
+- ES real-catalog 50% BEP suppression case found and verified; every hidden model was below 50% BEP and had a smaller qualified same-pole model.
+- ES same-pole guard verified: a smaller 4P candidate cannot suppress an oversized 2P candidate.
+- ES Most Suitable group priority retained: Group 1 beats Group 2; within Group 1 higher duty efficiency wins.
+- CHC real-catalog 50% BEP suppression case found and verified; every hidden model was below 50% BEP and had a smaller qualified same-pole model.
+- CHC Most Suitable BEP group priority retained.
+- CHC Product exact-model duty evaluation and above-curve reference evaluation: PASS.
+- ES Product ES 32-20 at 19.8 m3/hr @ 56.08 m exact-model duty: PASS.
+- ES Product ES 32-20 at 19.8 m3/hr @ 80 m full-curve reference fallback: PASS.
+
+Browser automation note: this execution environment does not provide a deployed KeySuite browser session, so validation used source integration checks, JavaScript syntax checks, and direct CHC/ES engineering selection-engine tests.
