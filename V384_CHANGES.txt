@@ -1,0 +1,32 @@
+KeySuite V3.8.4 Changes
+Build date: 2026-08-08
+Base: KeySuite V3.8.3 FULL GitHub
+
+1. Selection launch regression fixed
+- CHC and ES selector iframes remain loaded inside the authenticated KeySuite app.
+- Removed the shared auth-time blanking behavior that could leave both selectors unavailable.
+- CHC and ES normal Selection pages now load directly with cache-busted V3.8.4 shell files.
+
+2. ES non-default alert fill fixed
+- Material, Seal Type, Seal Material, Elastomer and Bare Shaft Pump each show the alert fill when non-default.
+- Gland Packing forces Seal Material = Graphite; both Seal Type and Seal Material are visibly alerted.
+- Returning a control to default clears its alert state.
+
+3. Dashboard Quick Pump Selection
+- Moved into the same Start card as Customer / Customer Name.
+- Flow input + Flow unit dropdown.
+- Head input + Head unit dropdown.
+- m³/min is not offered.
+- Unit conversion is performed before sending the duty to CHC / ES.
+- Uses the existing loaded CHC and ES selector engines rather than separate hidden selector copies.
+- Adds selector-load retry/handshake logic so a loading selector is not falsely reported as “No suitable model”.
+- Only suitable families are shown; expand family to recommended model, then click model for performance information.
+
+4. KeyCore
+- Default entry zoom = 55%.
+- Zoom-out remains available below 55%.
+- Pump Curves renamed to Selection.
+- Selection opens CHC / ES selector family hub.
+
+Database
+- No new Supabase migration required.

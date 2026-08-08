@@ -17,7 +17,7 @@
     {id:'quotation',label:'Quotation',sub:'Total quotations',icon:'▤',tone:'purple',nav:()=>window.KeySuiteApp?.showPage?.('history')},
     {id:'customers',label:'Customers',sub:'Active customers',icon:'♟',tone:'green',nav:()=>window.KeySuiteApp?.showPage?.('customers')},
     {id:'price',label:'Price List',sub:'Source price items',icon:'▦',tone:'orange',nav:()=>window.KeySuiteApp?.showPage?.('priceListDashboard')},
-    {id:'curves',label:'Pump Curves',sub:'CHC + ES models',icon:'⌁',tone:'blue',nav:()=>window.KeySuiteV383?.openHub?.('curve')},
+    {id:'curves',label:'Selection',sub:'CHC + ES selectors',icon:'⌁',tone:'blue',nav:()=>window.KeySuiteV384?.openHub?.('selection')},
     {id:'keyai',label:'KeyAI',sub:'Recent enquiries',icon:'✦',tone:'cyan',nav:()=>{
       if(String(window.KEYSUITE_ACCESS?.role||'').toLowerCase()==='owner')window.KeySuiteApp?.showPage?.('keyAiSettings');
       else toast('KeyAI settings and Telegram inbox are Owner-only in the current KeySuite build.');
@@ -120,7 +120,7 @@
   }
 
   function updateSideWidth(){
-    // V3.8.3: KeyCore is a true full-screen universe; normal KeySuite sidebar stays underneath the overlay.
+    // V3.8.4: KeyCore is a true full-screen universe; normal KeySuite sidebar stays underneath the overlay.
     document.documentElement.style.setProperty('--ksu-side','0px');
   }
 
@@ -148,7 +148,7 @@
         <div class="ksu-world" id="ksu-world"><canvas class="ksu-particles" id="ksu-particles" width="1600" height="950" aria-hidden="true"></canvas><div class="ksu-orbit o1"></div><div class="ksu-orbit o2"></div><div class="ksu-orbit o3"></div><div class="ksu-orbit o4"></div><svg class="ksu-connectors" id="ksu-connectors" viewBox="0 0 1600 950" preserveAspectRatio="none"></svg><div class="ksu-core"><div class="ksu-core-grid"></div><div class="ksu-core-label"><strong>KeyCore</strong><span id="ksu-core-pulse">SYSTEM ONLINE</span><small>V${VERSION} · DATA GRAVITY ACTIVE</small></div></div></div>
         <section class="ksu-leftpanel"><div class="ksu-panel-title">⌁ Recent Activity</div><div class="ksu-activity-list" id="ksu-activity-list"><div class="ksu-empty">KeyCore is synchronising…</div></div></section>
         <section class="ksu-legend"><div class="ksu-panel-title">DATA GRAVITY</div><div class="ksu-legend-row">More records → larger globe + denser orbit</div><div class="ksu-legend-dots"><i></i><i></i><i></i><i></i><i></i></div><div class="ksu-panel-title" style="margin-top:12px">LIVE ACTIVITY</div><div class="ksu-legend-row">New data → particles absorb → heartbeat</div><svg class="ksu-heartline" viewBox="0 0 150 22"><path d="M1 12h28l5-7 7 14 8-11 5 4h26l6-9 8 17 8-12 6 4h41" fill="none" stroke="#7debd7" stroke-width="1.5"/></svg></section>
-        <div class="ksu-zoom"><button id="ksu-plus" type="button" title="Zoom in">+</button><div class="ksu-zoom-read" id="ksu-zoom-read">100%</div><button id="ksu-minus" type="button" title="Zoom out">−</button><button class="ksu-center" id="ksu-reset" type="button" title="Reset view">◎</button></div>
+        <div class="ksu-zoom"><button id="ksu-plus" type="button" title="Zoom in">+</button><div class="ksu-zoom-read" id="ksu-zoom-read">55%</div><button id="ksu-minus" type="button" title="Zoom out">−</button><button class="ksu-center" id="ksu-reset" type="button" title="Reset view">◎</button></div>
         <div class="ksu-minimap"><div class="ksu-minimap-world"><div class="ksu-mini-ring-map"></div><div class="ksu-mini-center"></div></div></div>
         <div class="ksu-hint">DRAG TO NAVIGATE &nbsp;·&nbsp; SCROLL TO ZOOM &nbsp;·&nbsp; CLICK A DATA GLOBE TO OPEN</div><div class="ksu-toast" id="ksu-toast"></div>
       </div>`;
@@ -283,8 +283,8 @@
   function startAnimation(){cancelAnimationFrame(state.raf);state.lastFrame=0;ensureCanvasSize();state.raf=requestAnimationFrame(animationLoop)}
 
   function transformWorld(){const w=$('#ksu-world');if(!w)return;w.style.transform=`translate(calc(-50% + ${state.panX}px),calc(-50% + ${state.panY}px)) scale(${state.scale})`;$('#ksu-zoom-read').textContent=`${Math.round(state.scale*100)}%`}
-  function zoomBy(delta,cx=null,cy=null){state.scale=clamp(state.scale+delta,.55,1.8);transformWorld()}
-  function resetView(){state.scale=1;state.panX=0;state.panY=0;transformWorld()}
+  function zoomBy(delta,cx=null,cy=null){state.scale=clamp(state.scale+delta,.35,1.8);transformWorld()}
+  function resetView(){state.scale=.55;state.panX=0;state.panY=0;transformWorld()}
   function bindControls(){
     $('#ksu-close').addEventListener('click',close);$('#ksu-refresh').addEventListener('click',()=>refresh({forceBurst:true}));$('#ksu-plus').addEventListener('click',()=>zoomBy(.12));$('#ksu-minus').addEventListener('click',()=>zoomBy(-.12));$('#ksu-reset').addEventListener('click',resetView);
     $('#ksu-pause').addEventListener('click',()=>{state.paused=!state.paused;$('#ksu-overlay').classList.toggle('ksu-paused',state.paused);$('#ksu-pause').textContent=state.paused?'▶ Resume motion':'Ⅱ Pause motion';if(!state.paused)startAnimation()});

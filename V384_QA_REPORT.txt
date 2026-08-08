@@ -1,0 +1,20 @@
+KeySuite V3.8.4 QA Report
+Date: 2026-08-08
+
+PASS - 37/37 V3.8.4 amendment/source integration checks
+PASS - CHC and ES direct selector load paths present
+PASS - Shared selector auth blanking regression removed
+PASS - Dashboard is inside Customer / Customer Name Start card
+PASS - Dashboard Flow / Head unit conversion + retry handshake
+PASS - KeyCore default zoom 55%
+PASS - KeyCore Pump Curves renamed Selection
+PASS - ES Material / Seal Type / Seal Material / Elastomer / Bare Shaft alert logic
+PASS - Gland Packing -> Graphite seal material logic
+PASS - ES All Speed default retained
+PASS - m³/min absent from CHC / ES selectable flow units
+PASS - KeyES V1.9 core regression suite
+PASS - KeyES V1.9 UI/report regression suite
+PASS - Runtime JavaScript syntax validation
+PASS - CHC and ES inline JavaScript syntax validation
+
+Note: The container's managed Chromium policy blocks localhost/file navigation, so browser automation could not be used. Runtime behavior was validated through source integration checks, selector engine regression tests, and JavaScript compilation checks.

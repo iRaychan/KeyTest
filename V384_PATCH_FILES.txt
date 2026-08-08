@@ -1,0 +1,24 @@
+KeySuite V3.8.3 -> V3.8.4 Patch Files
+
+Runtime / UI
+- VERSION.txt
+- app.js
+- auth.js
+- index.html
+- sw.js
+- universe.js
+- v384-dashboard-keycore.js
+- selector/index.html
+- selector-es/index.html
+
+Documentation
+- INSTALL_V384_PATCH.txt
+- V384_CHANGES.txt
+- V384_QA_REPORT.txt
+- V384_NO_DATABASE_MIGRATION.txt
+- V384_PATCH_FILES.txt
+- SHA256SUMS_V384_PATCH.txt
+
+No deletions.
+No config.js included.
+No SQL migration required.

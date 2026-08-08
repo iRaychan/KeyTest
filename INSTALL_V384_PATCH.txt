@@ -1,0 +1,12 @@
+KeySuite V3.8.4 Update Patch
+Base required: KeySuite V3.8.3 FULL GitHub
+
+1. Back up your current V3.8.3 repository/config.js.
+2. Extract this ZIP at the repository root.
+3. Upload/replace ALL files from this patch to GitHub, preserving folder structure.
+4. Do NOT replace your working config.js; this patch does not contain config.js.
+5. No SQL / Supabase migration is required.
+6. After deployment, hard refresh with Ctrl+F5.
+7. If KeySuite is installed as a PWA, fully close and reopen it once so the V3.8.4 service worker cache takes control.
+
+This patch contains only files changed/new between V3.8.3 FULL and V3.8.4 FULL. No files are deleted.

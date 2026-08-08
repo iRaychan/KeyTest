@@ -1,10 +1,10 @@
-/* KeySuite V3.8.3 service worker — full repository build, network first */
-const CACHE='keysuite-v383-full';
+/* KeySuite V3.8.4 service worker — full repository build, network first */
+const CACHE='keysuite-v384-full';
 const SHELL=[
  './','./index.html','./app.js','./permissions.js','./applications.js','./assembly.js','./motor.js','./coupling.js',
  './quotation-templates.js','./pricing.js','./quotation-references.js','./categories.js','./pricelist.js','./product.js',
  './manifold.js','./roles.js','./company-settings.js','./keyai.js','./auth.js','./manifest.json','./keylargo-logo.png',
- './universe.js','./v383-dashboard-keycore.js','./selector/index.html','./selector-es/index.html','./selector-es/es-core.js',
+ './universe.js','./v384-dashboard-keycore.js','./selector/index.html','./selector-es/index.html','./selector-es/es-core.js',
  './selector-es/es-data.js','./selector-es/motor-data.js','./selector-es/bgreich-logo.png','./selector-es/favicon.svg'
 ];
 self.addEventListener('install',event=>{self.skipWaiting();event.waitUntil(caches.open(CACHE).then(cache=>Promise.allSettled(SHELL.map(x=>cache.add(x)))));});

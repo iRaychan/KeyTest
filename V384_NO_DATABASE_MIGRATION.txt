@@ -1,0 +1,2 @@
+KeySuite V3.8.4 requires NO new Supabase database migration.
+Upload the full GitHub package and retain your working config.js values.
