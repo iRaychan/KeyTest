@@ -1,0 +1,64 @@
+KeySuite V3.8.3 — Full Upgrade
+Build date: 2026-08-08
+
+Foundation merged
+- Full KeySuite repository foundation retained from the latest available full package.
+- V3.8.1 KeyCore Dark Stage update merged.
+- KeyCHC V3.4.7 integrated under Selection > CHC.
+- KeyES V1.9 integrated under Selection > ES.
+- V3.8.2/R2 selector, Dashboard and KeyCore amendments merged.
+- V3.8.3 integrates Dashboard/KeyCore scripts directly in index.html instead of relying on service-worker HTML injection.
+
+KeyCore
+- KeyCore now uses the full browser viewport; normal KeySuite left navigation is covered while KeyCore is open.
+- Dark/Matrix KeyCore stage retained.
+- Product globe now opens Product Hub first.
+- Product Hub includes CHC, ES, Motor, Coupling, Control Panel, GWS Tank and Manifold.
+- Pump Curves globe now opens Pump Curve Hub first.
+- Pump Curve Hub includes CHC and ES.
+
+Dashboard
+- Added Flow + Head quick pump selection.
+- Dashboard checks CHC and ES selector engines.
+- A product-family button is shown only when that family has a suitable model.
+- Family button expands the recommended model.
+- Model button expands duty, efficiency, power, NPSHr, motor, speed, frequency and connection information.
+
+CHC Selection
+- KeyCHC V3.4.7 retained.
+- Initial Flow and Head are blank.
+- m³/min removed from the visible Flow unit list.
+- Action order: PDF / Assembly / Quote.
+- Duplicate PDF beside Summary removed.
+- Alternative catalog ordering keeps -2 < -1 < standard for the same base model.
+- PDF motor label includes actual pole count, e.g. 0.75kW 2P / 15kW 4P.
+
+ES Selection
+- KeyES V1.9 retained.
+- Action order: PDF / Assembly / Quote.
+- Top controls: Material / Seal Type / Seal Material / Elastomer / Bare Shaft.
+- Seal Type defaults to Mechanical Seal; alternative is Gland Packing.
+- Gland Packing forces Seal Material = Graphite only.
+- Non-default Material / Seal Type / Seal Material / Elastomer / Motor Voltage use alert fill.
+- Bare Shaft tick uses alert fill.
+- Pump Speed Range defaults to All Speed.
+- Summary expand/collapse shows Efficiency, Power/BHP and NPSHr.
+- Assembly sends a complete pumpset when Bare Shaft is not selected: Pump + Motor + Flexible Coupling + Baseplate.
+- Bare Shaft sends pump only.
+- Alternative Selection filters out pumps whose max-flow endpoint head is still above the required duty head.
+- Alternative Selection shows only nearest valid catalog neighbor(s); it does not force nine items and does not repeat the selected pump.
+
+ES PDF
+- Curve Page 1 retained with shared 0-to-Max-Flow X alignment for Head/Efficiency/Power/NPSHr.
+- Motor label includes pole count.
+- Technical data includes Operating Data / Pump / Motor / Pumpset sections.
+- Shaft Seal output:
+  * default Mechanical Seal material -> Mechanical Seal
+  * non-default mechanical seal -> Mech Seal (<material abbreviation>)
+  * Gland Packing -> Gland Packing
+- Bearing Type = Ball.
+- Pumpset dimension table is present; dimension values remain blank pending future mapping.
+
+Database / deployment
+- No new Supabase migration.
+- No KeyAI Edge Function redeployment.

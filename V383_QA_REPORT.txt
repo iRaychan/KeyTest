@@ -1,0 +1,58 @@
+KeySuite V3.8.3 QA Report
+Checks: 55/55 PASS
+
+PASS - Main title is V3.8.3
+PASS - Main runtime labels are V3.8.3
+PASS - Direct KeyCore script loaded
+PASS - Direct V3.8.3 extension loaded
+PASS - Service worker cache is V3.8.3
+PASS - KeyCore version is 3.8.3
+PASS - KeyCore full-screen sidebar offset is zero
+PASS - KeyCore Products opens Product Hub
+PASS - KeyCore Pump Curves opens Curve Hub
+PASS - Product Hub lists CHC
+PASS - Product Hub lists ES
+PASS - Product Hub lists Motor
+PASS - Product Hub lists Coupling
+PASS - Pump Curve Hub lists CHC and ES
+PASS - Dashboard quick duty finder exists
+PASS - Dashboard Flow input exists
+PASS - Dashboard Head input exists
+PASS - Dashboard only renders suitable families
+PASS - Dashboard model expands pump info
+PASS - CHC Flow starts blank
+PASS - CHC Head starts blank
+PASS - CHC has no m3/min option
+PASS - CHC action order PDF Assembly Quote
+PASS - CHC duplicate PDF beside Summary absent
+PASS - CHC integration payload says V3.8.3
+PASS - ES action order PDF Assembly Quote
+PASS - ES top Material exists
+PASS - ES Seal Type exists
+PASS - ES Seal Material exists
+PASS - ES Elastomer exists
+PASS - ES Bare Shaft exists
+PASS - Seal Type defaults Mechanical Seal
+PASS - Gland Packing option exists
+PASS - Gland Packing forces Graphite only
+PASS - Bare Shaft alert fill exists
+PASS - Non-default top alert logic exists
+PASS - ES Pump Speed defaults All Speed
+PASS - ES has no m3/min option
+PASS - ES filters alternatives by max-flow endpoint head
+PASS - ES alternatives use catalog order
+PASS - ES alternatives do not repeat selected model
+PASS - ES Shaft Seal output label exists
+PASS - Default seal output is Mechanical Seal
+PASS - Non-default seal output is Mech Seal abbreviation
+PASS - Gland Packing output is Gland Packing
+PASS - ES Bearing Type is Ball
+PASS - ES technical sections include Operating Data
+PASS - ES technical sections include Pump
+PASS - ES technical sections include Motor
+PASS - ES technical sections include Pumpset
+PASS - ES Pumpset dimensions remain blank
+PASS - ES Bare Shaft assembly excludes motor/coupling/baseplate
+PASS - ES coupling defaults Flexible Coupling
+PASS - CHC PDF motor pole formatting exists
+PASS - ES PDF motor pole formatting exists

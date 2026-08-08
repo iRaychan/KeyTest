@@ -1,0 +1,16 @@
+KeySuite V3.8.3 is delivered as a FULL GitHub repository package.
+
+It contains the application shell, selectors, product/pricing/assembly modules, KeyAI files, service worker, historical migrations/install notes, KeyCore, Dashboard quick selector, and all current V3.8.3 integration files.
+
+Primary V3.8.3 runtime files:
+- index.html
+- app.js
+- universe.js
+- v383-dashboard-keycore.js
+- sw.js
+- selector/index.html
+- selector-es/index.html
+- selector-es/es-core.js
+- selector-es/es-data.js
+- selector-es/motor-data.js
+Full repository file count: 340

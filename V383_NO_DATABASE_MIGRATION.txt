@@ -1,0 +1,4 @@
+KeySuite V3.8.3
+
+No new Supabase database migration is required for this release.
+This build reuses the existing KeySuite product, ES price, motor, assembly, quotation and KeyAI database structures already present in the prior KeySuite database.
