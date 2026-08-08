@@ -1,0 +1,15 @@
+KeySuite V3.8.9 update patch from V3.8.8
+
+Changed/new files:
+INSTALL_V389.txt
+PATCH_FILES_V389.txt
+SHA256SUMS_V389_FULL.txt
+V389_CHANGES.txt
+V389_NO_DATABASE_MIGRATION.txt
+V389_QA_REPORT.txt
+index.html
+selector-es/index.html
+selector/index.html
+sw.js
+
+Deleted files: none

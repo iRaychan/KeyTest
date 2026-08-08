@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V3.8.8</title>
+  <title>KeySuite V3.8.9</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -317,7 +317,7 @@
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V3.8.8</small></div>
+    <div class="auth-brand">KeySuite<small>V3.8.9</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -332,7 +332,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V3.8.8</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V3.8.9</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -355,7 +355,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V3.8.8</div>
+    <div class="suite-version">KeySuite V3.8.9</div>
   </aside>
 
   <main>
@@ -486,14 +486,14 @@
         <div><label>Supply</label><label id="bareShaftControl" class="default-choice-control"><input id="bareShaft" type="checkbox" data-default-checked="false"> Bare Shaft Pump</label></div>
       </div>
       <div class="card" style="padding:0;overflow:hidden">
-        <iframe id="selectorFrame" src="selector/index.html" data-src="selector/index.html" title="KeySelector CHC Series" style="width:100%;height:1900px;border:0;display:block"></iframe>
+        <iframe id="selectorFrame" src="selector/index.html?v=389" data-src="selector/index.html?v=389" title="KeySelector CHC Series" style="width:100%;height:1900px;border:0;display:block"></iframe>
       </div>
     </section>
 
     <section id="selectorEs" class="page">
       <div class="page-title-row"><div><h1>Selector · ES</h1><div class="muted">KeyES V1.7 End Suction selector. Selection remains engineering-driven by KeyES; KeySuite applies customer/category pricing when routed to Assembly or Quote.</div></div><button id="quickSelectionReturnEs" class="btn secondary quick-selection-return" type="button" hidden title="Return to Quick Selection" aria-label="Return to Quick Selection"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7l-5 5 5 5"></path><path d="M4 12h10a6 6 0 0 1 6 6"></path></svg></button></div>
       <div class="card" style="padding:0;overflow:hidden">
-        <iframe id="selectorEsFrame" src="selector-es/index.html" data-src="selector-es/index.html" title="KeyES End Suction Selector V1.7" style="width:100%;height:2600px;border:0;display:block"></iframe>
+        <iframe id="selectorEsFrame" src="selector-es/index.html?v=389" data-src="selector-es/index.html?v=389" title="KeyES End Suction Selector V1.7" style="width:100%;height:2600px;border:0;display:block"></iframe>
       </div>
     </section>
 
@@ -511,7 +511,7 @@
         <div class="card"><h2>CHC Series</h2><div id="productSeriesList" class="product-series-list"></div></div>
         <div class="card"><div class="page-title-row" style="margin-bottom:12px"><div><h2 id="productSeriesTitle" style="margin:0">Models</h2><div id="productModelCount" class="muted"></div></div></div><div id="productModelGrid" class="product-model-grid"></div></div>
       </div>
-      <iframe id="productSelectorFrame" src="about:blank" data-src="selector/index.html?product=1" title="CHC Product Curve" style="display:none"></iframe>
+      <iframe id="productSelectorFrame" src="about:blank" data-src="selector/index.html?product=1&v=389" title="CHC Product Curve" style="display:none"></iframe>
     </section>
 
     <section id="productGws" class="page">
@@ -537,7 +537,7 @@
       </div>
       <div class="card" style="margin-top:16px"><div class="page-title-row"><div><h2 style="margin:0">ES Models</h2><div id="esProductCount" class="muted"></div></div><div class="price-list-search"><label>Search Model</label><input id="esProductSearch" placeholder="Example: ES 65-32"></div></div>
       <div class="table-wrap" style="max-height:650px"><table><thead><tr><th>Model</th><th style="text-align:right">Actions</th></tr></thead><tbody id="esProductRows"></tbody></table></div></div>
-      <iframe id="productEsSelectorFrame" src="about:blank" data-src="selector-es/index.html?product=1" title="ES Product Curve" style="display:none"></iframe>
+      <iframe id="productEsSelectorFrame" src="about:blank" data-src="selector-es/index.html?product=1&v=389" title="ES Product Curve" style="display:none"></iframe>
     </section>
     <section id="productKeyplc" class="page">
       <div class="page-title-row"><div><h1>Product · KeyPLC Panel</h1><div class="muted">Choose a motor rating and number of pumps, then route the priced control panel to Assembly or Quotation.</div></div></div>

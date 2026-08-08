@@ -1,0 +1,29 @@
+KeySuite V3.8.9 QA Report
+
+Result: PASS
+
+Validation performed:
+- Static/integration amendment checks: 22/22 PASS.
+- All inline JavaScript blocks in index.html / selector/index.html / selector-es/index.html: PASS.
+- sw.js JavaScript syntax: PASS.
+- Product > CHC manual-model duty logic:
+  - Locked Product model state present: PASS.
+  - Select click intercepted before automatic selector handler: PASS.
+  - Enter-key recalculation path present: PASS.
+  - Flow / Head values and units retained: PASS.
+  - Existing curve frequency retained: PASS.
+  - Product mode retained after recalculation: PASS.
+- Product > ES manual-model duty logic:
+  - Locked Product model state present: PASS.
+  - Select click intercepted before automatic selector handler: PASS.
+  - Enter-key recalculation path present: PASS.
+  - Flow / Head values and units retained: PASS.
+  - Product mode retained after recalculation: PASS.
+- Real CHC catalog exact-model recalculation regression: PASS.
+  - The same CHC model was evaluated at two different flow duties and its calculated head / efficiency / power refreshed without changing model.
+- Real ES catalog exact-model recalculation regression: PASS.
+  - ES 50-26 remained ES 50-26 at both 70 m3/hr @ 80 m and 90 m3/hr @ 80 m while the calculated performance refreshed.
+- V3.8.9 cache-busting present for normal and Product CHC / ES selector frames: PASS.
+- Service-worker cache advanced to keysuite-v389: PASS.
+- setup/config.example.js preserved unchanged from V3.8.8: PASS.
+- Database migration required: NO.

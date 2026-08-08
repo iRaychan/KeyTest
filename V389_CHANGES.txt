@@ -1,0 +1,22 @@
+KeySuite V3.8.9
+
+1. Product > CHC manual-model Duty Point fix
+   - Entering a new Flow + Head now recalculates the exact CHC model chosen from Product.
+   - Product mode keeps that model locked instead of falling through to the normal automatic Most Suitable selection handler.
+   - A capture-phase Product Select handler now owns the Select action before the normal selector handler can run.
+   - Flow / Head values and units are preserved.
+   - Current CHC curve frequency is preserved.
+   - Pump curve duty point, efficiency, power/BHP, NPSHr, motor/summary state and downstream PDF / Assembly / Quote payload are refreshed from the new duty.
+
+2. Product > ES manual-model Duty Point fix
+   - Entering a new Flow + Head now recalculates the exact ES model chosen from Product.
+   - Product mode keeps that model locked instead of running the normal automatic ES model selection.
+   - A capture-phase Product Select handler now owns the Select action before the normal selector handler can run.
+   - Flow / Head values and units are preserved.
+   - Pump curve duty point, selected impeller/performance, efficiency, power/BHP, NPSHr, motor/summary state and downstream PDF / Assembly / Quote payload are refreshed from the new duty.
+
+3. Product selector cache refresh
+   - CHC and ES normal/Product iframe URLs use V3.8.9 cache-busting.
+   - Service-worker cache advanced to keysuite-v389 so deployed clients do not retain the V3.8.8 Product duty handler.
+
+4. No database migration required.

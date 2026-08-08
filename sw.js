@@ -1,5 +1,5 @@
-/* KeySuite V3.8.8 service worker — full repository build, network first */
-const CACHE='keysuite-v388';
+/* KeySuite V3.8.9 service worker — full repository build, network first */
+const CACHE='keysuite-v389';
 const SHELL=[
  './','./index.html','./app.js','./permissions.js','./applications.js','./assembly.js','./motor.js','./coupling.js',
  './quotation-templates.js','./pricing.js','./quotation-references.js','./categories.js','./pricelist.js','./product.js',
