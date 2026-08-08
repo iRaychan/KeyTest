@@ -1,0 +1,10 @@
+KeySuite V3.7 - Database / Edge Function Status
+===============================================
+
+NO NEW SUPABASE SQL MIGRATION IS REQUIRED.
+NO KEYAI EDGE FUNCTION REDEPLOYMENT IS REQUIRED.
+NO TELEGRAM WEBHOOK CHANGE IS REQUIRED.
+
+V3.7 Universe View is a front-end visualization layer that reads the current KeySuite V3.6 data sources and existing RPCs/tables.
+
+Keep your existing config.js unchanged.

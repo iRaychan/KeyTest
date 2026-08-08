@@ -1,0 +1,40 @@
+KeySuite V3.7 - GitHub Update Installation
+==========================================
+
+Base required
+-------------
+KeySuite V3.6 must already be present in the repository.
+
+Upload
+------
+1. Extract this ZIP.
+2. Upload ALL extracted files to the ROOT of the existing KeySuite V3.6 GitHub repository.
+3. Replace sw.js when GitHub asks.
+4. Keep the existing config.js. This update does not contain config.js.
+5. Commit/deploy the files together.
+
+Supabase / KeyAI
+----------------
+- Do NOT run a new SQL migration for V3.7.
+- Do NOT redeploy KeyAI Edge Functions for V3.7.
+- Do NOT change Telegram webhook settings.
+
+Browser / PWA refresh
+---------------------
+Because V3.7 is injected by the updated service worker:
+1. Open KeySuite after GitHub Pages finishes deploying.
+2. Reload once so the V3.7 service worker installs/activates.
+3. Reload a second time (or close and reopen the installed PWA).
+4. The left navigation should show "Universe View" and the Dashboard should show a "KeySuite Universe" launcher card.
+
+Test
+----
+- Open Universe View from Dashboard or left navigation.
+- Confirm all 8 planets are visible.
+- Confirm planets gently pulse (heartbeat).
+- Edit or save a quotation/customer and reopen/leave Universe View open: the related planet should perform a stronger heartbeat burst.
+- Confirm connection line flashes on detected change.
+- Confirm drag/pan, mouse-wheel zoom, + / -, Reset View.
+- Confirm Pause Motion / Resume Motion.
+- Click Customers / Quotation / Pump Curves / Assembly planets and confirm routing returns to the normal KeySuite module.
+- Confirm normal Dashboard and KeyES behavior remain unchanged.

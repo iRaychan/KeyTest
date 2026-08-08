@@ -1,0 +1,20 @@
+KeySuite V3.7 changed/new files
+==============================
+
+REPLACE
+- sw.js
+- VERSION.txt
+
+ADD
+- universe.js
+- INSTALL_V370.txt
+- V370_CHANGES.txt
+- V370_NO_DATABASE_MIGRATION.txt
+- V370_QA_REPORT.txt
+- PATCH_FILES_V370.txt
+- README_V370.md
+- SHA256SUMS_V370.txt
+
+IMPORTANT
+- Apply on top of KeySuite V3.6.
+- Keep existing config.js.

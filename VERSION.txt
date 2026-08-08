@@ -1,1 +1,4 @@
-3.6
+KeySuite V3.7
+Build: Universe View
+Base: KeySuite V3.6
+Date: 2026-08-08

@@ -1,0 +1,49 @@
+KeySuite V3.7 - Universe View
+==============================
+
+Base
+----
+- Built as an additive update for KeySuite V3.6.
+- KeyES V1.7 selection/engineering logic is unchanged.
+- Existing quotation, customer, pricing, assembly and KeyAI logic is unchanged.
+
+Universe View
+-------------
+- Adds an optional Universe View; the normal KeySuite Dashboard remains the default.
+- Adds an "Universe View" button to the existing left navigation at runtime.
+- Adds a "KeySuite Universe" launcher card below the Dashboard Start card at runtime.
+- Full dark-space data universe with central KeySuite core and planets for:
+  * Quotation
+  * Customers
+  * Price List
+  * Pump Curves
+  * KeyAI
+  * Assembly
+  * Products
+  * Alerts
+- Planet base size scales with available live data volume.
+- Normal state uses a restrained heartbeat pulse.
+- When a value changes, the affected planet performs a stronger heartbeat burst and its connection to the KeySuite core lights up.
+- Larger detected changes may trigger a second heartbeat beat.
+- Recent activity panel records detected changes.
+- Live Sync refreshes automatically while Universe View is open.
+- Drag to pan, mouse wheel to zoom, + / - zoom controls, Reset View, Escape to close.
+- Click a planet to return to the corresponding KeySuite module.
+- Pause/Resume Motion control included.
+- Supports prefers-reduced-motion.
+
+Data behaviour
+--------------
+- Customers use the current KeySuite customer store.
+- Quotations use the current secure quotation store when available, with browser-storage fallback.
+- CHC / ES / GWS and Assembly totals use existing authenticated Supabase tables when available.
+- KeyAI enquiry count is shown to Owner access using the existing V340 KeyAI RPC; non-Owner users see Private.
+- Alerts are derived from quotation items currently needing attention.
+- If a source is unavailable or access-restricted, the corresponding planet remains usable and displays 0/Private instead of breaking Universe View.
+
+Integration
+-----------
+- No index.html replacement is required. V3.7 service worker injects universe.js into the KeySuite application shell.
+- Existing users normally need one reload for the new service worker to activate and one further reload for the Universe launcher to appear.
+- New installs also gain Universe View after the service worker takes control.
+- The runtime version labels are updated to KeySuite V3.7 by universe.js.

@@ -1,0 +1,32 @@
+KeySuite V3.7 - QA Report
+=========================
+
+Static validation
+-----------------
+[PASS] universe.js JavaScript syntax check (Node.js)
+[PASS] sw.js JavaScript syntax check (Node.js)
+[PASS] No config.js included in update package
+[PASS] No SQL migration included
+[PASS] No Supabase Edge Function files included
+[PASS] V3.6 shell cache list retained and universe.js added
+[PASS] Service worker cache bumped from keysuite-v360 to keysuite-v370
+
+Functional design checks
+------------------------
+[PASS] Universe is optional; existing Dashboard remains intact
+[PASS] Dashboard launcher injected without editing V3.6 business logic
+[PASS] Sidebar Universe launcher injected without editing V3.6 navigation logic
+[PASS] 8 data planets defined
+[PASS] Base planet size calculation uses data volume
+[PASS] Idle heartbeat animation implemented
+[PASS] Strong activity burst implemented
+[PASS] Related core connector flash implemented
+[PASS] Pan / zoom / reset implemented
+[PASS] Pause / Resume Motion implemented
+[PASS] prefers-reduced-motion implemented
+[PASS] Existing module routing is reused through KeySuiteApp / KeySuiteAssembly
+[PASS] Live refresh failures are caught so Universe View cannot block normal KeySuite use
+
+Deployment note
+---------------
+V3.7 uses service-worker HTML injection so the existing 188 KB index.html does not need to be replaced. After deployment the browser/PWA must allow the new service worker to activate, then reload once more for universe.js to be injected into the application shell.
