@@ -1,3 +1,18 @@
+# KeySuite V3.8.3
+
+Full KeySuite release with KeyCore full-screen navigation, Dashboard Flow/Head quick pump selection, KeyCHC V3.4.7 and KeyES V1.9.
+
+## V3.8.3
+- Full repository package.
+- KeyCore is full-screen and routes Product / Pump Curves through dedicated hubs.
+- Dashboard can check a Flow + Head against CHC and ES and shows only suitable families.
+- CHC and ES selector amendments from V3.8.2/R2 are retained.
+- No new Supabase migration or KeyAI redeployment.
+
+See `INSTALL_V383.txt`, `V383_CHANGES.txt`, and `V383_QA_REPORT.txt`.
+
+---
+
 # KeySuite V3.6
 
 Combined KeySuite + KeyES + KeyAI build.

@@ -1,0 +1,30 @@
+KeySuite V3.8.3 — Full GitHub Installation
+Build date: 2026-08-08
+
+This is a FULL repository package, not a changed-files overlay.
+
+Upgrade from V3.8.1 / V3.8.2:
+1. Back up your existing repository/config.js.
+2. Extract this ZIP.
+3. Upload the full extracted repository contents to GitHub, preserving folders.
+4. Keep your live config.js values. If GitHub already contains config.js, do not replace it with different credentials/settings.
+5. No new Supabase migration is required for V3.8.3.
+6. No KeyAI Edge Function redeployment is required for V3.8.3.
+7. Wait for GitHub deployment to finish.
+8. Open KeySuite and press Ctrl+F5.
+9. If installed as a PWA, close and reopen once so service worker cache keysuites-v383-full takes control.
+
+Priority tests after deployment:
+- Dashboard Flow + Head quick selection: only suitable CHC/ES families appear.
+- Expand a family, then expand the recommended model information.
+- KeyCore opens full screen with the normal KeySuite sidebar covered.
+- KeyCore Product opens Product Hub, not CHC directly.
+- KeyCore Pump Curves opens Pump Curve Hub, not ES/CHC directly.
+- CHC Selection starts with blank Flow and Head.
+- CHC and ES action order is PDF / Assembly / Quote.
+- ES Seal Type / Seal Material logic and Bare Shaft alert.
+- ES Pump Speed Range defaults to All Speed.
+- ES alternatives show only nearby valid models and never repeat the selected model.
+- ES PDF shaft seal wording and Bearing Type = Ball.
+
+See V383_CHANGES.txt and V383_QA_REPORT.txt.
