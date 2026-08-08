@@ -384,20 +384,33 @@
     if(result&&result.dutyPoints&&result.dutyPoints.length&&result.dutyPoints[0].motor)return Number(result.dutyPoints[0].motor.flowRatio);
     return Number(result&&result.motor&&result.motor.flowRatio);
   }
-  // KeyES recommendation priority:
-  // 1) highest duty-point efficiency, 2) impeller nearest full/max diameter,
-  // 3) duty flow within +/-10% of BEP, then closest to BEP.
+  // BEP grouping is based on BEP flow relative to the required D1 flow:
+  // Group 1: -5% / +3%, Group 2: -10% / +8%, Group 3: -18% / +13%.
+  // The bands are nested; the first matching group wins. Outside Group 3 = Group 4.
+  function selectionBepDelta(result){
+    var duty=null,bep=null;
+    if(result&&result.dutyPoints&&result.dutyPoints.length){var d=result.dutyPoints[0];duty=Number(d.perPumpFlowLps||d.totalFlowLps);bep=Number(d.motor&&d.motor.bepFlowLps);}
+    if(!(duty>0&&bep>0)){var ratio=selectionBepRatio(result);if(finite(ratio)&&ratio>0)return 1/ratio-1;return Infinity;}
+    return bep/duty-1;
+  }
+  function selectionBepGroup(result){
+    var d=selectionBepDelta(result);if(!finite(d))return 4;
+    if(d>=-0.05-1e-12&&d<=0.03+1e-12)return 1;
+    if(d>=-0.10-1e-12&&d<=0.08+1e-12)return 2;
+    if(d>=-0.18-1e-12&&d<=0.13+1e-12)return 3;
+    return 4;
+  }
+  // KeyES Most Suitable priority:
+  // 1) hydraulically valid candidates (already filtered by buildResult/buildMultiResult),
+  // 2) torque-safe before torque-exceeded, 3) best BEP group, 4) highest duty efficiency,
+  // then retain the established impeller/BEP/catalog tie-breaks.
   function compareSelectionPriority(a,b){
     var ta=!!(a&&a.torqueExceeded),tb=!!(b&&b.torqueExceeded);
     if(ta!==tb)return ta?1:-1;
-    var ea=selectionEfficiency(a),eb=selectionEfficiency(b);
-    if(Math.abs(ea-eb)>1e-9)return eb-ea;
-    var ga=selectionImpellerGap(a),gb=selectionImpellerGap(b);
-    if(Math.abs(ga-gb)>1e-9)return ga-gb;
-    var ra=selectionBepRatio(a),rb=selectionBepRatio(b),da=finite(ra)?Math.abs(ra-1):Infinity,db=finite(rb)?Math.abs(rb-1):Infinity;
-    var wa=da<=0.10+1e-12,wb=db<=0.10+1e-12;
-    if(wa!==wb)return wa?-1:1;
-    if(Math.abs(da-db)>1e-9)return da-db;
+    var ba=selectionBepGroup(a),bb=selectionBepGroup(b);if(ba!==bb)return ba-bb;
+    var ea=selectionEfficiency(a),eb=selectionEfficiency(b);if(Math.abs(ea-eb)>1e-9)return eb-ea;
+    var ga=selectionImpellerGap(a),gb=selectionImpellerGap(b);if(Math.abs(ga-gb)>1e-9)return ga-gb;
+    var da=Math.abs(selectionBepDelta(a)),db=Math.abs(selectionBepDelta(b));if(Math.abs(da-db)>1e-9)return da-db;
     return catalogModelCompare(a,b);
   }
 
@@ -411,7 +424,7 @@
       return !rpm||p.rpm===rpm;
     }).map(function(p){
       try{return buildResult(p,mode,flow,head,options);}catch(e){return null;}
-    }).filter(Boolean).sort(compareSelectionPriority);
+    }).filter(function(r){return r&&!r.torqueExceeded;}).sort(compareSelectionPriority);
   }
 
 
@@ -510,7 +523,7 @@
     var duties=normalizeDutyPoints(options.dutyPoints||[]);if(!duties.length)return [];
     return (db.pumps||[]).filter(function(p){return !rpm||p.rpm===rpm;}).map(function(p){
       try{return buildMultiResult(p,mode,duties,options);}catch(e){return null;}
-    }).filter(Boolean).sort(compareSelectionPriority);
+    }).filter(function(r){return r&&!r.torqueExceeded;}).sort(compareSelectionPriority);
   }
 
 
@@ -667,6 +680,8 @@
     buildResult:buildResult,
     selectPumps:selectPumps,
     compareSelectionPriority:compareSelectionPriority,
+    selectionBepDelta:selectionBepDelta,
+    selectionBepGroup:selectionBepGroup,
     catalogModelCompare:catalogModelCompare,
     normalizeDutyPoints:normalizeDutyPoints,
     buildMultiResult:buildMultiResult,

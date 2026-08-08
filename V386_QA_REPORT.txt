@@ -1,0 +1,48 @@
+KeySuite V3.8.6 QA
+
+Static / integration checks: 39/39 PASS
+PASS - Version 3.8.6 index and V386 service-worker cache
+PASS - Dashboard loads V386 Quick Selection extension
+PASS - Dashboard shows compact kW + Pole + Efficiency
+PASS - Dashboard shows Most Suitable + Alternative Models
+PASS - Dashboard Available Series starts expanded
+PASS - Dashboard model rows open actual selector curves
+PASS - Dashboard repeated-duty reset retained
+PASS - CHC Dashboard returns alternatives
+PASS - ES Dashboard returns alternatives
+PASS - CHC has no fixed-two alternative limit
+PASS - ES has no fixed-two alternative limit
+PASS - CHC alternative max-flow endpoint lower bound
+PASS - CHC alternative +5% max-curve upper allowance
+PASS - ES alternative max-flow endpoint lower bound
+PASS - ES alternative +5% max-curve upper allowance
+PASS - CHC alternatives sorted by catalog sequence
+PASS - ES alternatives sorted by catalog sequence
+PASS - ES torque-exceeded alternatives remain visible with warning
+PASS - ES torque-exceeded candidates excluded from recommendation pool
+PASS - ES BEP Group 1 / 2 / 3 boundaries
+PASS - ES BEP group evaluated before duty efficiency
+PASS - CHC BEP Group 1 / 2 / 3 boundaries
+PASS - CHC BEP group evaluated before duty efficiency
+PASS - Product > ES top Material / Seal Type / Seal Material / Elastomer controls
+PASS - Product > ES Curve action
+PASS - Product > ES duplicate per-model configuration dropdowns removed
+PASS - Product > ES Gland Packing -> Graphite behavior
+PASS - Product > ES live curve option synchronization
+PASS - CHC/ES alternative model curve opening bridge
+
+JavaScript syntax: PASS
+- product.js
+- v386-dashboard-keycore.js
+- selector-es/es-core.js
+- CHC selector inline scripts
+- ES selector inline script
+
+Engineering selection tests: PASS
+- ES 70 m3/hr @ 80 m: ES 50-26 and ES 50-26G both hydraulically valid; ES 50-26 is within its torque limit.
+- ES 90 m3/hr @ 80 m: ES 50-26 and ES 50-26G both satisfy the agreed alternative +5% hydraulic window; ES 50-26 is torque-exceeded and therefore warning-only / not recommendable.
+- BEP example: Group 1 (-5%) beats Group 2 (+5%) even when Group 2 has higher efficiency.
+- BEP example: when -4% and +3% are both Group 1, higher duty efficiency wins.
+- CHC real-catalog recommendation and all-valid alternative generation: PASS.
+
+Browser automation note: this execution environment blocks local file/localhost browser navigation, so validation used source integration checks plus direct CHC/ES selection-engine tests.

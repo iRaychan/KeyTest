@@ -1,0 +1,2 @@
+KeySuite V3.8.6 does not require a database/Supabase migration.
+This release changes frontend selector, dashboard, Product > ES, and service-worker files only.

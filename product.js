@@ -3,7 +3,7 @@
 
   const $=id=>document.getElementById(id);
   const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-  let selectedSeries='',frameReady=false,queued=null,currentCurveModel='';
+  let selectedSeries='',frameReady=false,queued=null,currentCurveModel='',currentCurveFamily='CHC',esFrameReady=false,esQueued=null;
 
   const products=()=>window.KEYSUITE_SECURE_DATA?.products||[];
   const gwsProducts=()=>window.KEYSUITE_SECURE_DATA?.gwsProducts||[];
@@ -39,6 +39,10 @@
     const message={type:'KEYSUITE_PRODUCT_MODEL',model,action,options:options()};
     if(frameReady){queued=null;postToFrame(frame,message)}else queued=message;
   }
+  function ensureEsFrame(){const frame=$('productEsSelectorFrame');if(frame&&frame.src==='about:blank'){esFrameReady=false;frame.src=frame.dataset.src}return frame}
+  function esProductSealSync(){const type=$('esProductSealType'),mat=$('esProductSealMaterial');if(!type||!mat)return;if(type.value==='Gland Packing'){mat.innerHTML='<option value="Graphite">Graphite</option>';mat.value='Graphite'}else{const keep=['Carbon Ceramic','Silicon Carbide','Tungsten'].includes(mat.value)?mat.value:'Carbon Ceramic';mat.innerHTML='<option value="Carbon Ceramic">Carbon Ceramic</option><option value="Silicon Carbide">Silicon Carbide</option><option value="Tungsten">Tungsten</option>';mat.value=keep}updateDefaultState(type);updateDefaultState(mat)}
+  function esProductChoices(){const material=$('esProductMaterial')?.value||'CI / SS / SS',sealType=$('esProductSealType')?.value||'Mechanical Seal',sealMaterial=$('esProductSealMaterial')?.value||(sealType==='Gland Packing'?'Graphite':'Carbon Ceramic'),elastomer=$('esProductElastomer')?.value||ES_DEFAULT_ELASTOMER;const pricingMaterial=/^SS30[46]$/i.test(material)?material:`${material} / ${sealType==='Gland Packing'?'GP':'MS'}`;const pricingSeal=sealMaterial==='Carbon Ceramic'?ES_DEFAULT_SEAL:sealMaterial==='Silicon Carbide'?'Silicon Carbide (Sic Sic)':sealMaterial==='Tungsten'?'Tungsten (Tuc Tuc)':sealMaterial;return {material,pricingMaterial,sealType,sealMaterial,pricingSeal,elastomer}}
+  function sendEsProduct(model,action){const frame=ensureEsFrame();if(!frame)return;const c=esProductChoices(),message={type:'KEYSUITE_PRODUCT_MODEL',model,action,options:{material:c.material,sealType:c.sealType,sealMaterial:c.sealMaterial,elastomer:c.elastomer}};if(esFrameReady){esQueued=null;postToFrame(frame,message)}else esQueued=message}
 
   function renderSeries(){
     const series=orderedSeries();if(!selectedSeries||!series.includes(selectedSeries))selectedSeries=series[0]||'';
@@ -53,7 +57,7 @@
     $('productSeriesTitle').textContent=selectedSeries||'Models';$('productModelCount').textContent=`${rows.length} model${rows.length===1?'':'s'}`;
     $('productModelGrid').innerHTML=rows.length?rows.map(p=>`<div class="product-model-row"><h3>${esc(p.model)}</h3><div class="product-model-actions"><button class="btn secondary product-action-button" type="button" data-product-view="${esc(p.model)}">Curve</button><button class="btn action-assembly product-action-button" type="button" data-product-assembly="${esc(p.model)}">Assembly</button><button class="btn action-quote product-action-button" type="button" data-product-add="${esc(p.model)}">Quote</button></div></div>`).join(''):'<div class="product-empty">No matching CHC models.</div>';
     const grid=$('productModelGrid');
-    grid.querySelectorAll('[data-product-view]').forEach(button=>button.onclick=()=>{const model=button.dataset.productView;currentCurveModel=model;$('productCurveTitle').textContent=model;const frame=ensureFrame(),host=$('productCurveHost');if(frame.parentNode!==host)host.appendChild(frame);frame.style.display='block';$('productCurveDialog').showModal();send(model,'view')});
+    grid.querySelectorAll('[data-product-view]').forEach(button=>button.onclick=()=>{const model=button.dataset.productView;currentCurveFamily='CHC';currentCurveModel=model;$('productCurveTitle').textContent=model;const frame=ensureFrame(),host=$('productCurveHost');if(frame.parentNode!==host)host.appendChild(frame);frame.style.display='block';$('productCurveDialog').showModal();send(model,'view')});
     grid.querySelectorAll('[data-product-add]').forEach(button=>button.onclick=()=>{if(!window.KeySuiteApp?.ensureQuotationPricingContext?.('add a product to the quotation'))return;send(button.dataset.productAdd,'add')});
     grid.querySelectorAll('[data-product-assembly]').forEach(button=>button.onclick=()=>{if(!window.KeySuiteApp?.ensureQuotationPricingContext?.('add a product to Assembly'))return;send(button.dataset.productAssembly,'assembly')});
   }
@@ -92,24 +96,12 @@
   function renderEs(){
     const body=$('esProductRows');if(!body)return;const q=String($('esProductSearch')?.value||'').trim().toLowerCase();
     const rows=esProducts().filter(x=>!q||x.model.toLowerCase().includes(q));
-    body.innerHTML=rows.map(x=>{
-      const materials=[...new Set((x.variants||[]).map(v=>String(v.material||'').trim()).filter(value=>value&&!/\bBR\b/i.test(value)))];
-      if(!materials.some(value=>normMaterial(value)===normMaterial(ES_DEFAULT_MATERIAL)))materials.unshift(ES_DEFAULT_MATERIAL);
-      const materialOrder=['CI SS SS MS','CI SS SS GP','CI CI SS MS','CI CI SS GP','SS 304','SS 316'];
-      const materialRank=value=>{const normalized=normMaterial(value);const index=materialOrder.findIndex(item=>normMaterial(item)===normalized);return index<0?999:index};
-      const ordered=[...materials].sort((a,b)=>materialRank(a)-materialRank(b)||a.localeCompare(b));
-      const options=ordered.map(material=>`<option value="${esc(material)}" ${normMaterial(material)===normMaterial(ES_DEFAULT_MATERIAL)?'selected':''}>${esc(material.replace(/\s*\/\s*/g,' '))}</option>`).join('');
-      const sealOptions=ES_SEALS.map(value=>`<option value="${esc(value)}" ${value===ES_DEFAULT_SEAL?'selected':''}>${esc(value)}</option>`).join('');
-      const elastomerOptions=ES_ELASTOMERS.map(value=>`<option value="${esc(value)}" ${value===ES_DEFAULT_ELASTOMER?'selected':''}>${esc(value)}</option>`).join('');
-      return `<tr data-es-product-row="${esc(x.id)}"><td><b>${esc(x.model)}</b></td><td><select class="es-product-material" data-es-material-select data-default-value="${esc(ES_DEFAULT_MATERIAL)}" aria-label="Material for ${esc(x.model)}">${options}</select></td><td><select class="es-product-seal" data-es-seal-select data-default-value="${esc(ES_DEFAULT_SEAL)}" aria-label="Mechanical seal material for ${esc(x.model)}">${sealOptions}</select></td><td><select class="es-product-elastomer" data-es-elastomer-select data-default-value="${esc(ES_DEFAULT_ELASTOMER)}" aria-label="Elastomer for ${esc(x.model)}">${elastomerOptions}</select></td><td style="text-align:right"><div class="route-actions"><button class="btn action-assembly" data-es-assembly="${esc(x.id)}">Assembly</button><button class="btn action-quote" data-es-quote="${esc(x.id)}">Quote</button></div></td></tr>`;
-    }).join('')||'<tr><td colspan="5" class="muted">No matching ES models.</td></tr>';
+    body.innerHTML=rows.map(x=>`<tr data-es-product-row="${esc(x.id)}"><td><b>${esc(x.model)}</b></td><td style="text-align:right"><div class="route-actions"><button class="btn secondary" type="button" data-es-curve="${esc(x.id)}">Curve</button><button class="btn action-assembly" type="button" data-es-assembly="${esc(x.id)}">Assembly</button><button class="btn action-quote" type="button" data-es-quote="${esc(x.id)}">Quote</button></div></td></tr>`).join('')||'<tr><td colspan="2" class="muted">No matching ES models.</td></tr>';
     $('esProductCount').textContent=`${rows.length} model${rows.length===1?'':'s'}`;
-    const refreshSealApplicability=row=>{const material=row.querySelector('[data-es-material-select]')?.value||'';const seal=row.querySelector('[data-es-seal-select]');const gland=/\bGP\b/i.test(material);if(seal){seal.disabled=gland;seal.title=gland?'Not applicable to Gland Packing construction':'';if(gland){seal.value=ES_DEFAULT_SEAL;updateDefaultState(seal)}}};
-    body.querySelectorAll('[data-es-material-select],[data-es-seal-select],[data-es-elastomer-select]').forEach(bindDefaultState);
-    body.querySelectorAll('[data-es-product-row]').forEach(row=>{refreshSealApplicability(row);row.querySelector('[data-es-material-select]')?.addEventListener('change',()=>refreshSealApplicability(row))});
-    const choicesFor=button=>{const row=button.closest('[data-es-product-row]');return {material:row?.querySelector('[data-es-material-select]')?.value||ES_DEFAULT_MATERIAL,seal:row?.querySelector('[data-es-seal-select]')?.value||ES_DEFAULT_SEAL,elastomer:row?.querySelector('[data-es-elastomer-select]')?.value||ES_DEFAULT_ELASTOMER}};
-    body.querySelectorAll('[data-es-assembly]').forEach(b=>b.onclick=()=>{const c=choicesFor(b);window.KeySuitePricing?.addEs?.(b.dataset.esAssembly,'assembly',c.material,{seal:c.seal,elastomer:c.elastomer})});
-    body.querySelectorAll('[data-es-quote]').forEach(b=>b.onclick=()=>{const c=choicesFor(b);window.KeySuitePricing?.addEs?.(b.dataset.esQuote,'quotation',c.material,{seal:c.seal,elastomer:c.elastomer})});
+    const productFor=id=>rows.find(x=>String(x.id)===String(id))||esProducts().find(x=>String(x.id)===String(id));
+    body.querySelectorAll('[data-es-curve]').forEach(b=>b.onclick=()=>{const p=productFor(b.dataset.esCurve);if(!p)return;currentCurveFamily='ES';currentCurveModel=p.model;$('productCurveTitle').textContent=p.model;const frame=ensureEsFrame(),host=$('productCurveHost');if(frame.parentNode!==host)host.appendChild(frame);frame.style.display='block';$('productCurveDialog').showModal();sendEsProduct(p.model,'view')});
+    body.querySelectorAll('[data-es-assembly]').forEach(b=>b.onclick=()=>{const c=esProductChoices();window.KeySuitePricing?.addEs?.(b.dataset.esAssembly,'assembly',c.pricingMaterial,{seal:c.pricingSeal,sealType:c.sealType,sealMaterial:c.sealMaterial,elastomer:c.elastomer})});
+    body.querySelectorAll('[data-es-quote]').forEach(b=>b.onclick=()=>{const c=esProductChoices();window.KeySuitePricing?.addEs?.(b.dataset.esQuote,'quotation',c.pricingMaterial,{seal:c.pricingSeal,sealType:c.sealType,sealMaterial:c.sealMaterial,elastomer:c.elastomer})});
   }
   function renderKeyplc(){
     const body=$('keyplcProductRows');if(!body)return;
@@ -128,11 +120,11 @@
   function render(){if($('productModelOptions'))$('productModelOptions').innerHTML=products().map(p=>`<option value="${esc(p.model)}"></option>`).join('');bindStaticDefaults();renderSeries();renderModels();renderEs();renderGws();renderKeyplc()}
   function pageShown(id){if(['productChc','productEs','productGws','productKeyplc'].includes(id))render()}
 
-  window.addEventListener('message',event=>{if(event.source===$('productSelectorFrame')?.contentWindow&&event.data?.type==='KEYSUITE_PRODUCT_FRAME_READY'){frameReady=true;if(queued){const message=queued;queued=null;postToFrame($('productSelectorFrame'),message)}}});
+  window.addEventListener('message',event=>{if(event.data?.type!=='KEYSUITE_PRODUCT_FRAME_READY')return;if(event.source===$('productSelectorFrame')?.contentWindow){frameReady=true;if(queued){const message=queued;queued=null;postToFrame($('productSelectorFrame'),message)}}if(event.source===$('productEsSelectorFrame')?.contentWindow){esFrameReady=true;if(esQueued){const message=esQueued;esQueued=null;postToFrame($('productEsSelectorFrame'),message)}}});
   document.addEventListener('DOMContentLoaded',()=>{
     $('productModelInput')?.addEventListener('input',()=>{const exact=products().find(p=>p.model.toLowerCase()===$('productModelInput').value.trim().toLowerCase());if(exact)selectedSeries=seriesName(exact.model);renderSeries();renderModels()});
     bindStaticDefaults();
-    $('closeProductCurve')?.addEventListener('click',()=>$('productCurveDialog')?.close());$('exportProductCurve')?.addEventListener('click',()=>{if(currentCurveModel)send(currentCurveModel,'export')});$('esProductSearch')?.addEventListener('input',renderEs);$('gwsProductSeries')?.addEventListener('change',()=>{if($('gwsProductModel'))$('gwsProductModel').value='ALL';renderGws()});$('gwsProductModel')?.addEventListener('change',renderGws);$('keyplcProductSearch')?.addEventListener('input',renderKeyplc);
+    $('closeProductCurve')?.addEventListener('click',()=>$('productCurveDialog')?.close());$('exportProductCurve')?.addEventListener('click',()=>{if(!currentCurveModel)return;if(currentCurveFamily==='ES')sendEsProduct(currentCurveModel,'export');else send(currentCurveModel,'export')});['esProductMaterial','esProductSealType','esProductSealMaterial','esProductElastomer'].forEach(id=>{const el=$(id);if(el){bindDefaultState(el);el.addEventListener('change',()=>{if(id==='esProductSealType')esProductSealSync();if(currentCurveFamily==='ES'&&currentCurveModel)sendEsProduct(currentCurveModel,'view')})}});esProductSealSync();$('esProductSearch')?.addEventListener('input',renderEs);$('gwsProductSeries')?.addEventListener('change',()=>{if($('gwsProductModel'))$('gwsProductModel').value='ALL';renderGws()});$('gwsProductModel')?.addEventListener('change',renderGws);$('keyplcProductSearch')?.addEventListener('input',renderKeyplc);
   });
   window.KeySuiteProduct={pageShown,render};
 })();

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17365d">
-  <title>KeySuite V3.8.5</title>
+  <title>KeySuite V3.8.6</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root{--navy:#17365d;--blue:#2f75b5;--light:#eef3f8;--line:#cbd5e1;--text:#172033;--muted:#64748b;--ok:#15803d}
@@ -221,7 +221,7 @@
     /* V2.13 defaults, manual pricing, internal remarks and Manifold integration */
     .non-default-selection{background:#ffd6e7!important;border-color:#e879a7!important;box-shadow:0 0 0 1px rgba(232,121,167,.16)}
     .default-choice-control{display:flex;align-items:center;gap:9px;height:42px;margin:0;padding:0 11px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;transition:background .15s,border-color .15s}.default-choice-control input{width:auto}
-    .es-product-material{min-width:190px}.gws-product-toolbar{grid-template-columns:minmax(190px,300px) minmax(220px,420px)}
+    .es-product-toolbar{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px}.es-product-toolbar select{width:100%}@media(max-width:900px){.es-product-toolbar{grid-template-columns:1fr 1fr}}@media(max-width:560px){.es-product-toolbar{grid-template-columns:1fr}}.es-product-material{min-width:190px}.gws-product-toolbar{grid-template-columns:minmax(190px,300px) minmax(220px,420px)}
     .price-completion-indicator{font-weight:700;color:#475569}
     .category-manual-calculator{margin-top:16px;padding:14px;border:1px solid #dbe3ec;border-radius:10px;background:#f8fafc}.category-manual-calculator h3{margin:0 0 6px}.category-manual-grid{display:grid;grid-template-columns:minmax(150px,1fr) minmax(120px,.7fr) minmax(130px,.8fr);gap:10px;align-items:end}.category-manual-result{margin-top:12px;padding:12px;border:1px solid #bfdbfe;border-radius:9px;background:#eff6ff;display:flex;align-items:center;justify-content:space-between;gap:12px}.category-manual-result strong{font-size:22px;color:#17365d}.category-manual-result small{display:block;color:#64748b;margin-top:3px}@media(max-width:720px){.category-manual-grid{grid-template-columns:1fr}.category-manual-result{align-items:flex-start;flex-direction:column}}
     .quote-item-head{grid-template-columns:28px 18px 30px 48px max-content minmax(220px,1fr) 72px 130px}.item-remark-indicator{display:none;width:12px;height:12px;border-radius:50%;background:#D5BD50;box-shadow:0 0 0 2px rgba(213,189,80,.22);justify-self:center}.quote-item.collapsed.has-internal-remark .item-remark-indicator{display:inline-block}.remark-quote-item.has-remark{background:#D5BD50!important;border-color:#b59b32!important;color:#332b0d!important;font-weight:800}.item-remark-dialog textarea{min-height:180px}.item-remark-help{font-size:12px;color:#64748b;margin-top:6px}
@@ -317,7 +317,7 @@
 <body>
 <div id="loginView" class="auth-shell">
   <form id="loginForm" class="auth-card" novalidate>
-    <div class="auth-brand">KeySuite<small>V3.8.5</small></div>
+    <div class="auth-brand">KeySuite<small>V3.8.6</small></div>
     <h1>Sign in</h1>
     <p>Only approved Keylargo users can enter KeySuite.</p>
     <div id="loginMessage" class="auth-message"></div>
@@ -332,7 +332,7 @@
 <div id="loadingView" class="loading-screen hidden"><div class="loading-card"><div class="spinner"></div><div id="loadingText">Checking secure access…</div></div></div>
 <div id="appView" class="app hidden">
   <aside>
-    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V3.8.5</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
+    <div class="brand-row"><div class="brand">KeySuite<small>Full Suite V3.8.6</small></div><button id="keyButton" type="button" class="key-button" title="Open Key Dashboard" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8m-2 2l2 2m-5 1l2 2"></path></svg><span>Key</span></button></div>
     <nav>
       <button data-page="dashboard" class="active">Dashboard</button>
       <button data-page="customers">Customers</button>
@@ -355,7 +355,7 @@
       <button id="settingsButton" type="button" class="settings-button">⚙ Settings</button>
       <button id="logoutButton" type="button">Sign out</button>
     </div>
-    <div class="suite-version">KeySuite V3.8.5</div>
+    <div class="suite-version">KeySuite V3.8.6</div>
   </aside>
 
   <main>
@@ -529,8 +529,15 @@
 
     <section id="productEs" class="page">
       <div class="page-title-row"><div><h1>Product · End Suction</h1><div class="muted">B.G.Reich ES bare-shaft pump products.</div></div></div>
-      <div class="card"><div class="page-title-row"><div><h2 style="margin:0">ES Models</h2><div id="esProductCount" class="muted"></div></div><div class="price-list-search"><label>Search Model</label><input id="esProductSearch" placeholder="Example: ES 65-32"></div></div>
-      <div class="table-wrap" style="max-height:650px"><table><thead><tr><th>Model</th><th>Material</th><th>Mech Seal Material</th><th>Elastomer</th><th style="text-align:right">Actions</th></tr></thead><tbody id="esProductRows"></tbody></table></div></div>
+      <div class="card es-product-toolbar">
+        <div><label>Material</label><select id="esProductMaterial" data-default-value="CI / SS / SS"><option value="CI / SS / SS" selected>CI / SS / SS</option><option value="CI / CI / SS">CI / CI / SS</option><option value="SS304">SS304</option><option value="SS316">SS316</option></select></div>
+        <div><label>Seal Type</label><select id="esProductSealType" data-default-value="Mechanical Seal"><option value="Mechanical Seal" selected>Mechanical Seal</option><option value="Gland Packing">Gland Packing</option></select></div>
+        <div><label>Seal Material</label><select id="esProductSealMaterial" data-default-value="Carbon Ceramic"><option value="Carbon Ceramic" selected>Carbon Ceramic</option><option value="Silicon Carbide">Silicon Carbide</option><option value="Tungsten">Tungsten</option></select></div>
+        <div><label>Elastomer</label><select id="esProductElastomer" data-default-value="Viton"><option value="Viton" selected>Viton</option><option value="EPDM">EPDM</option><option value="NBR">NBR</option></select></div>
+      </div>
+      <div class="card" style="margin-top:16px"><div class="page-title-row"><div><h2 style="margin:0">ES Models</h2><div id="esProductCount" class="muted"></div></div><div class="price-list-search"><label>Search Model</label><input id="esProductSearch" placeholder="Example: ES 65-32"></div></div>
+      <div class="table-wrap" style="max-height:650px"><table><thead><tr><th>Model</th><th style="text-align:right">Actions</th></tr></thead><tbody id="esProductRows"></tbody></table></div></div>
+      <iframe id="productEsSelectorFrame" src="about:blank" data-src="selector-es/index.html?product=1" title="ES Product Curve" style="display:none"></iframe>
     </section>
     <section id="productKeyplc" class="page">
       <div class="page-title-row"><div><h1>Product · KeyPLC Panel</h1><div class="muted">Choose a motor rating and number of pumps, then route the priced control panel to Assembly or Quotation.</div></div></div>
@@ -1413,7 +1420,7 @@
 <script src="company-settings.js?v=384"></script>
 <script src="keyai.js?v=384"></script>
 <script src="auth.js?v=384"></script>
-<script src="v385-dashboard-keycore.js?v=385"></script>
-<script src="universe.js?v=385"></script>
+<script src="v386-dashboard-keycore.js?v=386"></script>
+<script src="universe.js?v=386"></script>
 </body>
 </html>

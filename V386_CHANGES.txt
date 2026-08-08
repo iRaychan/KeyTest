@@ -1,0 +1,41 @@
+KeySuite V3.8.6
+
+1. Dashboard Quick Pump Selection
+   - Shows the Most Suitable model plus all Alternative Models returned by CHC and ES.
+   - Each model displays Motor kW + Pole + pump efficiency, e.g. 7.5kW 4P 78.4%.
+   - Recommended and alternative model names are clickable and open the actual pump curve using the current Dashboard duty.
+   - Available Series starts expanded by default; each family can still be collapsed manually.
+   - Preserves the V3.8.5 repeated-duty reset/retry behavior.
+
+2. Most Suitable selection — CHC and ES
+   - Applies only to the single recommended/Most Suitable model.
+   - First: normal hydraulically valid candidate set. ES torque-exceeded candidates cannot be recommended.
+   - Then rank by BEP flow group relative to required Duty Flow:
+       Group 1: -5% to +3%
+       Group 2: -10% to +8%
+       Group 3: -18% to +13%
+       Outside Group 3: lower priority.
+   - Within the same best group, highest pump efficiency at the actual duty point wins.
+   - Existing engineering/catalog tie-breaks are retained after BEP group and efficiency.
+
+3. Alternative Models — CHC and ES
+   - No fixed number of alternatives.
+   - Show every hydraulically eligible model except the currently selected model.
+   - Required flow must be within the full-speed / maximum-impeller pump curve.
+   - Duty head must be at or above the head at the pump's maximum-flow endpoint.
+   - Duty head may be up to 5% above the full-speed / maximum-impeller curve head at the required flow.
+   - Alternatives are sorted small-to-big by the established CHC/ES catalog sequence, not by BEP group or efficiency.
+
+4. ES shaft torque visibility
+   - A hydraulically eligible ES model that exceeds its shaft torque limit remains visible in Alternative Models.
+   - It is marked with a red torque warning, e.g. "Torque Exceeded – use ES 50-26G" when the matching G model exists.
+   - Torque-exceeded ES models are excluded from the Most Suitable recommendation pool.
+
+5. Product > End Suction
+   - Adds a Curve button matching the CHC Product workflow.
+   - Adds one top configuration row: Material / Seal Type / Seal Material / Elastomer.
+   - Removes duplicate per-model dropdowns for those fields.
+   - Gland Packing automatically uses Graphite seal material.
+   - Changing the top controls updates an open ES Product curve/configuration.
+
+6. No database migration required.
