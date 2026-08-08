@@ -1,0 +1,15 @@
+KeySuite V3.8.4 -> V3.8.5 update patch
+
+Changed/new files:
+INSTALL_V385.txt
+V385_CHANGES.txt
+V385_NO_DATABASE_MIGRATION.txt
+V385_QA_REPORT.txt
+app.js
+auth.js
+index.html
+selector-es/index.html
+selector/index.html
+sw.js
+universe.js
+v385-dashboard-keycore.js

@@ -1,0 +1,10 @@
+KeySuite V3.8.5
+
+1. Dashboard Quick Pump Selection can be rerun unlimited times without refresh.
+2. Each new duty resets CHC/ES selector state and stale retry timers/results.
+3. Dashboard recommended model button opens the actual CHC/ES selector curve using the current Dashboard duty point.
+4. CHC and ES Alternative Models use the max-curve eligibility window:
+   - duty head must be >= head at the maximum-flow endpoint; and
+   - duty head may be up to 5% above the full-speed / maximum-impeller curve head at the required flow.
+5. Alternative lists show only nearest relevant catalog neighbours rather than forcing a fixed count.
+6. No database migration required.

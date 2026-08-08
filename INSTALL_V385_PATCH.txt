@@ -1,0 +1,1 @@
+Extract this patch over KeySuite V3.8.4 and upload/replace all included files. Preserve your live config.js values. No SQL migration. Hard refresh (Ctrl+F5) after deployment.

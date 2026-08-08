@@ -1,0 +1,27 @@
+KeySuite V3.8.5 QA
+
+PASS - Version title 3.8.5
+PASS - V385 dashboard loaded
+PASS - V385 SW cache
+PASS - Quick selection resets request
+PASS - Quick selection clears retry timers
+PASS - Quick selection increments request id
+PASS - Quick selection clears prior result DOM
+PASS - CHC reset message
+PASS - ES reset message
+PASS - Model opens curve
+PASS - Curve open carries duty
+PASS - CHC exact model open
+PASS - ES exact model open
+PASS - CHC endpoint lower bound
+PASS - CHC +5 percent upper bound
+PASS - ES endpoint lower bound
+PASS - ES +5 percent upper bound
+PASS - ES torque excluded
+PASS - CHC nearest only
+PASS - ES nearest only
+PASS - No fixed 9 alternatives
+
+Result: 21/21 PASS
+JavaScript syntax: PASS
+ES selection engine repeated-duty sanity: PASS

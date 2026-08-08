@@ -120,7 +120,7 @@
   }
 
   function updateSideWidth(){
-    // V3.8.4: KeyCore is a true full-screen universe; normal KeySuite sidebar stays underneath the overlay.
+    // V3.8.5: KeyCore is a true full-screen universe; normal KeySuite sidebar stays underneath the overlay.
     document.documentElement.style.setProperty('--ksu-side','0px');
   }
 
